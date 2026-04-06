@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stellar Testnet &mdash; OLIGHFT SMART COIN</title>
+<meta name="description" content="OLIGHFT SMART COIN testnet dashboard — network status, deployed contracts, faucet, RPC endpoints & explorer links.">
+<link rel="canonical" href="https://olighftcoin.com/testnet.html">
+<meta property="og:title" content="Stellar Testnet — OLIGHFT SMART COIN">
+<meta property="og:description" content="Testnet dashboard: network status, deployed contracts, faucet, RPC endpoints & explorer links.">
+<meta property="og:url" content="https://olighftcoin.com/testnet.html">
+<meta property="og:site_name" content="OLIGHFT SMART COIN">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135deg,#0a0a1a,#111128,#0a0a1a);color:#fff;min-height:100vh;padding:20px}
+.container{max-width:760px;margin:0 auto}
+.badge{display:inline-block;background:linear-gradient(135deg,#6c5ce7,#a29bfe);color:#fff;padding:4px 14px;border-radius:20px;font-weight:700;font-size:.65rem;letter-spacing:.5px;margin-bottom:14px}
+h1{text-align:center;font-size:1.8rem;font-weight:800;background:linear-gradient(90deg,#6c5ce7,#a29bfe,#2d9cdb);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px}
+.subtitle{text-align:center;color:rgba(255,255,255,.4);font-size:.78rem;margin-bottom:28px}
+
+/* Network Status Banner */
+.net-status{display:flex;align-items:center;justify-content:center;gap:10px;padding:14px 20px;background:rgba(39,174,96,.06);border:1px solid rgba(39,174,96,.15);border-radius:14px;margin-bottom:24px;cursor:pointer;transition:.2s}
+.net-status:hover{border-color:rgba(39,174,96,.3)}
+.net-status .ns-dot{width:10px;height:10px;border-radius:50%;background:#27ae60;box-shadow:0 0 8px rgba(39,174,96,.5);animation:pulse 2s infinite}
+.net-status .ns-text{font-size:.82rem;font-weight:600}
+.net-status .ns-sub{font-size:.62rem;color:rgba(255,255,255,.35)}
+.net-status.offline{background:rgba(235,87,87,.06);border-color:rgba(235,87,87,.15)}
+.net-status.offline .ns-dot{background:#eb5757;box-shadow:0 0 8px rgba(235,87,87,.5);animation:none}
+.net-status.checking{background:rgba(242,153,74,.06);border-color:rgba(242,153,74,.15)}
+.net-status.checking .ns-dot{background:#f2994a;box-shadow:0 0 8px rgba(242,153,74,.5)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* Section */
+.section-label{font-size:.62rem;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:2px;margin:24px 0 10px;padding-left:4px}
+
+/* Config Cards */
+.cfg-card{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:18px;margin-bottom:12px;transition:.2s}
+.cfg-card:hover{border-color:rgba(108,92,231,.2)}
+.cfg-card h3{font-size:.85rem;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.cfg-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.03)}
+.cfg-row:last-child{border:none}
+.cfg-row .cr-label{font-size:.72rem;color:rgba(255,255,255,.45);min-width:140px}
+.cfg-row .cr-val{font-size:.72rem;font-weight:600;word-break:break-all;text-align:right;max-width:420px}
+.cfg-row .cr-val.mono{font-family:'Courier New',monospace;font-size:.68rem;letter-spacing:.5px}
+.cfg-row .cr-val a{color:#a29bfe;text-decoration:none}
+.cfg-row .cr-val a:hover{text-decoration:underline}
+.cr-copy{padding:3px 8px;border-radius:6px;border:1px solid rgba(108,92,231,.2);background:rgba(108,92,231,.08);color:#a29bfe;font-size:.55rem;cursor:pointer;margin-left:6px;transition:.15s}
+.cr-copy:hover{background:rgba(108,92,231,.2)}
+
+/* Tier Table */
+.tier-table{width:100%;border-collapse:collapse;margin-top:8px}
+.tier-table th{font-size:.58rem;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.5px;padding:8px 6px;text-align:left;border-bottom:1px solid rgba(255,255,255,.06)}
+.tier-table td{font-size:.72rem;padding:9px 6px;border-bottom:1px solid rgba(255,255,255,.03)}
+.tier-table tr:last-child td{border:none}
+.tier-table .t-tier{font-weight:700}
+.tier-table .t-apy{color:#27ae60;font-weight:700}
+.t-visa{color:#2d9cdb}.t-gold{color:#ffd700}.t-plat{color:#a0aec0}.t-black{color:#e2e8f0}.t-amex{color:#6c5ce7}.t-mc{color:#f2994a}
+
+/* Endpoint Pill */
+.ep-pill{display:inline-block;padding:3px 10px;border-radius:6px;font-size:.58rem;font-weight:700;letter-spacing:.3px}
+.ep-rpc{background:rgba(108,92,231,.1);color:#a29bfe;border:1px solid rgba(108,92,231,.15)}
+.ep-horizon{background:rgba(45,156,219,.1);color:#2d9cdb;border:1px solid rgba(45,156,219,.15)}
+
+/* Faucet */
+.faucet-box{background:rgba(39,174,96,.04);border:1px solid rgba(39,174,96,.12);border-radius:14px;padding:20px;text-align:center}
+.faucet-box h3{font-size:.88rem;margin-bottom:8px}
+.faucet-box .fb-desc{font-size:.72rem;color:rgba(255,255,255,.4);margin-bottom:14px;line-height:1.6}
+.faucet-input{display:flex;gap:8px;margin-bottom:10px}
+.faucet-input input{flex:1;padding:10px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:#fff;font-size:.78rem;font-family:inherit;outline:none}
+.faucet-input input:focus{border-color:rgba(108,92,231,.3)}
+.faucet-input input::placeholder{color:rgba(255,255,255,.2)}
+.faucet-btn{padding:10px 20px;border:none;border-radius:10px;font-size:.78rem;font-weight:700;cursor:pointer;background:linear-gradient(135deg,#27ae60,#2ecc71);color:#fff;transition:.2s;white-space:nowrap}
+.faucet-btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(39,174,96,.25)}
+.faucet-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
+.faucet-result{font-size:.68rem;color:rgba(255,255,255,.4);min-height:20px;margin-top:6px}
+.faucet-result.success{color:#27ae60}
+.faucet-result.error{color:#eb5757}
+
+/* Explorer Links */
+.explorer-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.exp-link{display:flex;align-items:center;gap:10px;padding:14px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:12px;text-decoration:none;color:#fff;transition:.2s}
+.exp-link:hover{border-color:rgba(108,92,231,.25);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.2)}
+.exp-link .el-icon{font-size:1.3rem}
+.exp-link .el-name{font-size:.78rem;font-weight:600}
+.exp-link .el-desc{font-size:.58rem;color:rgba(255,255,255,.3)}
+
+/* RPC Tester */
+.rpc-tester{background:rgba(108,92,231,.04);border:1px solid rgba(108,92,231,.1);border-radius:14px;padding:18px;margin-top:12px}
+.rpc-tester h3{font-size:.85rem;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.rpc-btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.rpc-btn{padding:8px 16px;border-radius:10px;border:1px solid rgba(108,92,231,.2);background:rgba(108,92,231,.08);color:#a29bfe;font-size:.72rem;font-weight:600;cursor:pointer;transition:.15s}
+.rpc-btn:hover{background:rgba(108,92,231,.2);border-color:rgba(108,92,231,.4)}
+.rpc-btn:disabled{opacity:.5;cursor:not-allowed}
+.rpc-output{background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:14px;font-family:'Courier New',monospace;font-size:.66rem;color:rgba(255,255,255,.55);max-height:300px;overflow-y:auto;white-space:pre-wrap;word-break:break-all;line-height:1.7}
+
+/* Footer */
+.footer{text-align:center;padding:32px 0 12px;border-top:1px solid rgba(108,92,231,.06);margin-top:32px}
+.footer p{font-size:.68rem;color:rgba(255,255,255,.25);margin-bottom:4px}
+.footer .f-links{display:flex;gap:12px;justify-content:center;margin-top:10px;flex-wrap:wrap}
+.footer .f-links a{font-size:.68rem;color:rgba(255,255,255,.35);text-decoration:none;transition:.2s}
+.footer .f-links a:hover{color:#a29bfe}
+
+/* Toast */
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(80px);background:#27ae60;color:#fff;padding:10px 24px;border-radius:10px;font-size:.78rem;font-weight:600;opacity:0;transition:.3s;z-index:9999;pointer-events:none}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+
+@media(max-width:600px){
+h1{font-size:1.4rem}
+.faucet-input{flex-direction:column}
+.rpc-btn-row{flex-direction:column}
+.cfg-row{flex-direction:column;gap:4px}
+.cfg-row .cr-val{text-align:left;max-width:100%}
+.explorer-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<div style="text-align:center"><span class="badge">STELLAR TESTNET &middot; SOROBAN RPC</span></div>
+<h1>Testnet Dashboard</h1>
+<p class="subtitle">Network status, deployed contracts, Friendbot faucet &amp; live RPC tools</p>
+
+<!-- Network Status -->
+<div class="net-status checking" id="netStatus" onclick="checkNetworkStatus()">
+<div class="ns-dot"></div>
+<div>
+<div class="ns-text" id="nsText">Checking network&hellip;</div>
+<div class="ns-sub" id="nsSub">Click to refresh</div>
+</div>
+</div>
+
+<!-- Network Config -->
+<div class="section-label">&#x2699;&#xFE0F; Network Configuration</div>
+<div class="cfg-card">
+<h3>&#x1F310; Stellar Testnet</h3>
+<div class="cfg-row">
+<span class="cr-label">Network</span>
+<span class="cr-val">Stellar Testnet (SDF)</span>
+</div>
+<div class="cfg-row">
+<span class="cr-label">Passphrase</span>
+<span class="cr-val mono">Test SDF Network ; September 2015 <button class="cr-copy" onclick="copyText('Test SDF Network ; September 2015')">Copy</button></span>
+</div>
+<div class="cfg-row">
+<span class="cr-label">Soroban RPC</span>
+<span class="cr-val"><span class="ep-pill ep-rpc">RPC</span> <a href="https://soroban-testnet.stellar.org" target="_blank" rel="noopener">soroban-testnet.stellar.org</a> <button class="cr-copy" onclick="copyText('https://soroban-testnet.stellar.org')">Copy</button></span>
+</div>
+<div class="cfg-row">
+<span class="cr-label">Horizon API</span>
+<span class="cr-val"><span class="ep-pill ep-horizon">Horizon</span> <a href="https://horizon-testnet.stellar.org" target="_blank" rel="noopener">horizon-testnet.stellar.org</a> <button class="cr-copy" onclick="copyText('https://horizon-testnet.stellar.org')">Copy</button></span>
+</div>
+<div class="cfg-row">
+<span class="cr-label">Stellar SDK</span>
+<span class="cr-val">stellar-sdk v11.3.0 (CDN)</span>
+</div>
+<div class="cfg-row">
+<span class="cr-label">Soroban SDK</span>
+<span class="cr-val">soroban-sdk v21.7.4 (Rust)</span>
+</div>
+</div>
+
+<!-- Deployed Contracts -->
+<div class="section-label">&#x1F4DC; Deployed Contracts</div>
+<div class="cfg-card">
+<h3>&#x1F4B0; Token (OLIGHFT)</h3>
+<div class="cfg-row">
+<span class="cr-label">Contract ID</span>
+<span class="cr-val mono">CA5NW2ZJISLPTRRPEFY7XIKSB5CZ5XF2PIARJL2F37H7EPRAXXD34W6J <button class="cr-copy" onclick="copyText('CA5NW2ZJISLPTRRPEFY7XIKSB5CZ5XF2PIARJL2F37H7EPRAXXD34W6J')">Copy</button></span>
+</div>
+<div class="cfg-row">
+<span class="cr-label">Alias</span>
+<span class="cr-val">olighft-token</span>
+</div>
+<div class="cfg-row">
+<span class="cr-label">Standard</span>
+<span class="cr-val">SEP-41 (Stellar Token Interface)</span>
+</div>
+<div class="cfg-row">
+<span class="cr-label">Decimals</span>
+<span class="cr-val">7</span>
+</div>
+<div class="cfg-row">
+<span class="cr-label">Initial Supply</span>
+<span class="cr-val">100,000,000 OLIGHFT</span>
+</div>
+<div class="cfg-row">
+<span class="cr-label">Explorer</span>
+<span class="cr-val"><a href="https://stellar.expert/explorer/testnet/contract/CA5NW2ZJISLPTRRPEFY7XIKSB5CZ5XF2PIARJL2F37H7EPRAXXD34W6J" target="_blank" rel="noopener">View on Stellar Expert &#x2197;</a></span>
+</div>
+</div>
+
+<div class="cfg-card">
+<h3>&#x1F4B3; Card Staking</h3>
+<div class="cfg-row">
+<span class="cr-label">Contract ID</span>
+<span class="cr-val mono">CANTB5ENAFHLN2CWRFA5JFTXNXIR2DZZF4RXY6644BOSWCHQOWPVDB3V <button class="cr-copy" onclick="copyText('CANTB5ENAFHLN2CWRFA5JFTXNXIR2DZZF4RXY6644BOSWCHQOWPVDB3V')">Copy</button></span>
+</div>
+<div class="cfg-row">
+<span class="cr-label">Alias</span>
+<span class="cr-val">olighft-card-staking</span>
+</div>
+<div class="cfg-row">
+<span class="cr-label">Explorer</span>
+<span class="cr-val"><a href="https://stellar.expert/explorer/testnet/contract/CANTB5ENAFHLN2CWRFA5JFTXNXIR2DZZF4RXY6644BOSWCHQOWPVDB3V" target="_blank" rel="noopener">View on Stellar Expert &#x2197;</a></span>
+</div>
+</div>
+
+<div class="cfg-card">
+<h3>&#x1F3AF; Staking Pool</h3>
+<div class="cfg-row">
+<span class="cr-label">Contract ID</span>
+<span class="cr-val mono">CA5QKLZKEY2X6WTYHCBV4LYYTVXQT7L2WAJGLBWXXZAYC5XFHN3MF6HU <button class="cr-copy" onclick="copyText('CA5QKLZKEY2X6WTYHCBV4LYYTVXQT7L2WAJGLBWXXZAYC5XFHN3MF6HU')">Copy</button></span>
+</div>
+<div class="cfg-row">
+<span class="cr-label">Alias</span>
+<span class="cr-val">olighft-staking</span>
+</div>
+<div class="cfg-row">
+<span class="cr-label">Reward Rate</span>
+<span class="cr-val">0.1 OLIGHFT / ledger</span>
+</div>
+<div class="cfg-row">
+<span class="cr-label">Explorer</span>
+<span class="cr-val"><a href="https://stellar.expert/explorer/testnet/contract/CA5QKLZKEY2X6WTYHCBV4LYYTVXQT7L2WAJGLBWXXZAYC5XFHN3MF6HU" target="_blank" rel="noopener">View on Stellar Expert &#x2197;</a></span>
+</div>
+</div>
+
+<!-- Card Tier Table -->
+<div class="section-label">&#x1F3C6; Card Staking Tiers</div>
+<div class="cfg-card">
+<table class="tier-table">
+<thead>
+<tr><th>Tier</th><th>Card</th><th>Min Stake</th><th>Lock</th><th>APY</th></tr>
+</thead>
+<tbody>
+<tr><td class="t-tier t-visa">0</td><td>Visa</td><td>100 OLIGHFT</td><td>30 days</td><td class="t-apy">24%</td></tr>
+<tr><td class="t-tier t-gold">1</td><td>Gold</td><td>500 OLIGHFT</td><td>60 days</td><td class="t-apy">36%</td></tr>
+<tr><td class="t-tier t-plat">2</td><td>Platinum</td><td>1,000 OLIGHFT</td><td>90 days</td><td class="t-apy">48%</td></tr>
+<tr><td class="t-tier t-black">3</td><td>Black</td><td>2,500 OLIGHFT</td><td>180 days</td><td class="t-apy">60%</td></tr>
+<tr><td class="t-tier t-amex">4</td><td>Amex</td><td>5,000 OLIGHFT</td><td>365 days</td><td class="t-apy">72%</td></tr>
+<tr><td class="t-tier t-mc">5</td><td>Mastercard</td><td>10,000 OLIGHFT</td><td>730 days</td><td class="t-apy">84%</td></tr>
+</tbody>
+</table>
+</div>
+
+<!-- Admin Key -->
+<div class="section-label">&#x1F511; Admin Account</div>
+<div class="cfg-card">
+<div class="cfg-row">
+<span class="cr-label">Public Key</span>
+<span class="cr-val mono">GBLEKKQNHKVE7NIOOPY7CQ6SJ4BQCGHD3O5FCPB2B47X2ERKSJGSMWCP <button class="cr-copy" onclick="copyText('GBLEKKQNHKVE7NIOOPY7CQ6SJ4BQCGHD3O5FCPB2B47X2ERKSJGSMWCP')">Copy</button></span>
+</div>
+<div class="cfg-row">
+<span class="cr-label">Key Name</span>
+<span class="cr-val">admin</span>
+</div>
+<div class="cfg-row">
+<span class="cr-label">Explorer</span>
+<span class="cr-val"><a href="https://stellar.expert/explorer/testnet/account/GBLEKKQNHKVE7NIOOPY7CQ6SJ4BQCGHD3O5FCPB2B47X2ERKSJGSMWCP" target="_blank" rel="noopener">View on Stellar Expert &#x2197;</a></span>
+</div>
+</div>
+
+<!-- Friendbot Faucet -->
+<div class="section-label">&#x1F6B0; Friendbot Faucet</div>
+<div class="faucet-box">
+<h3>&#x1F4A7; Fund a Testnet Account</h3>
+<p class="fb-desc">Get 10,000 XLM from Stellar Friendbot. Paste any Stellar public key (starts with G) to fund it instantly on Testnet.</p>
+<div class="faucet-input">
+<input type="text" id="faucetAddr" placeholder="G... (Stellar public key)" maxlength="56" spellcheck="false" autocomplete="off">
+<button class="faucet-btn" id="faucetBtn" onclick="fundTestnet()">&#x1F680; Fund</button>
+</div>
+<div class="faucet-result" id="faucetResult"></div>
+</div>
+
+<!-- Explorers -->
+<div class="section-label">&#x1F50D; Explorers &amp; Tools</div>
+<div class="explorer-grid">
+<a href="https://stellar.expert/explorer/testnet" target="_blank" rel="noopener" class="exp-link">
+<div class="el-icon">&#x2B50;</div>
+<div><div class="el-name">Stellar Expert</div><div class="el-desc">Testnet explorer &mdash; accounts, contracts, tx</div></div>
+</a>
+<a href="https://laboratory.stellar.org/" target="_blank" rel="noopener" class="exp-link">
+<div class="el-icon">&#x1F9EA;</div>
+<div><div class="el-name">Stellar Laboratory</div><div class="el-desc">Build &amp; sign transactions manually</div></div>
+</a>
+<a href="https://soroban.stellar.org/" target="_blank" rel="noopener" class="exp-link">
+<div class="el-icon">&#x1F4D6;</div>
+<div><div class="el-name">Soroban Docs</div><div class="el-desc">Official Soroban smart contract docs</div></div>
+</a>
+<a href="https://horizon-testnet.stellar.org" target="_blank" rel="noopener" class="exp-link">
+<div class="el-icon">&#x1F30D;</div>
+<div><div class="el-name">Horizon API</div><div class="el-desc">REST API for Testnet queries</div></div>
+</a>
+</div>
+
+<!-- Live RPC Tester -->
+<div class="section-label">&#x26A1; Live RPC Tester</div>
+<div class="rpc-tester">
+<h3>&#x1F4E1; Soroban RPC Queries</h3>
+<div class="rpc-btn-row">
+<button class="rpc-btn" onclick="rpcCall('getHealth')">&#x1F49A; getHealth</button>
+<button class="rpc-btn" onclick="rpcCall('getNetwork')">&#x1F310; getNetwork</button>
+<button class="rpc-btn" onclick="rpcCall('getLatestLedger')">&#x1F4E6; getLatestLedger</button>
+<button class="rpc-btn" onclick="rpcCall('getProtocolVersion')">&#x1F4CB; getProtocolVersion</button>
+</div>
+<div class="rpc-output" id="rpcOutput">Click a button above to send a live query to Soroban Testnet RPC&hellip;</div>
+</div>
+
+<!-- Build Info -->
+<div class="section-label">&#x1F6E0;&#xFE0F; Build Environment</div>
+<div class="cfg-card">
+<div class="cfg-row">
+<span class="cr-label">Rust</span>
+<span class="cr-val">1.94.1 (stable-x86_64-pc-windows-gnu)</span>
+</div>
+<div class="cfg-row">
+<span class="cr-label">WASM Target</span>
+<span class="cr-val mono">wasm32-unknown-unknown</span>
+</div>
+<div class="cfg-row">
+<span class="cr-label">Stellar CLI</span>
+<span class="cr-val">v25.2.0</span>
+</div>
+<div class="cfg-row">
+<span class="cr-label">Frontend SDK</span>
+<span class="cr-val">stellar-sdk v11.3.0 (JS CDN)</span>
+</div>
+<div class="cfg-row">
+<span class="cr-label">Contract SDK</span>
+<span class="cr-val">soroban-sdk v21.7.4 (Rust)</span>
+</div>
+</div>
+
+<!-- Quick CLI Reference -->
+<div class="section-label">&#x1F4BB; Quick CLI Reference</div>
+<div class="cfg-card">
+<h3>&#x2328;&#xFE0F; Common Commands</h3>
+<div style="background:rgba(0,0,0,.3);border-radius:10px;padding:14px;font-family:'Courier New',monospace;font-size:.66rem;color:rgba(255,255,255,.6);line-height:2;overflow-x:auto;white-space:pre-wrap"><span style="color:#a29bfe"># Fund account via Friendbot</span>
+stellar keys fund admin --network testnet
+
+<span style="color:#a29bfe"># Deploy contract</span>
+stellar contract deploy \
+  --wasm target/wasm32-unknown-unknown/release/olighft_token.wasm \
+  --source admin --network testnet
+
+<span style="color:#a29bfe"># Invoke contract function</span>
+stellar contract invoke \
+  --id CA5NW2ZJISLPTRRPEFY7XIKSB5CZ5XF2PIARJL2F37H7EPRAXXD34W6J \
+  --source admin --network testnet \
+  -- name
+
+<span style="color:#a29bfe"># Query contract state</span>
+stellar contract invoke \
+  --id CANTB5ENAFHLN2CWRFA5JFTXNXIR2DZZF4RXY6644BOSWCHQOWPVDB3V \
+  --source admin --network testnet \
+  -- get_tier_config --tier 0
+
+<span style="color:#a29bfe"># Check account balance</span>
+curl -s "https://horizon-testnet.stellar.org/accounts/GBLEKKQNHKVE7NIOOPY7CQ6SJ4BQCGHD3O5FCPB2B47X2ERKSJGSMWCP" \
+  | jq '.balances'</div>
+</div>
+
+<div class="footer">
+<p>OLIGHFT SMART COIN v1.0.0 &bull; Stellar Testnet &bull; Built with Rust / soroban-sdk 21.0.0</p>
+<p>April 2026</p>
+<div class="f-links">
+<a href="index.html">Home</a>
+<a href="send.html">Send</a>
+<a href="receive.html">Receive</a>
+<a href="swap.html">Swap</a>
+<a href="wallet.html">Wallet</a>
+<a href="card-gold.html">Token</a>
+<a href="card-visa.html">Payment</a>
+<a href="card-mastercard.html">DEX</a>
+<a href="card-amex.html">DAO</a>
+<a href="card-platinum.html">Staking</a>
+<a href="card-black.html">Vault</a>
+<a href="testing-guide.html">Testing Guide</a>
+<a href="auth.html">Login</a>
+</div>
+</div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── Network Status ──
+var RPC_URL = 'https://soroban-testnet.stellar.org';
+var HORIZON_URL = 'https://horizon-testnet.stellar.org';
+
+async function checkNetworkStatus() {
+  var el = document.getElementById('netStatus');
+  var text = document.getElementById('nsText');
+  var sub = document.getElementById('nsSub');
+  el.className = 'net-status checking';
+  text.textContent = 'Checking network\u2026';
+  sub.textContent = '';
+
+  try {
+    var resp = await fetch(RPC_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'getHealth' })
+    });
+    var data = await resp.json();
+    if (data.result && data.result.status === 'healthy') {
+      el.className = 'net-status';
+      text.textContent = 'Stellar Testnet \u2014 Online';
+      var ledger = data.result.latestLedger || '';
+      sub.textContent = ledger ? 'Ledger #' + ledger + ' \u00B7 Click to refresh' : 'Healthy \u00B7 Click to refresh';
+    } else {
+      el.className = 'net-status offline';
+      text.textContent = 'Testnet \u2014 Degraded';
+      sub.textContent = (data.result ? data.result.status : 'unknown') + ' \u00B7 Click to retry';
+    }
+  } catch (err) {
+    el.className = 'net-status offline';
+    text.textContent = 'Testnet \u2014 Unreachable';
+    sub.textContent = err.message + ' \u00B7 Click to retry';
+  }
+}
+
+// ── Friendbot Faucet ──
+async function fundTestnet() {
+  var addr = document.getElementById('faucetAddr').value.trim();
+  var result = document.getElementById('faucetResult');
+  var btn = document.getElementById('faucetBtn');
+
+  if (!addr || addr.length !== 56 || addr[0] !== 'G') {
+    result.className = 'faucet-result error';
+    result.textContent = 'Enter a valid Stellar public key (56 chars, starts with G)';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Funding\u2026';
+  result.className = 'faucet-result';
+  result.textContent = 'Requesting 10,000 XLM from Friendbot\u2026';
+
+  try {
+    var resp = await fetch('https://friendbot.stellar.org?addr=' + encodeURIComponent(addr));
+    if (resp.ok) {
+      result.className = 'faucet-result success';
+      result.textContent = '\u2705 Funded! 10,000 XLM sent to ' + addr.slice(0, 8) + '\u2026' + addr.slice(-4);
+    } else {
+      var errBody = await resp.text();
+      var msg = 'Friendbot error';
+      try { msg = JSON.parse(errBody).detail || msg; } catch (e) {}
+      result.className = 'faucet-result error';
+      result.textContent = '\u274C ' + msg;
+    }
+  } catch (err) {
+    result.className = 'faucet-result error';
+    result.textContent = '\u274C Network error: ' + err.message;
+  }
+  btn.disabled = false;
+  btn.textContent = '\uD83D\uDE80 Fund';
+}
+
+// Auto-fill from logged-in user
+(function() {
+  try {
+    var u = JSON.parse(localStorage.getItem('cw_user') || 'null');
+    if (u && u.addr && u.addr[0] === 'G') {
+      document.getElementById('faucetAddr').value = u.addr;
+    }
+  } catch (e) {}
+})();
+
+// ── Live RPC Tester ──
+async function rpcCall(method) {
+  var output = document.getElementById('rpcOutput');
+  output.textContent = 'Calling ' + method + '()\u2026';
+
+  var body = { jsonrpc: '2.0', id: Date.now(), method: method };
+
+  try {
+    var resp = await fetch(RPC_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    var data = await resp.json();
+
+    var ts = new Date().toLocaleTimeString();
+    var formatted = JSON.stringify(data, null, 2);
+    output.textContent = '// ' + method + '() \u2014 ' + ts + '\n' + formatted;
+  } catch (err) {
+    output.textContent = '// ERROR: ' + err.message;
+  }
+}
+
+// ── Copy Helper ──
+function copyText(text) {
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(function() { showToast('Copied!'); }).catch(function() { fallbackCopy(text); });
+  } else {
+    fallbackCopy(text);
+  }
+}
+function fallbackCopy(text) {
+  var ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.left = '-9999px';
+  document.body.appendChild(ta);
+  ta.select();
+  document.execCommand('copy');
+  document.body.removeChild(ta);
+  showToast('Copied!');
+}
+function showToast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(function() { t.classList.remove('show'); }, 1800);
+}
+
+// Auto-check network on load
+checkNetworkStatus();
+</script>
+</body>
+</html>

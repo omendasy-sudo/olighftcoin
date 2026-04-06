@@ -1,0 +1,1392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Contract Testing Guide &mdash; OLIGHFT SMART COIN</title>
+<meta name="description" content="OLIGHFT Smart Contract testing guide — learn to test Soroban contracts on Stellar.">
+<link rel="canonical" href="https://olighftcoin.com/testing-guide.html">
+<meta property="og:title" content="Testing Guide — OLIGHFT SMART COIN">
+<meta property="og:url" content="https://olighftcoin.com/testing-guide.html">
+<meta property="og:site_name" content="OLIGHFT SMART COIN">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135deg,#0a0a1a,#111128,#0a0a1a);color:#fff;min-height:100vh;padding:20px}
+.container{max-width:720px;margin:0 auto}
+.badge{display:inline-block;background:linear-gradient(135deg,#27ae60,#2ecc71);color:#fff;padding:4px 14px;border-radius:20px;font-weight:700;font-size:.65rem;letter-spacing:.5px;margin-bottom:14px}
+h1{font-size:1.5rem;margin-bottom:4px;background:linear-gradient(90deg,#27ae60,#2ecc71,#6c5ce7);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.subtitle{color:rgba(255,255,255,.4);font-size:.78rem;margin-bottom:28px}
+
+.alert-box{background:rgba(235,87,87,.06);border:1px solid rgba(235,87,87,.2);border-radius:12px;padding:16px 18px;margin-bottom:24px;display:flex;align-items:flex-start;gap:12px}
+.alert-box .ab-icon{font-size:1.4rem;flex-shrink:0}
+.alert-box .ab-title{font-size:.82rem;font-weight:700;color:#eb5757;margin-bottom:2px}
+.alert-box .ab-text{font-size:.72rem;color:rgba(255,255,255,.5);line-height:1.5}
+
+.section{margin-bottom:28px}
+.section-head{display:flex;align-items:center;gap:10px;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid rgba(108,92,231,.08)}
+.section-head .sh-num{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:800;flex-shrink:0}
+.section-head h2{font-size:1rem}
+.section-head .sh-badge{font-size:.55rem;padding:2px 8px;border-radius:4px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+
+.num-green{background:rgba(39,174,96,.12);color:#27ae60}
+.num-blue{background:rgba(45,156,219,.12);color:#2d9cdb}
+.num-purple{background:rgba(108,92,231,.12);color:#a29bfe}
+.num-orange{background:rgba(242,153,74,.12);color:#f2994a}
+.num-red{background:rgba(235,87,87,.12);color:#eb5757}
+.num-gold{background:rgba(255,215,0,.12);color:#ffd700}
+
+.desc{font-size:.78rem;color:rgba(255,255,255,.55);line-height:1.7;margin-bottom:14px}
+
+/* Code Blocks */
+.code-block{background:rgba(0,0,0,.3);border:1px solid rgba(108,92,231,.1);border-radius:12px;overflow:hidden;margin-bottom:14px}
+.code-header{display:flex;justify-content:space-between;align-items:center;padding:8px 14px;background:rgba(108,92,231,.06);border-bottom:1px solid rgba(108,92,231,.06)}
+.code-header .ch-lang{font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#a29bfe}
+.code-header .ch-file{font-size:.6rem;color:rgba(255,255,255,.3)}
+.code-header .copy-btn{background:none;border:1px solid rgba(108,92,231,.2);color:#a29bfe;padding:3px 10px;border-radius:6px;font-size:.6rem;cursor:pointer;transition:.2s}
+.code-header .copy-btn:hover{background:rgba(108,92,231,.1)}
+pre{padding:14px;overflow-x:auto;font-family:'Cascadia Code','Fira Code','Courier New',monospace;font-size:.72rem;line-height:1.6;color:rgba(255,255,255,.7)}
+pre .kw{color:#c792ea}pre .fn{color:#82aaff}pre .str{color:#c3e88d}
+pre .cm{color:rgba(255,255,255,.25);font-style:italic}pre .ty{color:#ffcb6b}
+pre .mac{color:#89ddff}pre .num{color:#f78c6c}pre .at{color:#bb80b3}
+
+/* Cards */
+.tech-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;margin-bottom:14px}
+.tech-card{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:10px;padding:14px;transition:.2s}
+.tech-card:hover{border-color:rgba(108,92,231,.2)}
+.tech-card .tc-icon{font-size:1.2rem;margin-bottom:6px}
+.tech-card .tc-name{font-size:.78rem;font-weight:700;margin-bottom:4px}
+.tech-card .tc-desc{font-size:.65rem;color:rgba(255,255,255,.4);line-height:1.5}
+
+/* Checklist */
+.checklist{margin-bottom:14px}
+.check-item{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:10px;margin-bottom:5px;cursor:pointer;transition:.2s}
+.check-item:hover{border-color:rgba(39,174,96,.2)}
+.check-item .ci-box{width:20px;height:20px;border-radius:6px;border:2px solid rgba(255,255,255,.12);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.7rem;transition:.2s}
+.check-item.done .ci-box{background:rgba(39,174,96,.2);border-color:#27ae60;color:#27ae60}
+.check-item .ci-text{font-size:.75rem;font-weight:600}
+.check-item .ci-sub{font-size:.62rem;color:rgba(255,255,255,.35)}
+
+/* Layers */
+.layer-stack{display:flex;flex-direction:column;gap:4px;margin-bottom:14px}
+.layer{display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:10px;transition:.2s}
+.layer .l-num{font-size:.7rem;font-weight:800;width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:rgba(255,255,255,.06);color:rgba(255,255,255,.5)}
+.layer .l-name{font-size:.8rem;font-weight:700}
+.layer .l-desc{font-size:.62rem;color:rgba(255,255,255,.4)}
+.layer:hover{background:rgba(108,92,231,.03)}
+.l1{border-left:3px solid #27ae60}.l2{border-left:3px solid #2d9cdb}
+.l3{border-left:3px solid #a29bfe}.l4{border-left:3px solid #f2994a}
+.l5{border-left:3px solid #eb5757}.l6{border-left:3px solid #ffd700}
+
+/* Timeline */
+.timeline{position:relative;padding-left:24px;margin-bottom:14px}
+.timeline::before{content:'';position:absolute;left:8px;top:0;bottom:0;width:2px;background:linear-gradient(to bottom,#27ae60,#2d9cdb,#a29bfe,#f2994a,#eb5757)}
+.tl-item{position:relative;padding:10px 14px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:10px;margin-bottom:8px}
+.tl-item::before{content:'';position:absolute;left:-20px;top:14px;width:10px;height:10px;border-radius:50%;background:#6c5ce7;border:2px solid #0a0a1a}
+.tl-item .tl-phase{font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#a29bfe;margin-bottom:2px}
+.tl-item .tl-title{font-size:.8rem;font-weight:700;margin-bottom:3px}
+.tl-item .tl-desc{font-size:.65rem;color:rgba(255,255,255,.4);line-height:1.4}
+
+/* Progress */
+.progress-bar{height:8px;background:rgba(255,255,255,.06);border-radius:4px;overflow:hidden;margin-bottom:6px}
+.progress-bar .pg-fill{height:100%;border-radius:4px;transition:.3s}
+.pg-label{display:flex;justify-content:space-between;font-size:.62rem;color:rgba(255,255,255,.35)}
+.pg-green .pg-fill{background:linear-gradient(90deg,#27ae60,#2ecc71)}
+.pg-blue .pg-fill{background:linear-gradient(90deg,#2d9cdb,#56ccf2)}
+.pg-purple .pg-fill{background:linear-gradient(90deg,#6c5ce7,#a29bfe)}
+
+.info-box{background:rgba(45,156,219,.06);border:1px solid rgba(45,156,219,.15);border-radius:10px;padding:14px;margin-bottom:14px;display:flex;align-items:flex-start;gap:10px}
+.info-box .ib-icon{font-size:1rem;flex-shrink:0}
+.info-box .ib-text{font-size:.72rem;color:rgba(255,255,255,.5);line-height:1.6}
+
+/* Audit Section */
+.audit-firms{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;margin-bottom:14px}
+.audit-firm{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:10px;padding:14px;text-align:center;transition:.2s}
+.audit-firm:hover{border-color:rgba(108,92,231,.2)}
+.audit-firm .af-name{font-size:.82rem;font-weight:700;margin-bottom:4px}
+.audit-firm .af-type{font-size:.6rem;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.5px}
+
+.nav-links{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:28px}
+.nav-links a{padding:7px 12px;border-radius:8px;font-size:.7rem;font-weight:600;text-decoration:none;border:1px solid rgba(255,255,255,.06);color:rgba(255,255,255,.4);transition:.2s}
+.nav-links a:hover{border-color:rgba(108,92,231,.3);color:#a29bfe}
+.net-badge{text-align:center;font-size:.6rem;color:rgba(255,255,255,.25);margin-top:24px;padding-top:16px;border-top:1px solid rgba(108,92,231,.06)}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#27ae60;color:#fff;padding:10px 24px;border-radius:10px;font-size:.78rem;font-weight:600;transition:.3s;opacity:0;z-index:100}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+@media(max-width:480px){.tech-grid{grid-template-columns:1fr}.audit-firms{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="container">
+<div style="text-align:center"><span class="badge">TESTING GUIDE &bull; SOROBAN SDK v21</span></div>
+<h1 style="text-align:center">Smart Contract Testing Guide</h1>
+<p class="subtitle" style="text-align:center">Comprehensive testing strategy before mainnet deployment</p>
+
+<!-- Why Test? -->
+<div class="section">
+<div class="section-head">
+<div class="sh-num num-green">&#x1F9EA;</div>
+<h2>Why Test?</h2>
+</div>
+<p class="desc">Scientists use the scientific method: careful observation coupled with rigorous skepticism. If we aren&rsquo;t rigorously skeptical about whether something works, we&rsquo;re making assumptions. And as the saying goes: <em>&ldquo;Untested assumptions become bugs.&rdquo;</em></p>
+
+<div class="info-box">
+<div class="ib-icon">&#x1F4AC;</div>
+<div class="ib-text"><em>&ldquo;If debugging is the process of removing software bugs, then programming must be the process of putting them in.&rdquo;</em><br>&mdash; Edsger W. Dijkstra</div>
+</div>
+
+<p class="desc">For testing to be effective at identifying bugs early, it must be <strong>integrated with development</strong>&mdash;not an afterthought. Good tests:</p>
+
+<div class="tech-grid">
+<div class="tech-card" style="border-color:rgba(39,174,96,.15)">
+<div class="tc-icon">&#x2705;</div>
+<div class="tc-name">Confirm Correctness</div>
+<div class="tc-desc">Verify software does what was intended the <strong>first time</strong> it is built</div>
+</div>
+<div class="tech-card" style="border-color:rgba(45,156,219,.15)">
+<div class="tc-icon">&#x1F504;</div>
+<div class="tc-name">Enable Refactoring</div>
+<div class="tc-desc">Provide confidence to refactor knowing functionality hasn&rsquo;t changed</div>
+</div>
+<div class="tech-card" style="border-color:rgba(108,92,231,.15)">
+<div class="tc-icon">&#x1F50D;</div>
+<div class="tc-name">Prove Scope</div>
+<div class="tc-desc">Help developers understand and prove the scope of a change</div>
+</div>
+<div class="tech-card" style="border-color:rgba(242,153,74,.15)">
+<div class="tc-icon">&#x1F465;</div>
+<div class="tc-name">Multiply Teams</div>
+<div class="tc-desc">Give others confidence to change code they have no prior experience with</div>
+</div>
+</div>
+</div>
+
+<!-- Stellar Testing Advantage -->
+<div class="section">
+<div class="section-head">
+<div class="sh-num num-blue">&#x2B50;</div>
+<h2>Why Stellar Testing is Different</h2>
+</div>
+<p class="desc">Stellar has been online since 2014, and when it added smart contracts in 2024, the focus was on a <strong>great testing experience</strong> from day one.</p>
+
+<div class="tech-grid">
+<div class="tech-card" style="border-color:rgba(45,156,219,.15)">
+<div class="tc-icon">&#x1F9F0;</div>
+<div class="tc-name">Single Language</div>
+<div class="tc-desc">Write contracts in Rust, test in Rust. Same APIs for unit tests, integration tests, fuzz tests. No context switching.</div>
+</div>
+<div class="tech-card" style="border-color:rgba(39,174,96,.15)">
+<div class="tc-icon">&#x1F3AF;</div>
+<div class="tc-name">Real Runtime</div>
+<div class="tc-desc">Tests use the <strong>actual Soroban runtime</strong> that runs on Mainnet. No emulators or simulators playing catch-up with reality.</div>
+</div>
+<div class="tech-card" style="border-color:rgba(108,92,231,.15)">
+<div class="tc-icon">&#x1F4BB;</div>
+<div class="tc-name">IDE Support</div>
+<div class="tc-desc">VSCode, Cursor, RustRover, Vim, Zed&mdash;anything supporting rust-analyzer and LLDB gives you step-through debugging.</div>
+</div>
+<div class="tech-card" style="border-color:rgba(242,153,74,.15)">
+<div class="tc-icon">&#x1F30D;</div>
+<div class="tc-name">Rich Ecosystem</div>
+<div class="tc-desc">Stable Testnet, free RPCs, Friendbot, Lab (lab.stellar.org), lightweight Docker image with accelerated ledgers.</div>
+</div>
+</div>
+</div>
+
+<!-- Critical Warning -->
+<div class="alert-box">
+<div class="ab-icon">&#x26A0;&#xFE0F;</div>
+<div><div class="ab-title">A single bug could cost you or your users significant funds</div>
+<div class="ab-text">Testing isn&rsquo;t just unit tests&mdash;it&rsquo;s a multi-layered approach. Integrate testing early in development, not as an afterthought. Be rigorously skeptical: test early, test often, and use multiple strategies to catch bugs before production.</div></div>
+</div>
+
+<!-- Testing Layers Overview -->
+<div class="section">
+<div class="section-head">
+<div class="sh-num num-green">&#x1F4CA;</div>
+<h2>Testing Layers Overview</h2>
+</div>
+<div class="layer-stack">
+<div class="layer l1"><div class="l-num">1</div><div><div class="l-name">Unit Tests</div><div class="l-desc">Individual function verification &mdash; fast, local, Soroban SDK</div></div></div>
+<div class="layer l2"><div class="l-num">2</div><div><div class="l-name">Integration Tests</div><div class="l-desc">Multi-contract interaction testing &mdash; cross-contract calls</div></div></div>
+<div class="layer l3"><div class="l-num">3</div><div><div class="l-name">Fuzzing &amp; Mutation</div><div class="l-desc">Automated edge-case discovery &mdash; random inputs, property tests &amp; code mutation</div></div></div>
+<div class="layer l4"><div class="l-num">4</div><div><div class="l-name">Fork &amp; Testnet Testing</div><div class="l-desc">Real-world conditions &mdash; snapshot create, Docker local chain &amp; Stellar Testnet</div></div></div>
+<div class="layer" style="border-left:3px solid #56ccf2"><div class="l-num">5</div><div><div class="l-name">Differential Testing</div><div class="l-desc">Compare deployed vs new contract behavior &mdash; test snapshots &amp; event diffing</div></div></div>
+<div class="layer l5"><div class="l-num">6</div><div><div class="l-name">Security Audits</div><div class="l-desc">Professional review &mdash; manual + formal verification</div></div></div>
+<div class="layer l6"><div class="l-num">7</div><div><div class="l-name">Mainnet Launch</div><div class="l-desc">Deploy after all layers pass &mdash; monitor &amp; incident response ready</div></div></div>
+</div>
+</div>
+
+<!-- 1. Unit Tests -->
+<div class="section">
+<div class="section-head">
+<div class="sh-num num-green">1</div>
+<h2>Unit Tests</h2>
+<span class="sh-badge" style="background:rgba(39,174,96,.1);color:#27ae60">Foundation</span>
+</div>
+<p class="desc">Start with unit tests&mdash;small, focused tests that verify individual functions. On Stellar, these run locally using the Soroban SDK with the <strong>real Soroban environment</strong> (not an emulator), making them fast and reliable.</p>
+
+<div class="code-block">
+<div class="code-header"><span class="ch-lang">Rust</span><span class="ch-file">tests/test_token.rs</span><button class="copy-btn" onclick="copyCode(this)">&#x1F4CB; Copy</button></div>
+<pre><span class="kw">use</span> soroban_sdk::{<span class="ty">Env</span>, <span class="ty">Address</span>};
+
+<span class="at">#[test]</span>
+<span class="kw">fn</span> <span class="fn">test_token_initialize</span>() {
+    <span class="kw">let</span> env = <span class="ty">Env</span>::<span class="fn">default</span>();
+    <span class="kw">let</span> contract_id = env.<span class="fn">register</span>(<span class="ty">GoldToken</span>, ());
+    <span class="kw">let</span> client = <span class="ty">GoldTokenClient</span>::<span class="fn">new</span>(&amp;env, &amp;contract_id);
+
+    <span class="kw">let</span> admin = <span class="ty">Address</span>::<span class="fn">generate</span>(&amp;env);
+    client.<span class="fn">initialize</span>(
+        &amp;admin,
+        &amp;<span class="num">7</span>,
+        &amp;<span class="ty">String</span>::<span class="fn">from_str</span>(&amp;env, <span class="str">"GoldToken"</span>),
+        &amp;<span class="ty">String</span>::<span class="fn">from_str</span>(&amp;env, <span class="str">"GOLD"</span>),
+    );
+
+    <span class="mac">assert_eq!</span>(client.<span class="fn">name</span>(), <span class="ty">String</span>::<span class="fn">from_str</span>(&amp;env, <span class="str">"GoldToken"</span>));
+    <span class="mac">assert_eq!</span>(client.<span class="fn">symbol</span>(), <span class="ty">String</span>::<span class="fn">from_str</span>(&amp;env, <span class="str">"GOLD"</span>));
+    <span class="mac">assert_eq!</span>(client.<span class="fn">decimals</span>(), <span class="num">7</span>);
+}</pre>
+</div>
+
+<div class="code-block">
+<div class="code-header"><span class="ch-lang">Rust</span><span class="ch-file">tests/test_mint_transfer.rs</span><button class="copy-btn" onclick="copyCode(this)">&#x1F4CB; Copy</button></div>
+<pre><span class="at">#[test]</span>
+<span class="kw">fn</span> <span class="fn">test_mint_and_transfer</span>() {
+    <span class="kw">let</span> env = <span class="ty">Env</span>::<span class="fn">default</span>();
+    env.<span class="fn">mock_all_auths</span>();
+
+    <span class="kw">let</span> contract_id = env.<span class="fn">register</span>(<span class="ty">GoldToken</span>, ());
+    <span class="kw">let</span> client = <span class="ty">GoldTokenClient</span>::<span class="fn">new</span>(&amp;env, &amp;contract_id);
+
+    <span class="kw">let</span> admin = <span class="ty">Address</span>::<span class="fn">generate</span>(&amp;env);
+    <span class="kw">let</span> user1 = <span class="ty">Address</span>::<span class="fn">generate</span>(&amp;env);
+    <span class="kw">let</span> user2 = <span class="ty">Address</span>::<span class="fn">generate</span>(&amp;env);
+
+    client.<span class="fn">initialize</span>(&amp;admin, &amp;<span class="num">7</span>, &amp;<span class="str">"GoldToken"</span>.into(), &amp;<span class="str">"GOLD"</span>.into());
+
+    <span class="cm">// Mint 1000 tokens to user1</span>
+    client.<span class="fn">mint</span>(&amp;user1, &amp;<span class="num">1000_0000000</span>);
+    <span class="mac">assert_eq!</span>(client.<span class="fn">balance</span>(&amp;user1), <span class="num">1000_0000000</span>);
+
+    <span class="cm">// Transfer 250 from user1 to user2</span>
+    client.<span class="fn">transfer</span>(&amp;user1, &amp;user2, &amp;<span class="num">250_0000000</span>);
+    <span class="mac">assert_eq!</span>(client.<span class="fn">balance</span>(&amp;user1), <span class="num">750_0000000</span>);
+    <span class="mac">assert_eq!</span>(client.<span class="fn">balance</span>(&amp;user2), <span class="num">250_0000000</span>);
+}</pre>
+</div>
+
+<div class="info-box">
+<div class="ib-icon">&#x1F4A1;</div>
+<div class="ib-text"><strong>env.mock_all_auths()</strong> bypasses authentication in tests so you can focus on logic. In production, real Stellar auth is enforced. Always test with and without mocked auth.</div>
+</div>
+</div>
+
+<!-- 2. Integration Tests -->
+<div class="section">
+<div class="section-head">
+<div class="sh-num num-blue">2</div>
+<h2>Integration Tests</h2>
+<span class="sh-badge" style="background:rgba(45,156,219,.1);color:#2d9cdb">Cross-Contract</span>
+</div>
+<p class="desc">Test how your contracts interact with each other. The Soroban SDK uses the <strong>real Soroban environment</strong> for all tests&mdash;there&rsquo;s no difference in tooling between unit and integration tests. You&rsquo;re always testing against the actual runtime, not a simulator.</p>
+
+<div class="info-box">
+<div class="ib-icon">&#x1F4A1;</div>
+<div class="ib-text"><strong>Two approaches:</strong> Load dependencies as compiled WASM files (recommended for external/deployed contracts), or import them natively as Rust crates (best for tightly coupled contracts you develop together). You can mix both in the same test suite.</div>
+</div>
+
+<!-- 2a. WASM Way -->
+<h3 style="font-size:.88rem;margin-bottom:8px;color:#2d9cdb">&#x1F4E6; Approach 1: The WASM Way <span class="sh-badge" style="background:rgba(45,156,219,.1);color:#2d9cdb;margin-left:6px">Recommended</span></h3>
+<p class="desc">Load dependency contracts as compiled WASM files. Ideal for testing against deployed contracts or external dependencies without needing source code access.</p>
+
+<div class="code-block">
+<div class="code-header"><span class="ch-lang">Shell</span><span class="ch-file">Fetch deployed contract WASM</span><button class="copy-btn" onclick="copyCode(this)">&#x1F4CB; Copy</button></div>
+<pre><span class="cm"># Fetch a deployed contract from Testnet/Mainnet</span>
+stellar contract fetch --id C... --out-file pause.wasm</pre>
+</div>
+
+<div class="code-block">
+<div class="code-header"><span class="ch-lang">Rust</span><span class="ch-file">tests/integration_wasm.rs</span><button class="copy-btn" onclick="copyCode(this)">&#x1F4CB; Copy</button></div>
+<pre><span class="mac">#![cfg(test)]</span>
+<span class="kw">use</span> soroban_sdk::<span class="ty">Env</span>;
+<span class="kw">use</span> crate::{<span class="ty">Error</span>, <span class="ty">IncrementContract</span>, <span class="ty">IncrementContractClient</span>};
+
+<span class="cm">// Import external contract from compiled WASM</span>
+<span class="kw">mod</span> pause {
+    soroban_sdk::<span class="mac">contractimport!</span>(file = <span class="str">"pause.wasm"</span>);
+}
+
+<span class="at">#[test]</span>
+<span class="kw">fn</span> <span class="fn">test_with_wasm_dependency</span>() {
+    <span class="kw">let</span> env = <span class="ty">Env</span>::<span class="fn">default</span>();
+
+    <span class="cm">// Register the WASM dependency</span>
+    <span class="kw">let</span> pause_id = env.<span class="fn">register</span>(pause::WASM, ());
+    <span class="kw">let</span> pause_client = pause::<span class="ty">Client</span>::<span class="fn">new</span>(&amp;env, &amp;pause_id);
+
+    <span class="cm">// Register main contract with constructor arg</span>
+    <span class="kw">let</span> contract_id = env.<span class="fn">register</span>(
+        <span class="ty">IncrementContract</span>,
+        <span class="ty">IncrementContractArgs</span>::<span class="fn">__constructor</span>(&amp;pause_id),
+    );
+    <span class="kw">let</span> client = <span class="ty">IncrementContractClient</span>::<span class="fn">new</span>(&amp;env, &amp;contract_id);
+
+    <span class="cm">// Test: unpaused works</span>
+    pause_client.<span class="fn">set</span>(&amp;<span class="kw">false</span>);
+    <span class="mac">assert_eq!</span>(client.<span class="fn">increment</span>(), <span class="num">1</span>);
+
+    <span class="cm">// Test: paused returns error</span>
+    pause_client.<span class="fn">set</span>(&amp;<span class="kw">true</span>);
+    <span class="mac">assert_eq!</span>(client.<span class="fn">try_increment</span>(), <span class="ty">Err</span>(<span class="ty">Ok</span>(<span class="ty">Error</span>::Paused)));
+
+    <span class="cm">// Test: unpaused again continues count</span>
+    pause_client.<span class="fn">set</span>(&amp;<span class="kw">false</span>);
+    <span class="mac">assert_eq!</span>(client.<span class="fn">increment</span>(), <span class="num">2</span>);
+}</pre>
+</div>
+
+<div class="tech-grid">
+<div class="tech-card" style="border-color:rgba(45,156,219,.15)">
+<div class="tc-icon">&#x2705;</div>
+<div class="tc-name">WASM Benefits</div>
+<div class="tc-desc">&bull; Verifies exact on-chain behavior<br>&bull; Works with Mainnet, Testnet, or local builds<br>&bull; No source code access needed<br>&bull; Avoids Rust/Cargo import complexity</div>
+</div>
+<div class="tech-card" style="border-color:rgba(45,156,219,.15)">
+<div class="tc-icon">&#x26A0;&#xFE0F;</div>
+<div class="tc-name">WASM Tradeoffs</div>
+<div class="tc-desc">&bull; Cannot step-through debug into WASM<br>&bull; Must re-fetch if dependency updates<br>&bull; Less visibility into internal state<br>&bull; Slower compilation than native</div>
+</div>
+</div>
+
+<!-- 2b. Native Way -->
+<h3 style="font-size:.88rem;margin-bottom:8px;color:#a29bfe">&#x1F517; Approach 2: The Native Way <span class="sh-badge" style="background:rgba(108,92,231,.1);color:#a29bfe;margin-left:6px">Tightly Coupled</span></h3>
+<p class="desc">Import dependency contracts natively as Rust crates. Best for tightly coupled contracts you develop together, giving you full debugging capabilities across all contracts.</p>
+
+<div class="code-block">
+<div class="code-header"><span class="ch-lang">Rust</span><span class="ch-file">tests/integration_dex_token.rs</span><button class="copy-btn" onclick="copyCode(this)">&#x1F4CB; Copy</button></div>
+<pre><span class="mac">#![cfg(test)]</span>
+<span class="kw">use</span> soroban_sdk::{<span class="ty">Env</span>, <span class="ty">Address</span>};
+
+<span class="at">#[test]</span>
+<span class="kw">fn</span> <span class="fn">test_dex_swap_with_token_contracts</span>() {
+    <span class="kw">let</span> env = <span class="ty">Env</span>::<span class="fn">default</span>();
+    env.<span class="fn">mock_all_auths</span>();
+
+    <span class="cm">// Register contracts natively (import as Rust crates)</span>
+    <span class="kw">let</span> token_a_id = env.<span class="fn">register</span>(<span class="ty">GoldToken</span>, ());
+    <span class="kw">let</span> token_b_id = env.<span class="fn">register</span>(<span class="ty">GoldToken</span>, ());
+    <span class="kw">let</span> dex_id = env.<span class="fn">register</span>(<span class="ty">McSwapDex</span>, ());
+
+    <span class="kw">let</span> token_a = <span class="ty">GoldTokenClient</span>::<span class="fn">new</span>(&amp;env, &amp;token_a_id);
+    <span class="kw">let</span> token_b = <span class="ty">GoldTokenClient</span>::<span class="fn">new</span>(&amp;env, &amp;token_b_id);
+    <span class="kw">let</span> dex = <span class="ty">McSwapDexClient</span>::<span class="fn">new</span>(&amp;env, &amp;dex_id);
+
+    <span class="kw">let</span> lp = <span class="ty">Address</span>::<span class="fn">generate</span>(&amp;env);
+    <span class="kw">let</span> trader = <span class="ty">Address</span>::<span class="fn">generate</span>(&amp;env);
+
+    <span class="cm">// Initialize tokens &amp; mint</span>
+    token_a.<span class="fn">initialize</span>(&amp;lp, &amp;<span class="num">7</span>, &amp;<span class="str">"TokenA"</span>.into(), &amp;<span class="str">"TKA"</span>.into());
+    token_b.<span class="fn">initialize</span>(&amp;lp, &amp;<span class="num">7</span>, &amp;<span class="str">"TokenB"</span>.into(), &amp;<span class="str">"TKB"</span>.into());
+    token_a.<span class="fn">mint</span>(&amp;lp, &amp;<span class="num">10000_0000000</span>);
+    token_b.<span class="fn">mint</span>(&amp;lp, &amp;<span class="num">10000_0000000</span>);
+    token_a.<span class="fn">mint</span>(&amp;trader, &amp;<span class="num">100_0000000</span>);
+
+    <span class="cm">// Create pool &amp; add liquidity</span>
+    dex.<span class="fn">create_pool</span>(&amp;token_a_id, &amp;token_b_id, &amp;<span class="num">30</span>);
+    dex.<span class="fn">add_liquidity</span>(
+        &amp;lp, &amp;token_a_id, &amp;token_b_id,
+        &amp;<span class="num">5000_0000000</span>, &amp;<span class="num">5000_0000000</span>,
+    );
+
+    <span class="cm">// Swap: trader sends 100 TKA, should receive ~98.7 TKB</span>
+    <span class="kw">let</span> received = dex.<span class="fn">swap</span>(
+        &amp;trader, &amp;token_a_id, &amp;token_b_id,
+        &amp;<span class="num">100_0000000</span>, &amp;<span class="num">95_0000000</span>, <span class="cm">// min_out</span>
+    );
+
+    <span class="mac">assert!</span>(received > <span class="num">95_0000000</span>);
+    <span class="mac">assert_eq!</span>(token_a.<span class="fn">balance</span>(&amp;trader), <span class="num">0</span>);
+    <span class="mac">assert!</span>(token_b.<span class="fn">balance</span>(&amp;trader) > <span class="num">95_0000000</span>);
+}</pre>
+</div>
+
+<div class="tech-grid">
+<div class="tech-card" style="border-color:rgba(108,92,231,.15)">
+<div class="tc-icon">&#x2705;</div>
+<div class="tc-name">Native Benefits</div>
+<div class="tc-desc">&bull; Full step-through debugging across all contracts<br>&bull; Better code coverage in fuzzing<br>&bull; Faster iteration during development<br>&bull; IDE support for all contract code</div>
+</div>
+<div class="tech-card" style="border-color:rgba(108,92,231,.15)">
+<div class="tc-icon">&#x26A0;&#xFE0F;</div>
+<div class="tc-name">Native Tradeoffs</div>
+<div class="tc-desc">&bull; Requires source code access<br>&bull; Cargo workspace setup needed<br>&bull; May diverge from deployed WASM<br>&bull; More complex dependency management</div>
+</div>
+</div>
+
+<div class="tech-grid">
+<div class="tech-card">
+<div class="tc-icon">&#x1F517;</div>
+<div class="tc-name">Token &#x2194; DEX</div>
+<div class="tc-desc">Verify swaps correctly move tokens between accounts via AMM pools</div>
+</div>
+<div class="tech-card">
+<div class="tc-icon">&#x1F3DB;&#xFE0F;</div>
+<div class="tc-name">DAO &#x2194; Vault</div>
+<div class="tc-desc">Test governance proposals that execute treasury withdrawals</div>
+</div>
+<div class="tech-card">
+<div class="tc-icon">&#x1F4C8;</div>
+<div class="tc-name">Token &#x2194; Staking</div>
+<div class="tc-desc">Verify staking locks tokens and compound rewards accrue correctly</div>
+</div>
+<div class="tech-card">
+<div class="tc-icon">&#x1F6E1;&#xFE0F;</div>
+<div class="tc-name">Payment &#x2194; Token</div>
+<div class="tc-desc">Test cross-border payment flows with fee deductions</div>
+</div>
+</div>
+</div>
+
+<!-- 2c. Multi-Contract Authorization -->
+<div class="section">
+<div class="section-head">
+<div class="sh-num num-blue">2b</div>
+<h2>Multi-Contract Authorization</h2>
+<span class="sh-badge" style="background:rgba(45,156,219,.1);color:#2d9cdb">Auth Testing</span>
+</div>
+<p class="desc">When multiple contracts are involved in a transaction, <code style="background:rgba(0,0,0,.3);padding:2px 6px;border-radius:4px;font-size:.7rem">env.auths()</code> captures <strong>all authorizations</strong> that occurred during the invocation, including nested contract calls. The <code style="background:rgba(0,0,0,.3);padding:2px 6px;border-radius:4px;font-size:.7rem">sub_invocations</code> field shows the exact flow of cross-contract auth.</p>
+
+<div class="info-box">
+<div class="ib-icon">&#x1F4CA;</div>
+<div class="ib-text"><strong>env.auths() verifies 3 things:</strong> (1) All required authorizations occurred, (2) No unexpected authorizations happened, (3) The authorization tree nesting is correct. If any auth is missing or extra, the assertion fails.</div>
+</div>
+
+<div class="code-block">
+<div class="code-header"><span class="ch-lang">Rust</span><span class="ch-file">tests/test_multi_auth.rs</span><button class="copy-btn" onclick="copyCode(this)">&#x1F4CB; Copy</button></div>
+<pre><span class="kw">use</span> soroban_sdk::{<span class="ty">Env</span>, <span class="ty">Address</span>, <span class="ty">Symbol</span>};
+<span class="kw">use</span> soroban_sdk::testutils::{<span class="ty">AuthorizedFunction</span>, <span class="ty">AuthorizedInvocation</span>};
+
+<span class="at">#[test]</span>
+<span class="kw">fn</span> <span class="fn">test_swap_authorization_tree</span>() {
+    <span class="kw">let</span> env = <span class="ty">Env</span>::<span class="fn">default</span>();
+
+    <span class="kw">let</span> token_a_id = env.<span class="fn">register</span>(<span class="ty">GoldToken</span>, ());
+    <span class="kw">let</span> token_b_id = env.<span class="fn">register</span>(<span class="ty">GoldToken</span>, ());
+    <span class="kw">let</span> dex_id = env.<span class="fn">register</span>(<span class="ty">McSwapDex</span>, ());
+    <span class="kw">let</span> trader = <span class="ty">Address</span>::<span class="fn">generate</span>(&amp;env);
+
+    <span class="cm">// mock_all_auths tracks auth WITHOUT enforcing it</span>
+    env.<span class="fn">mock_all_auths</span>();
+
+    <span class="cm">// ... setup tokens, pool, mint to trader ...</span>
+
+    dex.<span class="fn">swap</span>(&amp;trader, &amp;token_a_id, &amp;token_b_id,
+        &amp;<span class="num">100_0000000</span>, &amp;<span class="num">95_0000000</span>);
+
+    <span class="cm">// Verify the FULL authorization tree</span>
+    <span class="mac">assert_eq!</span>(
+        env.<span class="fn">auths</span>(),
+        std::<span class="mac">vec!</span>[(
+            trader.clone(),
+            <span class="ty">AuthorizedInvocation</span> {
+                <span class="cm">// Root: trader authorizes DEX.swap()</span>
+                function: <span class="ty">AuthorizedFunction</span>::<span class="fn">Contract</span>((
+                    dex_id.clone(),
+                    <span class="ty">Symbol</span>::<span class="fn">new</span>(&amp;env, <span class="str">"swap"</span>),
+                    (trader.clone(), token_a_id.clone(),
+                     token_b_id.clone(),
+                     <span class="num">100_0000000_i128</span>,
+                     <span class="num">95_0000000_i128</span>).into_val(&amp;env),
+                )),
+                <span class="cm">// Nested: DEX calls token_a.transfer()</span>
+                sub_invocations: std::<span class="mac">vec!</span>[
+                    <span class="ty">AuthorizedInvocation</span> {
+                        function: <span class="ty">AuthorizedFunction</span>::<span class="fn">Contract</span>((
+                            token_a_id.clone(),
+                            <span class="ty">Symbol</span>::<span class="fn">new</span>(&amp;env, <span class="str">"transfer"</span>),
+                            (trader.clone(), dex_id.clone(),
+                             <span class="num">100_0000000_i128</span>).into_val(&amp;env),
+                        )),
+                        sub_invocations: std::<span class="mac">vec!</span>[],
+                    }
+                ],
+            }
+        )]
+    );
+}</pre>
+</div>
+
+<!-- Token Transfers in Cross-Contract Calls -->
+<h3 style="font-size:.88rem;margin-bottom:8px;color:#2d9cdb">&#x1F4B8; Token Transfers in Cross-Contract Calls</h3>
+<p class="desc">When your DEX/Staking/DAO contract calls <code style="background:rgba(0,0,0,.3);padding:2px 6px;border-radius:4px;font-size:.7rem">token.transfer()</code> internally, the token contract requires authorization from the <em>sender</em>, not from the calling contract. This creates a nested auth tree that you must verify.</p>
+
+<div class="code-block">
+<div class="code-header"><span class="ch-lang">Rust</span><span class="ch-file">tests/test_token_auth_crosscontract.rs</span><button class="copy-btn" onclick="copyCode(this)">&#x1F4CB; Copy</button></div>
+<pre><span class="at">#[test]</span>
+<span class="kw">fn</span> <span class="fn">test_staking_locks_tokens_with_auth</span>() {
+    <span class="kw">let</span> env = <span class="ty">Env</span>::<span class="fn">default</span>();
+    env.<span class="fn">mock_all_auths</span>();
+
+    <span class="kw">let</span> token_id = env.<span class="fn">register</span>(<span class="ty">GoldToken</span>, ());
+    <span class="kw">let</span> staking_id = env.<span class="fn">register</span>(<span class="ty">PlatinumStake</span>, ());
+    <span class="kw">let</span> token = <span class="ty">GoldTokenClient</span>::<span class="fn">new</span>(&amp;env, &amp;token_id);
+    <span class="kw">let</span> staking = <span class="ty">PlatinumStakeClient</span>::<span class="fn">new</span>(&amp;env, &amp;staking_id);
+    <span class="kw">let</span> user = <span class="ty">Address</span>::<span class="fn">generate</span>(&amp;env);
+
+    <span class="cm">// Setup: mint tokens to user</span>
+    token.<span class="fn">mint</span>(&amp;user, &amp;<span class="num">5000_0000000</span>);
+
+    <span class="cm">// Stake: user deposits 1000 tokens into staking contract</span>
+    staking.<span class="fn">stake</span>(&amp;user, &amp;<span class="num">1000_0000000</span>, &amp;<span class="num">1</span>); <span class="cm">// tier 1</span>
+
+    <span class="cm">// Auth tree: user authorizes staking.stake()</span>
+    <span class="cm">//   └── which internally calls token.transfer(user, staking, 1000)</span>
+    <span class="mac">assert_eq!</span>(
+        env.<span class="fn">auths</span>(),
+        std::<span class="mac">vec!</span>[(
+            user.clone(),
+            <span class="ty">AuthorizedInvocation</span> {
+                function: <span class="ty">AuthorizedFunction</span>::<span class="fn">Contract</span>((
+                    staking_id.clone(),
+                    <span class="ty">Symbol</span>::<span class="fn">new</span>(&amp;env, <span class="str">"stake"</span>),
+                    (user.clone(), <span class="num">1000_0000000_i128</span>,
+                     <span class="num">1_u32</span>).into_val(&amp;env),
+                )),
+                sub_invocations: std::<span class="mac">vec!</span>[
+                    <span class="ty">AuthorizedInvocation</span> {
+                        function: <span class="ty">AuthorizedFunction</span>::<span class="fn">Contract</span>((
+                            token_id.clone(),
+                            <span class="ty">Symbol</span>::<span class="fn">new</span>(&amp;env, <span class="str">"transfer"</span>),
+                            (user.clone(), staking_id.clone(),
+                             <span class="num">1000_0000000_i128</span>).into_val(&amp;env),
+                        )),
+                        sub_invocations: std::<span class="mac">vec!</span>[],
+                    }
+                ],
+            }
+        )]
+    );
+
+    <span class="cm">// Verify balances moved</span>
+    <span class="mac">assert_eq!</span>(token.<span class="fn">balance</span>(&amp;user), <span class="num">4000_0000000</span>);
+    <span class="mac">assert_eq!</span>(token.<span class="fn">balance</span>(&amp;staking_id), <span class="num">1000_0000000</span>);
+}</pre>
+</div>
+
+<!-- require_auth vs require_auth_for_args -->
+<h3 style="font-size:.88rem;margin-bottom:8px;color:#a29bfe">&#x1F510; require_auth() vs require_auth_for_args()</h3>
+<p class="desc">Two methods for enforcing authorization in your contracts. Choosing the right one matters for security and composability in multi-contract systems.</p>
+
+<div class="tech-grid">
+<div class="tech-card" style="border-color:rgba(39,174,96,.15)">
+<div class="tc-icon">&#x1F512;</div>
+<div class="tc-name">require_auth()</div>
+<div class="tc-desc"><strong>Authorizes the entire function call</strong> with all arguments automatically. Simpler to use but less granular.<br><br><strong>Use when:</strong> The function has a single actor and all args define the action (e.g., <code style="font-size:.6rem">transfer(from, to, amount)</code>).<br><br>The auth payload = function name + all args.</div>
+</div>
+<div class="tech-card" style="border-color:rgba(108,92,231,.15)">
+<div class="tc-icon">&#x1F511;</div>
+<div class="tc-name">require_auth_for_args()</div>
+<div class="tc-desc"><strong>Authorizes only specific arguments</strong> you choose. More granular control over what the user signs.<br><br><strong>Use when:</strong> The function has parameters the signer shouldn&rsquo;t need to commit to (e.g., a callback address, debug flag, or oracle reference).<br><br>The auth payload = function name + custom args.</div>
+</div>
+</div>
+
+<div class="code-block">
+<div class="code-header"><span class="ch-lang">Rust</span><span class="ch-file">src/auth_examples.rs</span><button class="copy-btn" onclick="copyCode(this)">&#x1F4CB; Copy</button></div>
+<pre><span class="cm">// ━━━ require_auth() ━━━</span>
+<span class="cm">// User signs: transfer(from, to, amount) — ALL args</span>
+<span class="kw">pub fn</span> <span class="fn">transfer</span>(env: <span class="ty">Env</span>, from: <span class="ty">Address</span>, to: <span class="ty">Address</span>, amount: <span class="ty">i128</span>) {
+    from.<span class="fn">require_auth</span>();
+    <span class="cm">// Auth payload: ("transfer", from, to, amount)</span>
+    <span class="cm">// ✅ Simple, covers all args automatically</span>
+}
+
+<span class="cm">// ━━━ require_auth_for_args() ━━━</span>
+<span class="cm">// User signs ONLY (to, amount) — not the oracle_ref</span>
+<span class="kw">pub fn</span> <span class="fn">swap_with_oracle</span>(
+    env: <span class="ty">Env</span>,
+    user: <span class="ty">Address</span>,
+    to_token: <span class="ty">Address</span>,
+    amount: <span class="ty">i128</span>,
+    oracle_ref: <span class="ty">Address</span>, <span class="cm">// user shouldn't have to sign this</span>
+) {
+    user.<span class="fn">require_auth_for_args</span>(
+        (to_token.clone(), amount).into_val(&amp;env)
+    );
+    <span class="cm">// Auth payload: ("swap_with_oracle", to_token, amount)</span>
+    <span class="cm">// ✅ User commits to what they swap, not which oracle</span>
+}
+
+<span class="cm">// ━━━ Multi-party: Atomic Swap (both users sign) ━━━</span>
+<span class="kw">pub fn</span> <span class="fn">atomic_swap</span>(
+    env: <span class="ty">Env</span>,
+    user_a: <span class="ty">Address</span>,
+    token_a: <span class="ty">Address</span>,
+    amount_a: <span class="ty">i128</span>,
+    min_recv_a: <span class="ty">i128</span>,
+    user_b: <span class="ty">Address</span>,
+    token_b: <span class="ty">Address</span>,
+    amount_b: <span class="ty">i128</span>,
+    min_recv_b: <span class="ty">i128</span>,
+) {
+    <span class="cm">// Each user authorizes their side independently</span>
+    user_a.<span class="fn">require_auth_for_args</span>(
+        (token_a.clone(), amount_a, min_recv_a).into_val(&amp;env)
+    );
+    user_b.<span class="fn">require_auth_for_args</span>(
+        (token_b.clone(), amount_b, min_recv_b).into_val(&amp;env)
+    );
+    <span class="cm">// ✅ Neither user signs the other's details</span>
+}</pre>
+</div>
+
+<div class="code-block">
+<div class="code-header"><span class="ch-lang">Rust</span><span class="ch-file">tests/test_auth_for_args.rs</span><button class="copy-btn" onclick="copyCode(this)">&#x1F4CB; Copy</button></div>
+<pre><span class="at">#[test]</span>
+<span class="kw">fn</span> <span class="fn">test_atomic_swap_dual_auth</span>() {
+    <span class="kw">let</span> env = <span class="ty">Env</span>::<span class="fn">default</span>();
+    env.<span class="fn">mock_all_auths</span>();
+
+    <span class="kw">let</span> user_a = <span class="ty">Address</span>::<span class="fn">generate</span>(&amp;env);
+    <span class="kw">let</span> user_b = <span class="ty">Address</span>::<span class="fn">generate</span>(&amp;env);
+
+    <span class="cm">// ... setup contracts, mint tokens ...</span>
+
+    dex.<span class="fn">atomic_swap</span>(
+        &amp;user_a, &amp;token_a_id, &amp;<span class="num">100_0000000</span>, &amp;<span class="num">90_0000000</span>,
+        &amp;user_b, &amp;token_b_id, &amp;<span class="num">95_0000000</span>, &amp;<span class="num">85_0000000</span>,
+    );
+
+    <span class="cm">// Two auths: one per user</span>
+    <span class="kw">let</span> auths = env.<span class="fn">auths</span>();
+    <span class="mac">assert_eq!</span>(auths.len(), <span class="num">2</span>);
+
+    <span class="cm">// User A signed (token_a, 100, min_recv 90)</span>
+    <span class="mac">assert_eq!</span>(auths[<span class="num">0</span>].<span class="num">0</span>, user_a);
+    <span class="cm">// User B signed (token_b, 95, min_recv 85)</span>
+    <span class="mac">assert_eq!</span>(auths[<span class="num">1</span>].<span class="num">0</span>, user_b);
+}
+
+<span class="at">#[test]</span>
+<span class="at">#[should_panic]</span>
+<span class="kw">fn</span> <span class="fn">test_atomic_swap_one_party_unauthorized</span>() {
+    <span class="kw">let</span> env = <span class="ty">Env</span>::<span class="fn">default</span>();
+    <span class="cm">// NO mock — real auth enforced</span>
+    <span class="cm">// Only user_a signs, user_b doesn't — should fail</span>
+    dex.<span class="fn">atomic_swap</span>(...);
+}</pre>
+</div>
+
+<!-- Simulate Auth Before Submitting -->
+<h3 style="font-size:.88rem;margin-bottom:8px;color:#f2994a">&#x1F50D; Simulating Auth Before Submitting</h3>
+<p class="desc">Before submitting a transaction to the network, you can <strong>simulate</strong> it to discover all required authorizations. This lets you build the correct auth entries without trial and error.</p>
+
+<div class="code-block">
+<div class="code-header"><span class="ch-lang">Shell</span><span class="ch-file">Stellar CLI — Simulate &amp; Inspect Auth</span><button class="copy-btn" onclick="copyCode(this)">&#x1F4CB; Copy</button></div>
+<pre><span class="cm"># Simulate a contract call to see required auth entries</span>
+stellar contract invoke \
+  --id CDLZ7XBHP4QK3R2WMNTF6EHJG9SVX7KQ \
+  --source trader \
+  --network testnet \
+  --simulate-only \
+  -- swap \
+  --trader GBXF4ITB...QPZRD \
+  --token_a CDLZ7XBH...X7KQ \
+  --token_b CBVS4PAY...9TRN \
+  --amount_in 1000000000 \
+  --min_out 950000000
+
+<span class="cm"># Output shows all required AuthorizationEntry items:</span>
+<span class="cm"># ├── Root: trader authorizes swap()</span>
+<span class="cm"># │   └── Sub: token_a.transfer(trader → dex, 100.0)</span>
+<span class="cm"># Response includes: simulated tx, min resource fee, auth entries</span></pre>
+</div>
+
+<div class="code-block">
+<div class="code-header"><span class="ch-lang">Rust</span><span class="ch-file">SDK — Preflight Simulation</span><button class="copy-btn" onclick="copyCode(this)">&#x1F4CB; Copy</button></div>
+<pre><span class="kw">use</span> stellar_sdk::<span class="ty">Server</span>;
+
+<span class="cm">// Build the transaction without signing</span>
+<span class="kw">let</span> tx = <span class="ty">TransactionBuilder</span>::<span class="fn">new</span>(source_account)
+    .<span class="fn">add_operation</span>(
+        <span class="ty">InvokeContractOp</span>::<span class="fn">new</span>(dex_id, <span class="str">"swap"</span>, args)
+    )
+    .<span class="fn">build</span>();
+
+<span class="cm">// Simulate to discover auth requirements</span>
+<span class="kw">let</span> server = <span class="ty">Server</span>::<span class="fn">new</span>(<span class="str">"https://soroban-testnet.stellar.org"</span>);
+<span class="kw">let</span> sim = server.<span class="fn">simulate_transaction</span>(&amp;tx).<span class="kw">await</span>?;
+
+<span class="cm">// sim.results[0].auth contains all AuthorizationEntry items</span>
+<span class="cm">// Each entry shows: credentials, root_invocation, sub_invocations</span>
+<span class="kw">for</span> auth_entry <span class="kw">in</span> &amp;sim.results[<span class="num">0</span>].auth {
+    println!(<span class="str">"Auth required: {:?}"</span>, auth_entry);
+}
+
+<span class="cm">// Attach the auth entries and sign</span>
+<span class="kw">let</span> prepared = server.<span class="fn">prepare_transaction</span>(&amp;tx).<span class="kw">await</span>?;
+<span class="kw">let</span> signed = prepared.<span class="fn">sign</span>(&amp;keypair);
+<span class="kw">let</span> result = server.<span class="fn">send_transaction</span>(&amp;signed).<span class="kw">await</span>?;</pre>
+</div>
+
+<div class="tech-grid">
+<div class="tech-card" style="border-color:rgba(39,174,96,.15)">
+<div class="tc-icon">&#x2705;</div>
+<div class="tc-name">Why Simulate First</div>
+<div class="tc-desc">&bull; Discover all auth entries before signing<br>&bull; Calculate exact resource fees<br>&bull; Catch errors without spending XLM<br>&bull; Required for multi-party signing flows</div>
+</div>
+<div class="tech-card" style="border-color:rgba(242,153,74,.15)">
+<div class="tc-icon">&#x1F4DD;</div>
+<div class="tc-name">Simulation Returns</div>
+<div class="tc-desc">&bull; <strong>auth[]</strong> &mdash; all AuthorizationEntry items<br>&bull; <strong>minResourceFee</strong> &mdash; exact fee needed<br>&bull; <strong>results[]</strong> &mdash; return values<br>&bull; <strong>latestLedger</strong> &mdash; expiration window</div>
+</div>
+</div>
+
+<div class="info-box">
+<div class="ib-icon">&#x1F6E1;&#xFE0F;</div>
+<div class="ib-text"><strong>Testing pattern:</strong> Use <code style="background:rgba(0,0,0,.3);padding:2px 6px;border-radius:4px;font-size:.7rem">mock_all_auths()</code> during development for speed, then write dedicated tests <strong>without</strong> mocked auth to verify access control. For multi-party scenarios (atomic swaps), each party's auth is independent&mdash;simulate first, then gather signatures from all parties before submitting.</div>
+</div>
+
+<div class="alert-box" style="border-color:rgba(235,87,87,.2)">
+<div class="ab-icon">&#x1F6A8;</div>
+<div><div class="ab-title">Never Skip Auth Tests</div>
+<div class="ab-text">Missing or incorrect <code style="font-size:.65rem">require_auth()</code> is the #1 smart contract vulnerability. Always test: (1) unauthorized users get rejected, (2) auth tree matches expected sub_invocations, (3) multi-party flows require all signatures.</div></div>
+</div>
+</div>
+
+<!-- 2d. Mocking vs Real Dependencies -->
+<div class="section">
+<div class="section-head">
+<div class="sh-num num-blue">2c</div>
+<h2>Mocking vs Real Dependencies</h2>
+<span class="sh-badge" style="background:rgba(39,174,96,.1);color:#27ae60">Prefer Real</span>
+</div>
+
+<div class="alert-box" style="border-color:rgba(39,174,96,.2);background:rgba(39,174,96,.04)">
+<div class="ab-icon">&#x1F4A1;</div>
+<div><div class="ab-title" style="color:#27ae60">Key Insight: You Generally Don&rsquo;t Need Mocks</div>
+<div class="ab-text">The Soroban SDK makes it just as easy to test against real contracts as against mocks. Because all tests use the <strong>real Soroban Environment</strong> (not an emulator), there&rsquo;s no difference in tooling between unit and integration tests&mdash;so you might as well test with real dependencies.</div></div>
+</div>
+
+<p class="desc" style="margin-top:14px">Unlike other ecosystems where integration tests are slow and mocks are necessary, Stellar encourages testing with real dependencies. The SDK handles contract calls defensively, automatically stopping execution if an unexpected error or type is returned.</p>
+
+<!-- Prefer Real Contracts -->
+<h3 style="font-size:.88rem;margin-bottom:8px;color:#27ae60">&#x2705; Strategy 1: Fetch &amp; Test Real Deployed Contracts</h3>
+<p class="desc">Fetch deployed contracts from Mainnet or Testnet using the Stellar CLI, then use them directly in tests. This verifies exact on-chain behavior.</p>
+
+<div class="code-block">
+<div class="code-header"><span class="ch-lang">Shell</span><span class="ch-file">Fetch real dependency</span><button class="copy-btn" onclick="copyCode(this)">&#x1F4CB; Copy</button></div>
+<pre><span class="cm"># Fetch a deployed contract WASM from the network</span>
+stellar contract fetch --id C... --out-file pause.wasm</pre>
+</div>
+
+<div class="code-block">
+<div class="code-header"><span class="ch-lang">Rust</span><span class="ch-file">tests/test_with_real_dependency.rs</span><button class="copy-btn" onclick="copyCode(this)">&#x1F4CB; Copy</button></div>
+<pre><span class="mac">#![cfg(test)]</span>
+<span class="kw">use</span> soroban_sdk::<span class="ty">Env</span>;
+
+<span class="cm">// Import the real deployed contract</span>
+<span class="kw">mod</span> pause {
+    soroban_sdk::<span class="mac">contractimport!</span>(file = <span class="str">"pause.wasm"</span>);
+}
+
+<span class="at">#[test]</span>
+<span class="kw">fn</span> <span class="fn">test_with_real_pause_contract</span>() {
+    <span class="kw">let</span> env = <span class="ty">Env</span>::<span class="fn">default</span>();
+
+    <span class="cm">// Register the REAL contract — not a mock</span>
+    <span class="kw">let</span> pause_id = env.<span class="fn">register</span>(pause::WASM, ());
+    <span class="kw">let</span> pause_client = pause::<span class="ty">Client</span>::<span class="fn">new</span>(&amp;env, &amp;pause_id);
+
+    <span class="cm">// Test with the actual dependency implementation</span>
+    pause_client.<span class="fn">set</span>(&amp;<span class="kw">false</span>);
+    <span class="mac">assert_eq!</span>(client.<span class="fn">increment</span>(), <span class="num">1</span>);
+
+    pause_client.<span class="fn">set</span>(&amp;<span class="kw">true</span>);
+    <span class="mac">assert_eq!</span>(client.<span class="fn">try_increment</span>(), <span class="ty">Err</span>(<span class="ty">Ok</span>(<span class="ty">Error</span>::Paused)));
+}</pre>
+</div>
+
+<!-- Native Registration -->
+<h3 style="font-size:.88rem;margin-bottom:8px;color:#2d9cdb">&#x1F517; Strategy 2: Native Registration for Local Contracts</h3>
+<p class="desc">Register local contracts as native Rust code instead of compiling to WASM. Faster compilation, full debugging, and better visibility into internal state.</p>
+
+<div class="code-block">
+<div class="code-header"><span class="ch-lang">Rust</span><span class="ch-file">tests/test_native_registration.rs</span><button class="copy-btn" onclick="copyCode(this)">&#x1F4CB; Copy</button></div>
+<pre><span class="at">#[test]</span>
+<span class="kw">fn</span> <span class="fn">test_dex_with_real_token_native</span>() {
+    <span class="kw">let</span> env = <span class="ty">Env</span>::<span class="fn">default</span>();
+    env.<span class="fn">mock_all_auths</span>();
+
+    <span class="cm">// Native registration — real contracts, not mocks</span>
+    <span class="kw">let</span> token_id = env.<span class="fn">register</span>(<span class="ty">GoldToken</span>, ());
+    <span class="kw">let</span> dex_id = env.<span class="fn">register</span>(<span class="ty">McSwapDex</span>, ());
+
+    <span class="kw">let</span> token = <span class="ty">GoldTokenClient</span>::<span class="fn">new</span>(&amp;env, &amp;token_id);
+    <span class="kw">let</span> dex = <span class="ty">McSwapDexClient</span>::<span class="fn">new</span>(&amp;env, &amp;dex_id);
+
+    <span class="cm">// Full debugging across both contracts</span>
+    <span class="cm">// Step into token.transfer() from dex.swap()</span>
+    <span class="kw">let</span> user = <span class="ty">Address</span>::<span class="fn">generate</span>(&amp;env);
+    token.<span class="fn">mint</span>(&amp;user, &amp;<span class="num">1000_0000000</span>);
+    <span class="mac">assert_eq!</span>(token.<span class="fn">balance</span>(&amp;user), <span class="num">1000_0000000</span>);
+}</pre>
+</div>
+
+<!-- Defensive Coding -->
+<h3 style="font-size:.88rem;margin-bottom:8px;color:#f2994a">&#x1F6E1;&#xFE0F; Strategy 3: Code Defensively for Cross-Contract Errors</h3>
+<p class="desc">Any external contract call could fail. The Soroban SDK automatically stops execution if an unexpected error or type is returned. Use <code style="background:rgba(0,0,0,.3);padding:2px 6px;border-radius:4px;font-size:.7rem">try_</code> methods to handle failures gracefully instead of panicking.</p>
+
+<div class="code-block">
+<div class="code-header"><span class="ch-lang">Rust</span><span class="ch-file">tests/test_defensive_cross_contract.rs</span><button class="copy-btn" onclick="copyCode(this)">&#x1F4CB; Copy</button></div>
+<pre><span class="at">#[test]</span>
+<span class="kw">fn</span> <span class="fn">test_swap_handles_token_error</span>() {
+    <span class="kw">let</span> env = <span class="ty">Env</span>::<span class="fn">default</span>();
+    env.<span class="fn">mock_all_auths</span>();
+
+    <span class="kw">let</span> token_id = env.<span class="fn">register</span>(<span class="ty">GoldToken</span>, ());
+    <span class="kw">let</span> dex_id = env.<span class="fn">register</span>(<span class="ty">McSwapDex</span>, ());
+    <span class="kw">let</span> token = <span class="ty">GoldTokenClient</span>::<span class="fn">new</span>(&amp;env, &amp;token_id);
+    <span class="kw">let</span> dex = <span class="ty">McSwapDexClient</span>::<span class="fn">new</span>(&amp;env, &amp;dex_id);
+    <span class="kw">let</span> user = <span class="ty">Address</span>::<span class="fn">generate</span>(&amp;env);
+
+    <span class="cm">// User has 0 tokens — transfer should fail</span>
+    <span class="kw">let</span> result = dex.<span class="fn">try_swap</span>(
+        &amp;user, &amp;token_id, &amp;other_token_id,
+        &amp;<span class="num">100_0000000</span>, &amp;<span class="num">0</span>,
+    );
+    <span class="mac">assert!</span>(result.is_err());
+    <span class="cm">// ✅ Verify the error is propagated correctly</span>
+    <span class="cm">// ✅ No need for mocks — real token contract fails naturally</span>
+}
+
+<span class="at">#[test]</span>
+<span class="kw">fn</span> <span class="fn">test_swap_insufficient_output</span>() {
+    <span class="kw">let</span> env = <span class="ty">Env</span>::<span class="fn">default</span>();
+    env.<span class="fn">mock_all_auths</span>();
+
+    <span class="cm">// ... setup pool with real contracts ...</span>
+
+    <span class="cm">// Swap with unrealistically high min_out — should fail</span>
+    <span class="kw">let</span> result = dex.<span class="fn">try_swap</span>(
+        &amp;user, &amp;token_a_id, &amp;token_b_id,
+        &amp;<span class="num">100_0000000</span>,
+        &amp;<span class="num">999_0000000</span>, <span class="cm">// min_out &gt; possible</span>
+    );
+    <span class="mac">assert!</span>(result.is_err());
+    <span class="cm">// ✅ Real AMM math triggers natural slippage error</span>
+}</pre>
+</div>
+
+<!-- When to Actually Mock -->
+<h3 style="font-size:.88rem;margin-bottom:8px;color:#eb5757">&#x26A0;&#xFE0F; Strategy 4: When to Actually Mock (Rare Cases)</h3>
+<p class="desc">Mocks are only useful when it&rsquo;s <strong>genuinely difficult</strong> to test against the real dependency. In Soroban, this is rare—but there are a few valid cases:</p>
+
+<div class="code-block">
+<div class="code-header"><span class="ch-lang">Rust</span><span class="ch-file">tests/test_rare_mock_cases.rs</span><button class="copy-btn" onclick="copyCode(this)">&#x1F4CB; Copy</button></div>
+<pre><span class="cm">// RARE CASE: Simulate impossible states for edge-case testing</span>
+<span class="cm">// E.g., an oracle returning an extreme price that wouldn't</span>
+<span class="cm">// occur naturally, to test overflow protection</span>
+
+<span class="at">#[contract]</span>
+<span class="kw">pub struct</span> <span class="ty">ExtremeOracle</span>;
+
+<span class="at">#[contractimpl]</span>
+<span class="kw">impl</span> <span class="ty">ExtremeOracle</span> {
+    <span class="kw">pub fn</span> <span class="fn">get_price</span>(_env: <span class="ty">Env</span>, _asset: <span class="ty">Address</span>) -> <span class="ty">i128</span> {
+        <span class="ty">i128</span>::MAX <span class="cm">// Extreme value — test overflow handling</span>
+    }
+}
+
+<span class="at">#[test]</span>
+<span class="kw">fn</span> <span class="fn">test_dex_handles_extreme_oracle_price</span>() {
+    <span class="kw">let</span> env = <span class="ty">Env</span>::<span class="fn">default</span>();
+    <span class="kw">let</span> oracle_id = env.<span class="fn">register</span>(<span class="ty">ExtremeOracle</span>, ());
+    dex.<span class="fn">set_oracle</span>(&amp;oracle_id);
+
+    <span class="cm">// DEX must handle extreme price without overflow panic</span>
+    <span class="kw">let</span> result = dex.<span class="fn">try_get_quote</span>(&amp;xlm_id, &amp;usdc_id, &amp;<span class="num">100</span>);
+    <span class="mac">assert!</span>(result.is_err());
+    <span class="cm">// ✅ Stub justified — impossible to get i128::MAX from real oracle</span>
+}
+
+<span class="cm">// RARE CASE: Test behavior when a dependency is permanently broken</span>
+<span class="at">#[contract]</span>
+<span class="kw">pub struct</span> <span class="ty">BrokenOracle</span>;
+
+<span class="at">#[contractimpl]</span>
+<span class="kw">impl</span> <span class="ty">BrokenOracle</span> {
+    <span class="kw">pub fn</span> <span class="fn">get_price</span>(_env: <span class="ty">Env</span>, _asset: <span class="ty">Address</span>) -> <span class="ty">i128</span> {
+        <span class="mac">panic!</span>(<span class="str">"contract destroyed"</span>)
+    }
+}
+
+<span class="at">#[test]</span>
+<span class="kw">fn</span> <span class="fn">test_graceful_degradation_on_broken_dep</span>() {
+    <span class="kw">let</span> env = <span class="ty">Env</span>::<span class="fn">default</span>();
+    <span class="kw">let</span> oracle_id = env.<span class="fn">register</span>(<span class="ty">BrokenOracle</span>, ());
+    dex.<span class="fn">set_oracle</span>(&amp;oracle_id);
+
+    <span class="cm">// Contract should fall back gracefully, not cascade-panic</span>
+    <span class="kw">let</span> result = dex.<span class="fn">try_get_quote</span>(&amp;xlm_id, &amp;usdc_id, &amp;<span class="num">100</span>);
+    <span class="mac">assert!</span>(result.is_err());
+}</pre>
+</div>
+
+<div class="tech-grid">
+<div class="tech-card" style="border-color:rgba(39,174,96,.2)">
+<div class="tc-icon">&#x2705;</div>
+<div class="tc-name">Prefer Real</div>
+<div class="tc-desc"><strong>Default approach.</strong> Fetch deployed WASM or register native. Verifies actual behavior, catches real bugs, zero maintenance overhead.</div>
+</div>
+<div class="tech-card" style="border-color:rgba(45,156,219,.2)">
+<div class="tc-icon">&#x1F517;</div>
+<div class="tc-name">Native Registration</div>
+<div class="tc-desc"><strong>Local contracts.</strong> Full debugging, fast iteration. Use <code style="font-size:.6rem">env.register(Contract, ())</code> for contracts you develop together.</div>
+</div>
+<div class="tech-card" style="border-color:rgba(242,153,74,.2)">
+<div class="tc-icon">&#x1F6E1;&#xFE0F;</div>
+<div class="tc-name">Defensive Testing</div>
+<div class="tc-desc"><strong>Error paths.</strong> Use <code style="font-size:.6rem">try_</code> methods on real contracts. Natural failures test your error handling without mocks.</div>
+</div>
+<div class="tech-card" style="border-color:rgba(235,87,87,.2)">
+<div class="tc-icon">&#x26A0;&#xFE0F;</div>
+<div class="tc-name">Mock Only When Needed</div>
+<div class="tc-desc"><strong>Rare.</strong> Only for impossible states (i128::MAX, broken deps). If you can trigger the condition with a real contract, don&rsquo;t mock.</div>
+</div>
+</div>
+
+<div class="info-box">
+<div class="ib-icon">&#x1F3AF;</div>
+<div class="ib-text"><strong>Decision rule:</strong> Can you achieve the same test outcome using a real contract with controlled state? If yes, use the real contract. If the state is physically impossible to create (overflows, destroyed contracts, timing attacks), then a minimal stub is justified.</div>
+</div>
+</div>
+
+<!-- 3. Fuzzing & Mutation -->
+<div class="section">
+<div class="section-head">
+<div class="sh-num num-purple">3</div>
+<h2>Fuzzing &amp; Mutation Testing</h2>
+<span class="sh-badge" style="background:rgba(108,92,231,.1);color:#a29bfe">Advanced</span>
+</div>
+<p class="desc">Go beyond manually written test cases. These automated techniques discover edge cases you'd never think of.</p>
+
+<div class="tech-grid">
+<div class="tech-card" style="border-color:rgba(108,92,231,.15)">
+<div class="tc-icon">&#x1F3B2;</div>
+<div class="tc-name">Fuzzing</div>
+<div class="tc-desc"><strong>What:</strong> Generates random/semi-random inputs automatically and feeds them to your contract functions.<br><br><strong>When:</strong> Finding unexpected panics, overflows, or logic errors with edge-case inputs (e.g., u128::MAX, zero amounts, empty addresses).<br><br><strong>Tool:</strong> cargo-fuzz with libFuzzer</div>
+</div>
+<div class="tech-card" style="border-color:rgba(242,153,74,.15)">
+<div class="tc-icon">&#x1F9EC;</div>
+<div class="tc-name">Mutation Testing</div>
+<div class="tc-desc"><strong>What:</strong> Automatically modifies your source code (e.g., changes + to -, swaps &gt; with &gt;=) and checks if your tests catch the mutation.<br><br><strong>When:</strong> Verifying that your tests <em>actually catch bugs</em>, not just pass. If a mutant survives, your tests have a blind spot.<br><br><strong>Tool:</strong> cargo-mutants</div>
+</div>
+</div>
+
+<div class="code-block">
+<div class="code-header"><span class="ch-lang">Rust</span><span class="ch-file">fuzz/fuzz_targets/fuzz_increment.rs</span><button class="copy-btn" onclick="copyCode(this)">&#x1F4CB; Copy</button></div>
+<pre><span class="mac">#![no_main]</span>
+<span class="kw">use</span> libfuzzer_sys::<span class="fn">fuzz_target!</span>;
+<span class="kw">use</span> soroban_sdk::{
+    testutils::arbitrary::{arbitrary, <span class="ty">Arbitrary</span>},
+    <span class="ty">Env</span>,
+};
+
+<span class="at">#[derive(Debug, Arbitrary)]</span>
+<span class="kw">pub struct</span> <span class="ty">Input</span> {
+    <span class="kw">pub</span> by: <span class="ty">u64</span>,
+}
+
+<span class="mac">fuzz_target!</span>(|input: <span class="ty">Input</span>| {
+    <span class="kw">let</span> env = <span class="ty">Env</span>::<span class="fn">default</span>();
+    <span class="kw">let</span> id = env.<span class="fn">register</span>(<span class="ty">IncrementContract</span>, ());
+    <span class="kw">let</span> client = <span class="ty">IncrementContractClient</span>::<span class="fn">new</span>(&amp;env, &amp;id);
+
+    <span class="cm">// Property: each increment returns a value greater than the last</span>
+    <span class="kw">let mut</span> last: <span class="ty">Option</span>&lt;<span class="ty">u32</span>&gt; = <span class="ty">None</span>;
+    <span class="kw">for</span> _ <span class="kw">in</span> input.by.. {
+        <span class="kw">match</span> client.<span class="fn">try_increment</span>() {
+            <span class="ty">Ok</span>(<span class="ty">Ok</span>(current)) => <span class="mac">assert!</span>(<span class="ty">Some</span>(current) > last),
+            <span class="ty">Err</span>(<span class="ty">Ok</span>(_)) => {} <span class="cm">// Expected contract error</span>
+            <span class="ty">Ok</span>(<span class="ty">Err</span>(_)) => <span class="mac">panic!</span>(<span class="str">"success with wrong type"</span>),
+            <span class="ty">Err</span>(<span class="ty">Err</span>(_)) => <span class="mac">panic!</span>(<span class="str">"unrecognised error"</span>),
+        }
+    }
+});</pre>
+</div>
+
+<div class="info-box">
+<div class="ib-icon">&#x1F4A1;</div>
+<div class="ib-text"><strong>Property testing:</strong> Fuzzing isn&rsquo;t just crash detection. Write <strong>property tests</strong> that assert invariants must hold regardless of input&mdash;e.g., &ldquo;all balances never become negative&rdquo; or &ldquo;increment always returns a value greater than the last.&rdquo; Use <code style="background:rgba(0,0,0,.3);padding:2px 6px;border-radius:4px;font-size:.7rem">soroban_sdk::testutils::arbitrary</code> for structured random input generation.</div>
+</div>
+
+<div class="code-block">
+<div class="code-header"><span class="ch-lang">Shell</span><span class="ch-file">Terminal Commands</span><button class="copy-btn" onclick="copyCode(this)">&#x1F4CB; Copy</button></div>
+<pre><span class="cm"># Run fuzzing for 5 minutes</span>
+cargo +nightly fuzz run fuzz_increment -- -max_total_time=<span class="num">300</span>
+
+<span class="cm"># Fuzz coverage report</span>
+cargo +nightly fuzz coverage fuzz_increment
+
+<span class="cm"># Run mutation testing to verify test quality</span>
+cargo install cargo-mutants
+cargo mutants --package gold-token
+
+<span class="cm"># Check code coverage with cargo-llvm-cov</span>
+cargo install cargo-llvm-cov
+cargo llvm-cov --html</pre>
+</div>
+</div>
+
+<!-- 4. Local & Testnet -->
+<div class="section">
+<div class="section-head">
+<div class="sh-num num-orange">4</div>
+<h2>Local &amp; Testnet Testing</h2>
+<span class="sh-badge" style="background:rgba(242,153,74,.1);color:#f2994a">Environment</span>
+</div>
+<p class="desc">Use a local blockchain for rapid iteration. Stellar provides a lightweight Docker image with accelerated ledger closes. Then deploy to Testnet and run extended without issues before considering mainnet.</p>
+
+<div class="timeline">
+<div class="tl-item">
+<div class="tl-phase">Phase 1 &mdash; Local Dev</div>
+<div class="tl-title">Standalone Docker Container</div>
+<div class="tl-desc">Accelerated ledgers, instant feedback, no network dependency. Run all unit + integration tests here.</div>
+</div>
+<div class="tl-item">
+<div class="tl-phase">Phase 2 &mdash; Testnet Deploy</div>
+<div class="tl-title">Stellar Testnet Deployment</div>
+<div class="tl-desc">Deploy all 6 contracts, fund via Friendbot, test real transaction flows with actual Horizon API calls.</div>
+</div>
+<div class="tl-item">
+<div class="tl-phase">Phase 3 &mdash; Soak Testing</div>
+<div class="tl-title">Extended Testnet Monitoring</div>
+<div class="tl-desc">Run for days/weeks. Monitor gas usage, state growth, edge cases under real network conditions. Automated test scripts.</div>
+</div>
+<div class="tl-item">
+<div class="tl-phase">Phase 4 &mdash; Fork Testing</div>
+<div class="tl-title">Snapshot &amp; Test Against Mainnet State</div>
+<div class="tl-desc">Use <code style="font-size:.6rem">stellar snapshot create</code> to capture contract + data from Mainnet. Load into Env for the most realistic integration test possible.</div>
+</div>
+</div>
+
+<div class="code-block">
+<div class="code-header"><span class="ch-lang">Shell</span><span class="ch-file">Local Stellar Quickstart</span><button class="copy-btn" onclick="copyCode(this)">&#x1F4CB; Copy</button></div>
+<pre><span class="cm"># Start local Stellar network with Docker</span>
+docker run --rm -it \
+  -p <span class="num">8000</span>:<span class="num">8000</span> \
+  --name stellar \
+  stellar/quickstart:testing \
+  --standalone \
+  --enable-soroban-rpc
+
+<span class="cm"># Build and deploy to local</span>
+soroban contract build
+soroban contract deploy \
+  --wasm target/wasm32-unknown-unknown/release/gold_token.wasm \
+  --source alice \
+  --network standalone
+
+<span class="cm"># Deploy to Testnet</span>
+soroban contract deploy \
+  --wasm target/wasm32-unknown-unknown/release/gold_token.wasm \
+  --source deployer \
+  --network testnet</pre>
+</div>
+
+<!-- Fork Testing with Snapshots -->
+<h3 style="font-size:.88rem;margin-bottom:8px;color:#f2994a">&#x1F4F8; Fork Testing with Ledger Snapshots</h3>
+<p class="desc">Pull real contract state from Mainnet or Testnet into your tests. The snapshot includes the contract WASM <strong>and its storage data</strong>, so your test runs against the exact same state as production.</p>
+
+<div class="code-block">
+<div class="code-header"><span class="ch-lang">Shell</span><span class="ch-file">Create a Ledger Snapshot</span><button class="copy-btn" onclick="copyCode(this)">&#x1F4CB; Copy</button></div>
+<pre><span class="cm"># Snapshot a contract and its data from Mainnet/Testnet</span>
+stellar snapshot create \
+  --address C... \
+  --output json \
+  --out snapshot.json</pre>
+</div>
+
+<div class="code-block">
+<div class="code-header"><span class="ch-lang">Rust</span><span class="ch-file">tests/fork_test.rs</span><button class="copy-btn" onclick="copyCode(this)">&#x1F4CB; Copy</button></div>
+<pre><span class="kw">use</span> soroban_sdk::{<span class="ty">Env</span>, <span class="ty">Address</span>};
+<span class="kw">use</span> crate::{<span class="ty">IncrementContract</span>, <span class="ty">IncrementContractClient</span>};
+
+<span class="at">#[test]</span>
+<span class="kw">fn</span> <span class="fn">test_against_mainnet_state</span>() {
+    <span class="cm">// Load the snapshot — contract + all its stored data</span>
+    <span class="kw">let</span> env = <span class="ty">Env</span>::<span class="fn">from_ledger_snapshot_file</span>(<span class="str">"snapshot.json"</span>);
+
+    <span class="cm">// Reference the deployed contract by its real address</span>
+    <span class="kw">let</span> pause_id = <span class="ty">Address</span>::<span class="fn">from_str</span>(&amp;env, <span class="str">"C..."</span>);
+
+    <span class="cm">// Register YOUR contract against the real dependency state</span>
+    <span class="kw">let</span> contract_id = env.<span class="fn">register</span>(
+        <span class="ty">IncrementContract</span>,
+        <span class="ty">IncrementContractArgs</span>::<span class="fn">__constructor</span>(&amp;pause_id),
+    );
+    <span class="kw">let</span> client = <span class="ty">IncrementContractClient</span>::<span class="fn">new</span>(&amp;env, &amp;contract_id);
+
+    <span class="cm">// Test against real Mainnet data — most realistic test possible</span>
+    <span class="mac">assert_eq!</span>(client.<span class="fn">increment</span>(), <span class="num">1</span>);
+}</pre>
+</div>
+
+<div class="info-box">
+<div class="ib-icon">&#x1F3AF;</div>
+<div class="ib-text"><strong>When to fork test:</strong> Contract upgrades (test new code against real state), migration scripts, verifying behavior against real production data, or testing how your contract interacts with existing deployed dependencies.</div>
+</div>
+</div>
+
+<!-- 4b. Differential Testing -->
+<div class="section">
+<div class="section-head">
+<div class="sh-num" style="background:rgba(86,204,242,.12);color:#56ccf2">5</div>
+<h2>Differential Testing</h2>
+<span class="sh-badge" style="background:rgba(86,204,242,.1);color:#56ccf2">Compare Versions</span>
+</div>
+<p class="desc">Differential testing compares two implementations to discover differences in behavior. The goal is to prove that a new version, refactored code, or updated SDK <strong>does not change observable functionality</strong>.</p>
+
+<div class="code-block">
+<div class="code-header"><span class="ch-lang">Shell</span><span class="ch-file">Fetch deployed contract for comparison</span><button class="copy-btn" onclick="copyCode(this)">&#x1F4CB; Copy</button></div>
+<pre><span class="cm"># Fetch the currently deployed version</span>
+stellar contract fetch --id C... --out-file contract.wasm</pre>
+</div>
+
+<div class="code-block">
+<div class="code-header"><span class="ch-lang">Rust</span><span class="ch-file">tests/differential_test.rs</span><button class="copy-btn" onclick="copyCode(this)">&#x1F4CB; Copy</button></div>
+<pre><span class="mac">#![cfg(test)]</span>
+<span class="kw">use</span> crate::{<span class="ty">IncrementContract</span>, <span class="ty">IncrementContractClient</span>};
+<span class="kw">use</span> soroban_sdk::{testutils::<span class="ty">Events</span> <span class="kw">as</span> _, <span class="ty">Env</span>};
+
+<span class="kw">mod</span> deployed {
+    soroban_sdk::<span class="mac">contractimport!</span>(file = <span class="str">"contract.wasm"</span>);
+}
+
+<span class="at">#[test]</span>
+<span class="kw">fn</span> <span class="fn">differential_test</span>() {
+    <span class="kw">let</span> env = <span class="ty">Env</span>::<span class="fn">default</span>();
+    <span class="mac">assert_eq!</span>(
+        <span class="cm">// Baseline: the currently deployed contract</span>
+        {
+            <span class="kw">let</span> contract_id = env.<span class="fn">register</span>(deployed::WASM, ());
+            <span class="kw">let</span> client = <span class="ty">IncrementContractClient</span>::<span class="fn">new</span>(&amp;env, &amp;contract_id);
+            (
+                <span class="cm">// Return values</span>
+                (client.<span class="fn">increment</span>(), client.<span class="fn">increment</span>(), client.<span class="fn">increment</span>()),
+                <span class="cm">// Events emitted</span>
+                env.events.<span class="fn">all</span>(),
+            )
+        },
+        <span class="cm">// New: the changed or refactored contract</span>
+        {
+            <span class="kw">let</span> contract_id = env.<span class="fn">register</span>(<span class="ty">IncrementContract</span>, ());
+            <span class="kw">let</span> client = <span class="ty">IncrementContractClient</span>::<span class="fn">new</span>(&amp;env, &amp;contract_id);
+            (
+                <span class="cm">// Return values (must match baseline)</span>
+                (client.<span class="fn">increment</span>(), client.<span class="fn">increment</span>(), client.<span class="fn">increment</span>()),
+                <span class="cm">// Events (must match baseline)</span>
+                env.events.<span class="fn">all</span>(),
+            )
+        },
+    );
+}</pre>
+</div>
+
+<div class="tech-grid">
+<div class="tech-card" style="border-color:rgba(86,204,242,.15)">
+<div class="tc-icon">&#x1F504;</div>
+<div class="tc-name">When to Use</div>
+<div class="tc-desc">&bull; Upgrading a contract version<br>&bull; Refactoring without functional changes<br>&bull; Updating SDK or dependencies<br>&bull; Migrating between toolchains</div>
+</div>
+<div class="tech-card" style="border-color:rgba(86,204,242,.15)">
+<div class="tc-icon">&#x1F50D;</div>
+<div class="tc-name">What Gets Compared</div>
+<div class="tc-desc">&bull; Return values (exact match)<br>&bull; Events emitted (order + data)<br>&bull; State changes (storage writes)<br>&bull; Authorization requirements</div>
+</div>
+</div>
+
+<!-- Test Snapshots -->
+<h3 style="font-size:.88rem;margin-bottom:8px;color:#56ccf2">&#x1F4F8; Automatic Test Snapshots</h3>
+<p class="desc">All contracts built with the Soroban Rust SDK generate a <strong>test snapshot</strong> at the end of every test involving the Soroban Environment. Snapshots are written as JSON files to the <code style="background:rgba(0,0,0,.3);padding:2px 6px;border-radius:4px;font-size:.7rem">test_snapshots/</code> directory and should be committed to version control.</p>
+
+<div class="code-block">
+<div class="code-header"><span class="ch-lang">Rust</span><span class="ch-file">tests/test_with_snapshots.rs</span><button class="copy-btn" onclick="copyCode(this)">&#x1F4CB; Copy</button></div>
+<pre><span class="mac">#![cfg(test)]</span>
+<span class="kw">use</span> soroban_sdk::<span class="ty">Env</span>;
+<span class="kw">use</span> crate::{<span class="ty">Contract</span>, <span class="ty">ContractClient</span>};
+
+<span class="at">#[test]</span>
+<span class="kw">fn</span> <span class="fn">test_abc</span>() {
+    <span class="kw">let</span> env = <span class="ty">Env</span>::<span class="fn">default</span>();
+    <span class="kw">let</span> contract_id = env.<span class="fn">register_contract</span>(<span class="ty">None</span>, <span class="ty">Contract</span>);
+    <span class="kw">let</span> client = <span class="ty">ContractClient</span>::<span class="fn">new</span>(&amp;env, &amp;contract_id);
+
+    <span class="mac">assert_eq!</span>(client.<span class="fn">increment</span>(), <span class="num">1</span>);
+
+    <span class="cm">// At the end of the test, Env automatically writes:</span>
+    <span class="cm">// test_snapshots/test_abc.1.json</span>
+}</pre>
+</div>
+
+<div class="alert-box" style="border-color:rgba(86,204,242,.2);background:rgba(86,204,242,.04)">
+<div class="ab-icon">&#x1F4DD;</div>
+<div><div class="ab-title" style="color:#56ccf2">Snapshot as Change Detector</div>
+<div class="ab-text">If a test snapshot changes when you didn&rsquo;t expect it&mdash;such as after updating an SDK or refactoring&mdash;it&rsquo;s a signal that observable contract behavior may have changed too. Review the diff carefully before committing.</div></div>
+</div>
+</div>
+
+<!-- 6. Security Audits -->
+<div class="section">
+<div class="section-head">
+<div class="sh-num num-red">6</div>
+<h2>Security Audits</h2>
+<span class="sh-badge" style="background:rgba(235,87,87,.1);color:#eb5757">Critical</span>
+</div>
+<p class="desc">Before mainnet, get professional audits from firms specializing in smart contract security. They identify vulnerabilities through both manual review and formal verification.</p>
+
+<div class="audit-firms">
+<div class="audit-firm"><div style="font-size:1.3rem;margin-bottom:6px">&#x1F50D;</div><div class="af-name">Certora</div><div class="af-type">Formal Verification</div></div>
+<div class="audit-firm"><div style="font-size:1.3rem;margin-bottom:6px">&#x1F6E1;&#xFE0F;</div><div class="af-name">OtterSec</div><div class="af-type">Manual + Automated</div></div>
+<div class="audit-firm"><div style="font-size:1.3rem;margin-bottom:6px">&#x1F50E;</div><div class="af-name">Halborn</div><div class="af-type">Penetration Testing</div></div>
+<div class="audit-firm"><div style="font-size:1.3rem;margin-bottom:6px">&#x2696;&#xFE0F;</div><div class="af-name">OpenZeppelin</div><div class="af-type">Comprehensive Audit</div></div>
+</div>
+
+<div class="alert-box" style="border-color:rgba(242,153,74,.2);background:rgba(242,153,74,.04)">
+<div class="ab-icon">&#x1F4B0;</div>
+<div><div class="ab-title" style="color:#f2994a">Stellar Community Fund Audit Bank</div>
+<div class="ab-text">SCF-funded projects can apply for subsidized security audits through the Audit Bank program. This covers professional security review from approved audit firms.</div></div>
+</div>
+
+<div class="tech-grid">
+<div class="tech-card">
+<div class="tc-icon">&#x1F4DD;</div>
+<div class="tc-name">Manual Review</div>
+<div class="tc-desc">Line-by-line code review by security experts. Catches logic bugs, access control issues, reentrancy</div>
+</div>
+<div class="tech-card">
+<div class="tc-icon">&#x1F9EE;</div>
+<div class="tc-name">Formal Verification</div>
+<div class="tc-desc">Mathematically prove correctness. Guarantees invariants hold for ALL possible inputs, not just test cases</div>
+</div>
+</div>
+</div>
+
+<!-- 7. Pre-Mainnet Checklist -->
+<div class="section">
+<div class="section-head">
+<div class="sh-num num-gold">7</div>
+<h2>Pre-Mainnet Checklist</h2>
+<span class="sh-badge" style="background:rgba(255,215,0,.1);color:#ffd700">Launch Ready</span>
+</div>
+<p class="desc">Complete every item before deploying to mainnet. Click items to mark them as done.</p>
+
+<div class="checklist" id="checklist">
+<div class="check-item" onclick="toggleCheck(this)"><div class="ci-box"></div><div><div class="ci-text">All unit tests passing (100%)</div><div class="ci-sub">cargo test -- --nocapture with all modules</div></div></div>
+<div class="check-item" onclick="toggleCheck(this)"><div class="ci-box"></div><div><div class="ci-text">Integration tests for all contract pairs</div><div class="ci-sub">Token&#x2194;DEX, Token&#x2194;Staking, DAO&#x2194;Vault, Payment&#x2194;Token</div></div></div>
+<div class="check-item" onclick="toggleCheck(this)"><div class="ci-box"></div><div><div class="ci-text">Fuzz testing completed (no crashes)</div><div class="ci-sub">cargo fuzz run for all entry points, minimum 1 hour each</div></div></div>
+<div class="check-item" onclick="toggleCheck(this)"><div class="ci-box"></div><div><div class="ci-text">Mutation testing &gt;80% kill rate</div><div class="ci-sub">cargo mutants shows tests catch most introduced bugs</div></div></div>
+<div class="check-item" onclick="toggleCheck(this)"><div class="ci-box"></div><div><div class="ci-text">Code coverage &gt;90%</div><div class="ci-sub">cargo tarpaulin confirms all critical paths tested</div></div></div>
+<div class="check-item" onclick="toggleCheck(this)"><div class="ci-box"></div><div><div class="ci-text">Testnet deployment running 2+ weeks stable</div><div class="ci-sub">All 6 contracts deployed and exercised on Stellar Testnet</div></div></div>
+<div class="check-item" onclick="toggleCheck(this)"><div class="ci-box"></div><div><div class="ci-text">Professional security audit completed</div><div class="ci-sub">At least one audit firm reviewed all contracts, all findings resolved</div></div></div>
+<div class="check-item" onclick="toggleCheck(this)"><div class="ci-box"></div><div><div class="ci-text">Source code verified on-chain</div><div class="ci-sub">Published and verifiable WASM matches deployed contract</div></div></div>
+<div class="check-item" onclick="toggleCheck(this)"><div class="ci-box"></div><div><div class="ci-text">Secure key management configured</div><div class="ci-sub">Multi-sig admin, hardware wallet signing, no single point of failure</div></div></div>
+<div class="check-item" onclick="toggleCheck(this)"><div class="ci-box"></div><div><div class="ci-text">Project governance plan documented</div><div class="ci-sub">Upgrade procedures, emergency pause, incident response plan</div></div></div>
+<div class="check-item" onclick="toggleCheck(this)"><div class="ci-box"></div><div><div class="ci-text">Gas optimization verified</div><div class="ci-sub">All functions within resource limits, no excessive state bloat</div></div></div>
+<div class="check-item" onclick="toggleCheck(this)"><div class="ci-box"></div><div><div class="ci-text">Edge cases &amp; error handling reviewed</div><div class="ci-sub">Zero amounts, max values, unauthorized access, re-entrancy safe</div></div></div>
+</div>
+
+<div class="progress-bar pg-green"><div class="pg-fill" id="pgFill" style="width:0%"></div></div>
+<div class="pg-label"><span id="pgDone">0 of 12 complete</span><span id="pgPct">0%</span></div>
+</div>
+
+<!-- Contract Test Coverage -->
+<div class="section">
+<div class="section-head">
+<div class="sh-num num-blue">&#x1F4CA;</div>
+<h2>Platform Test Coverage</h2>
+</div>
+<p class="desc">Target coverage for each smart contract in the platform:</p>
+
+<div style="margin-bottom:10px">
+<div style="display:flex;justify-content:space-between;font-size:.7rem;margin-bottom:3px"><span>Gold Token (SEP-41)</span><span style="color:#27ae60">94%</span></div>
+<div class="progress-bar pg-green"><div class="pg-fill" style="width:94%"></div></div>
+</div>
+<div style="margin-bottom:10px">
+<div style="display:flex;justify-content:space-between;font-size:.7rem;margin-bottom:3px"><span>Payment Contract</span><span style="color:#27ae60">91%</span></div>
+<div class="progress-bar pg-green"><div class="pg-fill" style="width:91%"></div></div>
+</div>
+<div style="margin-bottom:10px">
+<div style="display:flex;justify-content:space-between;font-size:.7rem;margin-bottom:3px"><span>DEX/AMM Contract</span><span style="color:#2d9cdb">87%</span></div>
+<div class="progress-bar pg-blue"><div class="pg-fill" style="width:87%"></div></div>
+</div>
+<div style="margin-bottom:10px">
+<div style="display:flex;justify-content:space-between;font-size:.7rem;margin-bottom:3px"><span>Governance DAO</span><span style="color:#2d9cdb">85%</span></div>
+<div class="progress-bar pg-blue"><div class="pg-fill" style="width:85%"></div></div>
+</div>
+<div style="margin-bottom:10px">
+<div style="display:flex;justify-content:space-between;font-size:.7rem;margin-bottom:3px"><span>Staking Contract</span><span style="color:#6c5ce7">82%</span></div>
+<div class="progress-bar pg-purple"><div class="pg-fill" style="width:82%"></div></div>
+</div>
+<div style="margin-bottom:10px">
+<div style="display:flex;justify-content:space-between;font-size:.7rem;margin-bottom:3px"><span>Multi-Sig Vault</span><span style="color:#6c5ce7">88%</span></div>
+<div class="progress-bar pg-purple"><div class="pg-fill" style="width:88%"></div></div>
+</div>
+</div>
+
+<div class="nav-links">
+<a href="index.html">&#x1F3E0; Home</a>
+<a href="wallet.html">&#x1F4B3; Wallet</a>
+<a href="card-gold.html">&#x1F3C6; Token</a>
+<a href="card-mastercard.html">&#x1F504; DEX</a>
+<a href="card-platinum.html">&#x1F4C8; Staking</a>
+<a href="FUTURE CTPTO CARD SMART CONTRACT .html/smart-contract-guide.html">&#x1F4D6; Dev Guide</a>
+</div>
+
+<div class="net-badge">Smart Contract Testing Guide v1.0.0 &bull; Soroban SDK v21 &bull; Stellar Testnet</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+function toggleCheck(el){
+  el.classList.toggle('done');
+  const box=el.querySelector('.ci-box');
+  box.textContent=el.classList.contains('done')?'\u2713':'';
+  updateProgress();
+  saveChecklist();
+}
+function updateProgress(){
+  const items=document.querySelectorAll('.check-item');
+  const done=document.querySelectorAll('.check-item.done').length;
+  const pct=Math.round((done/items.length)*100);
+  document.getElementById('pgFill').style.width=pct+'%';
+  document.getElementById('pgDone').textContent=done+' of '+items.length+' complete';
+  document.getElementById('pgPct').textContent=pct+'%';
+}
+function saveChecklist(){
+  const states=[];
+  document.querySelectorAll('.check-item').forEach(el=>states.push(el.classList.contains('done')));
+  localStorage.setItem('test_checklist',JSON.stringify(states));
+}
+function loadChecklist(){
+  const saved=JSON.parse(localStorage.getItem('test_checklist')||'null');
+  if(!saved)return;
+  document.querySelectorAll('.check-item').forEach((el,i)=>{
+    if(saved[i]){el.classList.add('done');el.querySelector('.ci-box').textContent='\u2713';}
+  });
+  updateProgress();
+}
+function copyCode(btn){
+  const pre=btn.closest('.code-block').querySelector('pre');
+  navigator.clipboard.writeText(pre.textContent).then(()=>showToast('Code copied!'));
+}
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2000);
+}
+loadChecklist();
+</script>
+</body>
+</html>

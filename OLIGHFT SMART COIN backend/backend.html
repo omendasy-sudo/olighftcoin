@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OLIGHFT SMART COIN &mdash; Admin Backend</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="canonical" href="https://olighftcoin.com/backend.html">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135deg,#0a0a1a,#111128,#0a0a1a);color:#fff;min-height:100vh}
+.top-bar{display:flex;justify-content:space-between;align-items:center;padding:14px 24px;background:rgba(0,0,0,.3);border-bottom:1px solid rgba(99,102,241,.1)}
+.top-bar .brand{display:flex;align-items:center;gap:10px}
+.top-bar .brand .logo{font-size:1.3rem}
+.top-bar .brand h1{font-size:1rem;background:linear-gradient(90deg,#6366f1,#818cf8);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.top-bar .brand span{font-size:.6rem;background:rgba(99,102,241,.15);color:#818cf8;padding:2px 8px;border-radius:6px;font-weight:600}
+.top-bar .user-info{display:flex;align-items:center;gap:12px}
+.top-bar .user-info .avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#818cf8);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.75rem}
+.top-bar .user-info .uname{font-size:.78rem;color:rgba(255,255,255,.7)}
+.logout-btn{background:rgba(235,87,87,.1);border:1px solid rgba(235,87,87,.2);color:#eb5757;padding:6px 14px;border-radius:8px;font-size:.7rem;font-weight:600;cursor:pointer;transition:.2s}
+.logout-btn:hover{background:rgba(235,87,87,.2)}
+
+.layout{display:flex;min-height:calc(100vh - 61px)}
+
+/* Sidebar */
+.sidebar{width:220px;background:rgba(0,0,0,.2);border-right:1px solid rgba(255,255,255,.04);padding:16px 0;flex-shrink:0}
+.sidebar a{display:flex;align-items:center;gap:10px;padding:10px 20px;font-size:.78rem;color:rgba(255,255,255,.45);text-decoration:none;transition:.2s;border-left:3px solid transparent}
+.sidebar a:hover{color:#fff;background:rgba(99,102,241,.06)}
+.sidebar a.active{color:#818cf8;background:rgba(99,102,241,.08);border-left-color:#6366f1}
+.sidebar .s-icon{font-size:1rem;width:20px;text-align:center}
+.sidebar .sep{height:1px;background:rgba(255,255,255,.04);margin:12px 0}
+
+/* Main */
+.main{flex:1;padding:24px;overflow-y:auto}
+.main h2{font-size:1.1rem;margin-bottom:20px;display:flex;align-items:center;gap:8px}
+
+/* Stats */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:24px}
+.stat-card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:18px}
+.stat-card .sc-label{font-size:.6rem;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.5px}
+.stat-card .sc-val{font-size:1.4rem;font-weight:800;margin-top:4px}
+.stat-card .sc-sub{font-size:.65rem;color:rgba(255,255,255,.3);margin-top:4px}
+.sc-purple{color:#818cf8}.sc-green{color:#27ae60}.sc-gold{color:#f5c518}.sc-red{color:#eb5757}.sc-blue{color:#2d9cdb}
+
+/* Tables */
+.table-card{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:14px;overflow:hidden;margin-bottom:20px}
+.table-head{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid rgba(255,255,255,.04)}
+.table-head h3{font-size:.82rem;color:rgba(255,255,255,.6)}
+.table-head .badge{font-size:.6rem;background:rgba(99,102,241,.12);color:#818cf8;padding:3px 10px;border-radius:6px;font-weight:600}
+table{width:100%;border-collapse:collapse}
+table th{padding:10px 18px;text-align:left;font-size:.62rem;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid rgba(255,255,255,.04)}
+table td{padding:10px 18px;font-size:.75rem;color:rgba(255,255,255,.65);border-bottom:1px solid rgba(255,255,255,.02)}
+table tr:hover td{background:rgba(99,102,241,.03)}
+.addr{font-family:'Courier New',monospace;font-size:.68rem;color:#818cf8}
+.badge-active{display:inline-block;font-size:.58rem;padding:2px 8px;border-radius:4px;background:rgba(39,174,96,.12);color:#27ae60;font-weight:600}
+.badge-expired{display:inline-block;font-size:.58rem;padding:2px 8px;border-radius:4px;background:rgba(235,87,87,.12);color:#eb5757;font-weight:600}
+
+/* Panels */
+.panel{display:none}
+.panel.active{display:block}
+
+/* Action buttons */
+.act-btn{padding:5px 12px;border-radius:6px;font-size:.65rem;font-weight:600;cursor:pointer;transition:.2s;border:1px solid rgba(255,255,255,.08);background:none;color:rgba(255,255,255,.5)}
+.act-btn:hover{border-color:rgba(99,102,241,.3);color:#818cf8}
+.act-btn.danger{border-color:rgba(235,87,87,.2);color:#eb5757}
+.act-btn.danger:hover{background:rgba(235,87,87,.1)}
+
+/* Chart placeholder */
+.chart-area{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:12px;height:200px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.15);font-size:.8rem;margin-bottom:20px}
+
+/* Referral tree */
+.tree-item{display:flex;align-items:center;gap:12px;padding:10px 14px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.03);border-radius:10px;margin-bottom:6px}
+.tree-gen{min-width:40px;text-align:center;font-size:.65rem;font-weight:700;color:#818cf8;background:rgba(99,102,241,.1);padding:4px 8px;border-radius:6px}
+.tree-info{flex:1}
+.tree-name{font-size:.78rem;font-weight:600}
+.tree-email{font-size:.65rem;color:rgba(255,255,255,.35)}
+.tree-amt{font-size:.78rem;font-weight:700;color:#27ae60}
+
+/* Toast */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(80px);background:#1a1a2e;border:1px solid rgba(99,102,241,.2);color:#fff;padding:12px 24px;border-radius:10px;font-size:.78rem;transition:.3s;opacity:0;z-index:999}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+
+/* Auth gate */
+.auth-gate{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;text-align:center;padding:40px}
+.auth-gate h2{font-size:1.2rem;margin-bottom:8px}
+.auth-gate p{color:rgba(255,255,255,.4);font-size:.82rem;margin-bottom:20px}
+.auth-gate a{padding:12px 28px;border-radius:10px;background:linear-gradient(135deg,#6366f1,#818cf8);color:#fff;text-decoration:none;font-weight:600;font-size:.85rem}
+
+@media(max-width:768px){.sidebar{display:none}.layout{flex-direction:column}}
+</style>
+</head>
+<body>
+
+<!-- AUTH GATE -->
+<div id="authGate" class="auth-gate" style="display:none">
+<div style="font-size:3rem;margin-bottom:16px">&#x1F512;</div>
+<h2>Admin Access Required</h2>
+<p>Please log in to access the admin backend.</p>
+<a href="../auth.html">&#x1F512; Go to Login</a>
+</div>
+
+<!-- ADMIN PANEL -->
+<div id="adminPanel" style="display:none">
+<div class="top-bar">
+<div class="brand">
+<div class="logo">&#x2699;&#xFE0F;</div>
+<h1>OLIGHFT SMART COIN</h1>
+<span>ADMIN</span>
+</div>
+<div class="user-info">
+<div class="avatar" id="adminAvatar">A</div>
+<div class="uname" id="adminName">Admin</div>
+<button class="logout-btn" onclick="adminLogout()">&#x1F6AA; Logout</button>
+</div>
+</div>
+
+<div class="layout">
+<div class="sidebar">
+<a href="#" class="active" onclick="showTab('dashboard',this)"><span class="s-icon">&#x1F4CA;</span> Dashboard</a>
+<a href="#" onclick="showTab('users',this)"><span class="s-icon">&#x1F465;</span> Users</a>
+<a href="#" onclick="showTab('stakes',this)"><span class="s-icon">&#x1F4B0;</span> Stakes</a>
+<a href="#" onclick="showTab('transactions',this)"><span class="s-icon">&#x1F4CB;</span> Transactions</a>
+<a href="#" onclick="showTab('referrals',this)"><span class="s-icon">&#x1F333;</span> Referral Tree</a>
+<a href="#" onclick="showTab('supply',this)"><span class="s-icon">&#x1F4E6;</span> Supply</a>
+<div class="sep"></div>
+<a href="#" onclick="showTab('wallets',this)"><span class="s-icon">&#x1F4B3;</span> Wallets</a>
+<a href="#" onclick="showTab('settings',this)"><span class="s-icon">&#x2699;&#xFE0F;</span> Settings</a>
+<div class="sep"></div>
+<a href="../index.html"><span class="s-icon">&#x1F3E0;</span> Home</a>
+<a href="../wallet.html"><span class="s-icon">&#x1F4B3;</span> Wallet</a>
+</div>
+
+<div class="main">
+<!-- ═══ DASHBOARD ═══ -->
+<div class="panel active" id="panel-dashboard">
+<h2>&#x1F4CA; Dashboard Overview</h2>
+<div class="stats" id="dashStats"></div>
+<div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:12px;padding:16px;margin-bottom:20px">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+<h3 style="font-size:.82rem;color:rgba(255,255,255,.6)">&#x1F4C8; Staking Activity (Last 30 Days)</h3>
+</div>
+<canvas id="dashChart" width="800" height="200" style="width:100%;height:200px"></canvas>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+<div class="table-card">
+<div class="table-head"><h3>&#x1F4E4; Recent Sends</h3><div class="badge" id="sendCount">0</div></div>
+<table><thead><tr><th>To</th><th>Amount</th><th>Time</th></tr></thead><tbody id="recentSendsBody"></tbody></table>
+</div>
+<div class="table-card">
+<div class="table-head"><h3>&#x1F504; Recent Swaps</h3><div class="badge" id="swapCount">0</div></div>
+<table><thead><tr><th>Pair</th><th>Amount</th><th>Time</th></tr></thead><tbody id="recentSwapsBody"></tbody></table>
+</div>
+</div>
+</div>
+
+<!-- ═══ USERS ═══ -->
+<div class="panel" id="panel-users">
+<h2>&#x1F465; Registered Users</h2>
+<div class="table-card">
+<div class="table-head"><h3>All Users</h3><div class="badge" id="userCount">0</div></div>
+<table><thead><tr><th>Name</th><th>Email</th><th>Address</th><th>Sponsor</th><th>Registered</th><th>Actions</th></tr></thead><tbody id="usersBody"></tbody></table>
+</div>
+</div>
+
+<!-- ═══ STAKES ═══ -->
+<div class="panel" id="panel-stakes">
+<h2>&#x1F4B0; All Card Stakes</h2>
+<div class="stats" id="stakeStats"></div>
+<div class="table-card">
+<div class="table-head"><h3>Stake Records</h3><div class="badge" id="stakeCount">0</div></div>
+<table><thead><tr><th>Card</th><th>Stake</th><th>Daily</th><th>Period</th><th>Payout</th><th>Sponsor</th><th>Status</th><th>Date</th></tr></thead><tbody id="stakesBody"></tbody></table>
+</div>
+</div>
+
+<!-- ═══ TRANSACTIONS ═══ -->
+<div class="panel" id="panel-transactions">
+<h2>&#x1F4CB; Transaction History</h2>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+<div class="table-card">
+<div class="table-head"><h3>&#x1F4E4; Send Transactions</h3><div class="badge" id="sendTxCount">0</div></div>
+<table><thead><tr><th>To</th><th>Token</th><th>Amount</th><th>Hash</th><th>Time</th></tr></thead><tbody id="sendTxBody"></tbody></table>
+</div>
+<div class="table-card">
+<div class="table-head"><h3>&#x1F504; Swap Transactions</h3><div class="badge" id="swapTxCount">0</div></div>
+<table><thead><tr><th>From</th><th>To</th><th>Amount</th><th>Hash</th><th>Time</th></tr></thead><tbody id="swapTxBody"></tbody></table>
+</div>
+</div>
+</div>
+
+<!-- ═══ REFERRALS ═══ -->
+<div class="panel" id="panel-referrals">
+<h2>&#x1F333; 8-Generation Referral Tree</h2>
+<div class="stats" id="refStats"></div>
+<div id="refTree"></div>
+</div>
+
+<!-- ═══ SUPPLY ═══ -->
+<div class="panel" id="panel-supply">
+<h2>&#x1F4E6; Token Supply Management</h2>
+<div class="stats" id="supplyStats"></div>
+<div class="table-card">
+<div class="table-head"><h3>Supply Breakdown by Card</h3></div>
+<table><thead><tr><th>Card Tier</th><th>Total Staked</th><th>Active Stakes</th><th>Total Payout</th></tr></thead><tbody id="supplyBody"></tbody></table>
+</div>
+</div>
+
+<!-- ═══ WALLETS ═══ -->
+<div class="panel" id="panel-wallets">
+<h2>&#x1F4B3; Wallet Management</h2>
+
+<!-- Wallet Overview Stats -->
+<div class="stats" id="walletStats"></div>
+
+<!-- Balance Portfolio -->
+<div class="table-card">
+<div class="table-head"><h3>&#x1F4B0; Token Balances (cw_balances)</h3><div class="badge" id="balSyncBadge">LIVE</div></div>
+<table><thead><tr><th>Token</th><th>Symbol</th><th>Balance</th><th>Price (USD)</th><th>Value (USD)</th><th>% of Portfolio</th></tr></thead><tbody id="balancesBody"></tbody></table>
+<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 18px;border-top:1px solid rgba(255,255,255,.04)">
+<div style="font-size:.75rem;font-weight:700;color:#818cf8">Total Portfolio Value</div>
+<div style="font-size:.95rem;font-weight:800;color:#27ae60" id="totalPortfolio">$0.00</div>
+</div>
+</div>
+
+<!-- Balance Chart -->
+<div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:12px;padding:16px;margin-bottom:20px">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+<h3 style="font-size:.82rem;color:rgba(255,255,255,.6)">&#x1F4CA; Portfolio Distribution</h3>
+</div>
+<canvas id="balanceChart" width="600" height="180" style="width:100%;height:180px"></canvas>
+</div>
+
+<!-- HD Accounts -->
+<div class="table-card">
+<div class="table-head"><h3>&#x1F511; HD Derived Accounts (SEP-0005)</h3><div class="badge" id="walletCount">0</div></div>
+<table><thead><tr><th>#</th><th>Label</th><th>Public Key</th><th>HD Path</th><th>Status</th><th>Actions</th></tr></thead><tbody id="walletsBody"></tbody></table>
+</div>
+
+<!-- User Profile -->
+<div class="table-card">
+<div class="table-head"><h3>&#x1F464; Wallet Owner</h3></div>
+<div style="padding:16px 18px" id="walletOwnerInfo"></div>
+</div>
+
+<!-- Wallet Actions -->
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px">
+<button class="act-btn" onclick="refreshWalletBalances()">&#x1F504; Refresh Balances</button>
+<button class="act-btn" onclick="resetBalances()">&#x1F4B0; Reset to Default Balances</button>
+<a href="../wallet.html" class="act-btn" style="text-decoration:none">&#x1F4B3; Open Wallet App</a>
+<a href="../send.html" class="act-btn" style="text-decoration:none">&#x1F4E4; Send Tokens</a>
+<a href="../receive.html" class="act-btn" style="text-decoration:none">&#x1F4E5; Receive</a>
+<a href="../swap.html" class="act-btn" style="text-decoration:none">&#x1F504; Swap</a>
+</div>
+</div>
+
+<!-- ═══ SETTINGS ═══ -->
+<div class="panel" id="panel-settings">
+<h2>&#x2699;&#xFE0F; Platform Settings</h2>
+<div style="max-width:500px">
+<div class="table-card" style="padding:20px">
+<h3 style="font-size:.82rem;margin-bottom:16px;color:rgba(255,255,255,.6)">&#x1F6E1;&#xFE0F; Security Settings</h3>
+<div style="display:grid;gap:12px">
+<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.04)">
+<div style="font-size:.78rem">2FA Status</div>
+<div id="setting2fa" style="font-size:.75rem;font-weight:600"></div>
+</div>
+<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.04)">
+<div style="font-size:.78rem">Email Confirmations</div>
+<div id="settingEmail" style="font-size:.75rem;font-weight:600"></div>
+</div>
+<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.04)">
+<div style="font-size:.78rem">Multisig Config</div>
+<div id="settingMs" style="font-size:.75rem;font-weight:600"></div>
+</div>
+</div>
+</div>
+
+<div class="table-card" style="padding:20px;margin-top:14px">
+<h3 style="font-size:.82rem;margin-bottom:16px;color:rgba(255,255,255,.6)">&#x1F5D1;&#xFE0F; Data Management</h3>
+<p style="font-size:.72rem;color:rgba(255,255,255,.35);margin-bottom:14px">Export or clear platform data stored in localStorage.</p>
+<div style="display:flex;gap:8px;flex-wrap:wrap">
+<button class="act-btn" onclick="exportData()">&#x1F4E5; Export All Data</button>
+<button class="act-btn danger" onclick="clearStakes()">&#x1F5D1; Clear Stakes</button>
+<button class="act-btn danger" onclick="clearTxs()">&#x1F5D1; Clear Transactions</button>
+</div>
+</div>
+
+<div class="table-card" style="padding:20px;margin-top:14px">
+<h3 style="font-size:.82rem;margin-bottom:16px;color:rgba(255,255,255,.6)">&#x1F517; Quick Links</h3>
+<div style="display:flex;flex-wrap:wrap;gap:8px">
+<a href="../index.html" class="act-btn" style="text-decoration:none">&#x1F3E0; Home</a>
+<a href="../wallet.html" class="act-btn" style="text-decoration:none">&#x1F4B3; Wallet</a>
+<a href="../auth.html" class="act-btn" style="text-decoration:none">&#x1F512; Auth</a>
+<a href="../send.html" class="act-btn" style="text-decoration:none">&#x1F4E4; Send</a>
+<a href="../receive.html" class="act-btn" style="text-decoration:none">&#x1F4E5; Receive</a>
+<a href="../swap.html" class="act-btn" style="text-decoration:none">&#x1F504; Swap</a>
+</div>
+</div>
+</div>
+</div>
+
+</div><!-- /.main -->
+</div><!-- /.layout -->
+</div><!-- /#adminPanel -->
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ═══════════════════════════════════════════════ */
+/*  OLIGHFT SMART COIN — Admin Backend Logic         */
+/* ═══════════════════════════════════════════════ */
+
+// ── Auth Gate ──
+function checkAuth(){
+  const user=JSON.parse(localStorage.getItem('cw_user')||'null');
+  if(!user){
+    document.getElementById('authGate').style.display='flex';
+    document.getElementById('adminPanel').style.display='none';
+    return null;
+  }
+  document.getElementById('authGate').style.display='none';
+  document.getElementById('adminPanel').style.display='';
+  document.getElementById('adminName').textContent=user.name;
+  document.getElementById('adminAvatar').textContent=user.name.charAt(0).toUpperCase();
+  return user;
+}
+
+function adminLogout(){
+  if(!confirm('Logout from admin panel?'))return;
+  localStorage.removeItem('cw_user');
+  localStorage.removeItem('cw_seed');
+  localStorage.removeItem('cw_secret');
+  localStorage.removeItem('cw_accounts');
+  localStorage.removeItem('cw_active_idx');
+  localStorage.removeItem('cw_security');
+  localStorage.removeItem('cw_multisig');
+  localStorage.removeItem('cw_balances');
+  window.location.href='../auth.html';
+}
+
+// ── Sidebar Navigation ──
+function showTab(id,el){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.sidebar a').forEach(a=>a.classList.remove('active'));
+  const panel=document.getElementById('panel-'+id);
+  if(panel)panel.classList.add('active');
+  if(el)el.classList.add('active');
+  refreshTab(id);
+  return false;
+}
+
+function refreshTab(id){
+  switch(id){
+    case 'dashboard': renderDashboard(); break;
+    case 'users': renderUsers(); break;
+    case 'stakes': renderStakes(); break;
+    case 'transactions': renderTransactions(); break;
+    case 'referrals': renderReferrals(); break;
+    case 'supply': renderSupply(); break;
+    case 'wallets': renderWallets(); break;
+    case 'settings': renderSettings(); break;
+  }
+}
+
+// ── Helpers ──
+function timeAgo(ts){
+  const s=Math.floor((Date.now()-ts)/1000);
+  if(s<60)return s+'s ago';
+  const m=Math.floor(s/60);if(m<60)return m+'m ago';
+  const h=Math.floor(m/60);if(h<24)return h+'h ago';
+  const d=Math.floor(h/24);return d+'d ago';
+}
+function shortAddr(a){return a?a.slice(0,8)+'...'+a.slice(-4):'-';}
+function getStakes(){return JSON.parse(localStorage.getItem('card_stakes')||'[]');}
+function getSendTxs(){return JSON.parse(localStorage.getItem('send_txs')||'[]');}
+function getSwapTxs(){return JSON.parse(localStorage.getItem('swap_txs')||'[]');}
+function getAccounts(){try{const r=localStorage.getItem('cw_accounts');return r?JSON.parse(atob(r)):[];}catch(e){return[];}}
+function getUser(){return JSON.parse(localStorage.getItem('cw_user')||'null');}
+function getMsConfig(){return JSON.parse(localStorage.getItem('cw_multisig')||'null');}
+function getSecSettings(){return JSON.parse(localStorage.getItem('cw_security')||'{}');}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+
+// ── Token & Balance Data ──
+const TOKEN_META={XLM:{name:'Stellar Lumens',icon:'⭐',price:0.12},USDC:{name:'USD Coin',icon:'💵',price:1.00},wETH:{name:'Wrapped Ethereum',icon:'💎',price:3200},wBTC:{name:'Wrapped Bitcoin',icon:'🔶',price:68000},EURC:{name:'Euro Coin',icon:'💶',price:1.08}};
+const DEFAULT_BALS={XLM:10000,USDC:500,wETH:0.5,wBTC:0.02,EURC:200};
+function getBalances(){try{return JSON.parse(localStorage.getItem('cw_balances')||'null')||DEFAULT_BALS;}catch(e){return DEFAULT_BALS;}}
+function fmtBal(v){return v<0.001?v.toFixed(8):v<1?v.toFixed(6):v<100?v.toFixed(4):v.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})}
+
+// ── Dashboard ──
+function renderDashboard(){
+  const user=getUser();
+  const stakes=getStakes();
+  const sends=getSendTxs();
+  const swaps=getSwapTxs();
+  const accounts=getAccounts();
+  const TOTAL_SUPPLY=100000000000000;
+  let totalStaked=0,totalPayout=0,activeStakes=0;
+  stakes.forEach(s=>{
+    totalStaked+=s.stake||0;
+    totalPayout+=s.payout||0;
+    const start=new Date(s.date).getTime();
+    const end=start+((s.period||0)*86400000);
+    if(Date.now()<end)activeStakes++;
+  });
+  const remaining=TOTAL_SUPPLY-totalPayout;
+  const bals=getBalances();
+  let portfolioVal=0;Object.keys(bals).forEach(k=>{const m=TOKEN_META[k];if(m)portfolioVal+=bals[k]*m.price;});
+
+  document.getElementById('dashStats').innerHTML=
+    '<div class="stat-card"><div class="sc-label">Total Supply</div><div class="sc-val sc-gold">'+TOTAL_SUPPLY.toLocaleString()+'</div><div class="sc-sub">OLIGHFT tokens</div></div>'+
+    '<div class="stat-card"><div class="sc-label">Remaining Supply</div><div class="sc-val sc-green">'+remaining.toLocaleString()+'</div><div class="sc-sub">'+(remaining/TOTAL_SUPPLY*100).toFixed(6)+'% available</div></div>'+
+    '<div class="stat-card"><div class="sc-label">Wallet Portfolio</div><div class="sc-val sc-blue">$'+portfolioVal.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})+'</div><div class="sc-sub">'+Object.keys(bals).length+' tokens</div></div>'+
+    '<div class="stat-card"><div class="sc-label">Total Stakes</div><div class="sc-val sc-purple">'+stakes.length+'</div><div class="sc-sub">'+activeStakes+' active</div></div>'+
+    '<div class="stat-card"><div class="sc-label">Total Staked Value</div><div class="sc-val sc-gold">$'+totalStaked.toLocaleString()+'</div><div class="sc-sub">Payout: $'+totalPayout.toLocaleString()+'</div></div>'+
+    '<div class="stat-card"><div class="sc-label">Send Transactions</div><div class="sc-val sc-purple">'+sends.length+'</div><div class="sc-sub">Token transfers</div></div>'+
+    '<div class="stat-card"><div class="sc-label">Swap Transactions</div><div class="sc-val sc-purple">'+swaps.length+'</div><div class="sc-sub">DEX swaps</div></div>'+
+    '<div class="stat-card"><div class="sc-label">HD Accounts</div><div class="sc-val sc-blue">'+accounts.length+'</div><div class="sc-sub">SEP-0005 derived</div></div>';
+
+  // Recent sends
+  document.getElementById('sendCount').textContent=sends.length;
+  document.getElementById('recentSendsBody').innerHTML=sends.slice(0,5).map(tx=>
+    '<tr><td class="addr">'+shortAddr(tx.to)+'</td><td>'+tx.amount+' '+tx.token+'</td><td>'+timeAgo(tx.time)+'</td></tr>'
+  ).join('')||'<tr><td colspan="3" style="text-align:center;color:rgba(255,255,255,.2)">No sends yet</td></tr>';
+
+  // Recent swaps
+  document.getElementById('swapCount').textContent=swaps.length;
+  document.getElementById('recentSwapsBody').innerHTML=swaps.slice(0,5).map(tx=>
+    '<tr><td>'+tx.from+' &rarr; '+tx.to+'</td><td>'+tx.fromAmt+'</td><td>'+timeAgo(tx.time)+'</td></tr>'
+  ).join('')||'<tr><td colspan="3" style="text-align:center;color:rgba(255,255,255,.2)">No swaps yet</td></tr>';
+
+  // Draw staking chart
+  setTimeout(drawDashChart,50);
+}
+
+// ── Users ──
+function renderUsers(){
+  const user=getUser();
+  const users=user?[user]:[];
+  document.getElementById('userCount').textContent=users.length;
+  document.getElementById('usersBody').innerHTML=users.map(u=>{
+    const d=u.created?new Date(u.created).toLocaleDateString():'N/A';
+    return '<tr><td style="font-weight:600">'+u.name+'</td><td>'+u.email+'</td><td class="addr">'+shortAddr(u.addr)+'</td><td>'+(u.sponsor||'-')+'</td><td>'+d+'</td><td><button class="act-btn" onclick="viewUser()">View</button></td></tr>';
+  }).join('')||'<tr><td colspan="6" style="text-align:center;color:rgba(255,255,255,.2)">No users registered</td></tr>';
+}
+
+function viewUser(){
+  const u=getUser();
+  if(!u)return;
+  alert('User: '+u.name+'\nEmail: '+u.email+'\nAddress: '+shortAddr(u.addr)+'\nSponsor: '+(u.sponsor||'None')+'\nRegistered: '+new Date(u.created).toLocaleString());
+}
+
+// ── Stakes ──
+function renderStakes(){
+  const stakes=getStakes();
+  let totalStaked=0,totalPayout=0,totalFees=0,active=0;
+  const cards={};
+  stakes.forEach(s=>{
+    totalStaked+=s.stake||0;
+    totalPayout+=s.payout||0;
+    totalFees+=s.fee||0;
+    const start=new Date(s.date).getTime();
+    const end=start+((s.period||0)*86400000);
+    if(Date.now()<end)active++;
+    cards[s.card]=(cards[s.card]||0)+1;
+  });
+
+  document.getElementById('stakeStats').innerHTML=
+    '<div class="stat-card"><div class="sc-label">Total Stakes</div><div class="sc-val sc-purple">'+stakes.length+'</div></div>'+
+    '<div class="stat-card"><div class="sc-label">Active Stakes</div><div class="sc-val sc-green">'+active+'</div></div>'+
+    '<div class="stat-card"><div class="sc-label">Total Staked</div><div class="sc-val sc-gold">$'+totalStaked.toLocaleString()+'</div></div>'+
+    '<div class="stat-card"><div class="sc-label">Total Fees</div><div class="sc-val sc-red">$'+totalFees.toLocaleString()+'</div></div>'+
+    '<div class="stat-card"><div class="sc-label">Total Payout</div><div class="sc-val sc-blue">$'+totalPayout.toLocaleString()+'</div></div>';
+
+  document.getElementById('stakeCount').textContent=stakes.length;
+  document.getElementById('stakesBody').innerHTML=stakes.map(s=>{
+    const start=new Date(s.date).getTime();
+    const end=start+((s.period||0)*86400000);
+    const isActive=Date.now()<end;
+    const d=new Date(s.date).toLocaleDateString();
+    return '<tr><td style="font-weight:600">'+s.card+'</td><td>$'+s.stake+'</td><td>$'+s.daily+'/day</td><td>'+s.period+' days</td><td style="font-weight:700;color:#27ae60">$'+s.payout+'</td><td>'+(s.sponsor||'-')+'</td><td>'+(isActive?'<span class="badge-active">Active</span>':'<span class="badge-expired">Expired</span>')+'</td><td>'+d+'</td></tr>';
+  }).join('')||'<tr><td colspan="8" style="text-align:center;color:rgba(255,255,255,.2)">No stakes yet</td></tr>';
+}
+
+// ── Transactions ──
+function renderTransactions(){
+  const sends=getSendTxs();
+  const swaps=getSwapTxs();
+
+  document.getElementById('sendTxCount').textContent=sends.length;
+  document.getElementById('sendTxBody').innerHTML=sends.map(tx=>{
+    return '<tr><td class="addr">'+shortAddr(tx.to)+'</td><td>'+tx.token+'</td><td>'+tx.amount+'</td><td class="addr">'+shortAddr(tx.hash)+'</td><td>'+timeAgo(tx.time)+'</td></tr>';
+  }).join('')||'<tr><td colspan="5" style="text-align:center;color:rgba(255,255,255,.2)">No sends</td></tr>';
+
+  document.getElementById('swapTxCount').textContent=swaps.length;
+  document.getElementById('swapTxBody').innerHTML=swaps.map(tx=>{
+    return '<tr><td>'+tx.from+'</td><td>'+tx.to+'</td><td>'+tx.fromAmt+' &rarr; '+(tx.toAmt||'?')+'</td><td class="addr">'+shortAddr(tx.hash)+'</td><td>'+timeAgo(tx.time)+'</td></tr>';
+  }).join('')||'<tr><td colspan="5" style="text-align:center;color:rgba(255,255,255,.2)">No swaps</td></tr>';
+}
+
+// ── Referrals ──
+function renderReferrals(){
+  const stakes=getStakes();
+  const GEN_RATES=[0.10,0.06,0.04,0.04,0.04,0.04,0.04,0.04];
+  let totalRef=0;
+  const genTotals=GEN_RATES.map(()=>0);
+
+  stakes.forEach(s=>{
+    if(s.referral&&s.referral.gens){
+      s.referral.gens.forEach((g,i)=>{genTotals[i]+=g.amt||0;totalRef+=g.amt||0;});
+    }
+  });
+
+  const mainWallet=stakes.reduce((sum,s)=>sum+((s.referral&&s.referral.mainWallet)||0),0);
+
+  document.getElementById('refStats').innerHTML=
+    '<div class="stat-card"><div class="sc-label">Total Referral Distributed</div><div class="sc-val sc-green">$'+totalRef.toFixed(2)+'</div></div>'+
+    '<div class="stat-card"><div class="sc-label">Main Wallet Revenue</div><div class="sc-val sc-gold">$'+mainWallet.toFixed(2)+'</div></div>'+
+    '<div class="stat-card"><div class="sc-label">Total Activations</div><div class="sc-val sc-purple">'+stakes.length+'</div></div>';
+
+  const genLabels=['Gen 1 (10%)','Gen 2 (6%)','Gen 3 (4%)','Gen 4 (4%)','Gen 5 (4%)','Gen 6 (4%)','Gen 7 (4%)','Gen 8 (4%)'];
+  document.getElementById('refTree').innerHTML=
+    '<div style="margin-bottom:12px"><div class="tree-item" style="border-color:rgba(245,197,24,.15)"><div class="tree-gen" style="background:rgba(245,197,24,.1);color:#f5c518">&#x1F3E6;</div><div class="tree-info"><div class="tree-name">Main Wallet (Platform)</div><div class="tree-email">60% of each activation</div></div><div class="tree-amt" style="color:#f5c518">$'+mainWallet.toFixed(2)+'</div></div></div>'+
+    genLabels.map((label,i)=>
+      '<div class="tree-item"><div class="tree-gen">G'+(i+1)+'</div><div class="tree-info"><div class="tree-name">'+label+'</div><div class="tree-email">'+GEN_RATES[i]*100+'% commission per activation</div></div><div class="tree-amt">$'+genTotals[i].toFixed(2)+'</div></div>'
+    ).join('');
+}
+
+// ── Supply ──
+function renderSupply(){
+  const stakes=getStakes();
+  const TOTAL_SUPPLY=100000000000000;
+  const byCard={};
+  let totalPayout=0;
+  stakes.forEach(s=>{
+    if(!byCard[s.card])byCard[s.card]={count:0,staked:0,payout:0,active:0};
+    byCard[s.card].count++;
+    byCard[s.card].staked+=s.stake||0;
+    byCard[s.card].payout+=s.payout||0;
+    const start=new Date(s.date).getTime();
+    const end=start+((s.period||0)*86400000);
+    if(Date.now()<end)byCard[s.card].active++;
+    totalPayout+=s.payout||0;
+  });
+  const remaining=TOTAL_SUPPLY-totalPayout;
+
+  document.getElementById('supplyStats').innerHTML=
+    '<div class="stat-card"><div class="sc-label">Total Supply</div><div class="sc-val sc-gold">'+TOTAL_SUPPLY.toLocaleString()+'</div></div>'+
+    '<div class="stat-card"><div class="sc-label">Total Allocated (Payouts)</div><div class="sc-val sc-red">'+totalPayout.toLocaleString()+'</div></div>'+
+    '<div class="stat-card"><div class="sc-label">Remaining</div><div class="sc-val sc-green">'+remaining.toLocaleString()+'</div></div>'+
+    '<div class="stat-card"><div class="sc-label">Utilization</div><div class="sc-val sc-blue">'+(totalPayout/TOTAL_SUPPLY*100).toFixed(8)+'%</div></div>';
+
+  const cards=Object.keys(byCard).sort();
+  document.getElementById('supplyBody').innerHTML=cards.map(c=>{
+    const d=byCard[c];
+    return '<tr><td style="font-weight:600">'+c+'</td><td>$'+d.staked.toLocaleString()+'</td><td>'+d.active+' / '+d.count+'</td><td style="font-weight:700;color:#27ae60">$'+d.payout.toLocaleString()+'</td></tr>';
+  }).join('')||'<tr><td colspan="4" style="text-align:center;color:rgba(255,255,255,.2)">No supply data</td></tr>';
+}
+
+// ── Wallets ──
+
+function renderWallets(){
+  const accounts=getAccounts();
+  const activeIdx=parseInt(localStorage.getItem('cw_active_idx')||'0',10);
+  const user=getUser();
+  const bals=getBalances();
+  const sec=getSecSettings();
+  const ms=getMsConfig();
+
+  // ── Wallet Stats ──
+  let totalVal=0;
+  Object.keys(bals).forEach(k=>{const m=TOKEN_META[k];if(m)totalVal+=bals[k]*m.price;});
+  document.getElementById('walletStats').innerHTML=
+    '<div class="stat-card"><div class="sc-label">Portfolio Value</div><div class="sc-val sc-green">$'+totalVal.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})+'</div><div class="sc-sub">'+Object.keys(bals).length+' tokens</div></div>'+
+    '<div class="stat-card"><div class="sc-label">HD Accounts</div><div class="sc-val sc-purple">'+accounts.length+'</div><div class="sc-sub">SEP-0005 derivation</div></div>'+
+    '<div class="stat-card"><div class="sc-label">Active Account</div><div class="sc-val sc-blue">#'+activeIdx+'</div><div class="sc-sub">'+(accounts[activeIdx]?accounts[activeIdx].label:'Primary')+'</div></div>'+
+    '<div class="stat-card"><div class="sc-label">Security Level</div><div class="sc-val '+(sec.tog2fa?'sc-green':'sc-red')+'">'+(sec.tog2fa?'HIGH':'STANDARD')+'</div><div class="sc-sub">2FA '+(sec.tog2fa?'enabled':'disabled')+'</div></div>'+
+    '<div class="stat-card"><div class="sc-label">Multisig</div><div class="sc-val '+(ms&&ms.signers&&ms.signers.length>0?'sc-green':'sc-red')+'">'+(ms&&ms.signers&&ms.signers.length>0?ms.signers.length+' signers':'OFF')+'</div><div class="sc-sub">'+(ms&&ms.thresholds?'T:'+ms.thresholds.med:'Not configured')+'</div></div>';
+
+  // ── Balances Table ──
+  let rows='',portfolioTotal=0;
+  const entries=Object.keys(bals).map(k=>{const m=TOKEN_META[k]||{name:k,icon:'🪙',price:0};const val=bals[k]*(m.price||0);portfolioTotal+=val;return{sym:k,meta:m,bal:bals[k],val}});
+  rows=entries.map(e=>{
+    const pct=portfolioTotal>0?(e.val/portfolioTotal*100):0;
+    const barColor=e.sym==='XLM'?'#818cf8':e.sym==='USDC'?'#27ae60':e.sym==='wETH'?'#2d9cdb':e.sym==='wBTC'?'#f5c518':'#a29bfe';
+    return '<tr><td>'+e.meta.icon+' '+e.meta.name+'</td><td style="font-weight:700">'+e.sym+'</td><td>'+fmtBal(e.bal)+'</td><td>$'+e.meta.price.toLocaleString()+'</td><td style="font-weight:700;color:#27ae60">$'+e.val.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})+'</td><td><div style="display:flex;align-items:center;gap:6px"><div style="width:60px;height:6px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden"><div style="width:'+pct+'%;height:100%;background:'+barColor+';border-radius:3px"></div></div><span style="font-size:.65rem">'+pct.toFixed(1)+'%</span></div></td></tr>';
+  }).join('');
+  document.getElementById('balancesBody').innerHTML=rows||'<tr><td colspan="6" style="text-align:center;color:rgba(255,255,255,.2)">No balance data</td></tr>';
+  document.getElementById('totalPortfolio').textContent='$'+portfolioTotal.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2});
+
+  // ── Balance Chart (donut) ──
+  drawBalanceChart(entries,portfolioTotal);
+
+  // ── HD Accounts Table ──
+  document.getElementById('walletCount').textContent=accounts.length;
+  document.getElementById('walletsBody').innerHTML=accounts.map(a=>{
+    const active=a.index===activeIdx;
+    return '<tr><td>#'+a.index+'</td><td style="font-weight:600">'+a.label+'</td><td class="addr" style="max-width:220px;overflow:hidden;text-overflow:ellipsis">'+a.publicKey+'</td><td style="font-size:.68rem;color:rgba(255,255,255,.35)">m/44\'/148\'/'+a.index+'\'</td><td>'+(active?'<span class="badge-active">Active</span>':'<span style="font-size:.58rem;color:rgba(255,255,255,.3)">Inactive</span>')+'</td><td><button class="act-btn" onclick="copyKey(\''+a.publicKey+'\')">&#x1F4CB; Copy</button></td></tr>';
+  }).join('')||'<tr><td colspan="6" style="text-align:center;color:rgba(255,255,255,.2)">No wallet accounts</td></tr>';
+
+  // ── Owner Info ──
+  if(user){
+    document.getElementById('walletOwnerInfo').innerHTML=
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">'+
+      '<div><div style="font-size:.6rem;color:rgba(255,255,255,.35);text-transform:uppercase;margin-bottom:2px">Name</div><div style="font-size:.82rem;font-weight:600">'+user.name+'</div></div>'+
+      '<div><div style="font-size:.6rem;color:rgba(255,255,255,.35);text-transform:uppercase;margin-bottom:2px">Email</div><div style="font-size:.82rem">'+user.email+'</div></div>'+
+      '<div><div style="font-size:.6rem;color:rgba(255,255,255,.35);text-transform:uppercase;margin-bottom:2px">Stellar Address</div><div class="addr" style="font-size:.72rem;word-break:break-all">'+(user.addr||'Not generated')+'</div></div>'+
+      '<div><div style="font-size:.6rem;color:rgba(255,255,255,.35);text-transform:uppercase;margin-bottom:2px">Registered</div><div style="font-size:.82rem">'+(user.created?new Date(user.created).toLocaleString():'N/A')+'</div></div>'+
+      '<div><div style="font-size:.6rem;color:rgba(255,255,255,.35);text-transform:uppercase;margin-bottom:2px">Sponsor</div><div style="font-size:.82rem">'+(user.sponsor||'None')+'</div></div>'+
+      '<div><div style="font-size:.6rem;color:rgba(255,255,255,.35);text-transform:uppercase;margin-bottom:2px">Tier</div><div style="font-size:.82rem">'+(user.tier||'Standard')+'</div></div>'+
+      '</div>';
+  } else {
+    document.getElementById('walletOwnerInfo').innerHTML='<div style="text-align:center;color:rgba(255,255,255,.2);padding:12px">No user data</div>';
+  }
+}
+
+function copyKey(key){navigator.clipboard.writeText(key).then(()=>showToast('Copied: '+key.slice(0,12)+'...')).catch(()=>showToast('Copy failed'));}
+
+function refreshWalletBalances(){renderWallets();showToast('Balances refreshed from localStorage');}
+
+function resetBalances(){
+  if(!confirm('Reset all balances to defaults? (XLM:10000, USDC:500, wETH:0.5, wBTC:0.02, EURC:200)'))return;
+  localStorage.setItem('cw_balances',JSON.stringify(DEFAULT_BALS));
+  renderWallets();showToast('Balances reset to defaults');
+}
+
+// ── Charts ──
+function drawBalanceChart(entries,total){
+  const canvas=document.getElementById('balanceChart');
+  if(!canvas)return;
+  const ctx=canvas.getContext('2d');
+  const dpr=window.devicePixelRatio||1;
+  canvas.width=canvas.offsetWidth*dpr;canvas.height=180*dpr;
+  ctx.scale(dpr,dpr);
+  const W=canvas.offsetWidth,H=180;
+  ctx.clearRect(0,0,W,H);
+
+  // Donut chart
+  const cx=90,cy=90,R=70,r=45;
+  const colors=['#818cf8','#27ae60','#2d9cdb','#f5c518','#a29bfe','#eb5757'];
+  let startAngle=-Math.PI/2;
+  if(total>0){
+    entries.forEach((e,i)=>{
+      const pct=e.val/total;
+      const sweep=pct*Math.PI*2;
+      ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,R,startAngle,startAngle+sweep);ctx.closePath();
+      ctx.fillStyle=colors[i%colors.length];ctx.fill();
+      startAngle+=sweep;
+    });
+    ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.fillStyle='#0d0d1f';ctx.fill();
+    ctx.fillStyle='#fff';ctx.font='bold 11px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText('$'+Math.round(total).toLocaleString(),cx,cy-6);
+    ctx.fillStyle='rgba(255,255,255,.4)';ctx.font='9px system-ui';
+    ctx.fillText('TOTAL',cx,cy+8);
+  }
+
+  // Legend
+  const lx=200,ly=20;
+  entries.forEach((e,i)=>{
+    const y=ly+i*28;
+    ctx.fillStyle=colors[i%colors.length];
+    ctx.beginPath();ctx.arc(lx,y+6,5,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='rgba(255,255,255,.7)';ctx.font='bold 11px system-ui';ctx.textAlign='left';
+    ctx.fillText(e.sym,lx+14,y+10);
+    ctx.fillStyle='rgba(255,255,255,.35)';ctx.font='10px system-ui';
+    ctx.fillText(fmtBal(e.bal)+' ($'+e.val.toLocaleString('en',{minimumFractionDigits:0,maximumFractionDigits:0})+')',lx+54,y+10);
+  });
+}
+
+function drawDashChart(){
+  const canvas=document.getElementById('dashChart');
+  if(!canvas)return;
+  const ctx=canvas.getContext('2d');
+  const dpr=window.devicePixelRatio||1;
+  canvas.width=canvas.offsetWidth*dpr;canvas.height=200*dpr;
+  ctx.scale(dpr,dpr);
+  const W=canvas.offsetWidth,H=200;
+  ctx.clearRect(0,0,W,H);
+
+  // Build 30-day staking data from card_stakes
+  const stakes=getStakes();
+  const now=Date.now();
+  const days=[];for(let i=29;i>=0;i--)days.push({date:new Date(now-i*86400000),count:0,value:0});
+  stakes.forEach(s=>{
+    const d=new Date(s.date).getTime();
+    days.forEach(day=>{
+      const ds=day.date.setHours(0,0,0,0);
+      const de=ds+86400000;
+      if(d>=ds&&d<de){day.count++;day.value+=s.stake||0;}
+    });
+  });
+
+  const maxVal=Math.max(1,...days.map(d=>d.value));
+  const padL=40,padR=12,padT=20,padB=30;
+  const gW=W-padL-padR,gH=H-padT-padB;
+
+  // Grid lines
+  ctx.strokeStyle='rgba(255,255,255,.04)';ctx.lineWidth=1;
+  for(let i=0;i<=4;i++){
+    const y=padT+i*(gH/4);
+    ctx.beginPath();ctx.moveTo(padL,y);ctx.lineTo(W-padR,y);ctx.stroke();
+    ctx.fillStyle='rgba(255,255,255,.25)';ctx.font='9px system-ui';ctx.textAlign='right';
+    ctx.fillText('$'+Math.round(maxVal*(1-i/4)).toLocaleString(),padL-6,y+3);
+  }
+
+  // Bars
+  const barW=Math.max(2,(gW/30)-2);
+  days.forEach((d,i)=>{
+    const x=padL+i*(gW/30)+(gW/60)-(barW/2);
+    const h=d.value>0?(d.value/maxVal)*gH:0;
+    const y=padT+gH-h;
+    const grad=ctx.createLinearGradient(x,y,x,padT+gH);
+    grad.addColorStop(0,'rgba(99,102,241,.8)');grad.addColorStop(1,'rgba(99,102,241,.1)');
+    ctx.fillStyle=grad;
+    ctx.beginPath();ctx.moveTo(x+2,padT+gH);ctx.lineTo(x+2,y+2);ctx.quadraticCurveTo(x+2,y,x+4,y);
+    ctx.lineTo(x+barW-4,y);ctx.quadraticCurveTo(x+barW-2,y,x+barW-2,y+2);
+    ctx.lineTo(x+barW-2,padT+gH);ctx.fill();
+
+    // X-axis labels (every 5 days)
+    if(i%5===0||i===29){
+      ctx.fillStyle='rgba(255,255,255,.25)';ctx.font='8px system-ui';ctx.textAlign='center';
+      ctx.fillText((d.date.getMonth()+1)+'/'+d.date.getDate(),x+barW/2,H-8);
+    }
+  });
+
+  // Stake count line
+  const maxC=Math.max(1,...days.map(d=>d.count));
+  ctx.strokeStyle='#27ae60';ctx.lineWidth=2;ctx.setLineDash([4,3]);
+  ctx.beginPath();
+  days.forEach((d,i)=>{
+    const x=padL+i*(gW/30)+(gW/60);
+    const y=padT+gH-(d.count/maxC)*gH;
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  });
+  ctx.stroke();ctx.setLineDash([]);
+}
+
+// ── Settings ──
+function renderSettings(){
+  const sec=getSecSettings();
+  const ms=getMsConfig();
+  const e=(id,val,cls)=>{document.getElementById(id).textContent=val;document.getElementById(id).style.color=cls;};
+  e('setting2fa',sec.tog2fa?'Enabled':'Disabled',sec.tog2fa?'#27ae60':'#eb5757');
+  e('settingEmail',sec.togEmail!==false?'Enabled':'Disabled',sec.togEmail!==false?'#27ae60':'#eb5757');
+  e('settingMs',ms&&ms.signers&&ms.signers.length>0?ms.signers.length+' signers':'Not configured',ms&&ms.signers&&ms.signers.length>0?'#27ae60':'rgba(255,255,255,.35)');
+}
+
+// ── Data Management ──
+function exportData(){
+  const data={};
+  ['cw_user','cw_accounts','cw_active_idx','cw_security','cw_multisig','cw_balances','card_stakes','send_txs','swap_txs','olighft_remaining_supply'].forEach(k=>{
+    const v=localStorage.getItem(k);
+    if(v!==null)data[k]=v;
+  });
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='olighft-backup-'+new Date().toISOString().slice(0,10)+'.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
+  showToast('Data exported successfully');
+}
+
+function clearStakes(){
+  if(!confirm('Clear ALL stake records? This cannot be undone.'))return;
+  localStorage.removeItem('card_stakes');
+  localStorage.removeItem('olighft_remaining_supply');
+  showToast('Stake records cleared');
+  refreshTab('stakes');
+  renderDashboard();
+}
+
+function clearTxs(){
+  if(!confirm('Clear ALL transaction history? This cannot be undone.'))return;
+  localStorage.removeItem('send_txs');
+  localStorage.removeItem('swap_txs');
+  showToast('Transaction history cleared');
+  refreshTab('transactions');
+  renderDashboard();
+}
+
+// ── Init ──
+const user=checkAuth();
+if(user) renderDashboard();
+</script>
+</body>
+</html>

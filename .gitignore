@@ -1,0 +1,20 @@
+# Build artifacts
+contracts/target/
+D:/cargo-target/
+*.wasm
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+.vscode/
+*.swp
+*.swo
+
+# Node (if any)
+node_modules/
+
+# Sensitive - never commit
+*.env

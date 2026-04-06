@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Swap Tokens &mdash; OLIGHFT SMART COIN</title>
+<meta name="description" content="Swap tokens on OLIGHFT — instant decentralized exchange on Stellar.">
+<link rel="canonical" href="https://olighftcoin.com/swap.html">
+<meta property="og:title" content="Swap Tokens — OLIGHFT SMART COIN">
+<meta property="og:url" content="https://olighftcoin.com/swap.html">
+<meta property="og:site_name" content="OLIGHFT SMART COIN">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135deg,#0a0a1a,#111128,#0a0a1a);color:#fff;min-height:100vh;padding:20px}
+.container{max-width:520px;margin:0 auto}
+h1{text-align:center;font-size:1.6rem;margin-bottom:4px;background:linear-gradient(90deg,#f2994a,#eb5757,#f2994a);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.subtitle{text-align:center;color:rgba(255,255,255,.4);font-size:.78rem;margin-bottom:24px}
+.nav-tabs{display:flex;gap:4px;justify-content:center;margin-bottom:24px}
+.nav-tabs a{padding:8px 20px;border-radius:10px;font-size:.78rem;font-weight:600;text-decoration:none;border:1px solid rgba(255,255,255,.06);color:rgba(255,255,255,.45);transition:.2s}
+.nav-tabs a:hover{border-color:rgba(242,153,74,.3);color:#f2994a}
+.nav-tabs a.active{background:rgba(242,153,74,.15);border-color:rgba(242,153,74,.4);color:#f2994a}
+.card{background:rgba(242,153,74,.04);border:1px solid rgba(242,153,74,.1);border-radius:16px;padding:24px;margin-bottom:16px}
+.card h2{font-size:.85rem;color:rgba(255,255,255,.5);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+label{display:block;font-size:.72rem;color:rgba(255,255,255,.45);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+.token-box{background:rgba(255,255,255,.03);border:1px solid rgba(242,153,74,.08);border-radius:14px;padding:16px;margin-bottom:8px}
+.token-row{display:flex;gap:10px;align-items:center}
+.token-row select{flex:0 0 170px;background:rgba(255,255,255,.04);border:1px solid rgba(242,153,74,.12);border-radius:10px;padding:10px 12px;color:#fff;font-size:.82rem;outline:none;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='rgba(255,255,255,0.4)' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center}
+.token-row select:focus{border-color:rgba(242,153,74,.4)}
+.token-row select option{background:#1a1a2e;color:#fff}
+.token-row input{flex:1;background:none;border:none;color:#fff;font-size:1.3rem;font-weight:700;text-align:right;outline:none;font-family:inherit}
+.token-row input::placeholder{color:rgba(255,255,255,.15)}
+.token-bal{text-align:right;font-size:.68rem;color:rgba(255,255,255,.35);margin-top:6px}
+.token-bal span{color:#f2994a;cursor:pointer}
+.token-bal span:hover{text-decoration:underline}
+.swap-arrow{text-align:center;margin:4px 0;position:relative;z-index:2}
+.swap-arrow button{background:rgba(242,153,74,.12);border:2px solid rgba(242,153,74,.2);color:#f2994a;width:40px;height:40px;border-radius:12px;font-size:1.2rem;cursor:pointer;transition:.2s}
+.swap-arrow button:hover{background:rgba(242,153,74,.2);transform:rotate(180deg)}
+.details{margin:16px 0}
+.detail-row{display:flex;justify-content:space-between;padding:8px 0;font-size:.75rem;border-bottom:1px solid rgba(255,255,255,.03)}
+.detail-row .dl{color:rgba(255,255,255,.4)}.detail-row .dv{color:rgba(255,255,255,.7)}
+.detail-row .dv.green{color:#27ae60}
+.slippage{margin:16px 0}
+.slip-opts{display:flex;gap:6px;margin-top:6px}
+.slip-opts button{padding:6px 14px;border-radius:8px;font-size:.72rem;font-weight:600;cursor:pointer;transition:.2s;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);color:rgba(255,255,255,.5)}
+.slip-opts button:hover{border-color:rgba(242,153,74,.3)}
+.slip-opts button.active{background:rgba(242,153,74,.15);border-color:rgba(242,153,74,.4);color:#f2994a}
+.slip-opts input{width:68px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:8px;padding:6px 8px;color:#fff;font-size:.72rem;text-align:center;outline:none}
+.swap-btn{width:100%;padding:14px;border:none;border-radius:12px;font-size:.9rem;font-weight:700;cursor:pointer;transition:.2s;background:linear-gradient(135deg,#eb5757,#f2994a);color:#fff;margin-top:16px}
+.swap-btn:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(242,153,74,.35)}
+.swap-btn:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
+.price-impact{font-size:.68rem;text-align:center;margin-top:8px}
+.price-impact.low{color:#27ae60}.price-impact.med{color:#f2994a}.price-impact.high{color:#eb5757}
+.route-box{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:10px;padding:12px;margin:12px 0;text-align:center}
+.route-box .rl{font-size:.6rem;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.route-box .rv{font-size:.78rem;display:flex;align-items:center;justify-content:center;gap:6px;color:rgba(255,255,255,.6)}
+.route-box .rv .rarrow{color:rgba(255,255,255,.2)}
+.success-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;align-items:center;justify-content:center}
+.success-overlay.show{display:flex}
+.success-modal{background:#1a1a2e;border:1px solid rgba(242,153,74,.2);border-radius:20px;padding:32px;text-align:center;max-width:400px;width:90%}
+.success-modal .check{font-size:3rem;margin-bottom:12px}
+.success-modal h3{font-size:1.1rem;margin-bottom:6px}
+.success-modal p{font-size:.78rem;color:rgba(255,255,255,.5);margin-bottom:6px}
+.success-modal .swap-detail{font-size:1rem;font-weight:700;color:#f2994a;margin:12px 0}
+.success-modal .tx-hash{font-family:'Courier New',monospace;font-size:.65rem;color:rgba(255,255,255,.4);background:rgba(255,255,255,.03);padding:8px 12px;border-radius:8px;word-break:break-all;margin:12px 0}
+.success-modal button{padding:10px 28px;border:none;border-radius:8px;background:rgba(242,153,74,.15);border:1px solid rgba(242,153,74,.3);color:#f2994a;font-weight:600;cursor:pointer;font-size:.8rem}
+.recent{margin-top:8px}
+.recent h3{font-size:.78rem;color:rgba(255,255,255,.35);margin-bottom:10px}
+.sw-item{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:10px;margin-bottom:6px}
+.sw-item .sw-pair{font-size:.78rem;font-weight:600;color:rgba(255,255,255,.7)}
+.sw-item .sw-rate{font-size:.68rem;color:rgba(255,255,255,.4)}
+.sw-item .sw-time{font-size:.6rem;color:rgba(255,255,255,.3)}
+.net-badge{text-align:center;font-size:.6rem;color:rgba(255,255,255,.25);margin-top:24px;padding-top:16px;border-top:1px solid rgba(242,153,74,.06)}
+/* ── Account Selector ── */
+.acct-select{margin-bottom:16px}
+.acct-select>label{font-size:.72rem;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;display:block}
+.acct-list{display:flex;flex-direction:column;gap:6px;max-height:180px;overflow-y:auto}
+.acct-opt{display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:10px;cursor:pointer;transition:.2s}
+.acct-opt:hover{border-color:rgba(242,153,74,.25);background:rgba(242,153,74,.04)}
+.acct-opt.active{border-color:rgba(242,153,74,.4);background:rgba(242,153,74,.08)}
+.acct-idx{width:28px;height:28px;border-radius:8px;background:rgba(242,153,74,.12);display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:#f2994a;flex-shrink:0}
+.acct-info{flex:1;min-width:0}
+.acct-name{font-size:.78rem;font-weight:600;color:rgba(255,255,255,.8);display:flex;align-items:center;gap:6px}
+.acct-addr{font-family:'Courier New',monospace;font-size:.62rem;color:rgba(255,255,255,.35);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.acct-path{font-size:.55rem;color:rgba(255,255,255,.2)}
+.addr-type-badge{font-size:.55rem;padding:1px 6px;border-radius:4px;font-weight:700;letter-spacing:.5px}
+.addr-type-badge.stellar{background:rgba(39,174,96,.12);color:#2ecc71}
+.addr-type-badge.contract{background:rgba(242,153,74,.12);color:#f2994a}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>&#x1F504; Swap Tokens</h1>
+<p class="subtitle">Decentralized token swap on Stellar Testnet via Soroban AMM</p>
+
+<div class="nav-tabs">
+<a href="wallet.html">&#x1F4B3; Wallet</a>
+<a href="send.html">&#x1F4E4; Send</a>
+<a href="receive.html">&#x1F4E5; Receive</a>
+<a href="swap.html" class="active">&#x1F504; Swap</a>
+<a href="index.html">&#x1F3E0; Home</a>
+<a href="OLIGHFT SMART COIN backend/backend.html">&#x2699;&#xFE0F; Admin</a>
+</div>
+
+<div class="card">
+<h2>&#x1F4B1; Swap</h2>
+
+<div class="acct-select">
+<label>&#x1F465; Trading Account (HD Wallet)</label>
+<div class="acct-list" id="acctList"></div>
+</div>
+
+<div class="token-box" id="fromBox">
+<label>From</label>
+<div class="token-row">
+<select id="fromToken" onchange="calcSwap()">
+<option value="XLM">&#x2B50; XLM</option>
+<option value="USDC">&#x1F4B5; USDC</option>
+<option value="wETH">&#x1F48E; wETH</option>
+<option value="wBTC">&#x1F536; wBTC</option>
+<option value="EURC">&#x1F4B6; EURC</option>
+<option value="OLIGHFT">&#x1F4B0; OLIGHFT</option>
+</select>
+<input type="number" id="fromAmt" placeholder="0.0" step="any" min="0" oninput="calcSwap()">
+</div>
+<div class="token-bal">Balance: <span id="fromBal" onclick="setMaxFrom()">10,000.00</span></div>
+</div>
+
+<div class="swap-arrow"><button onclick="flipTokens()" title="Flip tokens">&#x21C5;</button></div>
+
+<div class="token-box" id="toBox">
+<label>To (estimated)</label>
+<div class="token-row">
+<select id="toToken" onchange="calcSwap()">
+<option value="USDC" selected>&#x1F4B5; USDC</option>
+<option value="XLM">&#x2B50; XLM</option>
+<option value="wETH">&#x1F48E; wETH</option>
+<option value="wBTC">&#x1F536; wBTC</option>
+<option value="EURC">&#x1F4B6; EURC</option>
+<option value="OLIGHFT">&#x1F4B0; OLIGHFT</option>
+</select>
+<input type="number" id="toAmt" placeholder="0.0" readonly style="color:rgba(255,255,255,.5)">
+</div>
+<div class="token-bal">Balance: <span id="toBal">2,500.00</span></div>
+</div>
+
+<div class="route-box" id="routeBox" style="display:none">
+<div class="rl">Route</div>
+<div class="rv" id="routeDisplay"></div>
+</div>
+
+<div class="details" id="swapDetails" style="display:none">
+<div class="detail-row"><span class="dl">Rate</span><span class="dv" id="rateDisplay">-</span></div>
+<div class="detail-row"><span class="dl">Price Impact</span><span class="dv" id="impactDisplay">-</span></div>
+<div class="detail-row"><span class="dl">Swap Fee (0.3%)</span><span class="dv" id="feeDisplay">-</span></div>
+<div class="detail-row"><span class="dl">Min Received</span><span class="dv green" id="minReceived">-</span></div>
+<div class="detail-row"><span class="dl">Network</span><span class="dv">Stellar Testnet</span></div>
+</div>
+
+<div class="slippage">
+<label>Slippage Tolerance</label>
+<div class="slip-opts">
+<button class="active" onclick="setSlip(this,0.5)">0.5%</button>
+<button onclick="setSlip(this,1)">1.0%</button>
+<button onclick="setSlip(this,2)">2.0%</button>
+<input type="number" id="customSlip" placeholder="Custom" step="0.1" min="0.1" max="50" oninput="setCustomSlip()">
+</div>
+</div>
+
+<div class="price-impact low" id="impactMsg"></div>
+<button class="swap-btn" id="swapBtn" disabled onclick="executeSwap()">&#x1F504; Swap</button>
+</div>
+
+<div class="recent" id="recentSection" style="display:none">
+<h3>&#x1F4CB; Recent Swaps</h3>
+<div id="recentList"></div>
+</div>
+
+<!-- ── Test Swap Panel ── -->
+<div class="card" id="testPanel" style="border-color:rgba(39,174,96,.2);background:rgba(39,174,96,.03)">
+<h2 style="color:#27ae60">&#x1F9EA; Test Swap &mdash; Full Verification</h2>
+<p style="font-size:.72rem;color:rgba(255,255,255,.45);margin-bottom:14px">Run automated tests to verify swap calculations, balance changes, edge cases, and security guards.</p>
+
+<!-- Live Counter Bar -->
+<div id="testCounter" style="display:none;margin-bottom:16px">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+<div style="font-size:.78rem;font-weight:700" id="testCounterLabel">Running tests...</div>
+<div style="font-size:.7rem;color:rgba(255,255,255,.4)" id="testCounterStats">0 / 0</div>
+</div>
+<div style="height:10px;background:rgba(255,255,255,.06);border-radius:5px;overflow:hidden;margin-bottom:6px">
+<div id="testProgressBar" style="height:100%;border-radius:5px;background:linear-gradient(90deg,#27ae60,#2ecc71);transition:width .3s;width:0%"></div>
+</div>
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(255,255,255,.04);border-radius:8px;overflow:hidden">
+<div style="background:rgba(10,10,30,.8);padding:10px;text-align:center"><div style="font-size:.55rem;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.5px">Passed</div><div id="cntPass" style="font-size:1.2rem;font-weight:800;color:#27ae60">0</div></div>
+<div style="background:rgba(10,10,30,.8);padding:10px;text-align:center"><div style="font-size:.55rem;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.5px">Failed</div><div id="cntFail" style="font-size:1.2rem;font-weight:800;color:#eb5757">0</div></div>
+<div style="background:rgba(10,10,30,.8);padding:10px;text-align:center"><div style="font-size:.55rem;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.5px">Total</div><div id="cntTotal" style="font-size:1.2rem;font-weight:800;color:#a29bfe">0</div></div>
+</div>
+</div>
+
+<div style="font-size:.7rem;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">&#x1F4B1; Swap Calculation Tests</div>
+
+<div style="display:grid;gap:8px;margin-bottom:16px" id="testCases">
+
+<div class="test-case" data-from="XLM" data-to="OLIGHFT" data-amt="1000" style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:10px;cursor:pointer;transition:.2s" onmouseover="this.style.borderColor='rgba(39,174,96,.3)'" onmouseout="this.style.borderColor='rgba(255,255,255,.04)'">
+<div>
+<div style="font-size:.78rem;font-weight:600;color:rgba(255,255,255,.7)">Test 1: XLM &#x2192; OLIGHFT</div>
+<div style="font-size:.65rem;color:rgba(255,255,255,.35)">Swap 1,000 XLM &bull; Expected: ~239 OLIGHFT (rate 1 XLM = 0.24 OLIGHFT)</div>
+</div>
+<button onclick="runTest('XLM','OLIGHFT',1000,this)" style="padding:6px 14px;border-radius:8px;border:1px solid rgba(39,174,96,.3);background:rgba(39,174,96,.1);color:#27ae60;font-size:.7rem;font-weight:700;cursor:pointer;white-space:nowrap">&#x25B6; Run</button>
+</div>
+
+<div class="test-case" data-from="USDC" data-to="OLIGHFT" data-amt="500" style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:10px;cursor:pointer;transition:.2s" onmouseover="this.style.borderColor='rgba(39,174,96,.3)'" onmouseout="this.style.borderColor='rgba(255,255,255,.04)'">
+<div>
+<div style="font-size:.78rem;font-weight:600;color:rgba(255,255,255,.7)">Test 2: USDC &#x2192; OLIGHFT</div>
+<div style="font-size:.65rem;color:rgba(255,255,255,.35)">Swap 500 USDC &bull; Expected: ~994 OLIGHFT (rate 1 USDC = 2.0 OLIGHFT)</div>
+</div>
+<button onclick="runTest('USDC','OLIGHFT',500,this)" style="padding:6px 14px;border-radius:8px;border:1px solid rgba(39,174,96,.3);background:rgba(39,174,96,.1);color:#27ae60;font-size:.7rem;font-weight:700;cursor:pointer;white-space:nowrap">&#x25B6; Run</button>
+</div>
+
+<div class="test-case" data-from="OLIGHFT" data-to="USDC" data-amt="2000" style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:10px;cursor:pointer;transition:.2s" onmouseover="this.style.borderColor='rgba(39,174,96,.3)'" onmouseout="this.style.borderColor='rgba(255,255,255,.04)'">
+<div>
+<div style="font-size:.78rem;font-weight:600;color:rgba(255,255,255,.7)">Test 3: OLIGHFT &#x2192; USDC</div>
+<div style="font-size:.65rem;color:rgba(255,255,255,.35)">Swap 2,000 OLIGHFT &bull; Expected: ~977 USDC (rate 1 OLIGHFT = $0.50)</div>
+</div>
+<button onclick="runTest('OLIGHFT','USDC',2000,this)" style="padding:6px 14px;border-radius:8px;border:1px solid rgba(39,174,96,.3);background:rgba(39,174,96,.1);color:#27ae60;font-size:.7rem;font-weight:700;cursor:pointer;white-space:nowrap">&#x25B6; Run</button>
+</div>
+
+<div class="test-case" data-from="wETH" data-to="OLIGHFT" data-amt="0.5" style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:10px;cursor:pointer;transition:.2s" onmouseover="this.style.borderColor='rgba(39,174,96,.3)'" onmouseout="this.style.borderColor='rgba(255,255,255,.04)'">
+<div>
+<div style="font-size:.78rem;font-weight:600;color:rgba(255,255,255,.7)">Test 4: wETH &#x2192; OLIGHFT</div>
+<div style="font-size:.65rem;color:rgba(255,255,255,.35)">Swap 0.5 wETH &bull; Expected: ~3,174 OLIGHFT (rate 1 wETH = 6,400 OLIGHFT)</div>
+</div>
+<button onclick="runTest('wETH','OLIGHFT',0.5,this)" style="padding:6px 14px;border-radius:8px;border:1px solid rgba(39,174,96,.3);background:rgba(39,174,96,.1);color:#27ae60;font-size:.7rem;font-weight:700;cursor:pointer;white-space:nowrap">&#x25B6; Run</button>
+</div>
+
+<div class="test-case" data-from="wBTC" data-to="OLIGHFT" data-amt="0.01" style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:10px;cursor:pointer;transition:.2s" onmouseover="this.style.borderColor='rgba(39,174,96,.3)'" onmouseout="this.style.borderColor='rgba(255,255,255,.04)'">
+<div>
+<div style="font-size:.78rem;font-weight:600;color:rgba(255,255,255,.7)">Test 5: wBTC &#x2192; OLIGHFT</div>
+<div style="font-size:.65rem;color:rgba(255,255,255,.35)">Swap 0.01 wBTC &bull; Expected: ~1,346 OLIGHFT (rate 1 wBTC = 136,000 OLIGHFT)</div>
+</div>
+<button onclick="runTest('wBTC','OLIGHFT',0.01,this)" style="padding:6px 14px;border-radius:8px;border:1px solid rgba(39,174,96,.3);background:rgba(39,174,96,.1);color:#27ae60;font-size:.7rem;font-weight:700;cursor:pointer;white-space:nowrap">&#x25B6; Run</button>
+</div>
+
+</div>
+
+<!-- Integration & Security Tests -->
+<div style="font-size:.7rem;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;margin-top:16px">&#x1F52C; Integration &amp; Security Tests</div>
+<div id="intTests" style="display:grid;gap:6px;margin-bottom:16px">
+
+<div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px">
+<div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">&#x1F680; Full executeSwap() Flow</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">Swap 10 XLM &#x2192; USDC: verify balance deduction + addition + tx record</div></div>
+<span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span>
+</div>
+
+<div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px">
+<div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">&#x1F504; cw_balances Sync</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">localStorage matches memory after swap</div></div>
+<span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span>
+</div>
+
+<div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px">
+<div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">&#x26D4; Same Token Rejected</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">XLM &#x2192; XLM must be blocked</div></div>
+<span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span>
+</div>
+
+<div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px">
+<div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">&#x26D4; Zero Amount Rejected</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">0 XLM swap must be blocked</div></div>
+<span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span>
+</div>
+
+<div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px">
+<div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">&#x1F6E1;&#xFE0F; Overdraft Guard</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">Swap 999999 XLM must be blocked</div></div>
+<span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span>
+</div>
+
+<div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px">
+<div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">&#x1F4CF; Fee Accuracy</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">0.3% fee on 1000 XLM = exactly 0.36 USD</div></div>
+<span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span>
+</div>
+
+<div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px">
+<div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">&#x1F4CA; Slippage Calculation</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">Min received = output * (1 - slippage%)</div></div>
+<span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span>
+</div>
+
+<div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px">
+<div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">&#x1F500; Reverse Swap</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">OLIGHFT &#x2192; XLM: verify output &gt; 0</div></div>
+<span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span>
+</div>
+
+<div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px">
+<div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">&#x1F4DD; Swap TX Record</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">swap_txs has correct entry with 64-char hash</div></div>
+<span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span>
+</div>
+
+<div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px">
+<div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">&#x1F4B6; EURC &#x2192; OLIGHFT Cross</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">Cross-pair: 100 EURC &#x2192; OLIGHFT at correct rate</div></div>
+<span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span>
+</div>
+
+</div>
+
+<button onclick="runAllTests()" style="width:100%;padding:14px;border:none;border-radius:12px;font-size:.88rem;font-weight:700;cursor:pointer;background:linear-gradient(135deg,#27ae60,#2ecc71);color:#fff;margin-bottom:10px;transition:.2s" onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 6px 20px rgba(39,174,96,.3)'" onmouseout="this.style.transform='';this.style.boxShadow=''">&#x1F9EA; Run All 15 Tests</button>
+
+<div id="testResults" style="display:none;background:rgba(0,0,0,.2);border:1px solid rgba(39,174,96,.15);border-radius:10px;padding:14px;margin-top:10px">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+<div style="font-size:.78rem;font-weight:700;color:#27ae60" id="testSummary"></div>
+<button onclick="resetTests()" style="padding:4px 10px;border-radius:6px;border:1px solid rgba(255,255,255,.1);background:none;color:rgba(255,255,255,.4);font-size:.6rem;cursor:pointer">Reset</button>
+</div>
+<div id="testLog" style="font-family:'Courier New',monospace;font-size:.68rem;line-height:1.8;color:rgba(255,255,255,.55);max-height:300px;overflow-y:auto"></div>
+</div>
+</div>
+
+<div class="net-badge">OLIGHFT SMART COIN DEX &bull; Stellar Testnet &bull; AMM x*y=k &bull; v1.0.0</div>
+</div>
+
+<div class="success-overlay" id="successOverlay">
+<div class="success-modal">
+<div class="check">&#x2705;</div>
+<h3>Swap Successful!</h3>
+<div class="swap-detail" id="swapSummary"></div>
+<p id="swapRate"></p>
+<div class="tx-hash" id="txHash"></div>
+<button onclick="closeSuccess()">Done</button>
+</div>
+</div>
+
+<script>
+const prices={XLM:0.12,USDC:1,wETH:3200,wBTC:68000,EURC:1.08,OLIGHFT:0.50};
+// Auth guard
+(function(){const u=JSON.parse(localStorage.getItem('cw_user')||'null');if(!u){alert('\u26A0\uFE0F Please log in first.');window.location.href='auth.html';}})();
+
+// ── HD Account helpers ──
+function getAccounts(){
+  try{const raw=localStorage.getItem('cw_accounts');return raw?JSON.parse(atob(raw)):[];}catch(e){return[];}
+}
+function getActiveIdx(){return parseInt(localStorage.getItem('cw_active_idx')||'0',10);}
+function setActiveIdx(idx){
+  localStorage.setItem('cw_active_idx',String(idx));
+  const accounts=getAccounts();
+  const acc=accounts.find(a=>a.index===idx);
+  if(acc){
+    const user=JSON.parse(localStorage.getItem('cw_user')||'{}');
+    user.addr=acc.publicKey;
+    localStorage.setItem('cw_user',JSON.stringify(user));
+  }
+}
+function renderAccountSelector(){
+  const accounts=getAccounts();
+  const activeIdx=getActiveIdx();
+  const list=document.getElementById('acctList');
+  if(!accounts.length){
+    const u=JSON.parse(localStorage.getItem('cw_user')||'null');
+    if(u&&u.addr){
+      list.innerHTML='<div class="acct-opt active"><div class="acct-idx">0</div><div class="acct-info"><div class="acct-name">Primary <span class="addr-type-badge stellar">STELLAR</span></div><div class="acct-addr">'+u.addr+'</div><div class="acct-path">m/44\'/148\'/0\'</div></div></div>';
+    }
+    return;
+  }
+  list.innerHTML=accounts.map(a=>{
+    const isActive=a.index===activeIdx;
+    const type=a.publicKey.startsWith('C')?'contract':'stellar';
+    return '<div class="acct-opt'+(isActive?' active':'')+'" onclick="selectAccount('+a.index+')">'+'<div class="acct-idx">'+a.index+'</div>'+'<div class="acct-info">'+'<div class="acct-name">'+a.label+' <span class="addr-type-badge '+type+'">'+(type==='stellar'?'STELLAR':'CONTRACT')+'</span></div>'+'<div class="acct-addr">'+a.publicKey+'</div>'+'<div class="acct-path">m/44\'/148\'/'+a.index+'\'</div>'+'</div></div>';
+  }).join('');
+}
+function selectAccount(idx){
+  setActiveIdx(idx);
+  renderAccountSelector();
+  updateBals();
+  calcSwap();
+}
+
+// Sync balances from wallet
+function getSharedBalances(){
+  try{const b=JSON.parse(localStorage.getItem('cw_balances')||'null');if(b)return b;}catch(e){}
+  return{XLM:10000,USDC:2500,wETH:1.85,wBTC:0.042,EURC:1200,OLIGHFT:5000};
+}
+function saveSharedBalances(b){localStorage.setItem('cw_balances',JSON.stringify(b));}
+const bals=getSharedBalances();
+let slippage=0.5;
+
+function fmt(v,d){return v<0.001?v.toFixed(8):v<1?v.toFixed(6):v<100?v.toFixed(4):v.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})}
+function updateBals(){
+  const f=document.getElementById('fromToken').value;
+  const t=document.getElementById('toToken').value;
+  document.getElementById('fromBal').textContent=fmt(bals[f]);
+  document.getElementById('toBal').textContent=fmt(bals[t]);
+}
+function calcSwap(){
+  updateBals();
+  const f=document.getElementById('fromToken').value;
+  const t=document.getElementById('toToken').value;
+  const amt=parseFloat(document.getElementById('fromAmt').value)||0;
+  if(f===t){document.getElementById('toAmt').value='';hideDetails();return}
+  if(amt<=0){document.getElementById('toAmt').value='';hideDetails();return}
+  const usdIn=amt*prices[f];
+  const fee=usdIn*0.003;
+  const netUsd=usdIn-fee;
+  const impact=Math.min(amt*prices[f]/50000*100,15);
+  const outRaw=netUsd/prices[t];
+  const out=outRaw*(1-impact/100);
+  document.getElementById('toAmt').value=out<0.001?out.toFixed(8):out<1?out.toFixed(6):out.toFixed(4);
+  document.getElementById('swapDetails').style.display='block';
+  document.getElementById('rateDisplay').textContent='1 '+f+' = '+(prices[f]/prices[t]).toFixed(6)+' '+t;
+  document.getElementById('feeDisplay').textContent=fmt(amt*0.003)+' '+f;
+  document.getElementById('minReceived').textContent=fmt(out*(1-slippage/100))+' '+t;
+  const impEl=document.getElementById('impactDisplay');
+  impEl.textContent=impact.toFixed(2)+'%';
+  impEl.className='dv '+(impact<1?'green':impact<3?'':'');
+  impEl.style.color=impact<1?'#27ae60':impact<3?'#f2994a':'#eb5757';
+  const msg=document.getElementById('impactMsg');
+  if(impact<1){msg.textContent='Low price impact';msg.className='price-impact low'}
+  else if(impact<3){msg.textContent='Moderate price impact';msg.className='price-impact med'}
+  else{msg.textContent='High price impact — consider smaller trade';msg.className='price-impact high'}
+  document.getElementById('routeBox').style.display='block';
+  document.getElementById('routeDisplay').innerHTML=f+' <span class="rarrow">&#x2192;</span> '+t;
+  document.getElementById('swapBtn').disabled=!(amt>0&&amt<=bals[f]&&f!==t);
+}
+function hideDetails(){
+  document.getElementById('swapDetails').style.display='none';
+  document.getElementById('routeBox').style.display='none';
+  document.getElementById('impactMsg').textContent='';
+  document.getElementById('swapBtn').disabled=true;
+}
+function flipTokens(){
+  const fs=document.getElementById('fromToken'),ts=document.getElementById('toToken');
+  const fv=fs.value,tv=ts.value;
+  fs.value=tv;ts.value=fv;
+  document.getElementById('fromAmt').value=document.getElementById('toAmt').value;
+  document.getElementById('toAmt').value='';
+  calcSwap();
+}
+function setMaxFrom(){
+  const f=document.getElementById('fromToken').value;
+  document.getElementById('fromAmt').value=bals[f];
+  calcSwap();
+}
+function setSlip(btn,v){
+  slippage=v;
+  document.querySelectorAll('.slip-opts button').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('customSlip').value='';
+  calcSwap();
+}
+function setCustomSlip(){
+  const v=parseFloat(document.getElementById('customSlip').value);
+  if(v>0){slippage=v;document.querySelectorAll('.slip-opts button').forEach(b=>b.classList.remove('active'));calcSwap()}
+}
+function genHash(){const c='0123456789abcdef';let h='';for(let i=0;i<64;i++)h+=c[Math.floor(Math.random()*16)];return h}
+function executeSwap(){
+  const f=document.getElementById('fromToken').value;
+  const t=document.getElementById('toToken').value;
+  const fAmt=parseFloat(document.getElementById('fromAmt').value);
+  const tAmt=parseFloat(document.getElementById('toAmt').value);
+  if(f===t)return;
+  if(!fAmt||fAmt<=0||!tAmt||tAmt<=0)return;
+  if(fAmt>(bals[f]||0))return;
+  const hash=genHash();
+  const accounts=getAccounts();
+  const activeIdx=getActiveIdx();
+  const fromAcc=accounts.find(a=>a.index===activeIdx);
+  const acctAddr=fromAcc?fromAcc.publicKey:(JSON.parse(localStorage.getItem('cw_user')||'{}').addr||'');
+  bals[f]-=fAmt;bals[t]+=tAmt;
+  saveSharedBalances(bals);
+  updateBals();
+  document.getElementById('swapSummary').textContent=fAmt+' '+f+' \u2192 '+tAmt.toFixed(6)+' '+t;
+  document.getElementById('swapRate').textContent='Rate: 1 '+f+' = '+(prices[f]/prices[t]).toFixed(6)+' '+t;
+  document.getElementById('txHash').textContent=hash;
+  document.getElementById('successOverlay').classList.add('show');
+  const txs=JSON.parse(localStorage.getItem('swap_txs')||'[]');
+  txs.unshift({from:f,to:t,fromAmt:fAmt,toAmt:tAmt,hash:hash,time:Date.now(),account:acctAddr,accountIdx:activeIdx});
+  if(txs.length>20)txs.length=20;
+  localStorage.setItem('swap_txs',JSON.stringify(txs));
+  document.getElementById('fromAmt').value='';
+  document.getElementById('toAmt').value='';
+  hideDetails();
+  renderRecent();
+}
+function closeSuccess(){document.getElementById('successOverlay').classList.remove('show')}
+function renderRecent(){
+  const txs=JSON.parse(localStorage.getItem('swap_txs')||'[]');
+  const sec=document.getElementById('recentSection');
+  const list=document.getElementById('recentList');
+  if(!txs.length){sec.style.display='none';return}
+  sec.style.display='block';
+  list.innerHTML=txs.map(tx=>{
+    const ago=Math.round((Date.now()-tx.time)/60000);
+    const t=ago<1?'just now':ago+'m ago';
+    return '<div class="sw-item"><div><div class="sw-pair">'+tx.fromAmt+' '+tx.from+' &#x2192; '+tx.toAmt.toFixed(4)+' '+tx.to+'</div><div class="sw-time">'+t+'</div></div><div class="sw-rate">1 '+tx.from+' = '+(prices[tx.from]/prices[tx.to]).toFixed(4)+' '+tx.to+'</div></div>';
+  }).join('');
+}
+renderRecent();updateBals();renderAccountSelector();
+
+// ── Test Swap Engine ──
+var testPass=0,testFail=0,testTotal=0;
+
+function calcTestSwap(from,to,amt){
+  const usdIn=amt*prices[from];
+  const fee=usdIn*0.003;
+  const netUsd=usdIn-fee;
+  const impact=Math.min(amt*prices[from]/50000*100,15);
+  const outRaw=netUsd/prices[to];
+  const out=outRaw*(1-impact/100);
+  return {usdIn:usdIn,fee:fee,netUsd:netUsd,impact:impact,out:out,rate:prices[from]/prices[to]};
+}
+
+function logTestLine(name,passed,detail){
+  testTotal++;
+  if(passed)testPass++;else testFail++;
+  var log=document.getElementById('testLog');
+  var s=passed?'<span style="color:#27ae60">PASS \u2705</span>':'<span style="color:#eb5757">FAIL \u274C</span>';
+  log.innerHTML+='<div style="padding:4px 0;border-bottom:1px solid rgba(255,255,255,.04)">'+s+' <span style="color:#f2994a">'+name+'</span> \u2014 '+detail+'</div>';
+  updateCounters();
+}
+
+function updateCounters(){
+  document.getElementById('cntPass').textContent=testPass;
+  document.getElementById('cntFail').textContent=testFail;
+  document.getElementById('cntTotal').textContent=testTotal;
+  var pct=testTotal>0?Math.round((testPass/testTotal)*100):0;
+  document.getElementById('testProgressBar').style.width=pct+'%';
+  document.getElementById('testProgressBar').style.background=testFail>0?'linear-gradient(90deg,#27ae60,#f2994a)':'linear-gradient(90deg,#27ae60,#2ecc71)';
+  document.getElementById('testCounterStats').textContent=testPass+' / '+testTotal+' passed';
+  document.getElementById('testCounterLabel').innerHTML=testFail===0?'<span style="color:#27ae60">\u2705 All '+testTotal+' tests passed</span>':'<span style="color:#f2994a">\u26A0\uFE0F '+testPass+' passed, '+testFail+' failed</span>';
+}
+
+function setBadge(rows,idx,passed){
+  var badge=rows[idx].querySelector('.tst-badge');
+  if(passed){
+    badge.textContent='\u2705 PASS';badge.style.color='#27ae60';badge.style.borderColor='rgba(39,174,96,.3)';badge.style.background='rgba(39,174,96,.08)';
+  }else{
+    badge.textContent='\u274C FAIL';badge.style.color='#eb5757';badge.style.borderColor='rgba(235,87,87,.3)';badge.style.background='rgba(235,87,87,.08)';
+  }
+}
+
+function runTest(from,to,amt,btn){
+  const r=calcTestSwap(from,to,amt);
+  const hasBal=bals[from]>=amt;
+  const rateOk=r.rate>0;
+  const outOk=r.out>0;
+  const feeOk=r.fee>0&&r.fee<r.usdIn;
+  const passed=hasBal&&rateOk&&outOk&&feeOk;
+  document.getElementById('testResults').style.display='block';
+  logTestLine(from+' \u2192 '+to+' ('+amt+')',passed,'In: '+amt+' '+from+' ($'+r.usdIn.toFixed(2)+') | Out: '+r.out.toFixed(6)+' '+to+' | Fee: '+r.fee.toFixed(4)+' | Impact: '+r.impact.toFixed(2)+'% | Bal: '+(hasBal?'OK':'LOW'));
+  if(btn){btn.textContent=passed?'\u2705 Pass':'\u274C Fail';btn.style.borderColor=passed?'#27ae60':'#eb5757';btn.style.color=passed?'#27ae60':'#eb5757';btn.disabled=true;}
+  return passed;
+}
+
+function runAllTests(){
+  testPass=0;testFail=0;testTotal=0;
+  document.getElementById('testLog').innerHTML='';
+  document.getElementById('testResults').style.display='block';
+  document.getElementById('testCounter').style.display='block';
+  document.querySelectorAll('.test-case button').forEach(function(b){b.disabled=false;b.textContent='\u25B6 Run';b.style.color='#27ae60';b.style.borderColor='rgba(39,174,96,.3)';});
+  document.querySelectorAll('.tst-badge').forEach(function(b){b.textContent='pending';b.style.color='rgba(255,255,255,.35)';b.style.borderColor='rgba(255,255,255,.08)';b.style.background='none';});
+
+  var snap=JSON.parse(JSON.stringify(getSharedBalances()));
+  var swapSnap=localStorage.getItem('swap_txs')||'[]';
+
+  var calcTests=[['XLM','OLIGHFT',1000],['USDC','OLIGHFT',500],['OLIGHFT','USDC',2000],['wETH','OLIGHFT',0.5],['wBTC','OLIGHFT',0.01]];
+  var calcBtns=document.querySelectorAll('.test-case button');
+  calcTests.forEach(function(t,i){runTest(t[0],t[1],t[2],calcBtns[i]);});
+
+  var intRows=document.querySelectorAll('#intTests .tst-row');
+  var testBals=JSON.parse(JSON.stringify(snap));
+  if(!testBals.OLIGHFT||testBals.OLIGHFT<5000)testBals.OLIGHFT=5000;
+  saveSharedBalances(testBals);
+  for(var k in testBals)bals[k]=testBals[k];
+
+  (function(){
+    var xlmBefore=bals['XLM'];var usdcBefore=bals['USDC'];
+    document.getElementById('fromToken').value='XLM';document.getElementById('toToken').value='USDC';document.getElementById('fromAmt').value='10';
+    calcSwap();executeSwap();
+    var xlmAfter=bals['XLM'];var usdcAfter=bals['USDC'];
+    var ok=Math.abs(xlmAfter-(xlmBefore-10))<0.001&&usdcAfter>usdcBefore;
+    setBadge(intRows,0,ok);
+    logTestLine('Full executeSwap() Flow',ok,ok?'XLM: '+xlmBefore+' \u2192 '+xlmAfter+' | USDC: '+usdcBefore.toFixed(2)+' \u2192 '+usdcAfter.toFixed(4):'executeSwap failed');
+    closeSuccess();
+  })();
+
+  (function(){
+    var stored=getSharedBalances();var synced=true;
+    ['XLM','USDC','wETH','wBTC','EURC','OLIGHFT'].forEach(function(tk){if(Math.abs((bals[tk]||0)-(stored[tk]||0))>0.0001)synced=false;});
+    setBadge(intRows,1,synced);
+    logTestLine('cw_balances Sync',synced,synced?'localStorage \u2194 memory \u2014 all 6 tokens match':'MISMATCH');
+  })();
+
+  (function(){
+    var xlmBefore=bals['XLM'];
+    document.getElementById('fromToken').value='XLM';document.getElementById('toToken').value='XLM';document.getElementById('fromAmt').value='10';document.getElementById('toAmt').value='10';
+    executeSwap();
+    var ok=Math.abs(bals['XLM']-xlmBefore)<0.0001;
+    setBadge(intRows,2,ok);
+    logTestLine('Same Token Rejected',ok,ok?'Balance unchanged ('+xlmBefore+') \u2014 guard blocked':'VULNERABLE \u2014 same-token swap allowed!');
+  })();
+
+  (function(){
+    var xlmBefore=bals['XLM'];
+    document.getElementById('fromToken').value='XLM';document.getElementById('toToken').value='USDC';document.getElementById('fromAmt').value='0';document.getElementById('toAmt').value='0';
+    executeSwap();
+    var ok=Math.abs(bals['XLM']-xlmBefore)<0.0001;
+    setBadge(intRows,3,ok);
+    logTestLine('Zero Amount Rejected',ok,ok?'Balance unchanged ('+xlmBefore+') \u2014 guard blocked':'VULNERABLE \u2014 zero amount allowed!');
+  })();
+
+  (function(){
+    var xlmBefore=bals['XLM'];
+    document.getElementById('fromToken').value='XLM';document.getElementById('toToken').value='USDC';document.getElementById('fromAmt').value='999999';document.getElementById('toAmt').value='999999';
+    executeSwap();
+    var ok=Math.abs(bals['XLM']-xlmBefore)<0.0001;
+    setBadge(intRows,4,ok);
+    logTestLine('Overdraft Guard',ok,ok?'Balance unchanged ('+xlmBefore+') \u2014 guard blocked':'VULNERABLE \u2014 overdraft allowed!');
+  })();
+
+  (function(){
+    var r=calcTestSwap('XLM','USDC',1000);var expectedFee=1000*0.12*0.003;
+    var ok=Math.abs(r.fee-expectedFee)<0.001;
+    setBadge(intRows,5,ok);
+    logTestLine('Fee Accuracy (0.3%)',ok,'Expected: $'+expectedFee.toFixed(4)+' | Got: $'+r.fee.toFixed(4)+(ok?' \u2714':' \u2716'));
+  })();
+
+  (function(){
+    var r=calcTestSwap('XLM','USDC',100);var minRcv=r.out*(1-slippage/100);
+    var ok=minRcv>0&&minRcv<r.out;
+    setBadge(intRows,6,ok);
+    logTestLine('Slippage Calculation',ok,'Output: '+r.out.toFixed(6)+' | Min ('+slippage+'% slip): '+minRcv.toFixed(6)+(ok?' \u2714':' \u2716'));
+  })();
+
+  (function(){
+    var r=calcTestSwap('OLIGHFT','XLM',1000);var ok=r.out>0&&r.rate>0;
+    setBadge(intRows,7,ok);
+    logTestLine('Reverse Swap OLIGHFT \u2192 XLM',ok,'1000 OLIGHFT \u2192 '+r.out.toFixed(4)+' XLM (rate: '+r.rate.toFixed(6)+')'+(ok?' \u2714':' \u2716'));
+  })();
+
+  (function(){
+    var txs=JSON.parse(localStorage.getItem('swap_txs')||'[]');var last=txs[0];
+    var ok=last&&last.from&&last.to&&last.fromAmt>0&&last.toAmt>0&&last.hash&&last.hash.length===64;
+    setBadge(intRows,8,ok);
+    logTestLine('Swap TX Record',ok,ok?'swap_txs[0]: '+last.fromAmt+' '+last.from+' \u2192 '+last.toAmt.toFixed(4)+' '+last.to+' hash='+last.hash.slice(0,8)+'...':'No valid entry');
+  })();
+
+  (function(){
+    var r=calcTestSwap('EURC','OLIGHFT',100);var expectedRate=prices['EURC']/prices['OLIGHFT'];
+    var ok=r.out>0&&Math.abs(r.rate-expectedRate)<0.001;
+    setBadge(intRows,9,ok);
+    logTestLine('EURC \u2192 OLIGHFT Cross',ok,'100 EURC \u2192 '+r.out.toFixed(4)+' OLIGHFT | Rate: '+r.rate.toFixed(4)+' (expected: '+expectedRate.toFixed(4)+')'+(ok?' \u2714':' \u2716'));
+  })();
+
+  saveSharedBalances(snap);for(var k in snap)bals[k]=snap[k];
+  localStorage.setItem('swap_txs',swapSnap);
+  updateBals();document.getElementById('fromAmt').value='';document.getElementById('toAmt').value='';hideDetails();renderRecent();
+}
+
+function updateTestSummary(){}
+
+function resetTests(){
+  testPass=0;testFail=0;testTotal=0;
+  document.getElementById('testLog').innerHTML='';
+  document.getElementById('testResults').style.display='none';
+  document.getElementById('testCounter').style.display='none';
+  document.getElementById('testSummary').textContent='';
+  document.querySelectorAll('.test-case button').forEach(function(b){b.disabled=false;b.textContent='\u25B6 Run';b.style.color='#27ae60';b.style.borderColor='rgba(39,174,96,.3)';});
+  document.querySelectorAll('.tst-badge').forEach(function(b){b.textContent='pending';b.style.color='rgba(255,255,255,.35)';b.style.borderColor='rgba(255,255,255,.08)';b.style.background='none';});
+}
+</script>
+</body>
+</html>

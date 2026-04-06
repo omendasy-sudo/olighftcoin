@@ -1,0 +1,5 @@
+# Cloudflare Pages redirects
+# Force HTTPS
+http://olighftcoin.com/* https://olighftcoin.com/:splat 301
+http://www.olighftcoin.com/* https://olighftcoin.com/:splat 301
+https://www.olighftcoin.com/* https://olighftcoin.com/:splat 301

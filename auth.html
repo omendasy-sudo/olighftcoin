@@ -1,0 +1,1637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OLIGHFT SMART COIN &mdash; Login &amp; Register</title>
+<meta name="description" content="Login or register for OLIGHFT SMART COIN — secure authentication with OTP verification.">
+<link rel="canonical" href="https://olighftcoin.com/auth.html">
+<meta property="og:title" content="OLIGHFT SMART COIN — Login & Register">
+<meta property="og:url" content="https://olighftcoin.com/auth.html">
+<meta property="og:site_name" content="OLIGHFT SMART COIN">
+<!-- Pre-load Google Identity Services SDK -->
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135deg,#0a0a2e,#0d0937,#0a0a12);color:#fff;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px}
+
+/* ── Auth Container ── */
+.auth-wrap{width:100%;max-width:440px}
+.logo{text-align:center;margin-bottom:28px}
+.logo-icon{font-size:2.4rem;margin-bottom:6px}
+.logo h1{font-size:1.4rem;background:linear-gradient(90deg,#6366f1,#818cf8,#06b6d4);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.logo p{font-size:.75rem;color:rgba(255,255,255,.4);margin-top:4px}
+
+/* ── Tabs ── */
+.tabs{display:flex;gap:2px;background:rgba(255,255,255,.04);border-radius:12px;padding:3px;margin-bottom:24px}
+.tab{flex:1;padding:10px;text-align:center;font-size:.78rem;font-weight:700;border-radius:10px;cursor:pointer;color:rgba(255,255,255,.4);transition:.25s;border:none;background:none;letter-spacing:.3px}
+.tab:hover{color:rgba(255,255,255,.7)}
+.tab.active{background:linear-gradient(135deg,#6366f1,#818cf8);color:#fff;box-shadow:0 4px 15px rgba(99,102,241,.35)}
+
+/* ── Card ── */
+.auth-card{background:linear-gradient(135deg,rgba(15,15,40,.9),rgba(20,20,50,.85));border:1px solid rgba(99,102,241,.12);border-radius:18px;padding:28px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+
+/* ── Form ── */
+.form-panel{display:none}
+.form-panel.active{display:block}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:.68rem;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px;font-weight:600}
+.field input,.field select{width:100%;padding:12px 14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;color:#fff;font-size:.82rem;outline:none;transition:.2s;font-family:inherit}
+.field input::placeholder{color:rgba(255,255,255,.2)}
+.field input:focus,.field select:focus{border-color:rgba(99,102,241,.5);box-shadow:0 0 0 3px rgba(99,102,241,.1)}
+.field select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23666' fill='none' stroke-width='1.5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
+.field select option{background:#1a1a3e;color:#fff}
+.field .input-wrap{position:relative}
+.field .input-wrap .toggle-pw{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:rgba(255,255,255,.3);cursor:pointer;font-size:1rem;padding:0}
+.field .input-wrap .toggle-pw:hover{color:rgba(255,255,255,.6)}
+
+/* ── Referral ── */
+.referral-box{background:rgba(39,174,96,.06);border:1px solid rgba(39,174,96,.15);border-radius:10px;padding:12px 14px;margin-bottom:16px;display:flex;align-items:center;gap:10px}
+.referral-box .ref-icon{font-size:1.1rem}
+.referral-box .ref-text{font-size:.72rem;color:rgba(255,255,255,.5);line-height:1.4}
+.referral-box .ref-text strong{color:#27ae60}
+
+/* ── Checkbox ── */
+.check-row{display:flex;align-items:flex-start;gap:8px;margin-bottom:18px}
+.check-row input[type=checkbox]{margin-top:2px;accent-color:#6366f1;width:16px;height:16px;cursor:pointer}
+.check-row label{font-size:.72rem;color:rgba(255,255,255,.45);line-height:1.4;cursor:pointer}
+.check-row label a{color:#818cf8;text-decoration:none}
+.check-row label a:hover{text-decoration:underline}
+
+/* ── Buttons ── */
+.btn-primary{width:100%;padding:13px;border:none;border-radius:10px;font-size:.85rem;font-weight:700;cursor:pointer;transition:.25s;letter-spacing:.3px}
+.btn-primary.login-btn{background:linear-gradient(135deg,#6366f1,#818cf8);color:#fff;box-shadow:0 4px 20px rgba(99,102,241,.3)}
+.btn-primary.login-btn:hover{box-shadow:0 6px 30px rgba(99,102,241,.45);transform:translateY(-1px)}
+.btn-primary.register-btn{background:linear-gradient(135deg,#27ae60,#2ecc71);color:#fff;box-shadow:0 4px 20px rgba(39,174,96,.3)}
+.btn-primary.register-btn:hover{box-shadow:0 6px 30px rgba(39,174,96,.45);transform:translateY(-1px)}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none!important;box-shadow:none!important}
+
+/* ── Divider ── */
+.divider{display:flex;align-items:center;gap:12px;margin:18px 0}
+.divider span{font-size:.68rem;color:rgba(255,255,255,.25);text-transform:uppercase;letter-spacing:1px;white-space:nowrap}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.06)}
+
+/* ── Wallet Connect ── */
+.wallet-btn{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;padding:12px;border:1px solid rgba(255,255,255,.08);border-radius:10px;background:rgba(255,255,255,.02);color:rgba(255,255,255,.65);font-size:.78rem;font-weight:600;cursor:pointer;transition:.2s;font-family:inherit}
+.wallet-btn:hover{border-color:rgba(99,102,241,.3);background:rgba(99,102,241,.06);color:#fff}
+.wallet-btn .w-icon{font-size:1.2rem}
+
+/* ── Forgot / Links ── */
+.form-links{text-align:center;margin-top:16px}
+.form-links a{font-size:.72rem;color:#818cf8;text-decoration:none}
+.form-links a:hover{text-decoration:underline}
+
+/* ── Alerts ── */
+.alert{padding:10px 14px;border-radius:8px;font-size:.72rem;margin-bottom:14px;display:none;align-items:center;gap:8px}
+.alert.error{background:rgba(235,87,87,.1);border:1px solid rgba(235,87,87,.2);color:#eb5757;display:flex}
+.alert.success{background:rgba(39,174,96,.1);border:1px solid rgba(39,174,96,.2);color:#27ae60;display:flex}
+.alert .alert-icon{font-size:1rem}
+
+/* ── Password Strength ── */
+.pw-strength{height:4px;border-radius:2px;background:rgba(255,255,255,.06);margin-top:6px;overflow:hidden}
+.pw-strength .bar{height:100%;border-radius:2px;width:0;transition:.3s}
+.pw-strength .bar.weak{width:25%;background:#eb5757}
+.pw-strength .bar.fair{width:50%;background:#f2994a}
+.pw-strength .bar.good{width:75%;background:#f5c518}
+.pw-strength .bar.strong{width:100%;background:#27ae60}
+.pw-label{font-size:.65rem;margin-top:4px;font-weight:600;letter-spacing:.3px}
+.pw-label.weak{color:#eb5757}.pw-label.fair{color:#f2994a}.pw-label.good{color:#f5c518}.pw-label.strong{color:#27ae60}
+
+/* ── Password Requirements Checklist ── */
+.pw-reqs{margin-top:8px;display:grid;grid-template-columns:1fr 1fr;gap:3px 12px}
+.pw-req{font-size:.65rem;color:rgba(255,255,255,.3);display:flex;align-items:center;gap:5px;transition:.2s}
+.pw-req .req-icon{font-size:.7rem;min-width:14px;text-align:center}
+.pw-req.pass{color:#27ae60}
+.pw-req.fail{color:rgba(255,255,255,.25)}
+
+/* ── Field Error / Valid States ── */
+.field.has-error input,.field.has-error select{border-color:rgba(235,87,87,.5)!important;box-shadow:0 0 0 3px rgba(235,87,87,.08)!important}
+.field.is-valid input,.field.is-valid select{border-color:rgba(39,174,96,.4)!important}
+.field .field-err{font-size:.65rem;color:#eb5757;margin-top:4px;display:none}
+.field.has-error .field-err{display:block}
+
+/* ── Footer ── */
+.auth-footer{text-align:center;margin-top:24px;font-size:.68rem;color:rgba(255,255,255,.25)}
+.auth-footer a{color:rgba(255,255,255,.35);text-decoration:none;margin:0 6px}
+.auth-footer a:hover{color:#818cf8}
+
+/* ── Spinner ── */
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;margin-right:6px;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── 2FA ── */
+.otp-group{display:flex;gap:8px;justify-content:center;margin:16px 0}
+.otp-group input{width:44px;height:50px;text-align:center;font-size:1.2rem;font-weight:700;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#fff;outline:none;font-family:inherit}
+.otp-group input:focus{border-color:rgba(99,102,241,.5);box-shadow:0 0 0 3px rgba(99,102,241,.12)}
+
+/* ── Google Auth Badge ── */
+.gauth-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:8px;font-size:.68rem;font-weight:700;letter-spacing:.3px;margin-bottom:12px}
+.gauth-badge.active{background:rgba(39,174,96,.1);border:1px solid rgba(39,174,96,.2);color:#27ae60}
+.gauth-badge.email{background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.2);color:#818cf8}
+.gauth-method-toggle{display:flex;gap:4px;justify-content:center;margin-bottom:14px}
+.gauth-method-toggle button{padding:6px 16px;border-radius:8px;font-size:.68rem;font-weight:600;cursor:pointer;border:1px solid rgba(255,255,255,.08);background:none;color:rgba(255,255,255,.4);transition:.2s}
+.gauth-method-toggle button.active{background:rgba(99,102,241,.15);border-color:rgba(99,102,241,.4);color:#818cf8}
+
+/* ── Google Sign-In ── */
+.google-btn{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;padding:12px;border:1px solid rgba(255,255,255,.1);border-radius:12px;background:rgba(255,255,255,.04);color:rgba(255,255,255,.7);font-size:.82rem;font-weight:600;cursor:pointer;transition:.2s;margin-top:8px}
+.google-btn:hover{border-color:rgba(66,133,244,.4);background:rgba(66,133,244,.08);color:#fff}
+.google-btn .g-logo{width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center}
+.google-btn .g-logo svg{width:18px;height:18px}
+.g-rendered{width:100%;display:flex;justify-content:center;margin-top:8px;min-height:44px}
+
+/* ── Responsive ── */
+@media(max-width:480px){.auth-card{padding:20px}.otp-group input{width:38px;height:44px;font-size:1rem}}
+
+/* ── OTP Timer ── */
+.otp-timer{text-align:center;font-size:.68rem;color:rgba(255,255,255,.35);margin-top:6px}
+.otp-timer strong{color:#818cf8}
+.otp-expired{color:#eb5757!important}
+.resend-disabled{pointer-events:none;opacity:.35}
+</style>
+
+<!-- EmailJS SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+</head>
+<body>
+
+<div class="auth-wrap">
+
+<!-- Logo -->
+<div class="logo">
+<div class="logo-icon">&#x1F4B3;</div>
+<h1>OLIGHFT SMART COIN</h1>
+<p>Stellar DeFi &bull; Soroban Smart Contracts</p>
+</div>
+
+<!-- Tabs -->
+<div class="tabs">
+<button class="tab active" onclick="showPanel('login')" id="tab-login">&#x1F512; Login</button>
+<button class="tab" onclick="showPanel('register')" id="tab-register">&#x1F4DD; Register</button>
+</div>
+
+<!-- Auth Card -->
+<div class="auth-card">
+
+<!-- ═══ Alert Box ═══ -->
+<div class="alert" id="alert-box">
+<span class="alert-icon" id="alert-icon"></span>
+<span id="alert-msg"></span>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- ═══ LOGIN PANEL ═══ -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="form-panel active" id="panel-login">
+<form id="login-form" onsubmit="handleLogin(event)" novalidate>
+
+<div class="field" id="field-login-email">
+<label for="login-email">Email Address</label>
+<input type="email" id="login-email" placeholder="you@example.com" required autocomplete="email" oninput="validateEmail('login-email','field-login-email')">
+<div class="field-err">Enter a valid email (e.g. name@domain.com)</div>
+</div>
+
+<div class="field" id="field-login-pw">
+<label for="login-pw">Password</label>
+<div class="input-wrap">
+<input type="password" id="login-pw" placeholder="&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;" required autocomplete="current-password" minlength="8">
+<button type="button" class="toggle-pw" onclick="togglePw('login-pw',this)">&#x1F441;</button>
+</div>
+<div class="field-err">Password must be at least 8 characters.</div>
+</div>
+
+<div class="check-row">
+<input type="checkbox" id="remember-me">
+<label for="remember-me">Remember me for 30 days</label>
+</div>
+
+<button type="submit" class="btn-primary login-btn" id="login-btn">Sign In</button>
+
+<div class="divider"><span>or continue with</span></div>
+
+<button type="button" class="wallet-btn" onclick="connectWallet('freighter')">
+<span class="w-icon">&#x1F310;</span> Connect Freighter Wallet
+</button>
+<button type="button" class="wallet-btn" style="margin-top:8px" onclick="connectWallet('lobstr')">
+<span class="w-icon">&#x2B50;</span> Connect LOBSTR Wallet
+</button>
+
+<button type="button" class="google-btn" onclick="googleSignIn('login')">
+<span class="g-logo"><svg viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59A14.5 14.5 0 0 1 9.5 24c0-1.59.28-3.14.76-4.59l-7.98-6.19A23.9 23.9 0 0 0 0 24c0 3.77.9 7.35 2.56 10.53l7.97-5.94z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 5.94C6.51 42.62 14.62 48 24 48z"/></svg></span> Sign in with Google
+</button>
+<div id="g-login-btn" class="g-rendered"></div>
+
+<div class="form-links">
+<a href="#" onclick="showPanel('forgot');return false">Forgot password?</a>
+</div>
+
+</form>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- ═══ REGISTER PANEL ═══ -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="form-panel" id="panel-register">
+<form id="register-form" onsubmit="handleRegister(event)" novalidate>
+
+<div class="referral-box">
+<span class="ref-icon">&#x1F333;</span>
+<div class="ref-text"><strong>Referral Program:</strong> Enter your sponsor&rsquo;s code to join the 8-generation binary tree and start earning commissions.</div>
+</div>
+
+<div class="field" id="field-reg-sponsor">
+<label for="reg-sponsor">Sponsor Username</label>
+<input type="text" id="reg-sponsor" placeholder="Enter sponsor username" required>
+<div class="field-err">Sponsor username is required.</div>
+</div>
+
+<div class="field">
+<label for="reg-name">Full Name</label>
+<input type="text" id="reg-name" placeholder="John Doe" required autocomplete="name">
+</div>
+
+<div class="field" id="field-reg-email">
+<label for="reg-email">Email Address</label>
+<input type="email" id="reg-email" placeholder="you@example.com" required autocomplete="email" oninput="validateEmail('reg-email','field-reg-email')">
+<div class="field-err">Enter a valid email (e.g. name@domain.com)</div>
+</div>
+
+<div class="field" id="field-reg-pw">
+<label for="reg-pw">Password</label>
+<div class="input-wrap">
+<input type="password" id="reg-pw" placeholder="Strong password required" required autocomplete="new-password" minlength="8" oninput="checkStrength(this.value)">
+<button type="button" class="toggle-pw" onclick="togglePw('reg-pw',this)">&#x1F441;</button>
+</div>
+<div class="pw-strength"><div class="bar" id="pw-bar"></div></div>
+<div class="pw-label" id="pw-label"></div>
+<div class="pw-reqs">
+<div class="pw-req fail" id="req-len"><span class="req-icon">&#x2716;</span> Min 8 characters</div>
+<div class="pw-req fail" id="req-upper"><span class="req-icon">&#x2716;</span> Uppercase (A-Z)</div>
+<div class="pw-req fail" id="req-lower"><span class="req-icon">&#x2716;</span> Lowercase (a-z)</div>
+<div class="pw-req fail" id="req-num"><span class="req-icon">&#x2716;</span> Number (0-9)</div>
+<div class="pw-req fail" id="req-special"><span class="req-icon">&#x2716;</span> Special (!@#$...)</div>
+<div class="pw-req fail" id="req-no-space"><span class="req-icon">&#x2716;</span> No spaces</div>
+</div>
+<div class="field-err">Password does not meet all requirements.</div>
+</div>
+
+<div class="field" id="field-reg-pw2">
+<label for="reg-pw2">Confirm Password</label>
+<div class="input-wrap">
+<input type="password" id="reg-pw2" placeholder="Re-enter password" required autocomplete="new-password" minlength="8" oninput="checkMatch()">
+<button type="button" class="toggle-pw" onclick="togglePw('reg-pw2',this)">&#x1F441;</button>
+</div>
+<div class="field-err" id="pw2-err">Passwords do not match.</div>
+</div>
+
+<div class="field">
+<label for="reg-tier">Select Card Tier</label>
+<select id="reg-tier">
+<option value="">Choose your tier...</option>
+<option value="mastercard">&#x1F4B3; Mastercard &mdash; $50</option>
+<option value="visa">&#x1F4B3; Visa &mdash; $100</option>
+<option value="amex">&#x1F3DB;&#xFE0F; Amex &mdash; $200</option>
+<option value="platinum">&#x26CF;&#xFE0F; Platinum &mdash; $300</option>
+<option value="gold">&#x1F3C6; Gold &mdash; $400</option>
+<option value="black">&#x1F5C4;&#xFE0F; Black &mdash; $500</option>
+</select>
+</div>
+
+<div class="check-row">
+<input type="checkbox" id="agree-terms" required>
+<label for="agree-terms">I agree to the <a href="FUTURE CTPTO CARD SMART CONTRACT .html/terms .html" target="_blank">Terms &amp; Conditions</a> and Privacy Policy</label>
+</div>
+
+<button type="submit" class="btn-primary register-btn" id="register-btn">Create Account</button>
+
+<div class="divider"><span>or register with wallet</span></div>
+
+<button type="button" class="wallet-btn" onclick="connectWallet('freighter')">
+<span class="w-icon">&#x1F310;</span> Register with Freighter
+</button>
+<button type="button" class="wallet-btn" style="margin-top:8px" onclick="connectWallet('lobstr')">
+<span class="w-icon">&#x2B50;</span> Register with LOBSTR
+</button>
+
+<button type="button" class="google-btn" onclick="googleSignIn('register')">
+<span class="g-logo"><svg viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59A14.5 14.5 0 0 1 9.5 24c0-1.59.28-3.14.76-4.59l-7.98-6.19A23.9 23.9 0 0 0 0 24c0 3.77.9 7.35 2.56 10.53l7.97-5.94z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 5.94C6.51 42.62 14.62 48 24 48z"/></svg></span> Register with Google
+</button>
+<div id="g-register-btn" class="g-rendered"></div>
+
+</form>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- ═══ FORGOT PASSWORD PANEL ═══ -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="form-panel" id="panel-forgot">
+<form id="forgot-form" onsubmit="handleForgot(event)" novalidate>
+
+<p style="font-size:.78rem;color:rgba(255,255,255,.5);margin-bottom:18px;line-height:1.5">Enter your email address and we&rsquo;ll send you a reset link.</p>
+
+<div class="field" id="field-forgot-email">
+<label for="forgot-email">Email Address</label>
+<input type="email" id="forgot-email" placeholder="you@example.com" required autocomplete="email" oninput="validateEmail('forgot-email','field-forgot-email')">
+<div class="field-err">Enter a valid email (e.g. name@domain.com)</div>
+</div>
+
+<button type="submit" class="btn-primary login-btn" id="forgot-btn">Send Reset Link</button>
+
+<div class="form-links" style="margin-top:14px">
+<a href="#" onclick="showPanel('login');return false">&larr; Back to Login</a>
+</div>
+
+</form>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- ═══ 2FA VERIFICATION PANEL ═══ -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="form-panel" id="panel-2fa">
+<div style="text-align:center">
+<div style="font-size:2.4rem;margin-bottom:8px" id="2fa-icon">&#x1F512;</div>
+<div style="font-size:.95rem;font-weight:700;margin-bottom:4px">Two-Factor Authentication</div>
+<p style="font-size:.75rem;color:rgba(255,255,255,.45);margin-bottom:10px;line-height:1.5" id="2fa-desc">Enter the 6-digit code sent to your email.</p>
+<div id="2fa-method-badge" style="text-align:center"></div>
+</div>
+
+<!-- Method Toggle (shown when Google Auth is enabled) -->
+<div class="gauth-method-toggle" id="2fa-method-toggle" style="display:none">
+<button class="active" onclick="switch2faMethod('email')" id="btn-method-email">&#x1F4E7; Email Code</button>
+<button onclick="switch2faMethod('gauth')" id="btn-method-gauth">&#x1F4F1; Google Auth</button>
+</div>
+
+<!-- Email OTP Group -->
+<div id="2fa-email-group">
+<div class="otp-group" id="otp-group">
+<input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="one-time-code">
+<input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]">
+<input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]">
+<input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]">
+<input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]">
+<input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]">
+</div>
+<div class="otp-timer" id="otp-timer-display"></div>
+</div>
+
+<!-- Google Authenticator TOTP Group -->
+<div id="2fa-gauth-group" style="display:none">
+<div style="text-align:center;margin-bottom:12px">
+<div style="font-size:.7rem;color:rgba(255,255,255,.35);margin-bottom:6px">Open Google Authenticator and enter the 6-digit code</div>
+</div>
+<div class="otp-group" id="gauth-otp-group">
+<input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]">
+<input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]">
+<input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]">
+<input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]">
+<input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]">
+<input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]">
+</div>
+<div style="text-align:center;margin-top:8px">
+<div id="gauth-countdown" style="font-size:.65rem;color:rgba(255,255,255,.3)"></div>
+<div style="height:3px;background:rgba(255,255,255,.06);border-radius:2px;margin-top:4px;overflow:hidden"><div id="gauth-timer-bar" style="height:100%;background:#6366f1;border-radius:2px;transition:width 1s linear;width:100%"></div></div>
+</div>
+</div>
+
+<button type="button" class="btn-primary login-btn" id="verify-btn" onclick="handleVerify()">Verify &amp; Login</button>
+
+<div class="form-links" style="margin-top:14px">
+<a href="#" onclick="resendOtp();return false" id="resend-link">Resend code</a>
+&nbsp;&bull;&nbsp;
+<a href="#" onclick="showPanel('login');return false">Cancel</a>
+</div>
+</div>
+
+</div><!-- /auth-card -->
+
+<!-- Footer -->
+<div class="auth-footer">
+<p>&copy; 2026 OLIGHFT SMART COIN &mdash; Stellar Testnet</p>
+<div style="margin-top:6px">
+<a href="index.html">Home</a>
+<a href="wallet.html">Wallet</a>
+<a href="OLIGHFT SMART COIN backend/backend.html">Admin</a>
+<a href="FUTURE CTPTO CARD SMART CONTRACT .html/smart-contract-guide.html">Docs</a>
+<a href="FUTURE CTPTO CARD SMART CONTRACT .html/terms .html">Terms</a>
+</div>
+</div>
+
+</div><!-- /auth-wrap -->
+
+<script>
+/* ═══════════════════════════════════════════════ */
+/*  OLIGHFT SMART COIN — Auth Page Logic             */
+/* ═══════════════════════════════════════════════ */
+
+// ══════════════════════════════════════════════════════════
+//  EMAIL OTP SYSTEM — EmailJS Integration
+//  Sign up free at https://www.emailjs.com/
+//  1. Create an Email Service (Gmail/Outlook)
+//  2. Create a Template with variables: {{to_email}}, {{to_name}}, {{otp_code}}, {{expire_minutes}}
+//  3. Paste your IDs below
+// ══════════════════════════════════════════════════════════
+const EMAILJS_PUBLIC_KEY  = '';  // ← your EmailJS public key
+const EMAILJS_SERVICE_ID  = '';  // ← your EmailJS service ID
+const EMAILJS_TEMPLATE_ID = '';  // ← your EmailJS template ID
+const OTP_EXPIRE_MINUTES  = 5;
+const OTP_LENGTH          = 6;
+const RESEND_COOLDOWN_SEC = 60;
+
+// ── OTP State ──
+let _currentOtp    = null;   // { code, email, expiresAt, attempts }
+let _resendTimer   = null;
+let _otpCountdown  = null;
+
+// ── Initialize EmailJS ──
+if (EMAILJS_PUBLIC_KEY) {
+    emailjs.init(EMAILJS_PUBLIC_KEY);
+}
+
+// ── Generate Cryptographically Random OTP ──
+function generateOtp() {
+    const arr = new Uint32Array(1);
+    crypto.getRandomValues(arr);
+    return String(arr[0] % (10 ** OTP_LENGTH)).padStart(OTP_LENGTH, '0');
+}
+
+// ── Send OTP Email ──
+// Uses local Python backend (email_server.py) first, then EmailJS, then fallback
+const OTP_API_URL = window.location.hostname === 'localhost'
+    ? '/api/send-otp'                            // local dev
+    : 'https://olighftcoin.com/api/send-otp';    // production
+
+async function sendOtpEmail(email, name) {
+    const code = generateOtp();
+    _currentOtp = {
+        code: code,
+        email: email.toLowerCase(),
+        expiresAt: Date.now() + OTP_EXPIRE_MINUTES * 60 * 1000,
+        attempts: 0
+    };
+
+    // Method 1: Local Python backend (email_server.py)
+    try {
+        const resp = await fetch(OTP_API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                email: email,
+                name: name || email.split('@')[0],
+                code: code,
+                expire_minutes: OTP_EXPIRE_MINUTES
+            })
+        });
+        const data = await resp.json();
+        if (data.success) {
+            console.log('[OTP] Email sent via backend to', email);
+            return { sent: true, method: 'backend' };
+        }
+        console.warn('[OTP] Backend error:', data.error);
+    } catch (err) {
+        console.warn('[OTP] Backend not available:', err.message);
+    }
+
+    // Method 2: EmailJS (client-side fallback)
+    if (EMAILJS_PUBLIC_KEY && EMAILJS_SERVICE_ID && EMAILJS_TEMPLATE_ID) {
+        try {
+            await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+                to_email: email,
+                to_name: name || email.split('@')[0],
+                otp_code: code,
+                expire_minutes: OTP_EXPIRE_MINUTES
+            });
+            console.log('[OTP] Email sent via EmailJS to', email);
+            return { sent: true, method: 'emailjs' };
+        } catch (err) {
+            console.error('[OTP] EmailJS error:', err);
+        }
+    }
+
+    // Method 3: Fallback — no email service available
+    // Code only logged to console for development debugging
+    console.warn('[OTP] No email service available. Check email_server.py or EmailJS config.');
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        console.log('[OTP-DEV] Code for ' + email + ': ' + code);
+    }
+    return { sent: false, method: 'fallback' };
+}
+
+// ── Verify OTP ──
+function verifyOtpCode(inputCode) {
+    if (!_currentOtp) return { valid: false, reason: 'No code was sent.' };
+    if (Date.now() > _currentOtp.expiresAt) return { valid: false, reason: 'Code expired. Click Resend.' };
+    if (_currentOtp.attempts >= 5) return { valid: false, reason: 'Too many attempts. Click Resend.' };
+    _currentOtp.attempts++;
+    if (inputCode === _currentOtp.code) return { valid: true };
+    return { valid: false, reason: 'Incorrect code. ' + (5 - _currentOtp.attempts) + ' attempts left.' };
+}
+
+// ── Start OTP Expiry Countdown ──
+function startOtpCountdown() {
+    if (_otpCountdown) clearInterval(_otpCountdown);
+    const timerEl = document.getElementById('otp-timer-display');
+    if (!timerEl) return;
+    function tick() {
+        if (!_currentOtp) { timerEl.textContent = ''; return; }
+        const remaining = Math.max(0, Math.floor((_currentOtp.expiresAt - Date.now()) / 1000));
+        const min = Math.floor(remaining / 60);
+        const sec = remaining % 60;
+        timerEl.innerHTML = remaining > 0
+            ? 'Code expires in <strong>' + min + ':' + String(sec).padStart(2, '0') + '</strong>'
+            : '<span class="otp-expired">Code expired — click Resend</span>';
+        if (remaining <= 0) clearInterval(_otpCountdown);
+    }
+    tick();
+    _otpCountdown = setInterval(tick, 1000);
+}
+
+// ── Resend Cooldown ──
+function startResendCooldown() {
+    const link = document.getElementById('resend-link');
+    if (!link) return;
+    link.classList.add('resend-disabled');
+    let sec = RESEND_COOLDOWN_SEC;
+    link.textContent = 'Resend in ' + sec + 's';
+    if (_resendTimer) clearInterval(_resendTimer);
+    _resendTimer = setInterval(() => {
+        sec--;
+        if (sec <= 0) {
+            clearInterval(_resendTimer);
+            link.textContent = 'Resend code';
+            link.classList.remove('resend-disabled');
+        } else {
+            link.textContent = 'Resend in ' + sec + 's';
+        }
+    }, 1000);
+}
+
+// ── Panel Switching ──
+function showPanel(id) {
+    document.querySelectorAll('.form-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('panel-' + id).classList.add('active');
+    hideAlert();
+
+    if (id === 'login')    document.getElementById('tab-login').classList.add('active');
+    if (id === 'register') document.getElementById('tab-register').classList.add('active');
+}
+
+// ── Alerts ──
+function showAlert(type, msg) {
+    const box = document.getElementById('alert-box');
+    const icon = document.getElementById('alert-icon');
+    const txt  = document.getElementById('alert-msg');
+    box.className = 'alert ' + type;
+    icon.textContent = type === 'error' ? '\u26A0\uFE0F' : '\u2705';
+    txt.textContent = msg;
+}
+function hideAlert() {
+    document.getElementById('alert-box').className = 'alert';
+}
+
+// ── Toggle Password Visibility ──
+function togglePw(id, btn) {
+    const inp = document.getElementById(id);
+    if (inp.type === 'password') {
+        inp.type = 'text';
+        btn.textContent = '\uD83D\uDE48';
+    } else {
+        inp.type = 'password';
+        btn.textContent = '\uD83D\uDC41';
+    }
+}
+
+// ── Strict Email Validation ──
+// Must have: local part, @, domain with dot, TLD 2-10 chars, no consecutive dots
+const EMAIL_RE = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*\.[a-zA-Z]{2,10}$/;
+
+function isValidEmail(email) {
+    if (!email || email.length > 254) return false;
+    if (!EMAIL_RE.test(email)) return false;
+    // No consecutive dots in local part
+    if (/\.\./.test(email.split('@')[0])) return false;
+    return true;
+}
+
+function validateEmail(inputId, fieldId) {
+    const val = document.getElementById(inputId).value.trim();
+    const field = document.getElementById(fieldId);
+    if (!val) { field.classList.remove('has-error','is-valid'); return; }
+    if (isValidEmail(val)) { field.classList.remove('has-error'); field.classList.add('is-valid'); }
+    else                   { field.classList.remove('is-valid'); field.classList.add('has-error'); }
+}
+
+// ── Password Strength Meter + Requirements Checker ──
+const PW_RULES = [
+    { id: 'req-len',      test: pw => pw.length >= 8 },
+    { id: 'req-upper',    test: pw => /[A-Z]/.test(pw) },
+    { id: 'req-lower',    test: pw => /[a-z]/.test(pw) },
+    { id: 'req-num',      test: pw => /[0-9]/.test(pw) },
+    { id: 'req-special',  test: pw => /[^A-Za-z0-9\s]/.test(pw) },
+    { id: 'req-no-space', test: pw => pw.length === 0 || !/\s/.test(pw) },
+];
+
+function checkStrength(pw) {
+    const bar   = document.getElementById('pw-bar');
+    const label = document.getElementById('pw-label');
+    const field = document.getElementById('field-reg-pw');
+    let passed = 0;
+
+    PW_RULES.forEach(rule => {
+        const el  = document.getElementById(rule.id);
+        const ok  = rule.test(pw);
+        if (ok) passed++;
+        el.className = 'pw-req ' + (ok ? 'pass' : 'fail');
+        el.querySelector('.req-icon').innerHTML = ok ? '&#x2714;' : '&#x2716;';
+    });
+
+    bar.className = 'bar';
+    label.className = 'pw-label';
+    label.textContent = '';
+
+    if (pw.length === 0) { field.classList.remove('has-error','is-valid'); return; }
+
+    if (passed <= 2)      { bar.classList.add('weak');   label.classList.add('weak');   label.textContent = 'Weak'; }
+    else if (passed <= 3) { bar.classList.add('fair');   label.classList.add('fair');   label.textContent = 'Fair'; }
+    else if (passed <= 4) { bar.classList.add('good');   label.classList.add('good');   label.textContent = 'Good'; }
+    else if (passed <= 5) { bar.classList.add('good');   label.classList.add('good');   label.textContent = 'Good'; }
+    if (passed === 6)     { bar.classList.add('strong'); label.classList.add('strong'); label.textContent = 'Strong \u2714'; }
+
+    if (passed === 6) { field.classList.remove('has-error'); field.classList.add('is-valid'); }
+    else              { field.classList.remove('is-valid'); field.classList.add('has-error'); }
+
+    checkMatch();
+}
+
+function isStrongPassword(pw) {
+    return PW_RULES.every(r => r.test(pw));
+}
+
+function checkMatch() {
+    const pw  = document.getElementById('reg-pw').value;
+    const pw2 = document.getElementById('reg-pw2').value;
+    const f2  = document.getElementById('field-reg-pw2');
+    if (!pw2) { f2.classList.remove('has-error','is-valid'); return; }
+    if (pw === pw2) { f2.classList.remove('has-error'); f2.classList.add('is-valid'); }
+    else            { f2.classList.remove('is-valid'); f2.classList.add('has-error'); }
+}
+
+// ── OTP Input Auto-Advance ──
+document.querySelectorAll('#otp-group input').forEach((inp, i, arr) => {
+    inp.addEventListener('input', () => {
+        inp.value = inp.value.replace(/\D/g, '');
+        if (inp.value && i < arr.length - 1) arr[i + 1].focus();
+    });
+    inp.addEventListener('keydown', e => {
+        if (e.key === 'Backspace' && !inp.value && i > 0) arr[i - 1].focus();
+    });
+    inp.addEventListener('paste', e => {
+        e.preventDefault();
+        const data = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g, '').slice(0, 6);
+        data.split('').forEach((ch, j) => { if (arr[i + j]) arr[i + j].value = ch; });
+        if (arr[Math.min(i + data.length, arr.length - 1)]) arr[Math.min(i + data.length, arr.length - 1)].focus();
+    });
+});
+
+// ── Referral Code from URL ──
+(function() {
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get('ref') || params.get('sponsor');
+    if (ref) {
+        document.getElementById('reg-sponsor').value = ref;
+        showPanel('register');
+    }
+})();
+
+// ── Set Loading State ──
+function setLoading(btnId, loading) {
+    const btn = document.getElementById(btnId);
+    if (loading) {
+        btn.disabled = true;
+        btn.dataset.text = btn.textContent;
+        btn.innerHTML = '<span class="spinner"></span> Please wait\u2026';
+    } else {
+        btn.disabled = false;
+        btn.textContent = btn.dataset.text;
+    }
+}
+
+// ── Login Handler ──
+async function handleLogin(e) {
+    e.preventDefault();
+    hideAlert();
+    const email = document.getElementById('login-email').value.trim();
+    const pw    = document.getElementById('login-pw').value;
+    let valid = true;
+
+    // Email
+    if (!email || !isValidEmail(email)) {
+        document.getElementById('field-login-email').classList.add('has-error');
+        valid = false;
+    } else {
+        document.getElementById('field-login-email').classList.remove('has-error');
+        document.getElementById('field-login-email').classList.add('is-valid');
+    }
+
+    // Password
+    if (!pw || pw.length < 8) {
+        document.getElementById('field-login-pw').classList.add('has-error');
+        valid = false;
+    } else {
+        document.getElementById('field-login-pw').classList.remove('has-error');
+        document.getElementById('field-login-pw').classList.add('is-valid');
+    }
+
+    if (!valid) { showAlert('error', 'Please fix the highlighted fields.'); return; }
+
+    setLoading('login-btn', true);
+
+    // Check if user already registered in localStorage
+    const existingUser = JSON.parse(localStorage.getItem('cw_user') || 'null');
+    if (!existingUser) {
+        setLoading('login-btn', false);
+        showAlert('error', 'No account found. Please register first.');
+        return;
+    }
+    if (existingUser.email !== email) {
+        setLoading('login-btn', false);
+        showAlert('error', 'Email not found. Please check or register.');
+        return;
+    }
+
+    // Store pending login context
+    window._pendingAuth = { type: 'login', email: email };
+
+    // If Google Auth enabled, skip email OTP
+    if (isGauthEnabled()) {
+        setLoading('login-btn', false);
+        showPanel('2fa');
+        init2faPanel();
+        showAlert('success', 'Enter your Google Authenticator code.');
+        return;
+    }
+
+    // Send real OTP email
+    const result = await sendOtpEmail(email, existingUser.name || email);
+    setLoading('login-btn', false);
+    showPanel('2fa');
+    init2faPanel();
+    startOtpCountdown();
+    startResendCooldown();
+
+    if (result.sent) {
+        showAlert('success', 'Verification code sent to ' + email + '. Check your inbox.');
+    } else {
+        showAlert('error', 'Email service unavailable. Please try again or contact support.');
+    }
+}
+
+// ── Register Handler ──
+async function handleRegister(e) {
+    e.preventDefault();
+    hideAlert();
+    const name    = document.getElementById('reg-name').value.trim();
+    const email   = document.getElementById('reg-email').value.trim();
+    const pw      = document.getElementById('reg-pw').value;
+    const pw2     = document.getElementById('reg-pw2').value;
+    const tier    = document.getElementById('reg-tier').value;
+    const sponsor = document.getElementById('reg-sponsor').value.trim();
+    const agreed  = document.getElementById('agree-terms').checked;
+
+    if (!name || !email || !pw || !pw2 || !sponsor) { showAlert('error', 'Please fill in all required fields.'); return; }
+
+    // Sponsor
+    if (!sponsor) {
+        showAlert('error', 'Sponsor username is required.');
+        document.getElementById('field-reg-sponsor').classList.add('has-error');
+        return;
+    }
+    document.getElementById('field-reg-sponsor').classList.remove('has-error');
+
+    // Email
+    if (!isValidEmail(email)) {
+        showAlert('error', 'Enter a valid email address (e.g. name@domain.com).');
+        document.getElementById('field-reg-email').classList.add('has-error');
+        return;
+    }
+
+    // Strong password
+    if (!isStrongPassword(pw)) {
+        showAlert('error', 'Password must have 8+ chars, uppercase, lowercase, number, special character, and no spaces.');
+        document.getElementById('field-reg-pw').classList.add('has-error');
+        return;
+    }
+    if (pw !== pw2) {
+        showAlert('error', 'Passwords do not match.');
+        document.getElementById('field-reg-pw2').classList.add('has-error');
+        return;
+    }
+    if (!agreed) { showAlert('error', 'You must agree to the Terms & Conditions.'); return; }
+
+    setLoading('register-btn', true);
+
+    // Check for existing account
+    const existUser = JSON.parse(localStorage.getItem('cw_user') || 'null');
+    if (existUser && existUser.email === email) {
+        setLoading('register-btn', false);
+        showAlert('error', 'Account already exists. Please log in instead.');
+        return;
+    }
+
+    // ── Create account NOW using the registration email ──
+    const user = {
+        name: name,
+        email: email,
+        sponsor: sponsor,
+        tier: tier || 'visa',
+        addr: '',
+        created: Date.now(),
+        seedHash: '',
+        verified: false   // will be set to true after OTP confirmation
+    };
+    localStorage.setItem('cw_user', JSON.stringify(user));
+
+    // ── Track invite stage: mark as "registered" ──
+    if (sponsor) {
+        const INVITE_STAGES = ['invited','registered','wallet_created','card_activated','staking_active'];
+        let invites = [];
+        try { invites = JSON.parse(localStorage.getItem('cw_invites') || '[]'); } catch(e) { invites = []; }
+        let found = false;
+        for (let inv of invites) {
+            if (inv.invitee && inv.invitee.email && inv.invitee.email.toLowerCase() === email.toLowerCase()) {
+                const curIdx = INVITE_STAGES.indexOf(inv.stage);
+                const newIdx = INVITE_STAGES.indexOf('registered');
+                if (newIdx > curIdx) {
+                    inv.stage = 'registered';
+                    inv.stageHistory.push({ stage: 'registered', at: Date.now() });
+                    inv.invitee.name = name;
+                    inv.invitee.tier = tier || '';
+                }
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            invites.push({
+                id: 'inv_' + Date.now(),
+                inviterName: sponsor,
+                createdAt: Date.now(),
+                stage: 'registered',
+                stageHistory: [
+                    { stage: 'invited', at: Date.now() - 1000 },
+                    { stage: 'registered', at: Date.now() }
+                ],
+                invitee: { name: name, email: email, tier: tier || '' }
+            });
+        }
+        localStorage.setItem('cw_invites', JSON.stringify(invites));
+    }
+
+    // Store pending context for OTP verification
+    window._pendingAuth = { type: 'register', name: name, email: email, sponsor: sponsor, tier: tier };
+
+    // If Google Auth enabled, skip email OTP
+    if (isGauthEnabled()) {
+        setLoading('register-btn', false);
+        showPanel('2fa');
+        init2faPanel();
+        showAlert('success', 'Account created! Enter your Google Authenticator code.');
+        return;
+    }
+
+    // Send real OTP email
+    const result = await sendOtpEmail(email, name);
+    setLoading('register-btn', false);
+    showPanel('2fa');
+    init2faPanel();
+    startOtpCountdown();
+    startResendCooldown();
+
+    if (result.sent) {
+        showAlert('success', 'Verification code sent to ' + email + '. Check your inbox!');
+    } else {
+        showAlert('error', 'Email service unavailable. Please try again or contact support.');
+    }
+}
+
+// ── Forgot Password Handler ──
+async function handleForgot(e) {
+    e.preventDefault();
+    hideAlert();
+    const email = document.getElementById('forgot-email').value.trim();
+    if (!email) { showAlert('error', 'Please enter your email.'); return; }
+    if (!isValidEmail(email)) {
+        showAlert('error', 'Enter a valid email address (e.g. name@domain.com).');
+        document.getElementById('field-forgot-email').classList.add('has-error');
+        return;
+    }
+
+    setLoading('forgot-btn', true);
+
+    const existingUser = JSON.parse(localStorage.getItem('cw_user') || 'null');
+    if (existingUser && existingUser.email === email) {
+        window._pendingAuth = { type: 'forgot', email: email, name: existingUser.name || email };
+        const result = await sendOtpEmail(email, existingUser.name || email);
+        setLoading('forgot-btn', false);
+        showPanel('2fa');
+        init2faPanel();
+        startOtpCountdown();
+        startResendCooldown();
+        if (result.sent) {
+            showAlert('success', 'Reset code sent to ' + email + '. Check your inbox.');
+        } else {
+            showAlert('error', 'Email service unavailable. Please try again or contact support.');
+        }
+    } else {
+        setLoading('forgot-btn', false);
+        showAlert('success', 'If this email is registered, a reset code has been sent.');
+    }
+}
+
+// ── 2FA Verify Handler ──
+async function handleVerify() {
+    var code;
+    if (window._active2faMethod === 'gauth') {
+        const gauthInputs = document.querySelectorAll('#gauth-otp-group input');
+        code = Array.from(gauthInputs).map(i => i.value).join('');
+    } else {
+        const inputs = document.querySelectorAll('#otp-group input');
+        code = Array.from(inputs).map(i => i.value).join('');
+    }
+    hideAlert();
+
+    if (code.length !== 6) { showAlert('error', 'Enter the full 6-digit code.'); return; }
+
+    // Verify Google Auth TOTP if that method is active
+    if (window._active2faMethod === 'gauth') {
+        var secret = getGauthSecret();
+        if (secret) {
+            setLoading('verify-btn', true);
+            var valid = await verifyTotp(secret, code);
+            if (!valid) {
+                setLoading('verify-btn', false);
+                showAlert('error', 'Invalid authenticator code. Check your Google Authenticator app and try again.');
+                // Clear inputs
+                document.querySelectorAll('#gauth-otp-group input').forEach(function(i) { i.value = ''; });
+                document.querySelector('#gauth-otp-group input').focus();
+                return;
+            }
+        }
+    } else {
+        // Verify email OTP against sent code
+        const otpResult = verifyOtpCode(code);
+        if (!otpResult.valid) {
+            showAlert('error', otpResult.reason);
+            document.querySelectorAll('#otp-group input').forEach(function(i) { i.value = ''; });
+            document.querySelector('#otp-group input').focus();
+            return;
+        }
+    }
+
+    setLoading('verify-btn', true);
+
+    setTimeout(() => {
+        setLoading('verify-btn', false);
+
+        const pending = window._pendingAuth || {};
+
+        if (pending.type === 'register') {
+            // Account was already created at registration time — mark email as verified
+            const storedUser = JSON.parse(localStorage.getItem('cw_user') || 'null');
+            if (storedUser && storedUser.email === pending.email) {
+                storedUser.verified = true;
+                localStorage.setItem('cw_user', JSON.stringify(storedUser));
+            }
+        }
+        // For login / forgot — cw_user already exists, just verify & redirect
+
+        showAlert('success', 'Welcome to OLIGHFT SMART COIN!');
+        window._pendingAuth = null;
+        setTimeout(() => { window.location.href = 'wallet.html'; }, 800);
+    }, 1000);
+}
+
+// ── Resend OTP ──
+async function resendOtp() {
+    const pending = window._pendingAuth;
+    if (!pending || !pending.email) {
+        showAlert('error', 'No email to send to. Please start over.');
+        return;
+    }
+    showAlert('success', 'Sending new code...');
+    const result = await sendOtpEmail(pending.email, pending.name || pending.email);
+    // Clear existing OTP inputs
+    document.querySelectorAll('#otp-group input').forEach(function(i) { i.value = ''; });
+    if (document.querySelector('#otp-group input')) document.querySelector('#otp-group input').focus();
+    startOtpCountdown();
+    startResendCooldown();
+    if (result.sent) {
+        showAlert('success', 'New code sent to ' + pending.email + '!');
+    } else {
+        showAlert('error', 'Email service unavailable. Please try again or contact support.');
+    }
+}
+
+// ══════════════════════════════════════════════════════════
+//  GOOGLE AUTHENTICATOR  —  TOTP (RFC 6238)
+//  Uses OTP-Auth library loaded via CDN for HMAC-SHA1
+// ══════════════════════════════════════════════════════════
+
+// ── Base32 Encoding (RFC 4648) ──
+const B32_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+function base32Encode(buf) {
+    let bits = '', out = '';
+    new Uint8Array(buf).forEach(b => bits += b.toString(2).padStart(8, '0'));
+    for (let i = 0; i < bits.length; i += 5) {
+        const chunk = bits.slice(i, i + 5).padEnd(5, '0');
+        out += B32_CHARS[parseInt(chunk, 2)];
+    }
+    return out;
+}
+function base32Decode(str) {
+    let bits = '';
+    str.toUpperCase().replace(/[^A-Z2-7]/g, '').split('').forEach(c => {
+        bits += B32_CHARS.indexOf(c).toString(2).padStart(5, '0');
+    });
+    const bytes = [];
+    for (let i = 0; i + 8 <= bits.length; i += 8) bytes.push(parseInt(bits.slice(i, i + 8), 2));
+    return new Uint8Array(bytes);
+}
+
+// ── Generate TOTP Secret (20 random bytes → 32-char base32) ──
+function generateTotpSecret() {
+    const buf = new Uint8Array(20);
+    crypto.getRandomValues(buf);
+    return base32Encode(buf);
+}
+
+// ── HMAC-SHA1 via Web Crypto API ──
+async function hmacSha1(keyBytes, msgBytes) {
+    const key = await crypto.subtle.importKey('raw', keyBytes, { name: 'HMAC', hash: 'SHA-1' }, false, ['sign']);
+    const sig = await crypto.subtle.sign('HMAC', key, msgBytes);
+    return new Uint8Array(sig);
+}
+
+// ── Generate TOTP Code (RFC 6238, period=30s, digits=6) ──
+async function generateTotp(secret, time) {
+    const period = 30;
+    const t = time || Math.floor(Date.now() / 1000);
+    const counter = Math.floor(t / period);
+    // Convert counter to 8-byte big-endian
+    const msg = new Uint8Array(8);
+    let tmp = counter;
+    for (let i = 7; i >= 0; i--) { msg[i] = tmp & 0xff; tmp = Math.floor(tmp / 256); }
+    const keyBytes = base32Decode(secret);
+    const hash = await hmacSha1(keyBytes, msg);
+    // Dynamic truncation (RFC 4226)
+    const offset = hash[hash.length - 1] & 0x0f;
+    const code = ((hash[offset] & 0x7f) << 24 | hash[offset+1] << 16 | hash[offset+2] << 8 | hash[offset+3]) % 1000000;
+    return code.toString().padStart(6, '0');
+}
+
+// ── Verify TOTP (allow ±1 window for clock skew) ──
+async function verifyTotp(secret, inputCode) {
+    const now = Math.floor(Date.now() / 1000);
+    for (let w = -1; w <= 1; w++) {
+        const code = await generateTotp(secret, now + (w * 30));
+        if (code === inputCode) return true;
+    }
+    return false;
+}
+
+// ── Build Google Auth URI (otpauth://totp/...) ──
+function buildGauthUri(email, secret) {
+    const issuer = 'OLIGHFT%20SMART%20COIN';
+    const label = encodeURIComponent('OLIGHFT:' + email);
+    return 'otpauth://totp/' + label + '?secret=' + secret + '&issuer=' + issuer + '&algorithm=SHA1&digits=6&period=30';
+}
+
+// ── Check if Google Auth is enabled ──
+function isGauthEnabled() {
+    try {
+        const cfg = JSON.parse(localStorage.getItem('cw_2fa') || 'null');
+        return cfg && cfg.enabled === true && cfg.secret;
+    } catch(e) { return false; }
+}
+function getGauthSecret() {
+    try { return JSON.parse(localStorage.getItem('cw_2fa')).secret; } catch(e) { return null; }
+}
+
+// ── 2FA Method Switching ──
+function switch2faMethod(method) {
+    const emailGrp = document.getElementById('2fa-email-group');
+    const gauthGrp = document.getElementById('2fa-gauth-group');
+    const btnEmail = document.getElementById('btn-method-email');
+    const btnGauth = document.getElementById('btn-method-gauth');
+    const resendLink = document.getElementById('resend-link');
+    if (method === 'gauth') {
+        emailGrp.style.display = 'none';
+        gauthGrp.style.display = 'block';
+        btnEmail.classList.remove('active');
+        btnGauth.classList.add('active');
+        resendLink.style.display = 'none';
+        window._active2faMethod = 'gauth';
+        startGauthTimer();
+    } else {
+        emailGrp.style.display = 'block';
+        gauthGrp.style.display = 'none';
+        btnEmail.classList.add('active');
+        btnGauth.classList.remove('active');
+        resendLink.style.display = '';
+        window._active2faMethod = 'email';
+        stopGauthTimer();
+    }
+}
+
+// ── TOTP Countdown Timer (30s cycle) ──
+var _gauthInterval = null;
+function startGauthTimer() {
+    stopGauthTimer();
+    function tick() {
+        var remaining = 30 - (Math.floor(Date.now() / 1000) % 30);
+        var el = document.getElementById('gauth-countdown');
+        var bar = document.getElementById('gauth-timer-bar');
+        if (el) el.textContent = 'Code refreshes in ' + remaining + 's';
+        if (bar) bar.style.width = Math.round((remaining / 30) * 100) + '%';
+    }
+    tick();
+    _gauthInterval = setInterval(tick, 1000);
+}
+function stopGauthTimer() {
+    if (_gauthInterval) { clearInterval(_gauthInterval); _gauthInterval = null; }
+}
+
+// ── Initialize 2FA panel on show ──
+function init2faPanel() {
+    var badge = document.getElementById('2fa-method-badge');
+    var toggle = document.getElementById('2fa-method-toggle');
+    var desc = document.getElementById('2fa-desc');
+    var icon2fa = document.getElementById('2fa-icon');
+    if (isGauthEnabled()) {
+        badge.innerHTML = '<span class="gauth-badge active">\uD83D\uDD12 Google Authenticator Enabled</span>';
+        toggle.style.display = 'flex';
+        // Default to Google Auth method when enabled
+        switch2faMethod('gauth');
+        desc.textContent = 'Choose your verification method below.';
+        icon2fa.innerHTML = '\uD83D\uDCF1';
+    } else {
+        badge.innerHTML = '<span class="gauth-badge email">\uD83D\uDCE7 Email Verification</span>';
+        toggle.style.display = 'none';
+        switch2faMethod('email');
+        desc.textContent = 'Enter the 6-digit code sent to your email.';
+        icon2fa.innerHTML = '\uD83D\uDD12';
+    }
+}
+
+// ── OTP auto-advance for Google Auth inputs ──
+document.querySelectorAll('#gauth-otp-group input').forEach(function(inp, i, arr) {
+    inp.addEventListener('input', function() {
+        inp.value = inp.value.replace(/\D/g, '');
+        if (inp.value && i < arr.length - 1) arr[i + 1].focus();
+    });
+    inp.addEventListener('keydown', function(e) {
+        if (e.key === 'Backspace' && !inp.value && i > 0) arr[i - 1].focus();
+    });
+    inp.addEventListener('paste', function(e) {
+        e.preventDefault();
+        var data = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g, '').slice(0, 6);
+        data.split('').forEach(function(ch, j) { if (arr[i + j]) arr[i + j].value = ch; });
+        if (arr[Math.min(i + data.length, arr.length - 1)]) arr[Math.min(i + data.length, arr.length - 1)].focus();
+    });
+});
+
+// ── Wallet Connect ──
+function connectWallet(provider) {
+    hideAlert();
+
+    if (provider === 'freighter') {
+        if (typeof window.freighterApi !== 'undefined' && window.freighterApi.isConnected) {
+            window.freighterApi.isConnected().then(connected => {
+                if (connected) {
+                    window.freighterApi.getPublicKey().then(pubKey => {
+                        // Save wallet-connect user
+                        const wcUser = JSON.parse(localStorage.getItem('cw_user') || 'null') || { name: 'Freighter User', email: '', created: Date.now(), seedHash: '' };
+                        wcUser.addr = pubKey;
+                        localStorage.setItem('cw_user', JSON.stringify(wcUser));
+                        showAlert('success', 'Freighter connected: ' + pubKey.slice(0, 6) + '\u2026' + pubKey.slice(-4));
+                        setTimeout(() => { window.location.href = 'wallet.html'; }, 1200);
+                    });
+                } else {
+                    showAlert('error', 'Freighter is installed but not connected. Please unlock it.');
+                }
+            });
+        } else {
+            showAlert('error', 'Freighter wallet not detected. Install it from freighter.app');
+        }
+    } else if (provider === 'lobstr') {
+        if (typeof window.lobstrApi !== 'undefined') {
+            showAlert('success', 'Connecting to LOBSTR\u2026');
+        } else {
+            showAlert('error', 'LOBSTR wallet extension not detected.');
+        }
+    }
+}
+
+// ═══════════════════════════════════════════
+// ═══════════════════════════════════════════
+//  GOOGLE SIGN-IN SDK (Identity Services / FedCM)
+// ═══════════════════════════════════════════
+
+// Google OAuth Client ID — replace with your Google Cloud Console client ID
+// Create one at https://console.cloud.google.com/apis/credentials
+// Authorized origins: https://olighftcoin.com (and http://localhost for dev)
+const GOOGLE_CLIENT_ID = '000000000000-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.apps.googleusercontent.com';
+const GOOGLE_CLIENT_ID_SET = !GOOGLE_CLIENT_ID.startsWith('000000000000');
+
+let _googleScriptLoaded = false;
+let _googleInitialized = false;
+let _googleSignInMode = 'login'; // tracks which mode the callback should use
+
+function loadGoogleScript() {
+    return new Promise((resolve, reject) => {
+        if (_googleScriptLoaded && window.google && window.google.accounts) { resolve(); return; }
+        // Script pre-loaded in <head>; wait for it
+        if (window.google && window.google.accounts) { _googleScriptLoaded = true; resolve(); return; }
+        // If not yet loaded, poll with timeout
+        let waited = 0;
+        const poll = setInterval(() => {
+            if (window.google && window.google.accounts) {
+                clearInterval(poll);
+                _googleScriptLoaded = true;
+                resolve();
+            } else if (waited > 5000) {
+                clearInterval(poll);
+                reject(new Error('Google GIS SDK did not load'));
+            }
+            waited += 100;
+        }, 100);
+    });
+}
+
+/**
+ * Initialize Google Identity Services with FedCM support.
+ * Renders native Google buttons in the provided container IDs.
+ */
+function initializeGoogleSignIn() {
+    if (_googleInitialized) return;
+    if (!window.google || !window.google.accounts) return;
+
+    try {
+        var initConfig = {
+            client_id: GOOGLE_CLIENT_ID,
+            callback: handleGoogleCredentialCallback,
+            auto_select: false,
+            cancel_on_tap_outside: true,
+            itp_support: true
+        };
+        // Enable FedCM for Chrome 117+ (required for Third-Party Cookie deprecation)
+        initConfig.use_fedcm_for_prompt = true;
+
+        window.google.accounts.id.initialize(initConfig);
+
+        // Render native Google buttons in both login & register containers
+        var loginContainer = document.getElementById('g-login-btn');
+        var registerContainer = document.getElementById('g-register-btn');
+
+        var btnConfig = {
+            theme: 'filled_black',
+            size: 'large',
+            shape: 'pill',
+            width: 320,
+            text: 'signin_with',
+            logo_alignment: 'left'
+        };
+
+        if (loginContainer) {
+            window.google.accounts.id.renderButton(loginContainer, btnConfig);
+        }
+        if (registerContainer) {
+            var regBtnConfig = Object.assign({}, btnConfig, { text: 'signup_with' });
+            window.google.accounts.id.renderButton(registerContainer, regBtnConfig);
+        }
+
+        _googleInitialized = true;
+        console.log('[GoogleSignIn] GIS initialized' + (initConfig.use_fedcm_for_prompt ? ' with FedCM' : ''));
+    } catch (err) {
+        console.warn('[GoogleSignIn] Init failed:', err.message);
+    }
+}
+
+/** Callback that receives the JWT credential from Google */
+function handleGoogleCredentialCallback(response) {
+    handleGoogleCredential(response, _googleSignInMode);
+}
+
+async function googleSignIn(mode) {
+    hideAlert();
+    _googleSignInMode = mode;
+    showAlert('info', 'Connecting to Google...');
+
+    // If real Client ID is not set, go straight to demo
+    if (!GOOGLE_CLIENT_ID_SET) {
+        showAlert('info', 'Google Client ID not configured. Using demo mode.');
+        setTimeout(() => googleDemoSignIn(mode), 500);
+        return;
+    }
+
+    try {
+        await loadGoogleScript();
+    } catch (err) {
+        showAlert('info', 'Google SDK unavailable. Using demo mode.');
+        setTimeout(() => googleDemoSignIn(mode), 500);
+        return;
+    }
+
+    // Initialize if not yet done
+    if (!_googleInitialized) {
+        initializeGoogleSignIn();
+    }
+
+    // Trigger One Tap prompt (works alongside rendered buttons)
+    if (window.google && window.google.accounts) {
+        window.google.accounts.id.prompt((notification) => {
+            if (notification.isNotDisplayed()) {
+                console.log('[GoogleSignIn] One Tap not displayed:', notification.getNotDisplayedReason());
+                // The rendered button is still usable — no fallback needed unless button also missing
+                if (!_googleInitialized) {
+                    googleDemoSignIn(mode);
+                }
+            } else if (notification.isSkippedMoment()) {
+                console.log('[GoogleSignIn] One Tap skipped:', notification.getSkippedReason());
+            }
+        });
+        hideAlert();
+    } else {
+        googleDemoSignIn(mode);
+    }
+}
+
+function handleGoogleCredential(response, mode) {
+    // Decode JWT payload (Google ID token)
+    try {
+        const parts = response.credential.split('.');
+        const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+        const gEmail = payload.email;
+        const gName = payload.name || payload.email.split('@')[0];
+        const gPicture = payload.picture || '';
+        const gSub = payload.sub || ''; // Google user ID
+
+        // Track Google auth in localStorage
+        localStorage.setItem('cw_google', JSON.stringify({
+            enabled: true,
+            email: gEmail,
+            name: gName,
+            picture: gPicture,
+            sub: gSub,
+            authedAt: Date.now()
+        }));
+
+        completeGoogleAuth(mode, gEmail, gName, gPicture);
+    } catch (err) {
+        showAlert('error', 'Failed to process Google credentials.');
+    }
+}
+
+function googleDemoSignIn(mode) {
+    // Demo mode for Stellar Testnet — simulates Google OAuth popup
+    hideAlert();
+    const demoEmail = prompt('\uD83C\uDF10 Google Sign-In (Demo)\n\nEnter your Google email address:');
+    if (!demoEmail || !isValidEmail(demoEmail)) {
+        showAlert('error', 'Please enter a valid Google email address.');
+        return;
+    }
+    const demoName = demoEmail.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+
+    // Track demo Google auth
+    localStorage.setItem('cw_google', JSON.stringify({
+        enabled: true,
+        email: demoEmail,
+        name: demoName,
+        picture: '',
+        sub: 'demo_' + Date.now(),
+        authedAt: Date.now(),
+        demo: true
+    }));
+
+    completeGoogleAuth(mode, demoEmail, demoName, '');
+}
+
+function completeGoogleAuth(mode, email, name, picture) {
+    const existingUser = JSON.parse(localStorage.getItem('cw_user') || 'null');
+
+    if (mode === 'login') {
+        // Login: check existing account
+        if (!existingUser) {
+            showAlert('error', 'No account found for ' + email + '. Please register first.');
+            return;
+        }
+        if (existingUser.email !== email) {
+            showAlert('error', 'Account not found for this Google email.');
+            return;
+        }
+        // Mark as Google-authenticated
+        existingUser.googleAuth = true;
+        if (picture) existingUser.picture = picture;
+        localStorage.setItem('cw_user', JSON.stringify(existingUser));
+
+        // If 2FA enabled, still require verification
+        if (isGauthEnabled()) {
+            window._pendingAuth = { type: 'login', email: email, googleAuth: true };
+            showPanel('2fa');
+            init2faPanel();
+            showAlert('success', 'Google verified! Now enter your 2FA code.');
+            return;
+        }
+
+        showAlert('success', 'Welcome back, ' + name + '!');
+        setTimeout(() => { window.location.href = 'wallet.html'; }, 800);
+
+    } else {
+        // Register: create new account
+        if (existingUser && existingUser.email === email) {
+            showAlert('error', 'Account already exists for ' + email + '. Please sign in instead.');
+            return;
+        }
+
+        // Get sponsor from URL or field
+        let sponsor = document.getElementById('reg-sponsor').value.trim();
+        if (!sponsor) {
+            const params = new URLSearchParams(window.location.search);
+            sponsor = params.get('ref') || params.get('sponsor') || '';
+        }
+
+        // Auto-assign Main Wallet as sponsor if none provided
+        const MAIN_WALLET = 'GDSKFGNQWX3FYQ6XAIOJGX7GFGMA5ACDDC7HWCEA7EKZFV3AFTBN3XYQ';
+        if (!sponsor) sponsor = MAIN_WALLET;
+
+        const tier = document.getElementById('reg-tier') ? document.getElementById('reg-tier').value : 'visa';
+
+        // Create account in localStorage (same as regular register flow)
+        const newUser = {
+            name: name,
+            email: email,
+            sponsor: sponsor,
+            tier: tier,
+            addr: '',
+            created: Date.now(),
+            seedHash: '',
+            verified: false,
+            googleAuth: true,
+            picture: picture || ''
+        };
+        localStorage.setItem('cw_user', JSON.stringify(newUser));
+
+        window._pendingAuth = {
+            type: 'register',
+            name: name,
+            email: email,
+            sponsor: sponsor,
+            tier: tier,
+            googleAuth: true,
+            picture: picture
+        };
+
+        // If 2FA set up, require verification
+        if (isGauthEnabled()) {
+            showPanel('2fa');
+            init2faPanel();
+            showAlert('success', 'Google verified! Enter your 2FA code to complete registration.');
+            return;
+        }
+
+        // No 2FA — go straight to 2FA panel with email OTP
+        showPanel('2fa');
+        init2faPanel();
+        showAlert('success', 'Google account linked! Enter verification code.');
+    }
+}
+
+// Initialize GIS rendered buttons once the SDK loads
+(function() {
+    if (window.google && window.google.accounts && GOOGLE_CLIENT_ID_SET) {
+        initializeGoogleSignIn();
+    } else {
+        // Retry after script loads
+        window.addEventListener('load', function() {
+            if (GOOGLE_CLIENT_ID_SET) {
+                setTimeout(initializeGoogleSignIn, 300);
+            }
+        });
+    }
+})();
+
+// ═══════════════════════════════════════════════════════════════
+//  Credential Management API — Store & Retrieve Login Credentials
+// ═══════════════════════════════════════════════════════════════
+
+/**
+ * Store credentials in the browser's Credential Manager after successful auth.
+ * Uses the standard PasswordCredential API (Chrome, Edge, Opera).
+ * Silently no-ops on browsers that don't support it.
+ */
+async function storeCredential(email, password, name) {
+    if (!window.PasswordCredential) return;
+    try {
+        const cred = new PasswordCredential({
+            id: email,
+            password: password,
+            name: name || email
+        });
+        await navigator.credentials.store(cred);
+        console.log('[CredManager] Credential stored for', email);
+        localStorage.setItem('cw_credmgr', JSON.stringify({
+            enabled: true,
+            storedAt: Date.now(),
+            email: email
+        }));
+    } catch (err) {
+        console.warn('[CredManager] store() failed:', err.message);
+    }
+}
+
+/**
+ * Attempt to retrieve a saved credential from the browser's Credential Manager.
+ * Returns { id, password, name } or null if unavailable / denied.
+ */
+async function retrieveCredential() {
+    if (!window.PasswordCredential) return null;
+    try {
+        const cred = await navigator.credentials.get({
+            password: true,
+            mediation: 'optional'
+        });
+        if (cred && cred.type === 'password') {
+            console.log('[CredManager] Retrieved credential for', cred.id);
+            return { id: cred.id, password: cred.password, name: cred.name };
+        }
+    } catch (err) {
+        console.warn('[CredManager] get() failed:', err.message);
+    }
+    return null;
+}
+
+/**
+ * Check if the browser supports the Credential Management API.
+ */
+function isCredManagerSupported() {
+    return !!window.PasswordCredential;
+}
+
+/**
+ * Auto-fill login form from stored credentials.
+ * Called on page load if user is not already logged in.
+ */
+async function autoFillFromCredManager() {
+    const cred = await retrieveCredential();
+    if (!cred) return false;
+
+    // Auto-fill login form
+    const emailField = document.getElementById('login-email');
+    const pwField = document.getElementById('login-pw');
+    if (emailField && cred.id) emailField.value = cred.id;
+    if (pwField && cred.password) pwField.value = cred.password;
+
+    // Show hint
+    showAlert('success', '&#x1F511; Credentials auto-filled from browser. Click Login to continue.');
+    return true;
+}
+
+// ── Hook: store credential after successful OTP verification ──
+(function() {
+    var _origHandleVerify = handleVerify;
+    handleVerify = async function() {
+        await _origHandleVerify.apply(this, arguments);
+        // After verify succeeds and redirect is queued, store the credential
+        var pending = window._pendingAuth;
+        if (!pending) {
+            // Already cleared means verify was successful
+            try {
+                var user = JSON.parse(localStorage.getItem('cw_user') || 'null');
+                if (user && user.email) {
+                    var pw = '';
+                    if (document.getElementById('login-pw')) pw = document.getElementById('login-pw').value;
+                    if (!pw && document.getElementById('reg-pw')) pw = document.getElementById('reg-pw').value;
+                    if (pw) {
+                        storeCredential(user.email, pw, user.name || user.email);
+                    }
+                }
+            } catch(e) {}
+        }
+    };
+})();
+
+// ── Auto-redirect if already logged in ──
+(function() {
+    const user = JSON.parse(localStorage.getItem('cw_user') || 'null');
+    if (user && user.email) {
+        window.location.href = 'wallet.html';
+        return;
+    }
+    // Try auto-fill from Credential Manager
+    if (isCredManagerSupported()) {
+        autoFillFromCredManager();
+    }
+})();
+</script>
+
+</body>
+</html>

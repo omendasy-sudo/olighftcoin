@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Contract Terms — Soroban</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0a0e17;--surface:#111827;--border:#1e293b;
+  --accent:#6366f1;--accent2:#818cf8;--green:#22c55e;--red:#ef4444;--orange:#f59e0b;--cyan:#06b6d4;
+  --text:#e2e8f0;--muted:#94a3b8;
+}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:0}
+a{color:var(--accent2);text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* Header */
+.header{background:linear-gradient(135deg,#1e1b4b,#312e81,#1e1b4b);border-bottom:1px solid var(--border);padding:24px 20px;text-align:center}
+.header h1{font-size:1.6rem;color:#fff;margin-bottom:6px;display:flex;align-items:center;justify-content:center;gap:10px}
+.header h1 .icon{font-size:1.8rem}
+.header .sub{color:var(--muted);font-size:.85rem}
+.badge{display:inline-block;background:var(--accent);color:#fff;padding:3px 10px;border-radius:12px;font-size:.7rem;font-weight:600;margin-left:8px;vertical-align:middle}
+
+/* Navigation */
+.nav{display:flex;gap:8px;padding:12px 16px;overflow-x:auto;background:var(--surface);border-bottom:1px solid var(--border)}
+.nav a{padding:8px 14px;border-radius:8px;font-size:.75rem;font-weight:600;white-space:nowrap;color:var(--muted);transition:.2s}
+.nav a:hover,.nav a.active{background:var(--accent);color:#fff;text-decoration:none}
+
+/* Container */
+.container{max-width:900px;margin:0 auto;padding:20px 16px 60px}
+
+/* Status Banner */
+.status-banner{background:linear-gradient(135deg,rgba(34,197,94,.1),rgba(6,182,212,.1));border:1px solid rgba(34,197,94,.3);border-radius:12px;padding:16px 20px;margin-bottom:24px;display:flex;align-items:center;gap:12px}
+.status-dot{width:10px;height:10px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.status-banner .info{flex:1}
+.status-banner .label{font-size:.75rem;color:var(--muted)}
+.status-banner .value{font-size:.9rem;font-weight:600}
+
+/* Contract Info Grid */
+.contract-info{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:28px}
+.info-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px}
+.info-card .label{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.info-card .val{font-size:.85rem;font-weight:600;word-break:break-all}
+.info-card .val.mono{font-family:'Courier New',monospace;font-size:.75rem;color:var(--cyan)}
+
+/* Section */
+.section{background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:16px;overflow:hidden}
+.section-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none}
+.section-header:hover{background:rgba(99,102,241,.05)}
+.section-header .num{background:var(--accent);color:#fff;width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;flex-shrink:0}
+.section-header h2{font-size:.95rem;flex:1}
+.section-header .chevron{color:var(--muted);transition:.3s;font-size:.8rem}
+.section.open .section-header .chevron{transform:rotate(180deg)}
+.section-body{padding:0 20px 20px;display:none}
+.section.open .section-body{display:block}
+
+/* Terms Content */
+.term{margin-top:14px}
+.term h3{font-size:.85rem;color:var(--accent2);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.term p,.term li{font-size:.82rem;line-height:1.7;color:var(--muted)}
+.term ul{padding-left:18px;margin-top:4px}
+.term li{margin-bottom:4px}
+.term .highlight{color:var(--orange);font-weight:600}
+.term .code-ref{background:rgba(99,102,241,.15);color:var(--accent2);padding:2px 8px;border-radius:4px;font-family:'Courier New',monospace;font-size:.75rem}
+
+/* Code Block */
+.code-block{background:#0d1117;border:1px solid var(--border);border-radius:8px;padding:14px 16px;margin-top:10px;overflow-x:auto;position:relative}
+.code-block pre{font-family:'Courier New',monospace;font-size:.75rem;line-height:1.6;color:#c9d1d9}
+.code-block .lang{position:absolute;top:8px;right:10px;font-size:.6rem;color:var(--muted);background:var(--surface);padding:2px 8px;border-radius:4px}
+.kw{color:#ff7b72}
+.fn{color:#d2a8ff}
+.str{color:#a5d6ff}
+.cm{color:#8b949e}
+.ty{color:#79c0ff}
+.num{color:#f59e0b}
+
+/* Table */
+.terms-table{width:100%;border-collapse:collapse;margin-top:10px}
+.terms-table th,.terms-table td{padding:10px 12px;text-align:left;font-size:.78rem;border-bottom:1px solid var(--border)}
+.terms-table th{color:var(--muted);font-weight:600;text-transform:uppercase;font-size:.68rem;letter-spacing:.5px}
+.terms-table td{color:var(--text)}
+.terms-table tr:hover td{background:rgba(99,102,241,.04)}
+
+/* Risk Levels */
+.risk{display:inline-block;padding:2px 8px;border-radius:4px;font-size:.68rem;font-weight:600}
+.risk.low{background:rgba(34,197,94,.15);color:var(--green)}
+.risk.med{background:rgba(245,158,11,.15);color:var(--orange)}
+.risk.high{background:rgba(239,68,68,.15);color:var(--red)}
+
+/* Acceptance */
+.accept-box{background:linear-gradient(135deg,rgba(99,102,241,.1),rgba(129,140,248,.05));border:1px solid rgba(99,102,241,.3);border-radius:12px;padding:20px;margin-top:24px;text-align:center}
+.accept-box h3{margin-bottom:12px;font-size:1rem}
+.accept-box p{font-size:.8rem;color:var(--muted);margin-bottom:16px;max-width:600px;margin-left:auto;margin-right:auto}
+.checkbox-row{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:14px}
+.checkbox-row input[type="checkbox"]{width:18px;height:18px;accent-color:var(--accent)}
+.checkbox-row label{font-size:.82rem;color:var(--text)}
+.btn-accept{background:linear-gradient(135deg,var(--accent),#4f46e5);color:#fff;border:none;padding:12px 32px;border-radius:10px;font-size:.85rem;font-weight:600;cursor:pointer;opacity:.5;pointer-events:none;transition:.3s}
+.btn-accept.enabled{opacity:1;pointer-events:auto}
+.btn-accept.enabled:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(99,102,241,.4)}
+.btn-accept.accepted{background:var(--green);pointer-events:none}
+
+/* Footer */
+.footer{text-align:center;padding:30px 16px;color:var(--muted);font-size:.72rem;border-top:1px solid var(--border);margin-top:30px}
+.footer .soroban{color:var(--accent2);font-weight:600}
+
+/* Responsive */
+@media(max-width:600px){
+  .contract-info{grid-template-columns:1fr}
+  .nav{gap:4px}
+  .nav a{padding:6px 10px;font-size:.7rem}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1><span class="icon">📜</span> Smart Contract Terms <span class="badge">SOROBAN</span></h1>
+  <div class="sub">OLIGHFT SMART COIN — Stellar Soroban Smart Contract Agreement</div>
+</div>
+
+<div class="nav">
+  <a href="#overview" class="active">Overview</a>
+  <a href="#contract">Contract</a>
+  <a href="#functions">Functions</a>
+  <a href="#fees">Fees</a>
+  <a href="#security">Security</a>
+  <a href="#liability">Liability</a>
+  <a href="#governance">Governance</a>
+  <a href="#accept">Accept</a>
+</div>
+
+<div class="container">
+
+  <!-- Status Banner -->
+  <div class="status-banner">
+    <div class="status-dot"></div>
+    <div class="info">
+      <div class="label">Contract Status</div>
+      <div class="value">Deployed on Stellar Mainnet — Soroban Runtime v21</div>
+    </div>
+  </div>
+
+  <!-- Contract Info -->
+  <div class="contract-info">
+    <div class="info-card">
+      <div class="label">Contract ID</div>
+      <div class="val mono">CDLZ...X7KQ</div>
+    </div>
+    <div class="info-card">
+      <div class="label">Network</div>
+      <div class="val">Stellar Mainnet (Soroban)</div>
+    </div>
+    <div class="info-card">
+      <div class="label">Version</div>
+      <div class="val">v2.1.0</div>
+    </div>
+    <div class="info-card">
+      <div class="label">Audit Status</div>
+      <div class="val" style="color:var(--green)">✓ Audited</div>
+    </div>
+    <div class="info-card">
+      <div class="label">Last Updated</div>
+      <div class="val">April 3, 2026</div>
+    </div>
+    <div class="info-card">
+      <div class="label">Language</div>
+      <div class="val">Rust → Soroban WASM</div>
+    </div>
+  </div>
+
+  <!-- Section 1: Overview -->
+  <div class="section open" id="overview">
+    <div class="section-header" onclick="toggleSection(this)">
+      <div class="num">1</div>
+      <h2>Overview & Definitions</h2>
+      <span class="chevron">▼</span>
+    </div>
+    <div class="section-body">
+      <div class="term">
+        <h3>1.1 Purpose</h3>
+        <p>This Smart Contract Agreement ("Agreement") governs the use of the OLIGHFT SMART COIN decentralized payment system deployed on the <span class="highlight">Stellar Soroban</span> smart contract platform. By interacting with this contract, you agree to all terms herein.</p>
+      </div>
+      <div class="term">
+        <h3>1.2 Definitions</h3>
+        <ul>
+          <li><strong>"Contract"</strong> — The Soroban WASM bytecode deployed at the specified Contract ID on Stellar Mainnet</li>
+          <li><strong>"User"</strong> — Any Stellar account holder invoking contract functions</li>
+          <li><strong>"Card"</strong> — A virtual or physical crypto-linked payment instrument issued through this contract</li>
+          <li><strong>"XLM"</strong> — Stellar Lumens, the native asset of the Stellar network</li>
+          <li><strong>"Soroban"</strong> — Stellar's smart contract runtime environment</li>
+          <li><strong>"Issuer"</strong> — The administrative account with elevated contract privileges</li>
+          <li><strong>"TVL"</strong> — Total Value Locked within the contract's storage</li>
+        </ul>
+      </div>
+      <div class="term">
+        <h3>1.3 Eligibility</h3>
+        <p>Users must hold a funded Stellar account with a minimum trustline and sufficient XLM balance to cover Soroban resource fees. Users must be of legal age in their jurisdiction to engage in digital asset transactions.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 2: Contract Architecture -->
+  <div class="section" id="contract">
+    <div class="section-header" onclick="toggleSection(this)">
+      <div class="num">2</div>
+      <h2>Contract Architecture</h2>
+      <span class="chevron">▼</span>
+    </div>
+    <div class="section-body">
+      <div class="term">
+        <h3>2.1 Soroban Contract Structure</h3>
+        <p>The contract is compiled from Rust to WebAssembly (WASM) and deployed on the Stellar Soroban runtime. All state is stored in Soroban persistent and temporary storage entries.</p>
+        <div class="code-block">
+          <span class="lang">Rust / Soroban SDK</span>
+<pre><span class="kw">use</span> soroban_sdk::{<span class="ty">contract</span>, <span class="ty">contractimpl</span>, <span class="ty">Address</span>, <span class="ty">Env</span>, <span class="ty">Symbol</span>};
+
+<span class="cm">// Contract entry point</span>
+#[<span class="ty">contract</span>]
+<span class="kw">pub struct</span> <span class="fn">SmartCardCoin</span>;
+
+#[<span class="ty">contractimpl</span>]
+<span class="kw">impl</span> <span class="fn">SmartCardCoin</span> {
+    <span class="cm">/// Initialize card contract with issuer + fee config</span>
+    <span class="kw">pub fn</span> <span class="fn">initialize</span>(
+        env: <span class="ty">Env</span>,
+        issuer: <span class="ty">Address</span>,
+        fee_bps: <span class="ty">u32</span>,       <span class="cm">// basis points (e.g. 150 = 1.5%)</span>
+        card_tiers: <span class="ty">Vec</span>&lt;<span class="ty">CardTier</span>&gt;,
+    ) -> <span class="ty">Result</span>&lt;(), <span class="ty">ContractError</span>&gt; { ... }
+
+    <span class="cm">/// Issue a new card to a user</span>
+    <span class="kw">pub fn</span> <span class="fn">issue_card</span>(
+        env: <span class="ty">Env</span>,
+        user: <span class="ty">Address</span>,
+        tier: <span class="ty">Symbol</span>,
+    ) -> <span class="ty">Result</span>&lt;<span class="ty">CardId</span>, <span class="ty">ContractError</span>&gt; { ... }
+
+    <span class="cm">/// Process a payment transaction</span>
+    <span class="kw">pub fn</span> <span class="fn">process_payment</span>(
+        env: <span class="ty">Env</span>,
+        from: <span class="ty">Address</span>,
+        to: <span class="ty">Address</span>,
+        amount: <span class="ty">i128</span>,
+        asset: <span class="ty">Address</span>,
+    ) -> <span class="ty">Result</span>&lt;<span class="ty">TxReceipt</span>, <span class="ty">ContractError</span>&gt; { ... }
+}</pre>
+        </div>
+      </div>
+      <div class="term">
+        <h3>2.2 Storage Model</h3>
+        <p>The contract uses Soroban's three storage types:</p>
+        <ul>
+          <li><strong>Persistent Storage</strong> — Card registrations, user balances, tier configurations (survives ledger expiry with rent payments)</li>
+          <li><strong>Temporary Storage</strong> — Transaction nonces, rate-limit counters (auto-expire)</li>
+          <li><strong>Instance Storage</strong> — Contract-level config: issuer address, fee schedule, version</li>
+        </ul>
+      </div>
+      <div class="term">
+        <h3>2.3 Token Integration</h3>
+        <p>The contract interacts with Stellar Asset Contract (SAC) tokens via the <span class="code-ref">soroban_sdk::token::Client</span> interface. Supported assets include XLM, USDC (Centre), and custom Soroban tokens meeting the SEP-41 token standard.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 3: Contract Functions -->
+  <div class="section" id="functions">
+    <div class="section-header" onclick="toggleSection(this)">
+      <div class="num">3</div>
+      <h2>Contract Functions & Invocations</h2>
+      <span class="chevron">▼</span>
+    </div>
+    <div class="section-body">
+      <div class="term">
+        <h3>3.1 Public Functions</h3>
+        <table class="terms-table">
+          <thead>
+            <tr><th>Function</th><th>Description</th><th>Auth Required</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><span class="code-ref">initialize</span></td><td>Deploy & configure contract parameters</td><td>Issuer only</td></tr>
+            <tr><td><span class="code-ref">issue_card</span></td><td>Mint a new virtual card for a Stellar address</td><td>User + Issuer</td></tr>
+            <tr><td><span class="code-ref">process_payment</span></td><td>Execute a payment between two addresses</td><td>Sender</td></tr>
+            <tr><td><span class="code-ref">deposit</span></td><td>Fund card balance from external wallet</td><td>User</td></tr>
+            <tr><td><span class="code-ref">withdraw</span></td><td>Withdraw funds to external Stellar address</td><td>User</td></tr>
+            <tr><td><span class="code-ref">stake</span></td><td>Lock tokens for yield rewards</td><td>User</td></tr>
+            <tr><td><span class="code-ref">claim_rewards</span></td><td>Claim accumulated staking rewards</td><td>User</td></tr>
+            <tr><td><span class="code-ref">upgrade_tier</span></td><td>Upgrade card to a higher tier</td><td>User</td></tr>
+            <tr><td><span class="code-ref">freeze_card</span></td><td>Temporarily disable card for security</td><td>User or Issuer</td></tr>
+            <tr><td><span class="code-ref">get_balance</span></td><td>Query card balance (read-only)</td><td>None</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="term">
+        <h3>3.2 Authorization Model</h3>
+        <p>All state-changing functions require Soroban's <span class="code-ref">require_auth()</span> from the invoking address. Multi-party operations (e.g., <span class="code-ref">issue_card</span>) require authorization from all involved parties within the same transaction envelope.</p>
+      </div>
+      <div class="term">
+        <h3>3.3 Error Codes</h3>
+        <div class="code-block">
+          <span class="lang">Rust</span>
+<pre>#[<span class="ty">contracterror</span>]
+<span class="kw">pub enum</span> <span class="fn">ContractError</span> {
+    NotInitialized     = <span class="num">1</span>,
+    AlreadyInitialized = <span class="num">2</span>,
+    Unauthorized       = <span class="num">3</span>,
+    InsufficientFunds  = <span class="num">4</span>,
+    CardNotFound       = <span class="num">5</span>,
+    CardFrozen         = <span class="num">6</span>,
+    InvalidTier        = <span class="num">7</span>,
+    RateLimited        = <span class="num">8</span>,
+    AmountOverflow     = <span class="num">9</span>,
+    InvalidAsset       = <span class="num">10</span>,
+}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 4: Fees -->
+  <div class="section" id="fees">
+    <div class="section-header" onclick="toggleSection(this)">
+      <div class="num">4</div>
+      <h2>Fee Schedule & Gas Costs</h2>
+      <span class="chevron">▼</span>
+    </div>
+    <div class="section-body">
+      <div class="term">
+        <h3>4.1 Soroban Resource Fees</h3>
+        <p>Every contract invocation consumes Soroban resources (CPU instructions, memory, storage reads/writes, transaction size). Fees are paid in <span class="highlight">XLM</span> and are determined by the Stellar network's base fee + resource consumption.</p>
+        <table class="terms-table">
+          <thead>
+            <tr><th>Operation</th><th>Est. CPU (instr)</th><th>Est. Fee (XLM)</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>issue_card</td><td>~800K</td><td>~0.015 XLM</td></tr>
+            <tr><td>process_payment</td><td>~500K</td><td>~0.008 XLM</td></tr>
+            <tr><td>deposit / withdraw</td><td>~400K</td><td>~0.006 XLM</td></tr>
+            <tr><td>stake / claim_rewards</td><td>~600K</td><td>~0.010 XLM</td></tr>
+            <tr><td>upgrade_tier</td><td>~700K</td><td>~0.012 XLM</td></tr>
+            <tr><td>get_balance (read)</td><td>~100K</td><td>~0.001 XLM</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="term">
+        <h3>4.2 Application-Level Fees</h3>
+        <table class="terms-table">
+          <thead>
+            <tr><th>Fee Type</th><th>Rate</th><th>Recipient</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Transaction Fee</td><td>1.5% (150 bps)</td><td>Contract Reserve</td></tr>
+            <tr><td>Card Issuance (Gold+)</td><td>5 XLM one-time</td><td>Issuer</td></tr>
+            <tr><td>Withdrawal Fee</td><td>0.5%</td><td>Contract Reserve</td></tr>
+            <tr><td>Staking Exit (early)</td><td>2% if &lt;30 days</td><td>Reward Pool</td></tr>
+            <tr><td>Tier Upgrade</td><td>Varies by tier</td><td>Issuer</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="term">
+        <h3>4.3 Storage Rent</h3>
+        <p>Soroban persistent storage entries require periodic rent payments to prevent expiry. The contract auto-extends entry TTL (time-to-live) to a minimum of <span class="highlight">120 days</span> on each interaction. Users are responsible for ensuring sufficient XLM to cover rent bumps for their card data.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 5: Security -->
+  <div class="section" id="security">
+    <div class="section-header" onclick="toggleSection(this)">
+      <div class="num">5</div>
+      <h2>Security & Risk Disclosures</h2>
+      <span class="chevron">▼</span>
+    </div>
+    <div class="section-body">
+      <div class="term">
+        <h3>5.1 Smart Contract Risks</h3>
+        <table class="terms-table">
+          <thead>
+            <tr><th>Risk Category</th><th>Level</th><th>Mitigation</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>WASM bytecode vulnerability</td><td><span class="risk med">MEDIUM</span></td><td>Third-party audit, formal verification</td></tr>
+            <tr><td>Soroban runtime bug</td><td><span class="risk low">LOW</span></td><td>Stellar Core testing & protocol upgrades</td></tr>
+            <tr><td>Storage entry expiry</td><td><span class="risk med">MEDIUM</span></td><td>Auto-extend TTL on every interaction</td></tr>
+            <tr><td>Key compromise (user)</td><td><span class="risk high">HIGH</span></td><td>User responsibility; hardware key support</td></tr>
+            <tr><td>Key compromise (issuer)</td><td><span class="risk high">HIGH</span></td><td>Multi-sig admin with 3-of-5 threshold</td></tr>
+            <tr><td>Economic exploit (flash loan)</td><td><span class="risk low">LOW</span></td><td>No composable flash loan exposure on Stellar</td></tr>
+            <tr><td>Oracle manipulation</td><td><span class="risk med">MEDIUM</span></td><td>Multi-source price feeds, TWAP averaging</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="term">
+        <h3>5.2 Audit & Verification</h3>
+        <ul>
+          <li>Contract WASM hash is published and verifiable via <span class="code-ref">stellar contract info</span></li>
+          <li>Source code is open-source and reproducibly buildable with <span class="code-ref">soroban contract build</span></li>
+          <li>Independent security audit completed — report hash anchored on-chain</li>
+          <li>Bug bounty program active for critical and high-severity findings</li>
+        </ul>
+      </div>
+      <div class="term">
+        <h3>5.3 Emergency Procedures</h3>
+        <p>The issuer multi-sig can invoke <span class="code-ref">freeze_card</span> on compromised accounts. A global circuit breaker (<span class="code-ref">pause_contract</span>) exists for critical vulnerabilities — requires 3-of-5 admin signatures and triggers a 48-hour cooldown before reactivation.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 6: Liability -->
+  <div class="section" id="liability">
+    <div class="section-header" onclick="toggleSection(this)">
+      <div class="num">6</div>
+      <h2>Liability & Disclaimers</h2>
+      <span class="chevron">▼</span>
+    </div>
+    <div class="section-body">
+      <div class="term">
+        <h3>6.1 No Warranty</h3>
+        <p>The smart contract is provided <strong>"AS IS"</strong> without warranty of any kind. The issuer makes no guarantees regarding uptime, transaction finality timing, or freedom from defects in the WASM bytecode.</p>
+      </div>
+      <div class="term">
+        <h3>6.2 Limitation of Liability</h3>
+        <ul>
+          <li>The issuer is not liable for losses arising from Stellar network outages or consensus failures</li>
+          <li>No liability for losses due to user key mismanagement or unauthorized access</li>
+          <li>Maximum aggregate liability shall not exceed the user's total deposited balance</li>
+          <li>The issuer is not liable for losses from sudden asset devaluation or market volatility</li>
+        </ul>
+      </div>
+      <div class="term">
+        <h3>6.3 Immutability Notice</h3>
+        <p>Once deployed, the contract's WASM bytecode is <span class="highlight">immutable</span> unless upgraded via the issuer's admin function <span class="code-ref">upgrade_contract</span>. Upgrades require multi-sig approval and a 7-day timelock. Users are notified via on-chain events before any upgrade takes effect.</p>
+      </div>
+      <div class="term">
+        <h3>6.4 Regulatory Compliance</h3>
+        <p>Users are solely responsible for compliance with applicable laws and regulations in their jurisdiction. This contract does not constitute a financial product, investment advice, or a regulated payment service. The issuer may restrict access from sanctioned jurisdictions.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 7: Governance -->
+  <div class="section" id="governance">
+    <div class="section-header" onclick="toggleSection(this)">
+      <div class="num">7</div>
+      <h2>Governance & Upgrades</h2>
+      <span class="chevron">▼</span>
+    </div>
+    <div class="section-body">
+      <div class="term">
+        <h3>7.1 Admin Multi-Sig</h3>
+        <p>The contract issuer is a <span class="highlight">3-of-5 multi-signature</span> Stellar account. Critical operations (contract upgrade, fee changes, emergency pause) require threshold approval. Signer keys are distributed across geographically separate hardware security modules.</p>
+      </div>
+      <div class="term">
+        <h3>7.2 Upgrade Process</h3>
+        <ul>
+          <li><strong>Step 1:</strong> New WASM bytecode submitted and hash published</li>
+          <li><strong>Step 2:</strong> 7-day timelock initiated — on-chain event emitted</li>
+          <li><strong>Step 3:</strong> Community review period</li>
+          <li><strong>Step 4:</strong> Multi-sig approval (3-of-5)</li>
+          <li><strong>Step 5:</strong> <span class="code-ref">upgrade_contract(new_wasm_hash)</span> invoked</li>
+          <li><strong>Step 6:</strong> Post-upgrade verification & monitoring</li>
+        </ul>
+      </div>
+      <div class="term">
+        <h3>7.3 Fee Adjustments</h3>
+        <p>Application-level fee changes require multi-sig approval and a <span class="highlight">14-day notice period</span>. Fee changes are emitted as contract events. Maximum fee caps are hardcoded: transaction fee ≤ 3%, withdrawal fee ≤ 2%.</p>
+      </div>
+      <div class="term">
+        <h3>7.4 Dispute Resolution</h3>
+        <p>Disputes arising from contract interactions shall first be resolved through the on-chain dispute mechanism (<span class="code-ref">raise_dispute</span>). If unresolved within 30 days, disputes may be escalated to binding arbitration under the rules of the jurisdiction specified by the issuer.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Acceptance -->
+  <div class="accept-box" id="accept">
+    <h3>📝 Accept Smart Contract Terms</h3>
+    <p>By checking the boxes below and signing, you acknowledge that you have read, understood, and agree to all terms of this Soroban Smart Contract Agreement.</p>
+    <div class="checkbox-row">
+      <input type="checkbox" id="chk1" onchange="checkAccept()">
+      <label for="chk1">I understand the risks of interacting with smart contracts</label>
+    </div>
+    <div class="checkbox-row">
+      <input type="checkbox" id="chk2" onchange="checkAccept()">
+      <label for="chk2">I accept the fee schedule and storage rent obligations</label>
+    </div>
+    <div class="checkbox-row">
+      <input type="checkbox" id="chk3" onchange="checkAccept()">
+      <label for="chk3">I agree to the liability limitations and disclaimers</label>
+    </div>
+    <button class="btn-accept" id="btnAccept" onclick="acceptTerms()">Sign & Accept Terms</button>
+  </div>
+
+  <div class="footer">
+    <p>OLIGHFT SMART COIN — <span class="soroban">Powered by Stellar Soroban</span></p>
+    <p style="margin-top:6px">Contract Terms v2.1.0 · Last updated April 3, 2026</p>
+    <p style="margin-top:4px">Built with Soroban SDK · Stellar Network</p>
+  </div>
+</div>
+
+<script>
+// Section toggle
+function toggleSection(header){
+  header.parentElement.classList.toggle('open');
+}
+
+// Acceptance logic
+function checkAccept(){
+  const all = document.getElementById('chk1').checked 
+           && document.getElementById('chk2').checked 
+           && document.getElementById('chk3').checked;
+  const btn = document.getElementById('btnAccept');
+  if(all){
+    btn.classList.add('enabled');
+  } else {
+    btn.classList.remove('enabled');
+  }
+}
+
+function acceptTerms(){
+  const btn = document.getElementById('btnAccept');
+  btn.textContent = '✓ Terms Accepted';
+  btn.classList.add('accepted');
+  
+  // Store acceptance
+  const record = {
+    accepted: true,
+    timestamp: new Date().toISOString(),
+    version: 'v2.1.0',
+    contract: 'SmartCardCoin-Soroban'
+  };
+  localStorage.setItem('soroban_terms_accepted', JSON.stringify(record));
+}
+
+// Smooth scroll for nav
+document.querySelectorAll('.nav a').forEach(a => {
+  a.addEventListener('click', function(e){
+    e.preventDefault();
+    const id = this.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    if(el){
+      el.scrollIntoView({behavior:'smooth',block:'start'});
+      // Open section if collapsed
+      if(el.classList.contains('section') && !el.classList.contains('open')){
+        el.classList.add('open');
+      }
+    }
+    document.querySelectorAll('.nav a').forEach(n=>n.classList.remove('active'));
+    this.classList.add('active');
+  });
+});
+
+// Check if already accepted
+window.addEventListener('DOMContentLoaded', ()=>{
+  const stored = localStorage.getItem('soroban_terms_accepted');
+  if(stored){
+    try{
+      const data = JSON.parse(stored);
+      if(data.accepted && data.version === 'v2.1.0'){
+        document.getElementById('chk1').checked = true;
+        document.getElementById('chk2').checked = true;
+        document.getElementById('chk3').checked = true;
+        const btn = document.getElementById('btnAccept');
+        btn.textContent = '✓ Terms Accepted';
+        btn.classList.add('accepted','enabled');
+      }
+    }catch(e){}
+  }
+});
+</script>
+</body>
+</html>

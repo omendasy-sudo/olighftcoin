@@ -1,0 +1,16 @@
+[package]
+name = "olighft-sdk"
+version = "1.0.0"
+edition = "2021"
+publish = false
+description = "SDK crate — std substitute for OLIGHFT smart contracts"
+
+[lib]
+crate-type = ["rlib"]
+
+[dependencies]
+soroban-sdk = { workspace = true }
+soroban-token-sdk = { workspace = true }
+
+[dev-dependencies]
+soroban-sdk = { workspace = true, features = ["testutils"] }

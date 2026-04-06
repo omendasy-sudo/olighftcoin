@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Receive Tokens &mdash; OLIGHFT SMART COIN</title>
+<meta name="description" content="Receive OLIGHFT tokens — share your address or QR code.">
+<link rel="canonical" href="https://olighftcoin.com/receive.html">
+<meta property="og:title" content="Receive Tokens — OLIGHFT SMART COIN">
+<meta property="og:url" content="https://olighftcoin.com/receive.html">
+<meta property="og:site_name" content="OLIGHFT SMART COIN">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135deg,#0a0a1a,#111128,#0a0a1a);color:#fff;min-height:100vh;padding:20px}
+.container{max-width:520px;margin:0 auto}
+h1{text-align:center;font-size:1.6rem;margin-bottom:4px;background:linear-gradient(90deg,#27ae60,#2ecc71);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.subtitle{text-align:center;color:rgba(255,255,255,.4);font-size:.78rem;margin-bottom:24px}
+.nav-tabs{display:flex;gap:4px;justify-content:center;margin-bottom:24px}
+.nav-tabs a{padding:8px 20px;border-radius:10px;font-size:.78rem;font-weight:600;text-decoration:none;border:1px solid rgba(255,255,255,.06);color:rgba(255,255,255,.45);transition:.2s}
+.nav-tabs a:hover{border-color:rgba(39,174,96,.3);color:#2ecc71}
+.nav-tabs a.active{background:rgba(39,174,96,.15);border-color:rgba(39,174,96,.4);color:#2ecc71}
+.card{background:rgba(39,174,96,.04);border:1px solid rgba(39,174,96,.1);border-radius:16px;padding:24px;margin-bottom:16px}
+.card h2{font-size:.85rem;color:rgba(255,255,255,.5);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+label{display:block;font-size:.72rem;color:rgba(255,255,255,.45);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+.input-group{margin-bottom:16px}
+select,input{width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(39,174,96,.12);border-radius:10px;padding:12px 14px;color:#fff;font-size:.85rem;outline:none;transition:.2s;font-family:inherit}
+select:focus,input:focus{border-color:rgba(39,174,96,.4);box-shadow:0 0 0 3px rgba(39,174,96,.1)}
+input::placeholder{color:rgba(255,255,255,.2)}
+select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='rgba(255,255,255,0.4)' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
+select option{background:#1a1a2e;color:#fff}
+.qr-area{text-align:center;padding:20px;margin:16px 0}
+.qr-box{display:inline-block;background:#fff;border-radius:16px;padding:16px;box-shadow:0 8px 32px rgba(39,174,96,.15)}
+.qr-box canvas{display:block}
+.address-box{background:rgba(39,174,96,.06);border:1px solid rgba(39,174,96,.12);border-radius:12px;padding:14px;margin:16px 0;text-align:center}
+.address-box .addr-label{font-size:.6rem;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+.address-box .addr-val{font-family:'Courier New',monospace;font-size:.78rem;color:#2ecc71;word-break:break-all;line-height:1.5}
+.btn-row{display:flex;gap:8px;margin-top:16px}
+.btn-row button{flex:1;padding:12px;border:none;border-radius:10px;font-size:.78rem;font-weight:600;cursor:pointer;transition:.2s;display:flex;align-items:center;justify-content:center;gap:6px}
+.btn-copy{background:rgba(39,174,96,.15);border:1px solid rgba(39,174,96,.25);color:#2ecc71}
+.btn-copy:hover{background:rgba(39,174,96,.25)}
+.btn-share{background:rgba(108,92,231,.15);border:1px solid rgba(108,92,231,.25);color:#a29bfe}
+.btn-share:hover{background:rgba(108,92,231,.25)}
+.btn-new{background:rgba(242,153,74,.12);border:1px solid rgba(242,153,74,.2);color:#f2994a}
+.btn-new:hover{background:rgba(242,153,74,.2)}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:16px 0}
+.info-item{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:10px;padding:12px;text-align:center}
+.info-item .il{font-size:.6rem;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.5px}
+.info-item .iv{font-size:.85rem;font-weight:600;margin-top:4px;color:rgba(255,255,255,.7)}
+.amount-req{margin:16px 0}
+.amount-req input{text-align:center;font-size:1.1rem;font-weight:600}
+.recent{margin-top:8px}
+.recent h3{font-size:.78rem;color:rgba(255,255,255,.35);margin-bottom:10px}
+.rx-item{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:10px;margin-bottom:6px}
+.rx-item .rx-from{font-size:.75rem;color:rgba(255,255,255,.6);font-family:'Courier New',monospace}
+.rx-item .rx-amt{font-size:.8rem;font-weight:600;color:#2ecc71}
+.rx-item .rx-time{font-size:.6rem;color:rgba(255,255,255,.3)}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#2ecc71;color:#000;padding:10px 24px;border-radius:10px;font-size:.78rem;font-weight:600;transition:.3s;opacity:0;z-index:100}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+.net-badge{text-align:center;font-size:.6rem;color:rgba(255,255,255,.25);margin-top:24px;padding-top:16px;border-top:1px solid rgba(39,174,96,.06)}
+/* ── Account Selector ── */
+.acct-select{margin-bottom:16px}
+.acct-select label{font-size:.72rem;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.acct-list{display:flex;flex-direction:column;gap:6px;max-height:200px;overflow-y:auto}
+.acct-opt{display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:10px;cursor:pointer;transition:.2s}
+.acct-opt:hover{border-color:rgba(39,174,96,.25);background:rgba(39,174,96,.04)}
+.acct-opt.active{border-color:rgba(39,174,96,.4);background:rgba(39,174,96,.08)}
+.acct-idx{width:28px;height:28px;border-radius:8px;background:rgba(39,174,96,.12);display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:#2ecc71;flex-shrink:0}
+.acct-info{flex:1;min-width:0}
+.acct-name{font-size:.78rem;font-weight:600;color:rgba(255,255,255,.8);display:flex;align-items:center;gap:6px}
+.acct-addr{font-family:'Courier New',monospace;font-size:.62rem;color:rgba(255,255,255,.35);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.acct-path{font-size:.55rem;color:rgba(255,255,255,.2)}
+.addr-type-badge{font-size:.55rem;padding:1px 6px;border-radius:4px;font-weight:700;letter-spacing:.5px}
+.addr-type-badge.stellar{background:rgba(39,174,96,.12);color:#2ecc71}
+.addr-type-badge.contract{background:rgba(242,153,74,.12);color:#f2994a}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>&#x1F4E5; Receive Tokens</h1>
+<p class="subtitle">Share your address to receive tokens on Stellar Testnet</p>
+
+<div class="nav-tabs">
+<a href="wallet.html">&#x1F4B3; Wallet</a>
+<a href="send.html">&#x1F4E4; Send</a>
+<a href="receive.html" class="active">&#x1F4E5; Receive</a>
+<a href="swap.html">&#x1F504; Swap</a>
+<a href="index.html">&#x1F3E0; Home</a>
+<a href="OLIGHFT SMART COIN backend/backend.html">&#x2699;&#xFE0F; Admin</a>
+</div>
+
+<div class="card">
+<h2>&#x1F4F1; Your Wallet Address</h2>
+
+<div class="acct-select">
+<label>&#x1F465; Receiving Account (HD Wallet)</label>
+<div class="acct-list" id="acctList"></div>
+</div>
+
+<div class="input-group">
+<label>Select Token to Receive</label>
+<select id="tokenSelect" onchange="updateQR()">
+<option value="XLM">&#x2B50; XLM &mdash; Stellar Lumens</option>
+<option value="USDC">&#x1F4B5; USDC &mdash; USD Coin</option>
+<option value="wETH">&#x1F48E; wETH &mdash; Wrapped Ethereum</option>
+<option value="wBTC">&#x1F536; wBTC &mdash; Wrapped Bitcoin</option>
+<option value="EURC">&#x1F4B6; EURC &mdash; Euro Coin</option>
+<option value="OLIGHFT">&#x1F4B0; OLIGHFT &mdash; OLIGHFT Smart Coin</option>
+</select>
+</div>
+
+<div class="amount-req">
+<label>Request Amount (optional)</label>
+<input type="number" id="reqAmount" placeholder="0.00" step="any" min="0" oninput="updateQR()">
+</div>
+
+<div class="qr-area">
+<div class="qr-box"><canvas id="qrCanvas" width="200" height="200"></canvas></div>
+</div>
+
+<div class="address-box">
+<div class="addr-label">Your Stellar Address</div>
+<div class="addr-val" id="walletAddr">GBXF4ITBZK3YPTTQCMGB4QMZV7EQNLQX4BYKRHE3VXJKM6FGKSQPZRD</div>
+</div>
+
+<div class="info-grid">
+<div class="info-item"><div class="il">Network</div><div class="iv">Testnet</div></div>
+<div class="info-item"><div class="il">Token</div><div class="iv" id="selToken">XLM</div></div>
+<div class="info-item"><div class="il">Status</div><div class="iv" style="color:#2ecc71">Active</div></div>
+<div class="info-item"><div class="il">Memo Req.</div><div class="iv">No</div></div>
+</div>
+
+<div class="btn-row">
+<button class="btn-copy" onclick="copyAddr()">&#x1F4CB; Copy Address</button>
+<button class="btn-share" onclick="shareAddr()">&#x1F4E4; Share</button>
+<button class="btn-new" onclick="genNewAddr()">&#x1F504; New Address</button>
+</div>
+</div>
+
+<div class="recent" id="recentSection" style="display:none">
+<h3>&#x1F4CB; Recent Receives</h3>
+<div id="recentList"></div>
+</div>
+
+<!-- ── Test Receive Panel ── -->
+<div class="card" style="border-color:rgba(39,174,96,.2);background:rgba(39,174,96,.03);margin-top:16px">
+<h2 style="color:#27ae60">&#x1F9EA; Test Receive &mdash; All Token Types</h2>
+<p style="font-size:.72rem;color:rgba(255,255,255,.45);margin-bottom:14px">Run automated tests to verify receiving tokens, balance increments, cw_balances sync, and edge cases.</p>
+
+<!-- Live Counter Bar -->
+<div id="testCounter" style="display:none;margin-bottom:16px">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+<div style="font-size:.78rem;font-weight:700" id="testCounterLabel">Running tests...</div>
+<div style="font-size:.7rem;color:rgba(255,255,255,.4)" id="testCounterStats">0 / 0</div>
+</div>
+<div style="height:10px;background:rgba(255,255,255,.06);border-radius:5px;overflow:hidden;margin-bottom:6px">
+<div id="testProgressBar" style="height:100%;border-radius:5px;background:linear-gradient(90deg,#27ae60,#2ecc71);transition:width .3s;width:0%"></div>
+</div>
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(255,255,255,.04);border-radius:8px;overflow:hidden">
+<div style="background:rgba(10,10,30,.8);padding:10px;text-align:center"><div style="font-size:.55rem;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.5px">Passed</div><div id="cntPass" style="font-size:1.2rem;font-weight:800;color:#27ae60">0</div></div>
+<div style="background:rgba(10,10,30,.8);padding:10px;text-align:center"><div style="font-size:.55rem;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.5px">Failed</div><div id="cntFail" style="font-size:1.2rem;font-weight:800;color:#eb5757">0</div></div>
+<div style="background:rgba(10,10,30,.8);padding:10px;text-align:center"><div style="font-size:.55rem;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.5px">Total</div><div id="cntTotal" style="font-size:1.2rem;font-weight:800;color:#a29bfe">0</div></div>
+</div>
+</div>
+
+<!-- Token Receive Tests -->
+<div style="font-size:.7rem;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">&#x1F4B0; Token Receive Tests</div>
+<div id="tokenTests" style="display:grid;gap:6px;margin-bottom:16px">
+
+<div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px">
+<div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">&#x2B50; Receive 100 XLM</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">Verify XLM balance increment + record</div></div>
+<span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span>
+</div>
+
+<div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px">
+<div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">&#x1F4B5; Receive 50 USDC</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">Verify USDC balance increment + record</div></div>
+<span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span>
+</div>
+
+<div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px">
+<div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">&#x1F48E; Receive 0.1 wETH</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">Verify wETH balance increment + record</div></div>
+<span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span>
+</div>
+
+<div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px">
+<div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">&#x1F536; Receive 0.005 wBTC</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">Verify wBTC balance increment + record</div></div>
+<span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span>
+</div>
+
+<div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px">
+<div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">&#x1F4B6; Receive 200 EURC</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">Verify EURC balance increment + record</div></div>
+<span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span>
+</div>
+
+<div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px">
+<div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">&#x1F4B0; Receive 500 OLIGHFT</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">Verify OLIGHFT balance increment + record</div></div>
+<span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span>
+</div>
+
+</div>
+
+<!-- Integration Tests -->
+<div style="font-size:.7rem;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">&#x1F52C; Integration Tests</div>
+<div id="intTests" style="display:grid;gap:6px;margin-bottom:16px">
+
+<div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px">
+<div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">&#x1F504; cw_balances Sync</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">localStorage matches memory after receive</div></div>
+<span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span>
+</div>
+
+<div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px">
+<div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">&#x1F4DD; Transaction Record</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">receive_txs has correct entry after receive</div></div>
+<span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span>
+</div>
+
+<div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px">
+<div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">&#x26D4; Zero Amount Rejected</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">Receive 0 tokens must be blocked</div></div>
+<span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span>
+</div>
+
+<div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px">
+<div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">&#x26D4; Negative Amount Rejected</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">Receive -5 tokens must be blocked</div></div>
+<span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span>
+</div>
+
+<div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px">
+<div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">&#x1F4CF; Decimal Precision</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">Receive 0.000001 XLM with no float drift</div></div>
+<span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span>
+</div>
+
+<div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px">
+<div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">&#x1F3E0; Address Display</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">Wallet address shows valid Stellar G... key</div></div>
+<span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span>
+</div>
+
+</div>
+
+<button onclick="runAllReceiveTests()" style="width:100%;padding:14px;border:none;border-radius:12px;font-size:.88rem;font-weight:700;cursor:pointer;background:linear-gradient(135deg,#27ae60,#2ecc71);color:#fff;transition:.2s" onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 6px 20px rgba(39,174,96,.3)'" onmouseout="this.style.transform='';this.style.boxShadow=''">&#x1F9EA; Run All 12 Tests</button>
+
+<div id="recvTestLog" style="display:none;background:rgba(0,0,0,.2);border:1px solid rgba(39,174,96,.15);border-radius:10px;padding:14px;margin-top:12px">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+<div style="font-size:.78rem;font-weight:700;color:#27ae60" id="recvTestTitle">Test Log</div>
+<button onclick="resetReceiveTests()" style="padding:4px 10px;border-radius:6px;border:1px solid rgba(255,255,255,.1);background:none;color:rgba(255,255,255,.4);font-size:.6rem;cursor:pointer">Reset</button>
+</div>
+<div id="recvTestLogBody" style="font-family:'Courier New',monospace;font-size:.66rem;line-height:1.8;color:rgba(255,255,255,.55);max-height:350px;overflow-y:auto"></div>
+</div>
+</div>
+
+<div class="net-badge">OLIGHFT SMART COIN &bull; Stellar Testnet &bull; v1.0.0</div>
+</div>
+
+<div class="toast" id="toast">Copied to clipboard!</div>
+
+<script>
+// Auth guard
+(function(){const u=JSON.parse(localStorage.getItem('cw_user')||'null');if(!u){alert('\u26A0\uFE0F Please log in first.');window.location.href='auth.html';}
+  if(u.addr){document.getElementById('walletAddr').textContent=u.addr;}})();
+
+// ── HD Account helpers ──
+function getAccounts(){
+  try{const raw=localStorage.getItem('cw_accounts');return raw?JSON.parse(atob(raw)):[];}catch(e){return[];}
+}
+function getActiveIdx(){return parseInt(localStorage.getItem('cw_active_idx')||'0',10);}
+function setActiveIdx(idx){
+  localStorage.setItem('cw_active_idx',String(idx));
+  const accounts=getAccounts();
+  const acc=accounts.find(a=>a.index===idx);
+  if(acc){
+    const user=JSON.parse(localStorage.getItem('cw_user')||'{}');
+    user.addr=acc.publicKey;
+    localStorage.setItem('cw_user',JSON.stringify(user));
+  }
+}
+
+// ── Render account selector ──
+function renderAccountSelector(){
+  const accounts=getAccounts();
+  const activeIdx=getActiveIdx();
+  const list=document.getElementById('acctList');
+  if(!accounts.length){
+    const u=JSON.parse(localStorage.getItem('cw_user')||'null');
+    if(u&&u.addr){
+      list.innerHTML='<div class="acct-opt active"><div class="acct-idx">0</div><div class="acct-info"><div class="acct-name">Primary <span class="addr-type-badge stellar">STELLAR</span></div><div class="acct-addr">'+u.addr+'</div><div class="acct-path">m/44\'/148\'/0\'</div></div></div>';
+    }
+    return;
+  }
+  list.innerHTML=accounts.map(a=>{
+    const isActive=a.index===activeIdx;
+    const type=a.publicKey.startsWith('C')?'contract':'stellar';
+    return '<div class="acct-opt'+(isActive?' active':'')+'" onclick="selectAccount('+a.index+')">'+'<div class="acct-idx">'+a.index+'</div>'+'<div class="acct-info">'+'<div class="acct-name">'+a.label+' <span class="addr-type-badge '+type+'">'+(type==='stellar'?'STELLAR':'CONTRACT')+'</span></div>'+'<div class="acct-addr">'+a.publicKey+'</div>'+'<div class="acct-path">m/44\'/148\'/'+a.index+'\'</div>'+'</div></div>';
+  }).join('');
+}
+function selectAccount(idx){
+  setActiveIdx(idx);
+  const accounts=getAccounts();
+  const acc=accounts.find(a=>a.index===idx);
+  if(acc){
+    document.getElementById('walletAddr').textContent=acc.publicKey;
+    addr=acc.publicKey;
+    drawQR();
+  }
+  renderAccountSelector();
+  showToast('Switched to account #'+idx);
+}
+
+// ── Shared balance helpers (connected to wallet) ──
+function getSharedBalances(){
+  try{const b=JSON.parse(localStorage.getItem('cw_balances')||'null');if(b)return b;}catch(e){}
+  return{XLM:10000,USDC:2500,wETH:1.85,wBTC:0.042,EURC:1200,OLIGHFT:0};
+}
+function saveSharedBalances(b){localStorage.setItem('cw_balances',JSON.stringify(b));}
+var balances=getSharedBalances();
+
+// ── Simulate receive: adds to balance, records tx ──
+function simulateReceive(token,amount,fromAddr){
+  if(!token||!amount||amount<=0)return false;
+  if(!fromAddr)fromAddr='GSIMULATED'+('ABCDEFGHIJKLMNOPQRSTUVWXYZ234567').repeat(2).slice(0,45);
+  balances[token]=(balances[token]||0)+amount;
+  saveSharedBalances(balances);
+  var c='0123456789abcdef',h='';for(var i=0;i<64;i++)h+=c[Math.floor(Math.random()*16)];
+  var txs=JSON.parse(localStorage.getItem('receive_txs')||'[]');
+  txs.unshift({from:fromAddr,to:addr,amount:amount,token:token,hash:h,time:Date.now()});
+  if(txs.length>20)txs.length=20;
+  localStorage.setItem('receive_txs',JSON.stringify(txs));
+  renderRecentReceives();
+  return true;
+}
+
+// ── Dynamic recent receives ──
+function renderRecentReceives(){
+  var txs=JSON.parse(localStorage.getItem('receive_txs')||'[]');
+  var sec=document.getElementById('recentSection');
+  var list=document.getElementById('recentList');
+  if(!txs.length){sec.style.display='none';return;}
+  sec.style.display='block';
+  list.innerHTML=txs.map(function(tx){
+    var ago=Math.round((Date.now()-tx.time)/60000);
+    var t=ago<1?'just now':ago+'m ago';
+    return '<div class="rx-item"><div><div class="rx-from">'+tx.from.slice(0,5)+'...'+tx.from.slice(-4)+'</div><div class="rx-time">'+t+'</div></div><div class="rx-amt">+'+tx.amount+' '+tx.token+'</div></div>';
+  }).join('');
+}
+
+let addr=document.getElementById('walletAddr').textContent;
+function drawQR(){
+  const c=document.getElementById('qrCanvas');
+  const ctx=c.getContext('2d');
+  const s=200,m=8,cs=Math.floor((s-m*2)/25);
+  ctx.fillStyle='#ffffff';ctx.fillRect(0,0,s,s);
+  ctx.fillStyle='#1a1a2e';
+  const tk=document.getElementById('tokenSelect').value;
+  const amt=document.getElementById('reqAmount').value||'0';
+  const seed=addr+tk+amt;
+  let hash=0;for(let i=0;i<seed.length;i++){hash=((hash<<5)-hash)+seed.charCodeAt(i);hash|=0}
+  for(let r=0;r<25;r++){for(let co=0;co<25;co++){
+    const v=((hash*(r*25+co+1))>>>0)%3;
+    if(v<2||(r<7&&co<7)||(r<7&&co>17)||(r>17&&co<7)){
+      if((r<7&&co<7)||(r<7&&co>17)||(r>17&&co<7)){
+        const pr=r<7?0:(r>17?18:0),pc=co<7?0:(co>17?18:0);
+        const lr=r-pr,lc=co-pc;
+        if(lr===0||lr===6||lc===0||lc===6||(lr>=2&&lr<=4&&lc>=2&&lc<=4))
+          ctx.fillRect(m+co*cs,m+r*cs,cs,cs);
+      } else if(v===0){
+        ctx.fillRect(m+co*cs,m+r*cs,cs,cs);
+      }
+    }
+  }}
+}
+function updateQR(){
+  document.getElementById('selToken').textContent=document.getElementById('tokenSelect').value;
+  drawQR();
+}
+function copyAddr(){
+  addr=document.getElementById('walletAddr').textContent;
+  navigator.clipboard.writeText(addr).then(()=>showToast('Copied to clipboard!'));
+}
+function shareAddr(){
+  const tk=document.getElementById('tokenSelect').value;
+  const amt=document.getElementById('reqAmount').value;
+  let text='Send '+tk+' to: '+addr;
+  if(amt)text='Please send '+amt+' '+tk+' to: '+addr;
+  if(navigator.share){navigator.share({title:'Receive '+tk,text:text})}
+  else{navigator.clipboard.writeText(text).then(()=>showToast('Share link copied!'))}
+}
+function genNewAddr(){
+  // Cycle to next HD account if available
+  const accounts=getAccounts();
+  if(accounts.length>1){
+    const activeIdx=getActiveIdx();
+    const currentPos=accounts.findIndex(a=>a.index===activeIdx);
+    const nextPos=(currentPos+1)%accounts.length;
+    selectAccount(accounts[nextPos].index);
+    return;
+  }
+  const u=JSON.parse(localStorage.getItem('cw_user')||'null');
+  if(u&&u.addr){
+    document.getElementById('walletAddr').textContent=u.addr;
+    addr=u.addr;
+    drawQR();
+    showToast('Address restored from wallet');
+    return;
+  }
+  const c='ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+  let a='G';for(let i=0;i<55;i++)a+=c[Math.floor(Math.random()*c.length)];
+  document.getElementById('walletAddr').textContent=a;
+  addr=a;
+  drawQR();
+  showToast('New address generated');
+}
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2000);
+}
+renderAccountSelector();
+drawQR();
+renderRecentReceives();
+
+// ══════════════════════════════════════════
+// ══  TEST RECEIVE ENGINE  ════════════════
+// ══════════════════════════════════════════
+
+var testPass=0,testFail=0,testTotal=0;
+
+function logTest(name,passed,detail){
+  testTotal++;
+  if(passed)testPass++;else testFail++;
+  var log=document.getElementById('recvTestLogBody');
+  var s=passed?'<span style="color:#27ae60">PASS \u2705</span>':'<span style="color:#eb5757">FAIL \u274C</span>';
+  log.innerHTML+='<div style="padding:4px 0;border-bottom:1px solid rgba(255,255,255,.04)">'+s+' <span style="color:#a29bfe">'+name+'</span> \u2014 '+detail+'</div>';
+  updateCounters();
+}
+function updateCounters(){
+  document.getElementById('cntPass').textContent=testPass;
+  document.getElementById('cntFail').textContent=testFail;
+  document.getElementById('cntTotal').textContent=testTotal;
+  var pct=testTotal>0?Math.round((testPass/testTotal)*100):0;
+  document.getElementById('testProgressBar').style.width=pct+'%';
+  document.getElementById('testProgressBar').style.background=testFail>0?'linear-gradient(90deg,#27ae60,#f2994a)':'linear-gradient(90deg,#27ae60,#2ecc71)';
+  document.getElementById('testCounterStats').textContent=testPass+' / '+testTotal+' passed';
+  document.getElementById('testCounterLabel').innerHTML=testFail===0?'<span style="color:#27ae60">\u2705 All '+testTotal+' tests passed</span>':'<span style="color:#f2994a">\u26A0\uFE0F '+testPass+' passed, '+testFail+' failed</span>';
+}
+function setBadge(rows,idx,passed){
+  var badge=rows[idx].querySelector('.tst-badge');
+  if(passed){
+    badge.textContent='\u2705 PASS';badge.style.color='#27ae60';badge.style.borderColor='rgba(39,174,96,.3)';badge.style.background='rgba(39,174,96,.08)';
+  }else{
+    badge.textContent='\u274C FAIL';badge.style.color='#eb5757';badge.style.borderColor='rgba(235,87,87,.3)';badge.style.background='rgba(235,87,87,.08)';
+  }
+}
+
+function runAllReceiveTests(){
+  testPass=0;testFail=0;testTotal=0;
+  document.getElementById('recvTestLogBody').innerHTML='';
+  document.getElementById('recvTestLog').style.display='block';
+  document.getElementById('testCounter').style.display='block';
+  document.querySelectorAll('.tst-badge').forEach(function(b){b.textContent='pending';b.style.color='rgba(255,255,255,.35)';b.style.borderColor='rgba(255,255,255,.08)';b.style.background='none';});
+
+  var snap=JSON.parse(JSON.stringify(getSharedBalances()));
+  var rxSnap=localStorage.getItem('receive_txs')||'[]';
+
+  var tokenRows=document.querySelectorAll('#tokenTests .tst-row');
+  var intRows=document.querySelectorAll('#intTests .tst-row');
+  var testFrom='GABCDEFGHIJKLMNOPQRSTUVWXYZ234567ABCDEFGHIJKLMNOPQRSTUV';
+
+  // ═══ TOKEN RECEIVE TESTS (1-6) ═══
+  var tokenCases=[
+    {token:'XLM',amount:100,name:'Receive 100 XLM'},
+    {token:'USDC',amount:50,name:'Receive 50 USDC'},
+    {token:'wETH',amount:0.1,name:'Receive 0.1 wETH'},
+    {token:'wBTC',amount:0.005,name:'Receive 0.005 wBTC'},
+    {token:'EURC',amount:200,name:'Receive 200 EURC'},
+    {token:'OLIGHFT',amount:500,name:'Receive 500 OLIGHFT'}
+  ];
+
+  tokenCases.forEach(function(tc,i){
+    var before=balances[tc.token]||0;
+    var ok=simulateReceive(tc.token,tc.amount,testFrom);
+    var after=balances[tc.token]||0;
+    var increment=Math.abs(after-(before+tc.amount))<0.0001;
+    var pass=ok&&increment;
+    setBadge(tokenRows,i,pass);
+    logTest(tc.name,pass,before+' \u2192 '+after.toFixed(6)+' '+tc.token+(pass?' \u2714 correct increment':' \u2716 MISMATCH'));
+  });
+
+  // ═══ INTEGRATION TESTS (7-12) ═══
+
+  // 7. cw_balances Sync
+  (function(){
+    var stored=getSharedBalances();
+    var synced=true;
+    ['XLM','USDC','wETH','wBTC','EURC','OLIGHFT'].forEach(function(tk){
+      if(Math.abs((balances[tk]||0)-(stored[tk]||0))>0.0001)synced=false;
+    });
+    setBadge(intRows,0,synced);
+    logTest('cw_balances Sync',synced,synced?'localStorage \u2194 memory \u2014 all 6 tokens match':'MISMATCH between localStorage and memory');
+  })();
+
+  // 8. Transaction Record
+  (function(){
+    var txs=JSON.parse(localStorage.getItem('receive_txs')||'[]');
+    var last=txs[0];
+    var ok=last&&last.from===testFrom&&last.token==='OLIGHFT'&&last.amount===500&&last.hash&&last.hash.length===64;
+    setBadge(intRows,1,ok);
+    logTest('Transaction Record',ok,ok?'receive_txs[0]: '+last.amount+' '+last.token+' hash='+last.hash.slice(0,8)+'...':'No valid receive_txs entry found');
+  })();
+
+  // 9. Zero Amount Rejected
+  (function(){
+    var before=balances['XLM'];
+    var ok=!simulateReceive('XLM',0,testFrom);
+    var unchanged=Math.abs(balances['XLM']-before)<0.0001;
+    var pass=ok&&unchanged;
+    setBadge(intRows,2,pass);
+    logTest('Zero Amount Rejected',pass,pass?'simulateReceive() returned false \u2014 balance unchanged ('+before+')':'VULNERABLE \u2014 zero receive was allowed!');
+  })();
+
+  // 10. Negative Amount Rejected
+  (function(){
+    var before=balances['XLM'];
+    var ok=!simulateReceive('XLM',-5,testFrom);
+    var unchanged=Math.abs(balances['XLM']-before)<0.0001;
+    var pass=ok&&unchanged;
+    setBadge(intRows,3,pass);
+    logTest('Negative Amount Rejected',pass,pass?'simulateReceive() returned false \u2014 balance unchanged ('+before+')':'VULNERABLE \u2014 negative receive was allowed!');
+  })();
+
+  // 11. Decimal Precision
+  (function(){
+    var before=balances['XLM'];
+    simulateReceive('XLM',0.000001,testFrom);
+    var after=balances['XLM'];
+    var ok=Math.abs(after-(before+0.000001))<1e-10;
+    setBadge(intRows,4,ok);
+    logTest('Decimal Precision (0.000001)',ok,before+' \u2192 '+after.toFixed(8)+' XLM');
+  })();
+
+  // 12. Address Display
+  (function(){
+    var displayed=document.getElementById('walletAddr').textContent.trim();
+    var isG=displayed.length===56&&displayed.startsWith('G')&&/^[A-Z2-7]+$/.test(displayed);
+    var isC=displayed.length===56&&displayed.startsWith('C')&&/^[A-Z2-7]+$/.test(displayed);
+    var ok=isG||isC;
+    setBadge(intRows,5,ok);
+    logTest('Address Display',ok,ok?'Valid '+(isG?'Stellar (G...)':'Soroban (C...)')+' address displayed: '+displayed.slice(0,10)+'...':'Invalid address displayed: '+displayed);
+  })();
+
+  // Restore original balances
+  saveSharedBalances(snap);
+  for(var k in snap)balances[k]=snap[k];
+  localStorage.setItem('receive_txs',rxSnap);
+  renderRecentReceives();
+}
+
+function resetReceiveTests(){
+  testPass=0;testFail=0;testTotal=0;
+  document.getElementById('recvTestLogBody').innerHTML='';
+  document.getElementById('recvTestLog').style.display='none';
+  document.getElementById('testCounter').style.display='none';
+  document.querySelectorAll('.tst-badge').forEach(function(b){b.textContent='pending';b.style.color='rgba(255,255,255,.35)';b.style.borderColor='rgba(255,255,255,.08)';b.style.background='none';});
+}
+</script>
+</body>
+</html>

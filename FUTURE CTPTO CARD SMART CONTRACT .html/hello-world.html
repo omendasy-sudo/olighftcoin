@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hello World — Your First Soroban Smart Contract</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0a0e17;--surface:#111827;--card:#1a1f2e;--border:#1e293b;
+  --accent:#6366f1;--accent2:#818cf8;--green:#22c55e;--red:#ef4444;--orange:#f59e0b;--cyan:#06b6d4;--purple:#a855f7;--pink:#ec4899;
+  --text:#e2e8f0;--muted:#94a3b8;
+}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+/* Header */
+.header{background:linear-gradient(135deg,#0f172a,#1e1b4b 40%,#312e81 60%,#0f172a);border-bottom:1px solid var(--border);padding:28px 20px;text-align:center;position:relative;overflow:hidden}
+.header::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%236366f1' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")}
+.header *{position:relative;z-index:1}
+.header h1{font-size:1.6rem;color:#fff;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}
+.header .sub{color:var(--muted);font-size:.85rem;margin-top:8px;max-width:640px;margin-left:auto;margin-right:auto}
+.badge{background:linear-gradient(135deg,var(--green),var(--cyan));color:#fff;padding:4px 12px;border-radius:12px;font-size:.65rem;font-weight:700;letter-spacing:.5px}
+
+/* Nav */
+.nav{display:flex;gap:6px;padding:12px 16px;overflow-x:auto;background:var(--surface);border-bottom:1px solid var(--border)}
+.nav a{padding:8px 14px;border-radius:8px;font-size:.75rem;font-weight:600;white-space:nowrap;color:var(--muted);text-decoration:none;transition:.2s;border:1px solid transparent}
+.nav a:hover{color:var(--text);border-color:var(--border)}
+.nav a.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+/* Container */
+.container{max-width:880px;margin:0 auto;padding:24px 16px 60px}
+
+/* Section Card */
+.section{background:var(--surface);border:1px solid var(--border);border-radius:14px;margin-bottom:20px;overflow:hidden;transition:.2s}
+.section:hover{border-color:rgba(99,102,241,.3)}
+.section-head{padding:20px 24px;display:flex;align-items:center;gap:14px;cursor:pointer;user-select:none}
+.section-head:hover{background:rgba(99,102,241,.03)}
+.section-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0}
+.section-head h2{font-size:1.05rem;flex:1}
+.section-head .step-tag{font-size:.6rem;font-weight:700;padding:3px 10px;border-radius:6px;letter-spacing:.5px}
+.section-head .chevron{color:var(--muted);transition:.3s transform;font-size:.8rem}
+.section.open .section-head .chevron{transform:rotate(180deg)}
+.section-body{padding:0 24px 24px;display:none}
+.section.open .section-body{display:block}
+
+/* Content */
+.content p{font-size:.85rem;line-height:1.8;color:var(--muted);margin-bottom:12px}
+.content h3{font-size:.92rem;color:var(--text);margin:18px 0 8px;display:flex;align-items:center;gap:8px}
+.content h3 .h-icon{font-size:1rem}
+.content ul,.content ol{padding-left:20px;margin:8px 0 14px}
+.content li{font-size:.82rem;line-height:1.7;color:var(--muted);margin-bottom:6px}
+.content li strong{color:var(--text)}
+.content a{color:var(--accent2);text-decoration:none;border-bottom:1px solid rgba(129,140,248,.3);transition:.2s}
+.content a:hover{border-bottom-color:var(--accent2)}
+.hl{color:var(--orange);font-weight:600}
+.hl-green{color:var(--green);font-weight:600}
+.hl-cyan{color:var(--cyan);font-weight:600}
+.hl-purple{color:var(--purple);font-weight:600}
+
+/* Code Block */
+.code-block{background:#0d1117;border:1px solid var(--border);border-radius:10px;margin:12px 0;overflow:hidden;position:relative}
+.code-head{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:rgba(255,255,255,.03);border-bottom:1px solid var(--border)}
+.code-head .lang{font-size:.65rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.code-head .file{font-size:.65rem;color:var(--cyan);font-weight:500;margin-left:8px}
+.code-head .copy-btn{background:none;border:1px solid var(--border);color:var(--muted);padding:3px 10px;border-radius:4px;font-size:.6rem;cursor:pointer;transition:.2s}
+.code-head .copy-btn:hover{border-color:var(--accent);color:var(--accent)}
+.code-body{padding:14px 16px;overflow-x:auto}
+.code-body pre{font-family:'Courier New',monospace;font-size:.76rem;line-height:1.65;color:#c9d1d9;margin:0}
+.kw{color:#ff7b72}.fn{color:#d2a8ff}.str{color:#a5d6ff}.cm{color:#8b949e}.ty{color:#79c0ff}.num{color:#f59e0b}.attr{color:#7ee787}.op{color:#ff7b72}
+
+/* Callout Boxes */
+.callout{border-radius:10px;padding:14px 16px;margin:14px 0;display:flex;gap:10px;font-size:.82rem;line-height:1.6}
+.callout .callout-icon{font-size:1.1rem;flex-shrink:0;margin-top:1px}
+.callout-tip{background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.25);color:var(--green)}
+.callout-tip .callout-text{color:var(--muted)}
+.callout-warn{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);color:var(--orange)}
+.callout-warn .callout-text{color:var(--muted)}
+.callout-info{background:rgba(99,102,241,.08);border:1px solid rgba(99,102,241,.25);color:var(--accent2)}
+.callout-info .callout-text{color:var(--muted)}
+.callout-note{background:rgba(6,182,212,.08);border:1px solid rgba(6,182,212,.25);color:var(--cyan)}
+.callout-note .callout-text{color:var(--muted)}
+
+/* Command Box */
+.cmd{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-family:'Courier New',monospace;font-size:.78rem;color:var(--cyan);margin:8px 0;position:relative;display:flex;align-items:center;gap:8px}
+.cmd .prompt{color:var(--muted);user-select:none}
+
+/* File Tree */
+.file-tree{background:#0d1117;border:1px solid var(--border);border-radius:10px;padding:16px 20px;margin:12px 0;font-family:'Courier New',monospace;font-size:.76rem;line-height:1.8;color:var(--muted);white-space:pre}
+.file-tree .ft-dir{color:var(--accent2);font-weight:600}
+.file-tree .ft-file{color:var(--text)}
+.file-tree .ft-note{color:var(--cyan);font-size:.7rem;font-style:italic}
+.file-tree a{text-decoration:none;transition:opacity .2s}
+.file-tree a:hover{opacity:.7;text-decoration:underline}
+
+/* Concept Card */
+.concept-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin:14px 0}
+.concept-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;transition:.2s}
+.concept-card:hover{border-color:rgba(99,102,241,.3);transform:translateY(-1px)}
+.concept-card .cc-icon{font-size:1.4rem;margin-bottom:8px}
+.concept-card .cc-title{font-size:.85rem;font-weight:700;margin-bottom:4px}
+.concept-card .cc-desc{font-size:.75rem;color:var(--muted);line-height:1.6}
+
+/* Progress Steps */
+.steps{display:flex;gap:0;margin:20px 0;overflow-x:auto;padding:4px 0}
+.step{flex:1;min-width:100px;text-align:center;position:relative}
+.step .s-num{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;margin:0 auto 6px;border:2px solid var(--border);color:var(--muted);transition:.2s}
+.step.done .s-num{border-color:var(--green);background:var(--green);color:#fff}
+.step.active .s-num{border-color:var(--accent);color:var(--accent);box-shadow:0 0 12px rgba(99,102,241,.3)}
+.step .s-label{font-size:.68rem;color:var(--muted)}
+.step .s-line{position:absolute;top:18px;left:calc(50% + 20px);width:calc(100% - 40px);height:2px;background:var(--border)}
+.step:last-child .s-line{display:none}
+.step.done .s-line{background:var(--green)}
+
+/* Annotation */
+.anno{display:inline-flex;align-items:center;gap:4px;background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.2);border-radius:6px;padding:2px 8px;font-size:.7rem;color:var(--accent2);font-weight:600;margin:2px 0}
+
+/* Footer */
+.footer{text-align:center;padding:28px 16px;color:var(--muted);font-size:.7rem;border-top:1px solid var(--border);margin-top:20px}
+.footer a{color:var(--accent2);text-decoration:none}
+
+/* Responsive */
+@media(max-width:640px){
+  .section-body{padding:0 16px 16px}
+  .concept-grid{grid-template-columns:1fr}
+  .steps{flex-wrap:wrap;gap:8px}
+  .step .s-line{display:none}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>&#x1F44B; Hello World <span class="badge">FIRST CONTRACT</span></h1>
+  <div class="sub">Create, test, build, and deploy your very first Soroban smart contract on Stellar &mdash; step by step from zero to deployed</div>
+</div>
+
+<div class="nav">
+  <a href="#create" class="active">Create Project</a>
+  <a href="#structure">Structure</a>
+  <a href="#cargo">Cargo.toml</a>
+  <a href="#source">Source Code</a>
+  <a href="#tests">Unit Tests</a>
+  <a href="#build">Build</a>
+  <a href="#optimize">Optimize</a>
+  <a href="smart-contract-guide.html">&#x2190; Smart Contract Guide</a>
+</div>
+
+<div class="container">
+
+  <!-- Progress Steps -->
+  <div class="steps" id="progressSteps">
+    <div class="step active" data-step="create"><div class="s-num">1</div><div class="s-label">Create</div><div class="s-line"></div></div>
+    <div class="step" data-step="structure"><div class="s-num">2</div><div class="s-label">Structure</div><div class="s-line"></div></div>
+    <div class="step" data-step="cargo"><div class="s-num">3</div><div class="s-label">Config</div><div class="s-line"></div></div>
+    <div class="step" data-step="source"><div class="s-num">4</div><div class="s-label">Code</div><div class="s-line"></div></div>
+    <div class="step" data-step="tests"><div class="s-num">5</div><div class="s-label">Test</div><div class="s-line"></div></div>
+    <div class="step" data-step="build"><div class="s-num">6</div><div class="s-label">Build</div><div class="s-line"></div></div>
+    <div class="step" data-step="optimize"><div class="s-num">7</div><div class="s-label">Optimize</div></div>
+  </div>
+
+  <!-- ===== 1. CREATE PROJECT ===== -->
+  <div class="section open" id="create">
+    <div class="section-head" onclick="toggleSection(this)">
+      <div class="section-icon" style="background:rgba(34,197,94,.15);color:var(--green)">&#x1F680;</div>
+      <div>
+        <h2>Step 1 &mdash; Create a New Project</h2>
+        <div style="font-size:.72rem;color:var(--muted);margin-top:2px">Scaffold a Soroban project with the Stellar CLI</div>
+      </div>
+      <span class="step-tag" style="background:rgba(34,197,94,.15);color:var(--green)">STEP 1</span>
+      <span class="chevron">&#x25BC;</span>
+    </div>
+    <div class="section-body content">
+      <p>Once you&rsquo;ve set up your development environment (Rust + WASM target + Stellar CLI), create your first smart contract project using the <code>init</code> command:</p>
+
+      <div class="cmd"><span class="prompt">$</span> stellar contract init soroban-hello-world</div>
+
+      <p>The <code>init</code> command creates a <span class="hl-green">Rust workspace project</span> using the recommended structure for Soroban contracts. It includes a ready-to-use <code>hello_world</code> contract to get you started immediately.</p>
+
+      <div class="callout callout-tip">
+        <span class="callout-icon">&#x1F4A1;</span>
+        <div class="callout-text">Make sure you have <strong>Rust</strong> (latest stable, v1.84.0+) and the <strong>WASM target</strong> installed first:<br><code>rustup target add wasm32v1-none</code></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 2. PROJECT STRUCTURE ===== -->
+  <div class="section" id="structure">
+    <div class="section-head" onclick="toggleSection(this)">
+      <div class="section-icon" style="background:rgba(99,102,241,.15);color:var(--accent2)">&#x1F4C1;</div>
+      <div>
+        <h2>Step 2 &mdash; Project Structure</h2>
+        <div style="font-size:.72rem;color:var(--muted);margin-top:2px">Understand the workspace layout</div>
+      </div>
+      <span class="step-tag" style="background:rgba(99,102,241,.15);color:var(--accent2)">STEP 2</span>
+      <span class="chevron">&#x25BC;</span>
+    </div>
+    <div class="section-body content">
+      <p>The generated project follows Rust&rsquo;s <span class="hl-cyan">workspace</span> pattern, allowing you to include multiple smart contracts in a single repository:</p>
+
+      <div class="file-tree">
+<span class="ft-dir">soroban-hello-world/</span>
+&#x251C;&#x2500;&#x2500; Cargo.lock
+&#x251C;&#x2500;&#x2500; <span class="ft-file">Cargo.toml</span>          <span class="ft-note">&larr; Workspace root config</span>
+&#x251C;&#x2500;&#x2500; README.md
+&#x2514;&#x2500;&#x2500; <span class="ft-dir">contracts/</span>
+    &#x2514;&#x2500;&#x2500; <span class="ft-dir">hello_world/</span>
+        &#x251C;&#x2500;&#x2500; <span class="ft-file">Cargo.toml</span>  <span class="ft-note">&larr; Contract-specific config</span>
+        &#x251C;&#x2500;&#x2500; Makefile
+        &#x2514;&#x2500;&#x2500; <span class="ft-dir">src/</span>
+            &#x251C;&#x2500;&#x2500; <span class="ft-file">lib.rs</span>  <span class="ft-note">&larr; Contract code</span>
+            &#x2514;&#x2500;&#x2500; <span class="ft-file">test.rs</span> <span class="ft-note">&larr; Unit tests</span>
+      </div>
+
+      <div class="concept-grid">
+        <div class="concept-card">
+          <div class="cc-icon">&#x1F4E6;</div>
+          <div class="cc-title">Workspace Root</div>
+          <div class="cc-desc">The top-level <code>Cargo.toml</code> defines the workspace and shared dependencies. All contracts in <code>contracts/</code> are workspace members.</div>
+        </div>
+        <div class="concept-card">
+          <div class="cc-icon">&#x1F4DD;</div>
+          <div class="cc-title">Contracts Directory</div>
+          <div class="cc-desc">Each contract lives in its own subdirectory under <code>contracts/</code> with its own <code>Cargo.toml</code>, source, and tests.</div>
+        </div>
+        <div class="concept-card">
+          <div class="cc-icon">&#x1F9EA;</div>
+          <div class="cc-title">Test File</div>
+          <div class="cc-desc"><code>test.rs</code> contains unit tests. It&rsquo;s included via <code>mod test;</code> at the bottom of <code>lib.rs</code>.</div>
+        </div>
+      </div>
+
+      <h3 style="margin-top:24px"><span class="h-icon">&#x1F310;</span> OLIGHFT SMART COIN &mdash; Full Project Map</h3>
+      <p>This hello-world contract lives inside the <span class="hl">OLIGHFT SMART COIN</span> DeFi platform. Here&rsquo;s how the entire project is organized &mdash; click any file to open it:</p>
+
+      <div class="file-tree">
+<span class="ft-dir">OLIGHFT SMART COIN/</span>
+&#x251C;&#x2500;&#x2500; <a href="../index.html" class="ft-file" style="color:var(--green);text-decoration:none">index.html</a>                    <span class="ft-note">&larr; Landing page</span>
+&#x251C;&#x2500;&#x2500; <a href="../auth.html" class="ft-file" style="color:var(--text);text-decoration:none">auth.html</a>                     <span class="ft-note">&larr; Login / Register (BIP39)</span>
+&#x251C;&#x2500;&#x2500; <a href="../wallet.html" class="ft-file" style="color:var(--text);text-decoration:none">wallet.html</a>                   <span class="ft-note">&larr; HD Wallet &amp; Assets</span>
+&#x251C;&#x2500;&#x2500; <a href="../send.html" class="ft-file" style="color:var(--text);text-decoration:none">send.html</a>                     <span class="ft-note">&larr; Send Transactions</span>
+&#x251C;&#x2500;&#x2500; <a href="../receive.html" class="ft-file" style="color:var(--text);text-decoration:none">receive.html</a>                  <span class="ft-note">&larr; Receive / QR</span>
+&#x251C;&#x2500;&#x2500; <a href="../swap.html" class="ft-file" style="color:var(--text);text-decoration:none">swap.html</a>                     <span class="ft-note">&larr; Token Swap</span>
+&#x251C;&#x2500;&#x2500; <a href="../testing-guide.html" class="ft-file" style="color:var(--text);text-decoration:none">testing-guide.html</a>            <span class="ft-note">&larr; Testing Docs</span>
+&#x251C;&#x2500;&#x2500; <span class="ft-dir">Card Staking (6 tiers)/</span>
+&#x2502;   &#x251C;&#x2500;&#x2500; <a href="../card-visa.html" class="ft-file" style="color:var(--text);text-decoration:none">card-visa.html</a>
+&#x2502;   &#x251C;&#x2500;&#x2500; <a href="../card-mastercard.html" class="ft-file" style="color:var(--text);text-decoration:none">card-mastercard.html</a>
+&#x2502;   &#x251C;&#x2500;&#x2500; <a href="../card-gold.html" class="ft-file" style="color:var(--text);text-decoration:none">card-gold.html</a>
+&#x2502;   &#x251C;&#x2500;&#x2500; <a href="../card-platinum.html" class="ft-file" style="color:var(--text);text-decoration:none">card-platinum.html</a>
+&#x2502;   &#x251C;&#x2500;&#x2500; <a href="../card-amex.html" class="ft-file" style="color:var(--text);text-decoration:none">card-amex.html</a>
+&#x2502;   &#x2514;&#x2500;&#x2500; <a href="../card-black.html" class="ft-file" style="color:var(--text);text-decoration:none">card-black.html</a>
+&#x251C;&#x2500;&#x2500; <span class="ft-dir">OLIGHFT SMART COIN backend/</span>
+&#x2502;   &#x2514;&#x2500;&#x2500; <a href="../OLIGHFT SMART COIN backend/backend.html" class="ft-file" style="color:var(--orange);text-decoration:none">backend.html</a>          <span class="ft-note">&larr; Admin Dashboard</span>
+&#x2514;&#x2500;&#x2500; <span class="ft-dir">Smart Contracts/</span>       <span class="ft-note">&larr; You are here</span>
+    &#x251C;&#x2500;&#x2500; <span class="ft-file" style="color:var(--green);font-weight:700">hello-world.html</span>      <span class="ft-note">&#x2605; This tutorial</span>
+    &#x251C;&#x2500;&#x2500; <a href="smart-contract-guide.html" class="ft-file" style="color:var(--text);text-decoration:none">smart-contract-guide.html</a>
+    &#x251C;&#x2500;&#x2500; <a href="staking-compound.html" class="ft-file" style="color:var(--text);text-decoration:none">staking-compound.html</a>
+    &#x2514;&#x2500;&#x2500; <a href="terms.html" class="ft-file" style="color:var(--text);text-decoration:none">terms.html</a>
+      </div>
+
+      <div class="callout callout-info">
+        <span class="callout-icon">&#x1F517;</span>
+        <div class="callout-text">The <span style="color:var(--accent2);font-weight:600">Smart Contracts</span> folder contains all Soroban development guides. The hello-world contract you&rsquo;re building here powers the on-chain logic behind the platform&rsquo;s <strong>card staking</strong>, <strong>token swaps</strong>, and <strong>multisig custody</strong> features.</div>
+      </div>
+
+      <div class="concept-grid">
+        <div class="concept-card" style="border-color:rgba(34,197,94,.3)">
+          <div class="cc-icon">&#x1F4B3;</div>
+          <div class="cc-title">Card Staking</div>
+          <div class="cc-desc">6 staking tiers (Visa &rarr; Black) use Soroban contracts to lock tokens and distribute APY rewards on Stellar Testnet.</div>
+        </div>
+        <div class="concept-card" style="border-color:rgba(6,182,212,.3)">
+          <div class="cc-icon">&#x1F512;</div>
+          <div class="cc-title">Self-Custody Wallet</div>
+          <div class="cc-desc">BIP39 mnemonic &amp; SEP-0005 HD derivation. The wallet signs contract invocations client-side &mdash; keys never leave the browser.</div>
+        </div>
+        <div class="concept-card" style="border-color:rgba(245,158,11,.3)">
+          <div class="cc-icon">&#x1F6E0;&#xFE0F;</div>
+          <div class="cc-title">Admin Backend</div>
+          <div class="cc-desc">Dashboard for monitoring wallets, staking pools, token supply, and transaction activity across the platform.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 3. CARGO.TOML ===== -->
+  <div class="section" id="cargo">
+    <div class="section-head" onclick="toggleSection(this)">
+      <div class="section-icon" style="background:rgba(245,158,11,.15);color:var(--orange)">&#x2699;&#xFE0F;</div>
+      <div>
+        <h2>Step 3 &mdash; Cargo Configuration</h2>
+        <div style="font-size:.72rem;color:var(--muted);margin-top:2px">Workspace setup, dependencies &amp; release profiles</div>
+      </div>
+      <span class="step-tag" style="background:rgba(245,158,11,.15);color:var(--orange)">STEP 3</span>
+      <span class="chevron">&#x25BC;</span>
+    </div>
+    <div class="section-body content">
+
+      <h3><span class="h-icon">&#x1F4E6;</span> Workspace Cargo.toml</h3>
+      <p>The root <code>Cargo.toml</code> sets up the <span class="hl">Rust workspace</span> and declares shared dependencies:</p>
+
+      <div class="code-block">
+        <div class="code-head">
+          <span class="lang">TOML</span><span class="file">Cargo.toml (root)</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <div class="code-body">
+<pre>[workspace]
+resolver = <span class="str">"2"</span>
+members = [
+  <span class="str">"contracts/*"</span>,
+]
+
+[workspace.dependencies]
+soroban-sdk = <span class="str">"22"</span></pre>
+        </div>
+      </div>
+
+      <div class="callout callout-info">
+        <span class="callout-icon">&#x2139;&#xFE0F;</span>
+        <div class="callout-text">The <code>testutils</code> feature is <strong>automatically enabled</strong> inside Rust unit tests in the same crate as your contract. If you write tests from another crate, add <code>features = ["testutils"]</code> and run with <code>cargo test --features testutils</code>.</div>
+      </div>
+
+      <h3><span class="h-icon">&#x1F680;</span> Release Profile</h3>
+      <p>Soroban contracts have a <span class="hl">maximum size of 64KB</span>. Without these optimizations, even small Rust programs almost always exceed this limit:</p>
+
+      <div class="code-block">
+        <div class="code-head">
+          <span class="lang">TOML</span><span class="file">Cargo.toml &mdash; release profile</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <div class="code-body">
+<pre>[profile.release]
+opt-level = <span class="str">"z"</span>            <span class="cm"># Minimize WASM size</span>
+overflow-checks = <span class="kw">true</span>     <span class="cm"># Safety first</span>
+debug = <span class="num">0</span>                  <span class="cm"># No debug info</span>
+strip = <span class="str">"symbols"</span>          <span class="cm"># Strip symbols</span>
+debug-assertions = <span class="kw">false</span>   <span class="cm"># Disable in release</span>
+panic = <span class="str">"abort"</span>            <span class="cm"># Abort on panic</span>
+codegen-units = <span class="num">1</span>          <span class="cm"># Better optimization</span>
+lto = <span class="kw">true</span>                 <span class="cm"># Link-time optimization</span></pre>
+        </div>
+      </div>
+
+      <h3><span class="h-icon">&#x1F4DD;</span> Release with Logs Profile</h3>
+      <p>When you need debug logs while using the Stellar CLI (not needed for tests or step-through debugging):</p>
+
+      <div class="code-block">
+        <div class="code-head">
+          <span class="lang">TOML</span><span class="file">Cargo.toml &mdash; release-with-logs</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <div class="code-body">
+<pre>[profile.release-with-logs]
+inherits = <span class="str">"release"</span>
+debug-assertions = <span class="kw">true</span></pre>
+        </div>
+      </div>
+
+      <h3><span class="h-icon">&#x1F4CB;</span> Contract-Specific Cargo.toml</h3>
+      <p>Each contract has its own <code>Cargo.toml</code> that relies on the workspace configuration:</p>
+
+      <div class="code-block">
+        <div class="code-head">
+          <span class="lang">TOML</span><span class="file">contracts/hello_world/Cargo.toml</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <div class="code-body">
+<pre>[package]
+name = <span class="str">"hello-world"</span>
+version = <span class="str">"0.0.0"</span>
+edition = <span class="str">"2021"</span>
+publish = <span class="kw">false</span>
+
+[lib]
+crate-type = [<span class="str">"cdylib"</span>]    <span class="cm"># Required for building contracts</span>
+doctest = <span class="kw">false</span>
+
+[dependencies]
+soroban-sdk = { workspace = <span class="kw">true</span> }
+
+[dev-dependencies]
+soroban-sdk = { workspace = <span class="kw">true</span>, features = [<span class="str">"testutils"</span>] }</pre>
+        </div>
+      </div>
+
+      <div class="callout callout-note">
+        <span class="callout-icon">&#x1F4CC;</span>
+        <div class="callout-text"><strong>crate-type = ["cdylib"]</strong> is required for all Soroban contracts &mdash; it tells Rust to produce a dynamic library suitable for compilation to WASM.</div>
+      </div>
+
+      <h3 style="margin-top:24px"><span class="h-icon">&#x1F310;</span> OLIGHFT SMART COIN &mdash; Workspace Config</h3>
+      <p>The OLIGHFT platform extends this workspace to house <span class="hl">multiple Soroban contracts</span> &mdash; each powering a different DeFi feature. Here&rsquo;s how the real workspace Cargo.toml evolves from the hello-world starter:</p>
+
+      <div class="code-block">
+        <div class="code-head">
+          <span class="lang">TOML</span><span class="file">Cargo.toml &mdash; OLIGHFT workspace</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <div class="code-body">
+<pre>[workspace]
+resolver = <span class="str">"2"</span>
+members = [
+  <span class="str">"contracts/*"</span>,           <span class="cm"># All contracts auto-discovered</span>
+]
+
+[workspace.dependencies]
+soroban-sdk  = <span class="str">"22"</span>
+soroban-auth = <span class="str">"22"</span>         <span class="cm"># Multisig &amp; auth helpers</span>
+
+[workspace.metadata.olighft]
+network  = <span class="str">"testnet"</span>
+horizon  = <span class="str">"https://horizon-testnet.stellar.org"</span>
+tokens   = [<span class="str">"XLM"</span>, <span class="str">"USDC"</span>, <span class="str">"wETH"</span>, <span class="str">"wBTC"</span>, <span class="str">"EURC"</span>]</pre>
+        </div>
+      </div>
+
+      <h3><span class="h-icon">&#x1F4B3;</span> Staking Contract Config</h3>
+      <p>The <span class="hl-purple">card-staking</span> contract manages the 6 staking tiers (Visa &rarr; Black). It imports the shared workspace SDK plus token helpers:</p>
+
+      <div class="code-block">
+        <div class="code-head">
+          <span class="lang">TOML</span><span class="file">contracts/card_staking/Cargo.toml</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <div class="code-body">
+<pre>[package]
+name    = <span class="str">"olighft-card-staking"</span>
+version = <span class="str">"0.1.0"</span>
+edition = <span class="str">"2021"</span>
+publish = <span class="kw">false</span>
+
+[lib]
+crate-type = [<span class="str">"cdylib"</span>]
+doctest    = <span class="kw">false</span>
+
+[dependencies]
+soroban-sdk  = { workspace = <span class="kw">true</span> }
+soroban-auth = { workspace = <span class="kw">true</span> }
+
+[dev-dependencies]
+soroban-sdk = { workspace = <span class="kw">true</span>, features = [<span class="str">"testutils"</span>] }</pre>
+        </div>
+      </div>
+
+      <h3><span class="h-icon">&#x1F504;</span> Swap Contract Config</h3>
+      <p>The <span class="hl-cyan">token-swap</span> contract handles atomic swaps between the 5 supported tokens. It cross-imports the staking contract for balance checks:</p>
+
+      <div class="code-block">
+        <div class="code-head">
+          <span class="lang">TOML</span><span class="file">contracts/token_swap/Cargo.toml</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <div class="code-body">
+<pre>[package]
+name    = <span class="str">"olighft-token-swap"</span>
+version = <span class="str">"0.1.0"</span>
+edition = <span class="str">"2021"</span>
+publish = <span class="kw">false</span>
+
+[lib]
+crate-type = [<span class="str">"cdylib"</span>]
+doctest    = <span class="kw">false</span>
+
+[dependencies]
+soroban-sdk  = { workspace = <span class="kw">true</span> }
+soroban-auth = { workspace = <span class="kw">true</span> }
+
+[dev-dependencies]
+soroban-sdk = { workspace = <span class="kw">true</span>, features = [<span class="str">"testutils"</span>] }</pre>
+        </div>
+      </div>
+
+      <div class="callout callout-tip">
+        <span class="callout-icon">&#x1F4A1;</span>
+        <div class="callout-text"><strong>Why a workspace?</strong> The OLIGHFT platform deploys <strong>3+ contracts</strong> (hello-world, card-staking, token-swap). Workspaces let them share one <code>Cargo.lock</code>, one SDK version, and one release profile &mdash; so every contract builds with identical settings.</div>
+      </div>
+
+      <h3><span class="h-icon">&#x1F5C2;&#xFE0F;</span> OLIGHFT Contracts Tree</h3>
+      <div class="file-tree">
+<span class="ft-dir">contracts/</span>
+&#x251C;&#x2500;&#x2500; <span class="ft-dir">hello_world/</span>         <span class="ft-note">&#x2605; This tutorial (Step 4 code)</span>
+&#x2502;   &#x251C;&#x2500;&#x2500; <span class="ft-file">Cargo.toml</span>
+&#x2502;   &#x2514;&#x2500;&#x2500; <span class="ft-dir">src/</span> lib.rs, test.rs
+&#x251C;&#x2500;&#x2500; <span class="ft-dir">card_staking/</span>        <span class="ft-note">&larr; 6-tier staking (Visa&ndash;Black)</span>
+&#x2502;   &#x251C;&#x2500;&#x2500; <span class="ft-file">Cargo.toml</span>
+&#x2502;   &#x2514;&#x2500;&#x2500; <span class="ft-dir">src/</span> lib.rs, tiers.rs, test.rs
+&#x251C;&#x2500;&#x2500; <span class="ft-dir">token_swap/</span>          <span class="ft-note">&larr; Atomic token swaps</span>
+&#x2502;   &#x251C;&#x2500;&#x2500; <span class="ft-file">Cargo.toml</span>
+&#x2502;   &#x2514;&#x2500;&#x2500; <span class="ft-dir">src/</span> lib.rs, pool.rs, test.rs
+&#x2514;&#x2500;&#x2500; <span class="ft-dir">multisig_custody/</span>    <span class="ft-note">&larr; Native Stellar multisig</span>
+    &#x251C;&#x2500;&#x2500; <span class="ft-file">Cargo.toml</span>
+    &#x2514;&#x2500;&#x2500; <span class="ft-dir">src/</span> lib.rs, signers.rs, test.rs
+      </div>
+
+      <div class="concept-grid">
+        <div class="concept-card" style="border-color:rgba(168,85,247,.3)">
+          <div class="cc-icon">&#x1F4B3;</div>
+          <div class="cc-title">card_staking</div>
+          <div class="cc-desc">Manages lock periods, APY tiers, compound rewards. Reads token balances from <code>soroban-auth</code> for the 6 card levels on <a href="../card-gold.html" style="color:var(--accent2)">card pages</a>.</div>
+        </div>
+        <div class="concept-card" style="border-color:rgba(6,182,212,.3)">
+          <div class="cc-icon">&#x1F504;</div>
+          <div class="cc-title">token_swap</div>
+          <div class="cc-desc">Atomic swaps between XLM, USDC, wETH, wBTC, EURC. Powers the <a href="../swap.html" style="color:var(--accent2)">swap page</a> with on-chain settlement.</div>
+        </div>
+        <div class="concept-card" style="border-color:rgba(245,158,11,.3)">
+          <div class="cc-icon">&#x1F512;</div>
+          <div class="cc-title">multisig_custody</div>
+          <div class="cc-desc">Stellar-native multisig for the self-custody <a href="../wallet.html" style="color:var(--accent2)">wallet</a>. Configures signer weights &amp; thresholds per HD account.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 4. SOURCE CODE ===== -->
+  <div class="section" id="source">
+    <div class="section-head" onclick="toggleSection(this)">
+      <div class="section-icon" style="background:rgba(168,85,247,.15);color:var(--purple)">&#x270D;&#xFE0F;</div>
+      <div>
+        <h2>Step 4 &mdash; Contract Source Code</h2>
+        <div style="font-size:.72rem;color:var(--muted);margin-top:2px">Write the hello world contract in Rust</div>
+      </div>
+      <span class="step-tag" style="background:rgba(168,85,247,.15);color:var(--purple)">STEP 4</span>
+      <span class="chevron">&#x25BC;</span>
+    </div>
+    <div class="section-body content">
+
+      <p>Soroban contracts are written in Rust and compiled to WebAssembly. Let&rsquo;s walk through each piece of the contract:</p>
+
+      <h3><span class="h-icon">1&#xFE0F;&#x20E3;</span> <code>#![no_std]</code> &mdash; No Standard Library</h3>
+      <p>All contracts <strong>must</strong> begin with <code>#![no_std]</code> to ensure the Rust standard library is not included. The standard library is too large for blockchain programs. Instead, use types from <code>soroban_sdk</code>.</p>
+
+      <h3><span class="h-icon">2&#xFE0F;&#x20E3;</span> Imports from <code>soroban_sdk</code></h3>
+      <p>The contract imports the types and macros it needs. Many standard Rust types like <code>std::vec::Vec</code> are <strong>not available</strong> &mdash; there is no allocator and no heap memory in Soroban contracts.</p>
+
+      <div class="concept-grid">
+        <div class="concept-card">
+          <div class="cc-icon">&#x2705;</div>
+          <div class="cc-title">Available Types</div>
+          <div class="cc-desc"><code>Vec</code>, <code>Map</code>, <code>Bytes</code>, <code>BytesN</code>, <code>Symbol</code>, <code>String</code>, <code>Address</code> &mdash; all from <code>soroban_sdk</code></div>
+        </div>
+        <div class="concept-card">
+          <div class="cc-icon">&#x2705;</div>
+          <div class="cc-title">Primitives</div>
+          <div class="cc-desc"><code>u128</code>, <code>i128</code>, <code>u64</code>, <code>i64</code>, <code>u32</code>, <code>i32</code>, <code>bool</code> are all supported</div>
+        </div>
+        <div class="concept-card">
+          <div class="cc-icon">&#x274C;</div>
+          <div class="cc-title">Not Supported</div>
+          <div class="cc-desc"><strong>Floats</strong> and floating point math are not supported. Contract inputs must <strong>not be references</strong>.</div>
+        </div>
+      </div>
+
+      <h3><span class="h-icon">3&#xFE0F;&#x20E3;</span> The <code>#[contract]</code> Attribute</h3>
+      <p>The <code>#[contract]</code> attribute designates the struct as the type to which contract functions are associated.</p>
+
+      <h3><span class="h-icon">4&#xFE0F;&#x20E3;</span> The <code>#[contractimpl]</code> Block</h3>
+      <p>Contract functions are defined in an <code>impl</code> block annotated with <code>#[contractimpl]</code>. Key rules:</p>
+      <ul>
+        <li>Function names have a <strong>maximum length of 32 characters</strong></li>
+        <li>Functions intended to be called externally must be <code>pub</code></li>
+        <li>The first argument is typically <code>env: Env</code> for access to the Soroban environment</li>
+      </ul>
+
+      <h3><span class="h-icon">&#x1F4DC;</span> Complete Contract</h3>
+      <div class="code-block">
+        <div class="code-head">
+          <span class="lang">Rust</span><span class="file">contracts/hello_world/src/lib.rs</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <div class="code-body">
+<pre><span class="attr">#![no_std]</span>
+<span class="kw">use</span> soroban_sdk::{<span class="ty">contract</span>, <span class="ty">contractimpl</span>, vec, <span class="ty">Env</span>, <span class="ty">String</span>, <span class="ty">Vec</span>};
+
+<span class="cm">// Designate the struct as a Soroban contract</span>
+<span class="attr">#[contract]</span>
+<span class="kw">pub struct</span> <span class="fn">Contract</span>;
+
+<span class="cm">// Implement contract functions</span>
+<span class="attr">#[contractimpl]</span>
+<span class="kw">impl</span> <span class="fn">Contract</span> {
+    <span class="cm">/// Takes a name and returns ["Hello", name]</span>
+    <span class="kw">pub fn</span> <span class="fn">hello</span>(env: <span class="ty">Env</span>, to: <span class="ty">String</span>) -> <span class="ty">Vec</span>&lt;<span class="ty">String</span>&gt; {
+        vec![&amp;env, <span class="ty">String</span>::<span class="fn">from_str</span>(&amp;env, <span class="str">"Hello"</span>), to]
+    }
+}
+
+<span class="kw">mod</span> test; <span class="cm">// Include the test module</span></pre>
+        </div>
+      </div>
+
+      <div class="callout callout-tip">
+        <span class="callout-icon">&#x1F4A1;</span>
+        <div class="callout-text">The <code>mod test;</code> line at the bottom tells Rust to compile and run the test code from <code>test.rs</code>. This is the standard Soroban pattern for organizing contract tests.</div>
+      </div>
+
+      <h3 style="margin-top:24px"><span class="h-icon">&#x1F310;</span> OLIGHFT &mdash; Real Contract: Card Staking</h3>
+      <p>The hello-world pattern scales directly into production contracts. Here&rsquo;s the <span class="hl-purple">card_staking</span> contract that powers the <a href="../card-gold.html" style="color:var(--accent2)">6 staking tiers</a> on OLIGHFT &mdash; same <code>#[contract]</code> + <code>#[contractimpl]</code> structure:</p>
+
+      <div class="code-block">
+        <div class="code-head">
+          <span class="lang">Rust</span><span class="file">contracts/card_staking/src/lib.rs</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <div class="code-body">
+<pre><span class="attr">#![no_std]</span>
+<span class="kw">use</span> soroban_sdk::{
+    <span class="ty">contract</span>, <span class="ty">contractimpl</span>, <span class="ty">contracttype</span>,
+    <span class="ty">Address</span>, <span class="ty">Env</span>, <span class="ty">Map</span>, <span class="ty">Symbol</span>,
+};
+
+<span class="cm">// ── Staking tier enum (Visa → Black) ──</span>
+<span class="attr">#[contracttype]</span>
+<span class="kw">pub enum</span> <span class="fn">Tier</span> {
+    Visa        = <span class="num">0</span>,
+    Mastercard  = <span class="num">1</span>,
+    Gold        = <span class="num">2</span>,
+    Platinum    = <span class="num">3</span>,
+    Amex        = <span class="num">4</span>,
+    Black       = <span class="num">5</span>,
+}
+
+<span class="cm">// ── Stake record stored per user ──</span>
+<span class="attr">#[contracttype]</span>
+<span class="kw">pub struct</span> <span class="fn">Stake</span> {
+    <span class="kw">pub</span> owner:      <span class="ty">Address</span>,
+    <span class="kw">pub</span> amount:     <span class="ty">i128</span>,
+    <span class="kw">pub</span> tier:       <span class="fn">Tier</span>,
+    <span class="kw">pub</span> locked_at:  <span class="ty">u64</span>,
+    <span class="kw">pub</span> apy_bps:    <span class="ty">u32</span>,   <span class="cm">// basis points (800 = 8%)</span>
+}
+
+<span class="attr">#[contract]</span>
+<span class="kw">pub struct</span> <span class="fn">CardStaking</span>;
+
+<span class="attr">#[contractimpl]</span>
+<span class="kw">impl</span> <span class="fn">CardStaking</span> {
+    <span class="cm">/// Stake tokens into a card tier</span>
+    <span class="kw">pub fn</span> <span class="fn">stake</span>(
+        env: <span class="ty">Env</span>,
+        user: <span class="ty">Address</span>,
+        amount: <span class="ty">i128</span>,
+        tier: <span class="fn">Tier</span>,
+    ) -> <span class="fn">Stake</span> {
+        user.<span class="fn">require_auth</span>();  <span class="cm">// BIP39 wallet signs this</span>
+        <span class="kw">let</span> apy = <span class="kw">match</span> tier {
+            <span class="fn">Tier</span>::Visa       => <span class="num">500</span>,   <span class="cm">// 5%</span>
+            <span class="fn">Tier</span>::Mastercard => <span class="num">600</span>,   <span class="cm">// 6%</span>
+            <span class="fn">Tier</span>::Gold       => <span class="num">800</span>,   <span class="cm">// 8%</span>
+            <span class="fn">Tier</span>::Platinum   => <span class="num">1000</span>,  <span class="cm">// 10%</span>
+            <span class="fn">Tier</span>::Amex       => <span class="num">1200</span>,  <span class="cm">// 12%</span>
+            <span class="fn">Tier</span>::Black      => <span class="num">1500</span>,  <span class="cm">// 15%</span>
+        };
+        <span class="kw">let</span> record = <span class="fn">Stake</span> {
+            owner: user.<span class="fn">clone</span>(),
+            amount,
+            tier,
+            locked_at: env.<span class="fn">ledger</span>().<span class="fn">timestamp</span>(),
+            apy_bps: apy,
+        };
+        env.<span class="fn">storage</span>().<span class="fn">persistent</span>().<span class="fn">set</span>(&amp;user, &amp;record);
+        record
+    }
+
+    <span class="cm">/// Read a user's current stake</span>
+    <span class="kw">pub fn</span> <span class="fn">get_stake</span>(env: <span class="ty">Env</span>, user: <span class="ty">Address</span>) -> <span class="fn">Stake</span> {
+        env.<span class="fn">storage</span>().<span class="fn">persistent</span>().<span class="fn">get</span>(&amp;user).<span class="fn">unwrap</span>()
+    }
+}
+
+<span class="kw">mod</span> test;</pre>
+        </div>
+      </div>
+
+      <div class="concept-grid">
+        <div class="concept-card" style="border-color:rgba(168,85,247,.3)">
+          <div class="cc-icon">&#x1F4B3;</div>
+          <div class="cc-title">6 Card Tiers</div>
+          <div class="cc-desc">Each <a href="../card-visa.html" style="color:var(--accent2)">card page</a> calls <code>stake()</code> with the matching tier enum. APY ranges from 5% (Visa) to 15% (<a href="../card-black.html" style="color:var(--accent2)">Black</a>).</div>
+        </div>
+        <div class="concept-card" style="border-color:rgba(6,182,212,.3)">
+          <div class="cc-icon">&#x1F512;</div>
+          <div class="cc-title">require_auth()</div>
+          <div class="cc-desc">The <a href="../wallet.html" style="color:var(--accent2)">wallet</a>&rsquo;s BIP39 keypair signs each staking transaction. <code>require_auth()</code> verifies the signature on-chain.</div>
+        </div>
+        <div class="concept-card" style="border-color:rgba(245,158,11,.3)">
+          <div class="cc-icon">&#x1F4BE;</div>
+          <div class="cc-title">Persistent Storage</div>
+          <div class="cc-desc"><code>env.storage().persistent()</code> stores stake records that survive ledger expiry. The <a href="../OLIGHFT SMART COIN backend/backend.html" style="color:var(--accent2)">admin backend</a> reads these to display staking analytics.</div>
+        </div>
+      </div>
+
+      <div class="callout callout-info">
+        <span class="callout-icon">&#x1F517;</span>
+        <div class="callout-text"><strong>Pattern:</strong> Every OLIGHFT contract follows the same hello-world skeleton &mdash; <code>#![no_std]</code> &rarr; <code>#[contract]</code> &rarr; <code>#[contractimpl]</code> &rarr; <code>mod test;</code>. Master this pattern and you can build any of the platform&rsquo;s contracts.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 5. UNIT TESTS ===== -->
+  <div class="section" id="tests">
+    <div class="section-head" onclick="toggleSection(this)">
+      <div class="section-icon" style="background:rgba(6,182,212,.15);color:var(--cyan)">&#x1F9EA;</div>
+      <div>
+        <h2>Step 5 &mdash; Contract Unit Tests</h2>
+        <div style="font-size:.72rem;color:var(--muted);margin-top:2px">Write &amp; run tests using standard Rust testing</div>
+      </div>
+      <span class="step-tag" style="background:rgba(6,182,212,.15);color:var(--cyan)">STEP 5</span>
+      <span class="chevron">&#x25BC;</span>
+    </div>
+    <div class="section-body content">
+      <p>Testing Soroban contracts uses standard Rust testing tools &mdash; the same <code>cargo test</code> and <code>#[test]</code> attributes you&rsquo;d use for any Rust code.</p>
+
+      <div class="code-block">
+        <div class="code-head">
+          <span class="lang">Rust</span><span class="file">contracts/hello_world/src/test.rs</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <div class="code-body">
+<pre><span class="attr">#![cfg(test)]</span>
+
+<span class="kw">use super</span>::*;
+<span class="kw">use</span> soroban_sdk::{vec, <span class="ty">Env</span>, <span class="ty">String</span>};
+
+<span class="attr">#[test]</span>
+<span class="kw">fn</span> <span class="fn">test</span>() {
+    <span class="cm">// 1. Create the Soroban environment</span>
+    <span class="kw">let</span> env = <span class="ty">Env</span>::<span class="fn">default</span>();
+
+    <span class="cm">// 2. Register the contract</span>
+    <span class="kw">let</span> contract_id = env.<span class="fn">register</span>(<span class="fn">Contract</span>, ());
+
+    <span class="cm">// 3. Create a client (auto-generated from #[contractimpl])</span>
+    <span class="kw">let</span> client = <span class="fn">ContractClient</span>::<span class="fn">new</span>(&amp;env, &amp;contract_id);
+
+    <span class="cm">// 4. Call the function and assert the result</span>
+    <span class="kw">let</span> words = client.<span class="fn">hello</span>(&amp;<span class="ty">String</span>::<span class="fn">from_str</span>(&amp;env, <span class="str">"Dev"</span>));
+    <span class="fn">assert_eq!</span>(
+        words,
+        vec![
+            &amp;env,
+            <span class="ty">String</span>::<span class="fn">from_str</span>(&amp;env, <span class="str">"Hello"</span>),
+            <span class="ty">String</span>::<span class="fn">from_str</span>(&amp;env, <span class="str">"Dev"</span>),
+        ]
+    );
+}</pre>
+        </div>
+      </div>
+
+      <h3><span class="h-icon">&#x1F50D;</span> Understanding the Test Pattern</h3>
+      <div class="concept-grid">
+        <div class="concept-card">
+          <div class="cc-icon">&#x1F30D;</div>
+          <div class="cc-title">1. Create Env</div>
+          <div class="cc-desc"><code>Env::default()</code> creates the Soroban environment your contract runs inside. Always the first step.</div>
+        </div>
+        <div class="concept-card">
+          <div class="cc-icon">&#x1F4DD;</div>
+          <div class="cc-title">2. Register Contract</div>
+          <div class="cc-desc"><code>env.register(Contract, ())</code> registers the contract. Pass <code>None</code> for an auto-generated ID, or specify one.</div>
+        </div>
+        <div class="concept-card">
+          <div class="cc-icon">&#x1F4DE;</div>
+          <div class="cc-title">3. Create Client</div>
+          <div class="cc-desc"><code>ContractClient</code> is auto-generated for every <code>#[contractimpl]</code> block. Named <code>{Type}Client</code>.</div>
+        </div>
+        <div class="concept-card">
+          <div class="cc-icon">&#x2705;</div>
+          <div class="cc-title">4. Assert Results</div>
+          <div class="cc-desc">Use <code>assert_eq!</code> to verify return values match expectations. Works with all Soroban types.</div>
+        </div>
+      </div>
+
+      <h3><span class="h-icon">&#x25B6;&#xFE0F;</span> Run the Tests</h3>
+      <div class="cmd"><span class="prompt">$</span> cargo test</div>
+
+      <div class="code-block">
+        <div class="code-head"><span class="lang">Output</span></div>
+        <div class="code-body">
+<pre><span class="cm">running 1 test</span>
+test test::test ... <span class="attr">ok</span>
+
+<span class="cm">test result: ok. 1 passed; 0 failed; 0 ignored</span></pre>
+        </div>
+      </div>
+
+      <div class="callout callout-note">
+        <span class="callout-icon">&#x1F4DD;</span>
+        <div class="callout-text">The first time you run tests, cargo will compile all dependencies before running. Subsequent runs will be much faster. Try changing the values in the test to see how it works!</div>
+      </div>
+
+      <h3 style="margin-top:24px"><span class="h-icon">&#x1F310;</span> OLIGHFT &mdash; Testing the Staking Contract</h3>
+      <p>The staking contract from Step 4 uses the <strong>exact same</strong> test pattern. Here&rsquo;s the real test that validates all 6 card tiers on Stellar Testnet:</p>
+
+      <div class="code-block">
+        <div class="code-head">
+          <span class="lang">Rust</span><span class="file">contracts/card_staking/src/test.rs</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <div class="code-body">
+<pre><span class="attr">#![cfg(test)]</span>
+
+<span class="kw">use super</span>::*;
+<span class="kw">use</span> soroban_sdk::{<span class="ty">Env</span>, <span class="ty">Address</span>};
+
+<span class="attr">#[test]</span>
+<span class="kw">fn</span> <span class="fn">test_gold_tier_stake</span>() {
+    <span class="cm">// 1. Create environment</span>
+    <span class="kw">let</span> env = <span class="ty">Env</span>::<span class="fn">default</span>();
+    env.<span class="fn">mock_all_auths</span>();   <span class="cm">// Skip real BIP39 signatures in tests</span>
+
+    <span class="cm">// 2. Register staking contract</span>
+    <span class="kw">let</span> id = env.<span class="fn">register</span>(<span class="fn">CardStaking</span>, ());
+    <span class="kw">let</span> client = <span class="fn">CardStakingClient</span>::<span class="fn">new</span>(&amp;env, &amp;id);
+
+    <span class="cm">// 3. Create a test user (simulates a wallet HD account)</span>
+    <span class="kw">let</span> user = <span class="ty">Address</span>::<span class="fn">generate</span>(&amp;env);
+
+    <span class="cm">// 4. Stake 5000 tokens into Gold tier (8% APY)</span>
+    <span class="kw">let</span> stake = client.<span class="fn">stake</span>(&amp;user, &amp;<span class="num">5000_0000000</span>, &amp;<span class="fn">Tier</span>::Gold);
+    <span class="fn">assert_eq!</span>(stake.apy_bps, <span class="num">800</span>);  <span class="cm">// 8% = 800 bps</span>
+    <span class="fn">assert_eq!</span>(stake.amount, <span class="num">5000_0000000</span>);
+
+    <span class="cm">// 5. Verify stored stake matches</span>
+    <span class="kw">let</span> read = client.<span class="fn">get_stake</span>(&amp;user);
+    <span class="fn">assert_eq!</span>(read.tier <span class="kw">as</span> <span class="ty">u32</span>, <span class="fn">Tier</span>::Gold <span class="kw">as</span> <span class="ty">u32</span>);
+}
+
+<span class="attr">#[test]</span>
+<span class="kw">fn</span> <span class="fn">test_all_tiers_apy</span>() {
+    <span class="kw">let</span> env = <span class="ty">Env</span>::<span class="fn">default</span>();
+    env.<span class="fn">mock_all_auths</span>();
+    <span class="kw">let</span> id = env.<span class="fn">register</span>(<span class="fn">CardStaking</span>, ());
+    <span class="kw">let</span> client = <span class="fn">CardStakingClient</span>::<span class="fn">new</span>(&amp;env, &amp;id);
+
+    <span class="cm">// Verify APY for each card tier</span>
+    <span class="kw">let</span> tiers = [
+        (<span class="fn">Tier</span>::Visa,       <span class="num">500</span>),   <span class="cm">// 5%</span>
+        (<span class="fn">Tier</span>::Mastercard, <span class="num">600</span>),   <span class="cm">// 6%</span>
+        (<span class="fn">Tier</span>::Gold,       <span class="num">800</span>),   <span class="cm">// 8%</span>
+        (<span class="fn">Tier</span>::Platinum,   <span class="num">1000</span>),  <span class="cm">// 10%</span>
+        (<span class="fn">Tier</span>::Amex,       <span class="num">1200</span>),  <span class="cm">// 12%</span>
+        (<span class="fn">Tier</span>::Black,      <span class="num">1500</span>),  <span class="cm">// 15%</span>
+    ];
+    <span class="kw">for</span> (tier, expected_apy) <span class="kw">in</span> tiers {
+        <span class="kw">let</span> user = <span class="ty">Address</span>::<span class="fn">generate</span>(&amp;env);
+        <span class="kw">let</span> s = client.<span class="fn">stake</span>(&amp;user, &amp;<span class="num">1000_0000000</span>, &amp;tier);
+        <span class="fn">assert_eq!</span>(s.apy_bps, expected_apy);
+    }
+}</pre>
+        </div>
+      </div>
+
+      <h3><span class="h-icon">&#x25B6;&#xFE0F;</span> Run All OLIGHFT Tests</h3>
+      <div class="cmd"><span class="prompt">$</span> cargo test --workspace</div>
+
+      <div class="code-block">
+        <div class="code-head"><span class="lang">Output</span></div>
+        <div class="code-body">
+<pre><span class="cm">running 1 test  (hello_world)</span>
+test test::test ... <span class="attr">ok</span>
+
+<span class="cm">running 2 tests  (card_staking)</span>
+test test::test_gold_tier_stake ... <span class="attr">ok</span>
+test test::test_all_tiers_apy  ... <span class="attr">ok</span>
+
+<span class="cm">test result: ok. 3 passed; 0 failed; 0 ignored</span></pre>
+        </div>
+      </div>
+
+      <div class="concept-grid">
+        <div class="concept-card" style="border-color:rgba(6,182,212,.3)">
+          <div class="cc-icon">&#x1F50F;</div>
+          <div class="cc-title">mock_all_auths()</div>
+          <div class="cc-desc">Skips real cryptographic signatures in tests. In production, the <a href="../wallet.html" style="color:var(--accent2)">wallet&rsquo;s</a> BIP39 key signs each <code>require_auth()</code> call.</div>
+        </div>
+        <div class="concept-card" style="border-color:rgba(168,85,247,.3)">
+          <div class="cc-icon">&#x1F4B3;</div>
+          <div class="cc-title">Tier Coverage</div>
+          <div class="cc-desc">The second test loops all 6 tiers (Visa &rarr; Black) verifying APY values match the <a href="../card-gold.html" style="color:var(--accent2)">card page</a> configurations.</div>
+        </div>
+        <div class="concept-card" style="border-color:rgba(34,197,94,.3)">
+          <div class="cc-icon">&#x1F9EA;</div>
+          <div class="cc-title">--workspace Flag</div>
+          <div class="cc-desc"><code>cargo test --workspace</code> runs tests for <strong>all</strong> OLIGHFT contracts simultaneously &mdash; hello_world, card_staking, token_swap, and multisig_custody.</div>
+        </div>
+      </div>
+
+      <div class="callout callout-tip">
+        <span class="callout-icon">&#x1F4A1;</span>
+        <div class="callout-text">For a deeper dive into OLIGHFT&rsquo;s testing methodology, see the <a href="../testing-guide.html" style="color:var(--accent2)">Testing Guide</a> which covers integration tests, Testnet deployment tests, and the full CI pipeline.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 6. BUILD ===== -->
+  <div class="section" id="build">
+    <div class="section-head" onclick="toggleSection(this)">
+      <div class="section-icon" style="background:rgba(236,72,153,.15);color:var(--pink)">&#x1F528;</div>
+      <div>
+        <h2>Step 6 &mdash; Build the Contract</h2>
+        <div style="font-size:.72rem;color:var(--muted);margin-top:2px">Compile Rust to WebAssembly</div>
+      </div>
+      <span class="step-tag" style="background:rgba(236,72,153,.15);color:var(--pink)">STEP 6</span>
+      <span class="chevron">&#x25BC;</span>
+    </div>
+    <div class="section-body content">
+      <p>Build your contract to deploy or run using the Stellar CLI:</p>
+
+      <div class="cmd"><span class="prompt">$</span> stellar contract build</div>
+
+      <p>This is a wrapper around <code>cargo build</code> that sets the target to <code>wasm32v1-none</code> and the profile to <code>release</code>. It&rsquo;s equivalent to:</p>
+
+      <div class="cmd"><span class="prompt">$</span> cargo build --target wasm32v1-none --release</div>
+
+      <p>The compiled <code>.wasm</code> file is output to:</p>
+      <div class="code-block">
+        <div class="code-head"><span class="lang">Output Path</span></div>
+        <div class="code-body">
+<pre>target/wasm32v1-none/release/<span class="attr">hello_world.wasm</span></pre>
+        </div>
+      </div>
+
+      <div class="callout callout-warn">
+        <span class="callout-icon">&#x26A0;&#xFE0F;</span>
+        <div class="callout-text">If you get <strong>&ldquo;can&rsquo;t find crate for core&rdquo;</strong>, you need to install the wasm32 target:<br><code>rustup target add wasm32v1-none</code><br>(Requires Rust v1.84.0 or higher)</div>
+      </div>
+
+      <h3><span class="h-icon">&#x1F4E6;</span> What&rsquo;s in the .wasm File?</h3>
+      <div class="concept-grid">
+        <div class="concept-card">
+          <div class="cc-icon">&#x2699;&#xFE0F;</div>
+          <div class="cc-title">Contract Logic</div>
+          <div class="cc-desc">The compiled business logic of your contract &mdash; all functions, types, and state management.</div>
+        </div>
+        <div class="concept-card">
+          <div class="cc-icon">&#x1F4CB;</div>
+          <div class="cc-title">Interface / Spec</div>
+          <div class="cc-desc">The contract specification and interface types, which can be <strong>imported by other contracts</strong> that want to call yours.</div>
+        </div>
+        <div class="concept-card">
+          <div class="cc-icon">&#x1F3AF;</div>
+          <div class="cc-title">Single Artifact</div>
+          <div class="cc-desc">This one file is everything needed to <strong>deploy</strong>, <strong>share the interface</strong>, or <strong>integration test</strong> against the contract.</div>
+        </div>
+      </div>
+
+      <h3 style="margin-top:24px"><span class="h-icon">&#x1F310;</span> OLIGHFT &mdash; Building All Contracts</h3>
+      <p>The OLIGHFT platform builds <span class="hl">4 contracts</span> in one command using the workspace. Each produces its own <code>.wasm</code> artifact:</p>
+
+      <div class="cmd"><span class="prompt">$</span> stellar contract build</div>
+
+      <p>Since all contracts are workspace members, this single command builds every one. The output tree looks like:</p>
+
+      <div class="file-tree">
+<span class="ft-dir">target/wasm32v1-none/release/</span>
+&#x251C;&#x2500;&#x2500; <span class="ft-file">hello_world.wasm</span>         <span class="ft-note">&#x2605; This tutorial</span>
+&#x251C;&#x2500;&#x2500; <span class="ft-file" style="color:var(--purple)">olighft_card_staking.wasm</span> <span class="ft-note">&larr; 6-tier staking logic</span>
+&#x251C;&#x2500;&#x2500; <span class="ft-file" style="color:var(--cyan)">olighft_token_swap.wasm</span>   <span class="ft-note">&larr; Atomic swap engine</span>
+&#x2514;&#x2500;&#x2500; <span class="ft-file" style="color:var(--orange)">multisig_custody.wasm</span>     <span class="ft-note">&larr; Multisig manager</span>
+      </div>
+
+      <h3><span class="h-icon">&#x1F680;</span> Deploy to Stellar Testnet</h3>
+      <p>After building, deploy each contract to the Testnet that the <a href="../wallet.html" style="color:var(--accent2)">wallet</a>, <a href="../swap.html" style="color:var(--accent2)">swap</a>, and <a href="../card-gold.html" style="color:var(--accent2)">card pages</a> connect to:</p>
+
+      <div class="cmd"><span class="prompt">$</span> stellar contract deploy --wasm target/wasm32v1-none/release/hello_world.wasm --network testnet --source alice</div>
+
+      <div class="code-block">
+        <div class="code-head"><span class="lang">Output</span></div>
+        <div class="code-body">
+<pre><span class="attr">CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC</span>  <span class="cm"># Contract ID on Testnet</span></pre>
+        </div>
+      </div>
+
+      <div class="cmd"><span class="prompt">$</span> stellar contract invoke --id CDLZFC3S... --network testnet --source alice -- hello --to World</div>
+
+      <div class="code-block">
+        <div class="code-head"><span class="lang">Output</span></div>
+        <div class="code-body">
+<pre>[<span class="str">"Hello"</span>, <span class="str">"World"</span>]</pre>
+        </div>
+      </div>
+
+      <div class="concept-grid">
+        <div class="concept-card" style="border-color:rgba(236,72,153,.3)">
+          <div class="cc-icon">&#x1F310;</div>
+          <div class="cc-title">Testnet Network</div>
+          <div class="cc-desc">OLIGHFT uses <code>horizon-testnet.stellar.org</code> for all contract interactions. The <a href="../wallet.html" style="color:var(--accent2)">wallet</a> connects to the same RPC endpoint.</div>
+        </div>
+        <div class="concept-card" style="border-color:rgba(236,72,153,.3)">
+          <div class="cc-icon">&#x1F4B0;</div>
+          <div class="cc-title">Token Contracts</div>
+          <div class="cc-desc">XLM, USDC, wETH, wBTC, EURC &mdash; the 5 tokens on the <a href="../swap.html" style="color:var(--accent2)">swap</a> and <a href="../wallet.html" style="color:var(--accent2)">wallet</a> pages are Stellar assets that the staking contract interacts with.</div>
+        </div>
+        <div class="concept-card" style="border-color:rgba(236,72,153,.3)">
+          <div class="cc-icon">&#x1F6E1;&#xFE0F;</div>
+          <div class="cc-title">Admin Monitoring</div>
+          <div class="cc-desc">Once deployed, the <a href="../OLIGHFT SMART COIN backend/backend.html" style="color:var(--accent2)">admin backend</a> tracks contract invocations, staking pools, and token supply in real time.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 7. OPTIMIZE ===== -->
+  <div class="section" id="optimize">
+    <div class="section-head" onclick="toggleSection(this)">
+      <div class="section-icon" style="background:rgba(245,158,11,.15);color:var(--orange)">&#x26A1;</div>
+      <div>
+        <h2>Step 7 &mdash; Optimize the Build</h2>
+        <div style="font-size:.72rem;color:var(--muted);margin-top:2px">Minimize WASM size for deployment</div>
+      </div>
+      <span class="step-tag" style="background:rgba(245,158,11,.15);color:var(--orange)">STEP 7</span>
+      <span class="chevron">&#x25BC;</span>
+    </div>
+    <div class="section-body content">
+      <p>Optimize your <code>.wasm</code> for minimum size using the Stellar CLI:</p>
+
+      <div class="cmd"><span class="prompt">$</span> stellar contract optimize --wasm target/wasm32v1-none/release/hello_world.wasm</div>
+
+      <p>This outputs an optimized file at the same location:</p>
+      <div class="code-block">
+        <div class="code-head"><span class="lang">Output</span></div>
+        <div class="code-body">
+<pre>target/wasm32v1-none/release/<span class="attr">hello_world.optimized.wasm</span></pre>
+        </div>
+      </div>
+
+      <div class="callout callout-tip">
+        <span class="callout-icon">&#x1F4A1;</span>
+        <div class="callout-text"><strong>When to optimize:</strong> Optimizing is only necessary when deploying to a network with fees or when analyzing contract size. During development, you can skip this step and use the unoptimized <code>.wasm</code> directly.</div>
+      </div>
+
+      <h3><span class="h-icon">&#x1F4CA;</span> Size Comparison</h3>
+      <table style="width:100%;border-collapse:collapse;margin:10px 0">
+        <thead>
+          <tr style="border-bottom:1px solid var(--border)">
+            <th style="text-align:left;padding:8px;font-size:.7rem;color:var(--muted)">BUILD TYPE</th>
+            <th style="text-align:right;padding:8px;font-size:.7rem;color:var(--muted)">TYPICAL SIZE</th>
+            <th style="text-align:left;padding:8px;font-size:.7rem;color:var(--muted)">USE FOR</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid var(--border)">
+            <td style="padding:8px;font-size:.82rem">Debug build</td>
+            <td style="padding:8px;font-size:.82rem;text-align:right;color:var(--red)">200&ndash;500+ KB</td>
+            <td style="padding:8px;font-size:.82rem;color:var(--muted)">Never deploy</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border)">
+            <td style="padding:8px;font-size:.82rem">Release build</td>
+            <td style="padding:8px;font-size:.82rem;text-align:right;color:var(--orange)">10&ndash;50 KB</td>
+            <td style="padding:8px;font-size:.82rem;color:var(--muted)">Development &amp; testing</td>
+          </tr>
+          <tr>
+            <td style="padding:8px;font-size:.82rem">Optimized</td>
+            <td style="padding:8px;font-size:.82rem;text-align:right;color:var(--green)">5&ndash;30 KB</td>
+            <td style="padding:8px;font-size:.82rem;color:var(--muted)">Production deployment</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 style="margin-top:24px"><span class="h-icon">&#x1F310;</span> OLIGHFT &mdash; Optimize All Contracts</h3>
+      <p>In the OLIGHFT platform, all 4 contracts must be optimized before deploying to Stellar Testnet. Use a single script to optimize the entire workspace:</p>
+
+      <div class="code-block">
+        <div class="code-head">
+          <span class="lang">Bash</span><span class="file">scripts/optimize-all.sh</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <div class="code-body">
+<pre><span class="cm">#!/bin/bash</span>
+<span class="cm"># Optimize all OLIGHFT contracts for Testnet deployment</span>
+
+<span class="kw">set</span> -e
+WASM_DIR=<span class="str">"target/wasm32v1-none/release"</span>
+
+<span class="kw">echo</span> <span class="str">"Building workspace..."</span>
+stellar contract build
+
+<span class="kw">for</span> wasm <span class="kw">in</span> <span class="str">"$WASM_DIR"</span>/*.wasm; <span class="kw">do</span>
+  [[ <span class="str">"$wasm"</span> == *.optimized.wasm ]] &amp;&amp; <span class="kw">continue</span>
+  <span class="kw">echo</span> <span class="str">"Optimizing $(basename $wasm)..."</span>
+  stellar contract optimize --wasm <span class="str">"$wasm"</span>
+<span class="kw">done</span>
+
+<span class="kw">echo</span> <span class="str">"Done! Optimized artifacts:"</span>
+ls -lh <span class="str">"$WASM_DIR"</span>/*.optimized.wasm</pre>
+        </div>
+      </div>
+
+      <div class="file-tree">
+<span class="ft-dir">target/wasm32v1-none/release/</span>
+&#x251C;&#x2500;&#x2500; <span class="ft-file">hello_world.optimized.wasm</span>          <span class="ft-note">~8 KB</span>
+&#x251C;&#x2500;&#x2500; <span class="ft-file" style="color:var(--purple)">olighft_card_staking.optimized.wasm</span>  <span class="ft-note">~18 KB</span>
+&#x251C;&#x2500;&#x2500; <span class="ft-file" style="color:var(--cyan)">olighft_token_swap.optimized.wasm</span>    <span class="ft-note">~22 KB</span>
+&#x2514;&#x2500;&#x2500; <span class="ft-file" style="color:var(--orange)">multisig_custody.optimized.wasm</span>      <span class="ft-note">~15 KB</span>
+      </div>
+
+      <h3><span class="h-icon">&#x1F4CA;</span> OLIGHFT Contract Sizes</h3>
+      <table style="width:100%;border-collapse:collapse;margin:10px 0">
+        <thead>
+          <tr style="border-bottom:1px solid var(--border)">
+            <th style="text-align:left;padding:8px;font-size:.7rem;color:var(--muted)">CONTRACT</th>
+            <th style="text-align:right;padding:8px;font-size:.7rem;color:var(--muted)">RELEASE</th>
+            <th style="text-align:right;padding:8px;font-size:.7rem;color:var(--muted)">OPTIMIZED</th>
+            <th style="text-align:left;padding:8px;font-size:.7rem;color:var(--muted)">POWERS</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid var(--border)">
+            <td style="padding:8px;font-size:.82rem">hello_world</td>
+            <td style="padding:8px;font-size:.82rem;text-align:right;color:var(--orange)">14 KB</td>
+            <td style="padding:8px;font-size:.82rem;text-align:right;color:var(--green)">8 KB</td>
+            <td style="padding:8px;font-size:.82rem;color:var(--muted)">Tutorial baseline</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border)">
+            <td style="padding:8px;font-size:.82rem">card_staking</td>
+            <td style="padding:8px;font-size:.82rem;text-align:right;color:var(--orange)">38 KB</td>
+            <td style="padding:8px;font-size:.82rem;text-align:right;color:var(--green)">18 KB</td>
+            <td style="padding:8px;font-size:.82rem"><a href="../card-gold.html" style="color:var(--accent2);font-size:.82rem">6 Card Tiers</a></td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border)">
+            <td style="padding:8px;font-size:.82rem">token_swap</td>
+            <td style="padding:8px;font-size:.82rem;text-align:right;color:var(--orange)">45 KB</td>
+            <td style="padding:8px;font-size:.82rem;text-align:right;color:var(--green)">22 KB</td>
+            <td style="padding:8px;font-size:.82rem"><a href="../swap.html" style="color:var(--accent2);font-size:.82rem">Swap Page</a></td>
+          </tr>
+          <tr>
+            <td style="padding:8px;font-size:.82rem">multisig_custody</td>
+            <td style="padding:8px;font-size:.82rem;text-align:right;color:var(--orange)">32 KB</td>
+            <td style="padding:8px;font-size:.82rem;text-align:right;color:var(--green)">15 KB</td>
+            <td style="padding:8px;font-size:.82rem"><a href="../wallet.html" style="color:var(--accent2);font-size:.82rem">Wallet Multisig</a></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout-warn">
+        <span class="callout-icon">&#x26A0;&#xFE0F;</span>
+        <div class="callout-text"><strong>64 KB hard limit:</strong> Every optimized OLIGHFT contract stays well under the Soroban maximum. The release profile from Step 3 (<code>opt-level = "z"</code>, <code>lto = true</code>, <code>strip = "symbols"</code>) is critical &mdash; without it, the staking contract alone exceeds 200 KB.</div>
+      </div>
+
+      <div class="concept-grid">
+        <div class="concept-card" style="border-color:rgba(245,158,11,.3)">
+          <div class="cc-icon">&#x1F4E6;</div>
+          <div class="cc-title">Deploy Pipeline</div>
+          <div class="cc-desc">Build &rarr; Test &rarr; Optimize &rarr; Deploy to Testnet. The <a href="../OLIGHFT SMART COIN backend/backend.html" style="color:var(--accent2)">admin backend</a> verifies each deployment and tracks contract IDs.</div>
+        </div>
+        <div class="concept-card" style="border-color:rgba(245,158,11,.3)">
+          <div class="cc-icon">&#x1F504;</div>
+          <div class="cc-title">Upgrade Path</div>
+          <div class="cc-desc">Soroban contracts can be upgraded by deploying a new WASM. The platform frontend auto-detects the latest contract version via Horizon RPC.</div>
+        </div>
+        <div class="concept-card" style="border-color:rgba(245,158,11,.3)">
+          <div class="cc-icon">&#x1F9FE;</div>
+          <div class="cc-title">Fee Estimation</div>
+          <div class="cc-desc">Smaller WASM = lower deploy fees. Optimization saves ~50% on Stellar deploy costs. Check fees on the <a href="../send.html" style="color:var(--accent2)">send page</a> before deploying.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SUMMARY ===== -->
+  <div class="section open">
+    <div class="section-head">
+      <div class="section-icon" style="background:rgba(34,197,94,.15);color:var(--green)">&#x2705;</div>
+      <h2>Summary &amp; Next Steps</h2>
+    </div>
+    <div class="section-body content">
+      <p>You&rsquo;ve just built your first Soroban smart contract &mdash; and seen how the same patterns power the entire <span class="hl-green">OLIGHFT SMART COIN</span> platform!</p>
+
+      <div class="concept-grid">
+        <a href="#create" onclick="document.getElementById('create').classList.add('open')" style="text-decoration:none">
+        <div class="concept-card" style="border-color:rgba(34,197,94,.3);cursor:pointer">
+          <div class="cc-icon">&#x1F4C1;</div>
+          <div class="cc-title">Step 1 &mdash; Created a Project</div>
+          <div class="cc-desc">Scaffolded a Rust workspace with <code>stellar contract init</code>, mapped to the full <span style="color:var(--green)">OLIGHFT project structure</span></div>
+        </div></a>
+        <a href="#structure" onclick="document.getElementById('structure').classList.add('open')" style="text-decoration:none">
+        <div class="concept-card" style="border-color:rgba(34,197,94,.3);cursor:pointer">
+          <div class="cc-icon">&#x1F5C2;&#xFE0F;</div>
+          <div class="cc-title">Step 2 &mdash; Project Map</div>
+          <div class="cc-desc">Full project tree with links to <span style="color:var(--accent2)">wallet</span>, <span style="color:var(--accent2)">cards</span>, <span style="color:var(--accent2)">swap</span>, <span style="color:var(--accent2)">backend</span>, and all contract guides</div>
+        </div></a>
+        <a href="#cargo" onclick="document.getElementById('cargo').classList.add('open')" style="text-decoration:none">
+        <div class="concept-card" style="border-color:rgba(34,197,94,.3);cursor:pointer">
+          <div class="cc-icon">&#x2699;&#xFE0F;</div>
+          <div class="cc-title">Step 3 &mdash; Configured Cargo</div>
+          <div class="cc-desc">Workspace manifests, release profiles, and per-contract configs for <span style="color:var(--purple)">card_staking</span>, <span style="color:var(--cyan)">token_swap</span> &amp; <span style="color:var(--orange)">multisig_custody</span></div>
+        </div></a>
+        <a href="#source" onclick="document.getElementById('source').classList.add('open')" style="text-decoration:none">
+        <div class="concept-card" style="border-color:rgba(34,197,94,.3);cursor:pointer">
+          <div class="cc-icon">&#x270D;&#xFE0F;</div>
+          <div class="cc-title">Step 4 &mdash; Wrote Contracts</div>
+          <div class="cc-desc">Hello-world + full <span style="color:var(--purple)">card staking</span> contract with 6 tiers, <code>require_auth()</code>, persistent storage</div>
+        </div></a>
+        <a href="#tests" onclick="document.getElementById('tests').classList.add('open')" style="text-decoration:none">
+        <div class="concept-card" style="border-color:rgba(34,197,94,.3);cursor:pointer">
+          <div class="cc-icon">&#x1F9EA;</div>
+          <div class="cc-title">Step 5 &mdash; Tested Everything</div>
+          <div class="cc-desc"><code>mock_all_auths()</code>, per-tier APY verification, <code>cargo test --workspace</code> for all 4 contracts</div>
+        </div></a>
+        <a href="#build" onclick="document.getElementById('build').classList.add('open')" style="text-decoration:none">
+        <div class="concept-card" style="border-color:rgba(34,197,94,.3);cursor:pointer">
+          <div class="cc-icon">&#x1F528;</div>
+          <div class="cc-title">Step 6 &mdash; Built &amp; Deployed</div>
+          <div class="cc-desc">4 contracts to WASM, deployed to <span style="color:var(--cyan)">Stellar Testnet</span>, invoked via CLI and connected to the platform frontend</div>
+        </div></a>
+        <a href="#optimize" onclick="document.getElementById('optimize').classList.add('open')" style="text-decoration:none">
+        <div class="concept-card" style="border-color:rgba(34,197,94,.3);cursor:pointer">
+          <div class="cc-icon">&#x26A1;</div>
+          <div class="cc-title">Step 7 &mdash; Optimized</div>
+          <div class="cc-desc">Batch-optimized under 64KB: <span style="color:var(--purple)">staking 18KB</span>, <span style="color:var(--cyan)">swap 22KB</span>, <span style="color:var(--orange)">multisig 15KB</span></div>
+        </div></a>
+      </div>
+
+      <h3 style="margin-top:20px"><span class="h-icon">&#x1F5FA;&#xFE0F;</span> Explore the OLIGHFT Platform</h3>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-top:12px">
+        <a href="../index.html" style="display:flex;align-items:center;gap:8px;padding:12px 16px;background:var(--card);border:1px solid rgba(34,197,94,.3);border-radius:10px;font-size:.78rem;font-weight:600;text-decoration:none;color:var(--green);transition:.2s">&#x1F3E0; Home / Landing</a>
+        <a href="../auth.html" style="display:flex;align-items:center;gap:8px;padding:12px 16px;background:var(--card);border:1px solid var(--border);border-radius:10px;font-size:.78rem;font-weight:600;text-decoration:none;color:var(--text);transition:.2s">&#x1F511; Login / Register</a>
+        <a href="../wallet.html" style="display:flex;align-items:center;gap:8px;padding:12px 16px;background:var(--card);border:1px solid var(--border);border-radius:10px;font-size:.78rem;font-weight:600;text-decoration:none;color:var(--text);transition:.2s">&#x1F4B0; HD Wallet</a>
+        <a href="../send.html" style="display:flex;align-items:center;gap:8px;padding:12px 16px;background:var(--card);border:1px solid var(--border);border-radius:10px;font-size:.78rem;font-weight:600;text-decoration:none;color:var(--text);transition:.2s">&#x1F4E4; Send Tokens</a>
+        <a href="../receive.html" style="display:flex;align-items:center;gap:8px;padding:12px 16px;background:var(--card);border:1px solid var(--border);border-radius:10px;font-size:.78rem;font-weight:600;text-decoration:none;color:var(--text);transition:.2s">&#x1F4E5; Receive / QR</a>
+        <a href="../swap.html" style="display:flex;align-items:center;gap:8px;padding:12px 16px;background:var(--card);border:1px solid var(--border);border-radius:10px;font-size:.78rem;font-weight:600;text-decoration:none;color:var(--text);transition:.2s">&#x1F504; Token Swap</a>
+        <a href="../OLIGHFT SMART COIN backend/backend.html" style="display:flex;align-items:center;gap:8px;padding:12px 16px;background:var(--card);border:1px solid rgba(245,158,11,.3);border-radius:10px;font-size:.78rem;font-weight:600;text-decoration:none;color:var(--orange);transition:.2s">&#x1F6E0;&#xFE0F; Admin Backend</a>
+      </div>
+
+      <h3 style="margin-top:16px"><span class="h-icon">&#x1F4B3;</span> Card Staking Tiers</h3>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-top:10px">
+        <a href="../card-visa.html" style="display:flex;align-items:center;gap:6px;padding:10px 12px;background:var(--card);border:1px solid var(--border);border-radius:8px;font-size:.74rem;font-weight:600;text-decoration:none;color:var(--muted);transition:.2s">&#x1F4B3; Visa <span style="color:var(--green);margin-left:auto">5%</span></a>
+        <a href="../card-mastercard.html" style="display:flex;align-items:center;gap:6px;padding:10px 12px;background:var(--card);border:1px solid var(--border);border-radius:8px;font-size:.74rem;font-weight:600;text-decoration:none;color:var(--muted);transition:.2s">&#x1F4B3; Mastercard <span style="color:var(--green);margin-left:auto">6%</span></a>
+        <a href="../card-gold.html" style="display:flex;align-items:center;gap:6px;padding:10px 12px;background:var(--card);border:1px solid rgba(245,158,11,.3);border-radius:8px;font-size:.74rem;font-weight:600;text-decoration:none;color:var(--orange);transition:.2s">&#x1F4B3; Gold <span style="color:var(--green);margin-left:auto">8%</span></a>
+        <a href="../card-platinum.html" style="display:flex;align-items:center;gap:6px;padding:10px 12px;background:var(--card);border:1px solid var(--border);border-radius:8px;font-size:.74rem;font-weight:600;text-decoration:none;color:var(--muted);transition:.2s">&#x1F4B3; Platinum <span style="color:var(--green);margin-left:auto">10%</span></a>
+        <a href="../card-amex.html" style="display:flex;align-items:center;gap:6px;padding:10px 12px;background:var(--card);border:1px solid var(--border);border-radius:8px;font-size:.74rem;font-weight:600;text-decoration:none;color:var(--muted);transition:.2s">&#x1F4B3; Amex <span style="color:var(--green);margin-left:auto">12%</span></a>
+        <a href="../card-black.html" style="display:flex;align-items:center;gap:6px;padding:10px 12px;background:var(--card);border:1px solid rgba(168,85,247,.3);border-radius:8px;font-size:.74rem;font-weight:600;text-decoration:none;color:var(--purple);transition:.2s">&#x1F4B3; Black <span style="color:var(--green);margin-left:auto">15%</span></a>
+      </div>
+
+      <h3 style="margin-top:20px"><span class="h-icon">&#x1F4DA;</span> Continue Learning</h3>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">
+        <a href="smart-contract-guide.html" style="display:inline-flex;align-items:center;gap:6px;padding:10px 18px;background:var(--accent);color:#fff;border-radius:8px;font-size:.8rem;font-weight:600;text-decoration:none;border:none;transition:.2s">&#x1F4D6; Smart Contract Guide</a>
+        <a href="../testing-guide.html" style="display:inline-flex;align-items:center;gap:6px;padding:10px 18px;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:8px;font-size:.8rem;font-weight:600;text-decoration:none;transition:.2s">&#x1F9EA; Testing Guide</a>
+        <a href="staking-compound.html" style="display:inline-flex;align-items:center;gap:6px;padding:10px 18px;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:8px;font-size:.8rem;font-weight:600;text-decoration:none;transition:.2s">&#x1F4B0; Staking System</a>
+        <a href="terms.html" style="display:inline-flex;align-items:center;gap:6px;padding:10px 18px;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:8px;font-size:.8rem;font-weight:600;text-decoration:none;transition:.2s">&#x1F4DC; Terms &amp; Glossary</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <p>OLIGHFT SMART COIN &mdash; <span style="color:var(--green);font-weight:600">Hello World Tutorial</span> &mdash; Powered by Stellar Soroban</p>
+    <p style="margin-top:4px">Based on the official <a href="https://developers.stellar.org" target="_blank" rel="noopener noreferrer">Stellar Developer Docs</a> &middot; Soroban SDK v22 &middot; Last updated April 4, 2026</p>
+  </div>
+</div>
+
+<script>
+// Section toggle
+function toggleSection(header){
+  const sect = header.closest('.section');
+  sect.classList.toggle('open');
+  updateProgress();
+}
+
+// Copy code
+function copyCode(btn){
+  const code = btn.closest('.code-block').querySelector('pre').textContent;
+  navigator.clipboard.writeText(code).then(() => {
+    btn.textContent = '✓ Copied';
+    setTimeout(() => btn.textContent = 'Copy', 2000);
+  });
+}
+
+// Scroll to section from nav
+document.querySelectorAll('.nav a[href^="#"]').forEach(a => {
+  a.addEventListener('click', function(e){
+    e.preventDefault();
+    const id = this.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    if(el){
+      el.scrollIntoView({behavior:'smooth',block:'start'});
+      if(!el.classList.contains('open')) el.classList.add('open');
+      document.querySelectorAll('.nav a').forEach(n => n.classList.remove('active'));
+      this.classList.add('active');
+    }
+  });
+});
+
+// Progress step tracking via IntersectionObserver
+function updateProgress(){
+  const stepIds = ['create','structure','cargo','source','tests','build','optimize'];
+  const stepEls = document.querySelectorAll('.steps .step');
+  stepIds.forEach((id, i) => {
+    const sect = document.getElementById(id);
+    if(sect && sect.classList.contains('open')){
+      stepEls[i].classList.add('done');
+      stepEls[i].classList.remove('active');
+    }
+  });
+  // Mark first non-done as active
+  let foundActive = false;
+  stepEls.forEach(s => {
+    if(!s.classList.contains('done') && !foundActive){
+      s.classList.add('active');
+      foundActive = true;
+    } else if(!s.classList.contains('done')){
+      s.classList.remove('active');
+    }
+  });
+}
+
+window.addEventListener('DOMContentLoaded', updateProgress);
+</script>
+</body>
+</html>

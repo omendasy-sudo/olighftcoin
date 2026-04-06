@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OLIGHFT SMART COIN &mdash; Stellar Testnet</title>
+<meta name="description" content="OLIGHFT SMART COIN — Secure, decentralized crypto wallet on Stellar. Send, receive, swap & stake tokens.">
+<link rel="canonical" href="https://olighftcoin.com/">
+<meta property="og:title" content="OLIGHFT SMART COIN">
+<meta property="og:description" content="Secure, decentralized crypto wallet on Stellar. Send, receive, swap & stake tokens.">
+<meta property="og:url" content="https://olighftcoin.com/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="OLIGHFT SMART COIN">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135deg,#0a0a1a,#111128,#0a0a1a);color:#fff;min-height:100vh;padding:20px}
+.container{max-width:960px;margin:0 auto}
+.hero{text-align:center;padding:40px 0 32px}
+.hero-badge{display:inline-block;background:linear-gradient(135deg,#6c5ce7,#a29bfe);color:#fff;padding:5px 16px;border-radius:20px;font-weight:700;font-size:.68rem;letter-spacing:1px;margin-bottom:14px}
+.hero h1{font-size:2.2rem;font-weight:800;background:linear-gradient(90deg,#6c5ce7,#a29bfe,#2d9cdb,#27ae60);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+.hero p{color:rgba(255,255,255,.45);font-size:.9rem;max-width:520px;margin:0 auto;line-height:1.6}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1px;background:rgba(108,92,231,.06);border-radius:14px;overflow:hidden;margin:28px 0}
+.stat{background:rgba(10,10,26,.7);padding:18px;text-align:center}
+.stat .s-val{font-size:1.2rem;font-weight:700;color:#a29bfe}
+.stat .s-label{font-size:.6rem;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.5px;margin-top:4px}
+.section-title{font-size:.72rem;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:2px;margin:28px 0 14px;padding-left:4px}
+.quick-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:28px}
+.qa{display:flex;flex-direction:column;align-items:center;gap:8px;padding:20px 14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:14px;text-decoration:none;color:#fff;transition:.25s}
+.qa:hover{transform:translateY(-3px);border-color:rgba(108,92,231,.3);box-shadow:0 12px 32px rgba(108,92,231,.12)}
+.qa .qa-icon{font-size:1.8rem}
+.qa .qa-title{font-size:.85rem;font-weight:700}
+.qa .qa-desc{font-size:.68rem;color:rgba(255,255,255,.4);text-align:center}
+.qa-send{border-color:rgba(108,92,231,.12)}.qa-send:hover{border-color:rgba(108,92,231,.4)}
+.qa-recv{border-color:rgba(39,174,96,.12)}.qa-recv:hover{border-color:rgba(39,174,96,.4)}
+.qa-swap{border-color:rgba(242,153,74,.12)}.qa-swap:hover{border-color:rgba(242,153,74,.4)}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:12px}
+.card-link{display:block;text-decoration:none;color:#fff;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:20px;transition:.25s;position:relative;overflow:hidden}
+.card-link:hover{transform:translateY(-3px);box-shadow:0 12px 32px rgba(0,0,0,.3)}
+.card-link::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:16px 16px 0 0}
+.card-link:hover::after{opacity:1}
+.c-gold{border-color:rgba(255,215,0,.1)}.c-gold:hover{border-color:rgba(255,215,0,.3)}.c-gold::after{background:linear-gradient(90deg,#ffd700,#f7dc6f)}
+.c-visa{border-color:rgba(45,156,219,.1)}.c-visa:hover{border-color:rgba(45,156,219,.3)}.c-visa::after{background:linear-gradient(90deg,#2d9cdb,#56ccf2)}
+.c-mc{border-color:rgba(242,153,74,.1)}.c-mc:hover{border-color:rgba(242,153,74,.3)}.c-mc::after{background:linear-gradient(90deg,#eb5757,#f2994a)}
+.c-amex{border-color:rgba(45,156,219,.1)}.c-amex:hover{border-color:rgba(108,92,231,.3)}.c-amex::after{background:linear-gradient(90deg,#2d9cdb,#6c5ce7)}
+.c-plat{border-color:rgba(160,174,192,.1)}.c-plat:hover{border-color:rgba(160,174,192,.3)}.c-plat::after{background:linear-gradient(90deg,#718096,#e2e8f0)}
+.c-black{border-color:rgba(255,255,255,.06)}.c-black:hover{border-color:rgba(255,255,255,.15)}.c-black::after{background:linear-gradient(90deg,#555,#fff)}
+.card-link .c-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.card-link .c-icon{font-size:1.6rem}
+.card-link .c-tier{font-size:.58rem;padding:3px 10px;border-radius:6px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.c-gold .c-tier{background:rgba(255,215,0,.12);color:#ffd700}.c-visa .c-tier{background:rgba(45,156,219,.12);color:#2d9cdb}
+.c-mc .c-tier{background:rgba(242,153,74,.12);color:#f2994a}.c-amex .c-tier{background:rgba(108,92,231,.12);color:#a29bfe}
+.c-plat .c-tier{background:rgba(160,174,192,.12);color:#a0aec0}.c-black .c-tier{background:rgba(255,255,255,.08);color:rgba(255,255,255,.7)}
+.card-link h3{font-size:1rem;margin-bottom:4px}
+.card-link .c-type{font-size:.72rem;color:rgba(255,255,255,.4);margin-bottom:10px}
+.card-link .c-tags{display:flex;flex-wrap:wrap;gap:4px}
+.card-link .c-tag{font-size:.58rem;padding:2px 8px;border-radius:4px;background:rgba(255,255,255,.04);color:rgba(255,255,255,.4);border:1px solid rgba(255,255,255,.06)}
+.tools{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:12px;margin-top:12px}
+.tool-link{display:block;text-decoration:none;color:#fff;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:18px;transition:.25s}
+.tool-link:hover{transform:translateY(-2px);border-color:rgba(108,92,231,.25);box-shadow:0 8px 24px rgba(0,0,0,.2)}
+.tool-link .t-head{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.tool-link .t-icon{font-size:1.3rem}
+.tool-link h3{font-size:.88rem}
+.tool-link .t-desc{font-size:.72rem;color:rgba(255,255,255,.4);line-height:1.5}
+.footer{text-align:center;padding:32px 0 12px;border-top:1px solid rgba(108,92,231,.06);margin-top:32px}
+.footer p{font-size:.68rem;color:rgba(255,255,255,.25);margin-bottom:4px}
+.footer .f-links{display:flex;gap:12px;justify-content:center;margin-top:10px;flex-wrap:wrap}
+.footer .f-links a{font-size:.68rem;color:rgba(255,255,255,.35);text-decoration:none;transition:.2s}
+.footer .f-links a:hover{color:#a29bfe}
+@media(max-width:600px){.quick-actions{grid-template-columns:1fr}.cards{grid-template-columns:1fr}.tools{grid-template-columns:1fr}.hero h1{font-size:1.6rem}.stats{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="hero">
+<div class="hero-badge">SOROBAN &bull; RUST &bull; STELLAR TESTNET</div>
+<h1>&#x2728; OLIGHFT SMART COIN</h1>
+<p>A complete suite of Soroban smart contracts built in Rust &mdash; tokens, payments, DEX, governance, staking, and multi-sig vaults on Stellar Testnet.</p>
+</div>
+
+<div class="stats">
+<div class="stat"><div class="s-val" id="totalSupply">100,000,000,000,000</div><div class="s-label">Total Supply</div></div>
+<div class="stat"><div class="s-val" id="stakedSupply">0</div><div class="s-label">Staked (Distributed)</div></div>
+<div class="stat"><div class="s-val" id="remainSupply">100,000,000,000,000</div><div class="s-label">Remaining Supply</div></div>
+<div class="stat"><div class="s-val">6</div><div class="s-label">Smart Contracts</div></div>
+<div class="stat"><div class="s-val">$25.8M</div><div class="s-label">Total TVL</div></div>
+<div class="stat"><div class="s-val">Testnet</div><div class="s-label">Network</div></div>
+</div>
+
+<div class="section-title">&#x26A1; Quick Actions</div>
+<div class="quick-actions">
+<a href="send.html" class="qa qa-send">
+<div class="qa-icon">&#x1F4E4;</div>
+<div class="qa-title">Send</div>
+<div class="qa-desc">Transfer tokens to any Stellar address</div>
+</a>
+<a href="receive.html" class="qa qa-recv">
+<div class="qa-icon">&#x1F4E5;</div>
+<div class="qa-title">Receive</div>
+<div class="qa-desc">Share your address &amp; QR code</div>
+</a>
+<a href="swap.html" class="qa qa-swap">
+<div class="qa-icon">&#x1F504;</div>
+<div class="qa-title">Swap</div>
+<div class="qa-desc">Trade tokens via Soroban AMM</div>
+</a>
+<a href="wallet.html" class="qa qa-send" style="border-color:rgba(108,92,231,.25)">
+<div class="qa-icon">&#x1F4B3;</div>
+<div class="qa-title">Wallet</div>
+<div class="qa-desc">Custodial wallet dashboard</div>
+</a>
+<a href="OLIGHFT SMART COIN backend/backend.html" class="qa" style="border-color:rgba(99,102,241,.15)">
+<div class="qa-icon">&#x2699;&#xFE0F;</div>
+<div class="qa-title">Admin</div>
+<div class="qa-desc">Backend dashboard &amp; platform management</div>
+</a>
+</div>
+
+<div class="section-title">&#x1F4DC; Smart Contracts</div>
+<div class="cards">
+
+<a href="card-gold.html" class="card-link c-gold">
+<div class="c-head"><div class="c-icon">&#x1F3C6;</div><span class="c-tier">Gold</span></div>
+<h3>Token Contract</h3>
+<div class="c-type">SEP-41 Token &mdash; 100B Supply</div>
+<div class="c-tags"><span class="c-tag">Mint</span><span class="c-tag">Burn</span><span class="c-tag">Transfer</span><span class="c-tag">Allowance</span></div>
+</a>
+
+<a href="card-visa.html" class="card-link c-visa">
+<div class="c-head"><div class="c-icon">&#x1F4B3;</div><span class="c-tier">Visa</span></div>
+<h3>Payment Contract</h3>
+<div class="c-type">Cross-Asset Payments &mdash; 15 Currencies</div>
+<div class="c-tags"><span class="c-tag">Send</span><span class="c-tag">Batch Pay</span><span class="c-tag">Oracle</span><span class="c-tag">Refund</span></div>
+</a>
+
+<a href="card-mastercard.html" class="card-link c-mc">
+<div class="c-head"><div class="c-icon">&#x1F504;</div><span class="c-tier">Mastercard</span></div>
+<h3>DEX Contract</h3>
+<div class="c-type">AMM x*y=k &mdash; 32 Pools</div>
+<div class="c-tags"><span class="c-tag">Swap</span><span class="c-tag">LP Shares</span><span class="c-tag">Slippage Guard</span><span class="c-tag">Multi-Fee</span></div>
+</a>
+
+<a href="card-amex.html" class="card-link c-amex">
+<div class="c-head"><div class="c-icon">&#x1F3DB;&#xFE0F;</div><span class="c-tier">Amex</span></div>
+<h3>Governance DAO</h3>
+<div class="c-type">On-Chain Voting &mdash; 2,841 Members</div>
+<div class="c-tags"><span class="c-tag">Proposals</span><span class="c-tag">Vote</span><span class="c-tag">Delegate</span><span class="c-tag">Timelock</span></div>
+</a>
+
+<a href="card-platinum.html" class="card-link c-plat">
+<div class="c-head"><div class="c-icon">&#x26CF;&#xFE0F;</div><span class="c-tier">Platinum</span></div>
+<h3>Staking Contract</h3>
+<div class="c-type">Lock &amp; Earn &mdash; Up to 2.5x Boost</div>
+<div class="c-tags"><span class="c-tag">Stake</span><span class="c-tag">Compound</span><span class="c-tag">Lock Tiers</span><span class="c-tag">APY</span></div>
+</a>
+
+<a href="card-black.html" class="card-link c-black">
+<div class="c-head"><div class="c-icon">&#x1F5C4;&#xFE0F;</div><span class="c-tier">Black</span></div>
+<h3>Multi-Sig Vault</h3>
+<div class="c-type">3-of-5 Treasury &mdash; 24h Timelock</div>
+<div class="c-tags"><span class="c-tag">Deposit</span><span class="c-tag">Multi-Sig</span><span class="c-tag">Timelock</span><span class="c-tag">Daily Limit</span></div>
+</a>
+
+</div>
+
+<div class="section-title">&#x1F6E0;&#xFE0F; Tools &amp; Resources</div>
+<div class="tools">
+
+<a href="FUTURE CTPTO CARD SMART CONTRACT .html/smart-contract-guide.html" class="tool-link">
+<div class="t-head"><div class="t-icon">&#x1F4D6;</div><h3>Smart Contract Guide</h3></div>
+<div class="t-desc">Step-by-step: Write &#x2192; Test &#x2192; Deploy &#x2192; Invoke Soroban contracts in Rust</div>
+</a>
+
+<a href="FUTURE CTPTO CARD SMART CONTRACT .html/staking-compound.html" class="tool-link">
+<div class="t-head"><div class="t-icon">&#x1F4B0;</div><h3>Staking &amp; Compound System</h3></div>
+<div class="t-desc">Interactive staking pools, auto-compound strategies &amp; compound calculator</div>
+</a>
+
+<a href="FUTURE CTPTO CARD SMART CONTRACT .html/terms .html" class="tool-link">
+<div class="t-head"><div class="t-icon">&#x1F4CB;</div><h3>Smart Contract Terms</h3></div>
+<div class="t-desc">Soroban contract legal terms, architecture overview &amp; acceptance</div>
+</a>
+
+<a href="testing-guide.html" class="tool-link">
+<div class="t-head"><div class="t-icon">&#x1F9EA;</div><h3>Testing Guide</h3></div>
+<div class="t-desc">Unit tests, integration tests, fuzzing, mutation testing, audits &amp; pre-mainnet checklist</div>
+</a>
+
+<a href="FUTURE CTPTO CARD SMART CONTRACT .html/hello-world.html" class="tool-link">
+<div class="t-head"><div class="t-icon">&#x1F44B;</div><h3>Hello World Tutorial</h3></div>
+<div class="t-desc">Your first Soroban smart contract &mdash; create, test, build &amp; optimize step by step</div>
+</a>
+
+<a href="testnet.html" class="tool-link">
+<div class="t-head"><div class="t-icon">&#x1F310;</div><h3>Testnet Dashboard</h3></div>
+<div class="t-desc">Network status, deployed contracts, Friendbot faucet, RPC endpoints &amp; live query tools</div>
+</a>
+
+</div>
+
+<div class="footer">
+<p>OLIGHFT SMART COIN v1.0.0 &bull; Stellar Testnet &bull; Built with Rust / soroban-sdk 21.0.0</p>
+<p>April 2026</p>
+<div class="f-links">
+<a href="send.html">Send</a>
+<a href="receive.html">Receive</a>
+<a href="swap.html">Swap</a>
+<a href="card-gold.html">Token</a>
+<a href="card-visa.html">Payment</a>
+<a href="card-mastercard.html">DEX</a>
+<a href="card-amex.html">DAO</a>
+<a href="card-platinum.html">Staking</a>
+<a href="card-black.html">Vault</a>
+<a href="OLIGHFT SMART COIN backend/backend.html">Admin</a>
+<a href="wallet.html">Wallet</a>
+<a href="testnet.html">Testnet</a>
+<a href="auth.html">Login</a>
+</div>
+</div>
+
+</div>
+<script>
+function updateSupply(){
+  const TOTAL=100000000000000;
+  const stakes=JSON.parse(localStorage.getItem('card_stakes')||'[]');
+  let staked=0;
+  stakes.forEach(function(s){staked+=s.payout||0;});
+  const remain=TOTAL-staked;
+  document.getElementById('totalSupply').textContent=TOTAL.toLocaleString();
+  document.getElementById('stakedSupply').textContent=staked.toLocaleString();
+  document.getElementById('remainSupply').textContent=remain.toLocaleString();
+}
+updateSupply();
+setInterval(updateSupply,5000);
+</script>
+</body>
+</html>

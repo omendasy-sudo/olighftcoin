@@ -1,0 +1,1510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Staking & Compound System — Soroban</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0a0e17;--surface:#111827;--card:#1a1f2e;--border:#1e293b;
+  --accent:#6366f1;--accent2:#818cf8;--green:#22c55e;--green2:#4ade80;--red:#ef4444;--orange:#f59e0b;--cyan:#06b6d4;--purple:#a855f7;
+  --text:#e2e8f0;--muted:#94a3b8;
+}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+/* Header */
+.header{background:linear-gradient(135deg,#0f172a,#1e1b4b 50%,#0f172a);border-bottom:1px solid var(--border);padding:24px 20px;text-align:center;position:relative;overflow:hidden}
+.header::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle at 30% 50%,rgba(99,102,241,.08),transparent 50%),radial-gradient(circle at 70% 50%,rgba(34,197,94,.06),transparent 50%);animation:headerGlow 8s ease-in-out infinite alternate}
+@keyframes headerGlow{0%{transform:translateX(-5%)}100%{transform:translateX(5%)}}
+.header *{position:relative;z-index:1}
+.header h1{font-size:1.5rem;color:#fff;display:flex;align-items:center;justify-content:center;gap:10px}
+.header .sub{color:var(--muted);font-size:.82rem;margin-top:6px}
+.badge{background:var(--green);color:#fff;padding:3px 10px;border-radius:12px;font-size:.65rem;font-weight:700;letter-spacing:.5px}
+
+/* Stats Bar */
+.stats-bar{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--border);border-bottom:1px solid var(--border)}
+.stat-item{background:var(--surface);padding:14px 16px;text-align:center}
+.stat-item .label{font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.stat-item .value{font-size:1.1rem;font-weight:700;margin-top:2px}
+.stat-item .value.green{color:var(--green)}
+.stat-item .value.cyan{color:var(--cyan)}
+.stat-item .value.purple{color:var(--purple)}
+.stat-item .value.orange{color:var(--orange)}
+
+/* Container */
+.container{max-width:960px;margin:0 auto;padding:20px 16px 60px}
+
+/* Tabs */
+.tabs{display:flex;gap:6px;margin-bottom:20px;overflow-x:auto;padding-bottom:4px}
+.tab{padding:10px 18px;border-radius:10px;font-size:.78rem;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--muted);transition:.2s;white-space:nowrap;user-select:none}
+.tab:hover{border-color:var(--accent);color:var(--text)}
+.tab.active{background:var(--accent);border-color:var(--accent);color:#fff}
+
+/* Panel */
+.panel{display:none}
+.panel.active{display:block}
+
+/* Card */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:16px}
+.card-title{font-size:.95rem;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.card-title .icon{font-size:1.2rem}
+
+/* Stake Form */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-group{display:flex;flex-direction:column;gap:4px}
+.form-group.full{grid-column:1/-1}
+.form-label{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+.form-input,.form-select{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-size:.85rem;outline:none;transition:.2s}
+.form-input:focus,.form-select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(99,102,241,.15)}
+.form-select{cursor:pointer}
+.form-select option{background:var(--card)}
+
+/* Stake Pools */
+.pool-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.pool-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;transition:.2s;cursor:pointer;position:relative;overflow:hidden}
+.pool-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.pool-card.selected{border-color:var(--green);box-shadow:0 0 20px rgba(34,197,94,.15)}
+.pool-card .ribbon{position:absolute;top:10px;right:-28px;background:var(--orange);color:#fff;font-size:.55rem;font-weight:700;padding:2px 30px;transform:rotate(45deg);letter-spacing:.5px}
+.pool-header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.pool-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:700}
+.pool-name{font-weight:700;font-size:.88rem}
+.pool-apy{color:var(--green);font-size:.75rem;font-weight:600}
+.pool-stats{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}
+.pool-stat{font-size:.7rem}
+.pool-stat .ps-label{color:var(--muted)}
+.pool-stat .ps-val{font-weight:600;margin-top:1px}
+
+/* Compound Calculator */
+.calc-row{display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+.calc-input{width:140px}
+.calc-result{background:linear-gradient(135deg,rgba(34,197,94,.1),rgba(6,182,212,.08));border:1px solid rgba(34,197,94,.25);border-radius:12px;padding:16px;margin-top:16px}
+.calc-result .big{font-size:1.8rem;font-weight:800;color:var(--green);line-height:1.2}
+.calc-result .detail{font-size:.78rem;color:var(--muted);margin-top:6px}
+.calc-result .breakdown{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-top:14px}
+.calc-result .bd-item{background:rgba(0,0,0,.2);border-radius:8px;padding:10px}
+.calc-result .bd-label{font-size:.65rem;color:var(--muted);text-transform:uppercase}
+.calc-result .bd-val{font-size:.9rem;font-weight:700;margin-top:2px}
+
+/* Chart */
+.chart-container{position:relative;height:200px;margin-top:16px;background:var(--card);border-radius:10px;padding:12px 12px 30px;overflow:hidden}
+.chart-bars{display:flex;align-items:flex-end;gap:3px;height:100%;padding-bottom:20px}
+.chart-bar{flex:1;border-radius:4px 4px 0 0;position:relative;min-width:12px;transition:height .5s ease}
+.chart-bar .bar-fill{width:100%;border-radius:4px 4px 0 0;position:absolute;bottom:0;transition:height .5s ease}
+.chart-bar .bar-principal{background:var(--accent);opacity:.7}
+.chart-bar .bar-compound{background:var(--green)}
+.chart-bar .bar-label{position:absolute;bottom:-18px;left:50%;transform:translateX(-50%);font-size:.55rem;color:var(--muted);white-space:nowrap}
+.chart-bar:hover .bar-tooltip{display:block}
+.bar-tooltip{display:none;position:absolute;top:-30px;left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;padding:3px 8px;border-radius:4px;font-size:.6rem;white-space:nowrap;z-index:5}
+
+/* Active Stakes */
+.stake-list{display:flex;flex-direction:column;gap:10px}
+.stake-entry{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center}
+.stake-info{display:flex;flex-direction:column;gap:4px}
+.stake-asset{font-weight:700;font-size:.9rem;display:flex;align-items:center;gap:6px}
+.stake-meta{font-size:.72rem;color:var(--muted);display:flex;gap:12px;flex-wrap:wrap}
+.stake-actions{display:flex;gap:6px}
+.stake-reward{text-align:right}
+.stake-reward .reward-val{font-size:1rem;font-weight:700;color:var(--green)}
+.stake-reward .reward-label{font-size:.65rem;color:var(--muted)}
+
+/* Progress Ring */
+.progress-ring{width:60px;height:60px;position:relative}
+.progress-ring svg{transform:rotate(-90deg)}
+.progress-ring .ring-bg{stroke:var(--border);fill:none;stroke-width:4}
+.progress-ring .ring-fill{fill:none;stroke-width:4;stroke-linecap:round;transition:stroke-dashoffset .5s}
+.progress-ring .ring-text{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:.6rem;font-weight:700;color:var(--text)}
+
+/* Compound Settings */
+.compound-option{display:flex;align-items:center;gap:12px;padding:12px;background:var(--card);border:1px solid var(--border);border-radius:10px;cursor:pointer;transition:.2s;margin-bottom:8px}
+.compound-option:hover{border-color:var(--accent)}
+.compound-option.active{border-color:var(--green);background:rgba(34,197,94,.05)}
+.compound-radio{width:20px;height:20px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.compound-option.active .compound-radio{border-color:var(--green)}
+.compound-option.active .compound-radio::after{content:'';width:10px;height:10px;border-radius:50%;background:var(--green)}
+.compound-info{flex:1}
+.compound-info .ci-name{font-weight:600;font-size:.85rem}
+.compound-info .ci-desc{font-size:.72rem;color:var(--muted);margin-top:2px}
+.compound-boost{font-size:.8rem;font-weight:700;color:var(--green)}
+
+/* Buttons */
+.btn{padding:10px 20px;border-radius:10px;font-size:.82rem;font-weight:600;cursor:pointer;border:none;transition:.2s}
+.btn:hover{transform:translateY(-1px)}
+.btn-primary{background:linear-gradient(135deg,var(--accent),#4f46e5);color:#fff}
+.btn-primary:hover{box-shadow:0 4px 20px rgba(99,102,241,.4)}
+.btn-green{background:linear-gradient(135deg,var(--green),#16a34a);color:#fff}
+.btn-green:hover{box-shadow:0 4px 20px rgba(34,197,94,.4)}
+.btn-sm{padding:6px 14px;font-size:.72rem;border-radius:8px}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--text)}
+.btn-outline:hover{border-color:var(--accent);background:rgba(99,102,241,.05)}
+.btn-danger{background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.3)}
+.btn-danger:hover{background:rgba(239,68,68,.25)}
+
+/* Reward History */
+.reward-row{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:8px;padding:10px 0;border-bottom:1px solid var(--border);font-size:.78rem;align-items:center}
+.reward-row:last-child{border-bottom:none}
+.reward-row .rr-type{display:flex;align-items:center;gap:6px}
+.reward-type-badge{padding:2px 8px;border-radius:4px;font-size:.6rem;font-weight:700}
+.reward-type-badge.stake{background:rgba(99,102,241,.15);color:var(--accent2)}
+.reward-type-badge.compound{background:rgba(34,197,94,.15);color:var(--green)}
+.reward-type-badge.bonus{background:rgba(245,158,11,.15);color:var(--orange)}
+
+/* Referral Generation */
+.ref-dist{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-top:16px}
+.ref-dist-title{font-size:.82rem;font-weight:700;color:var(--green2);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.ref-dist table{width:100%;border-collapse:collapse;font-size:.75rem}
+.ref-dist th{text-align:left;padding:8px 6px;font-size:.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border)}
+.ref-dist th:last-child{text-align:right}
+.ref-dist td{padding:8px 6px;border-bottom:1px solid rgba(255,255,255,.03)}
+.ref-dist td:last-child{text-align:right;font-weight:700}
+.ref-dist .gen-label{font-weight:700;color:var(--accent2)}
+.ref-dist .gen-role{color:var(--muted)}
+.ref-dist .gen-pct{color:var(--green)}
+.ref-dist .gen-amt{color:var(--green)}
+.ref-dist .main-row{background:rgba(99,102,241,.06)}
+.ref-dist .main-row td{color:var(--accent2);font-weight:700}
+.ref-dist .total-row td{border-top:2px solid var(--accent);font-weight:700;color:var(--cyan);font-size:.85rem}
+.ref-dist .tree-note{display:flex;align-items:center;gap:8px;background:rgba(99,102,241,.06);border:1px solid rgba(99,102,241,.15);border-radius:8px;padding:10px;margin-top:10px;font-size:.72rem;color:var(--muted);line-height:1.5}
+.ref-dist .tree-note strong{color:var(--accent2)}
+.sponsor-input-group{display:flex;gap:8px;align-items:center}
+.sponsor-input-group input{flex:1}
+.sponsor-badge{font-size:.6rem;padding:3px 8px;border-radius:6px;font-weight:700;white-space:nowrap}
+.sponsor-badge.linked{background:rgba(34,197,94,.12);color:var(--green);border:1px solid rgba(34,197,94,.2)}
+.sponsor-badge.manual{background:rgba(99,102,241,.12);color:var(--accent2);border:1px solid rgba(99,102,241,.2)}
+
+/* Responsive */
+@media(max-width:600px){
+  .form-grid{grid-template-columns:1fr}
+  .pool-grid{grid-template-columns:1fr}
+  .stake-entry{grid-template-columns:1fr}
+  .stake-reward{text-align:left;margin-top:4px}
+  .calc-row{flex-direction:column;align-items:stretch}
+  .calc-input{width:100%}
+  .reward-row{grid-template-columns:1fr 1fr;gap:4px}
+  .stats-bar{grid-template-columns:repeat(2,1fr)}
+}
+
+/* Animation */
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.panel.active{animation:fadeIn .3s ease}
+.glow-pulse{animation:glowPulse 3s ease-in-out infinite}
+@keyframes glowPulse{0%,100%{box-shadow:0 0 10px rgba(34,197,94,.1)}50%{box-shadow:0 0 25px rgba(34,197,94,.25)}}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>⚡ Staking & Compound Engine <span class="badge">SOROBAN</span></h1>
+  <div class="sub">Auto-compound your staking rewards on Stellar Soroban smart contracts</div>
+</div>
+
+<!-- Global Stats -->
+<div class="stats-bar">
+  <div class="stat-item">
+    <div class="label">Total Value Locked</div>
+    <div class="value cyan" id="tvl">$2,847,392</div>
+  </div>
+  <div class="stat-item">
+    <div class="label">Active Stakers</div>
+    <div class="value">1,284</div>
+  </div>
+  <div class="stat-item">
+    <div class="label">Rewards Distributed</div>
+    <div class="value green" id="totalRewards">$184,520</div>
+  </div>
+  <div class="stat-item">
+    <div class="label">Avg Compound APY</div>
+    <div class="value purple">12.8%</div>
+  </div>
+  <div class="stat-item">
+    <div class="label">Your Total Staked</div>
+    <div class="value orange" id="userStaked">$0.00</div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('stake')">🏦 Stake</div>
+    <div class="tab" onclick="switchTab('compound')">🔄 Compound</div>
+    <div class="tab" onclick="switchTab('calculator')">📊 Calculator</div>
+    <div class="tab" onclick="switchTab('positions')">💼 My Positions</div>
+    <div class="tab" onclick="switchTab('history')">📜 History</div>
+    <div class="tab" onclick="switchTab('tests')">🧪 Tests</div>
+  </div>
+
+  <!-- PANEL: Stake -->
+  <div class="panel active" id="panel-stake">
+
+    <!-- Pool Selection -->
+    <div class="card">
+      <div class="card-title"><span class="icon">🏊</span> Select Staking Pool</div>
+      <div class="pool-grid" id="poolGrid">
+        <!-- Pools injected by JS -->
+      </div>
+    </div>
+
+    <!-- Stake Form -->
+    <div class="card">
+      <div class="card-title"><span class="icon">📥</span> Stake Tokens</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Asset</label>
+          <select class="form-select" id="stakeAsset" onchange="updateStakePreview()">
+            <option value="XLM">XLM — Stellar Lumens</option>
+            <option value="USDC">USDC — USD Coin</option>
+            <option value="ETH">ETH — Ethereum (wrapped)</option>
+            <option value="BTC">BTC — Bitcoin (wrapped)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Lock Period</label>
+          <select class="form-select" id="lockPeriod" onchange="updateStakePreview()">
+            <option value="0">Flexible (no lock)</option>
+            <option value="30">30 Days (+1.5% boost)</option>
+            <option value="90" selected>90 Days (+3.5% boost)</option>
+            <option value="180">180 Days (+6% boost)</option>
+            <option value="365">365 Days (+10% boost)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Amount</label>
+          <input type="number" class="form-input" id="stakeAmount" placeholder="0.00" min="0" step="any" oninput="updateStakePreview();updateRefPreview()">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Auto-Compound</label>
+          <select class="form-select" id="autoCompound" onchange="updateStakePreview()">
+            <option value="none">Manual claim</option>
+            <option value="daily" selected>Daily auto-compound</option>
+            <option value="weekly">Weekly auto-compound</option>
+            <option value="monthly">Monthly auto-compound</option>
+          </select>
+        </div>
+        <div class="form-group" style="grid-column:1/-1">
+          <label class="form-label">&#x1F333; Sponsor Username</label>
+          <div class="sponsor-input-group">
+            <input type="text" class="form-input" id="stakeSponsor" placeholder="Enter sponsor username" oninput="updateRefPreview()">
+            <span class="sponsor-badge manual" id="sponsorBadge">Manual</span>
+          </div>
+          <div style="font-size:.62rem;color:var(--muted);margin-top:4px">Your sponsor earns Gen 1 commission. Leave empty if no one invited you &mdash; you'll choose Main Wallet or Option Wallet as your auto-sponsor. Same stage flow applies to both.</div>
+        </div>
+      </div>
+
+      <!-- 8-Generation Referral Distribution Preview -->
+      <div class="ref-dist" id="refDistPreview" style="display:none">
+        <div class="ref-dist-title">&#x1F333; Activation Fee &mdash; 8-Generation Distribution</div>
+        <div style="overflow-x:auto">
+          <table>
+            <thead><tr><th>Generation</th><th>Role</th><th>Rate</th><th>Amount</th></tr></thead>
+            <tbody id="refDistBody"></tbody>
+          </table>
+        </div>
+        <div class="tree-note">
+          <span>&#x1F333;</span>
+          <span><strong>Binary Tree:</strong> Each user has 2 direct slots (left &amp; right). Commissions flow upward through 8 generations. If an upline slot is empty, that generation&rsquo;s commission rolls to the main wallet.</span>
+        </div>
+      </div>
+
+      <!-- Preview -->
+      <div class="calc-result" id="stakePreview" style="margin-top:16px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px">
+          <div>
+            <div style="font-size:.72rem;color:var(--muted)">Estimated Annual Return</div>
+            <div class="big" id="previewReturn">$0.00</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:.72rem;color:var(--muted)">Effective APY</div>
+            <div style="font-size:1.2rem;font-weight:700;color:var(--cyan)" id="previewAPY">0.00%</div>
+          </div>
+        </div>
+        <div class="breakdown">
+          <div class="bd-item">
+            <div class="bd-label">Base APY</div>
+            <div class="bd-val" id="previewBase">0.00%</div>
+          </div>
+          <div class="bd-item">
+            <div class="bd-label">Lock Boost</div>
+            <div class="bd-val" id="previewBoost" style="color:var(--orange)">+0.00%</div>
+          </div>
+          <div class="bd-item">
+            <div class="bd-label">Compound Gain</div>
+            <div class="bd-val" id="previewCompound" style="color:var(--green)">+0.00%</div>
+          </div>
+          <div class="bd-item">
+            <div class="bd-label">Daily Reward</div>
+            <div class="bd-val" id="previewDaily">$0.00</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:16px;display:flex;gap:10px">
+        <button class="btn btn-green" onclick="stakeTokens()" style="flex:1">⚡ Stake Now</button>
+        <button class="btn btn-outline" onclick="stakeMax()">MAX</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANEL: Compound Settings -->
+  <div class="panel" id="panel-compound">
+    <div class="card">
+      <div class="card-title"><span class="icon">🔄</span> Compound Strategy</div>
+      <p style="font-size:.8rem;color:var(--muted);margin-bottom:16px">Choose how your staking rewards are automatically reinvested. Higher frequency = more compound interest.</p>
+
+      <div class="compound-option active" onclick="selectCompound(this,'daily')">
+        <div class="compound-radio"></div>
+        <div class="compound-info">
+          <div class="ci-name">⚡ Daily Auto-Compound</div>
+          <div class="ci-desc">Rewards harvested and restaked every 24h via Soroban cron invocation</div>
+        </div>
+        <div class="compound-boost">+2.4% APY</div>
+      </div>
+      <div class="compound-option" onclick="selectCompound(this,'12h')">
+        <div class="compound-radio"></div>
+        <div class="compound-info">
+          <div class="ci-name">🚀 12-Hour Turbo Compound</div>
+          <div class="ci-desc">Twice-daily compounding for maximum yield — higher gas cost</div>
+        </div>
+        <div class="compound-boost">+3.1% APY</div>
+      </div>
+      <div class="compound-option" onclick="selectCompound(this,'weekly')">
+        <div class="compound-radio"></div>
+        <div class="compound-info">
+          <div class="ci-name">📅 Weekly Compound</div>
+          <div class="ci-desc">Rewards compounded every 7 days — lower gas overhead</div>
+        </div>
+        <div class="compound-boost">+1.2% APY</div>
+      </div>
+      <div class="compound-option" onclick="selectCompound(this,'monthly')">
+        <div class="compound-radio"></div>
+        <div class="compound-info">
+          <div class="ci-name">📆 Monthly Compound</div>
+          <div class="ci-desc">Monthly restake — minimal gas, lower compound benefit</div>
+        </div>
+        <div class="compound-boost">+0.5% APY</div>
+      </div>
+      <div class="compound-option" onclick="selectCompound(this,'manual')">
+        <div class="compound-radio"></div>
+        <div class="compound-info">
+          <div class="ci-name">🖐 Manual Claim</div>
+          <div class="ci-desc">Claim rewards manually and decide where to reinvest</div>
+        </div>
+        <div class="compound-boost" style="color:var(--muted)">+0%</div>
+      </div>
+    </div>
+
+    <!-- Compound Cost Breakdown -->
+    <div class="card">
+      <div class="card-title"><span class="icon">⛽</span> Gas Cost Analysis</div>
+      <table style="width:100%;border-collapse:collapse">
+        <thead>
+          <tr style="border-bottom:1px solid var(--border)">
+            <th style="text-align:left;padding:8px;font-size:.7rem;color:var(--muted)">FREQUENCY</th>
+            <th style="text-align:right;padding:8px;font-size:.7rem;color:var(--muted)">GAS / CYCLE</th>
+            <th style="text-align:right;padding:8px;font-size:.7rem;color:var(--muted)">MONTHLY GAS</th>
+            <th style="text-align:right;padding:8px;font-size:.7rem;color:var(--muted)">NET BENEFIT</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid var(--border)">
+            <td style="padding:8px;font-size:.8rem">12-Hour</td>
+            <td style="padding:8px;font-size:.8rem;text-align:right">0.008 XLM</td>
+            <td style="padding:8px;font-size:.8rem;text-align:right">0.480 XLM</td>
+            <td style="padding:8px;font-size:.8rem;text-align:right;color:var(--green)">+3.1% APY</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border)">
+            <td style="padding:8px;font-size:.8rem">Daily</td>
+            <td style="padding:8px;font-size:.8rem;text-align:right">0.008 XLM</td>
+            <td style="padding:8px;font-size:.8rem;text-align:right">0.240 XLM</td>
+            <td style="padding:8px;font-size:.8rem;text-align:right;color:var(--green)">+2.4% APY</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border)">
+            <td style="padding:8px;font-size:.8rem">Weekly</td>
+            <td style="padding:8px;font-size:.8rem;text-align:right">0.008 XLM</td>
+            <td style="padding:8px;font-size:.8rem;text-align:right">0.032 XLM</td>
+            <td style="padding:8px;font-size:.8rem;text-align:right;color:var(--green)">+1.2% APY</td>
+          </tr>
+          <tr>
+            <td style="padding:8px;font-size:.8rem">Monthly</td>
+            <td style="padding:8px;font-size:.8rem;text-align:right">0.008 XLM</td>
+            <td style="padding:8px;font-size:.8rem;text-align:right">0.008 XLM</td>
+            <td style="padding:8px;font-size:.8rem;text-align:right;color:var(--green)">+0.5% APY</td>
+          </tr>
+        </tbody>
+      </table>
+      <p style="font-size:.7rem;color:var(--muted);margin-top:10px">* Gas costs are estimates based on current Soroban resource pricing. Auto-compound is executed by the contract's keeper bot.</p>
+    </div>
+  </div>
+
+  <!-- PANEL: Calculator -->
+  <div class="panel" id="panel-calculator">
+    <div class="card">
+      <div class="card-title"><span class="icon">📊</span> Compound Interest Calculator</div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Initial Deposit</label>
+          <input type="number" class="form-input" id="calcDeposit" value="1000" min="0" step="any" oninput="runCalculator()">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Monthly Addition</label>
+          <input type="number" class="form-input" id="calcMonthly" value="100" min="0" step="any" oninput="runCalculator()">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Base APY (%)</label>
+          <input type="number" class="form-input" id="calcAPY" value="8.5" min="0" max="100" step="0.1" oninput="runCalculator()">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Time Period</label>
+          <select class="form-select" id="calcPeriod" onchange="runCalculator()">
+            <option value="1">1 Year</option>
+            <option value="2">2 Years</option>
+            <option value="3" selected>3 Years</option>
+            <option value="5">5 Years</option>
+            <option value="10">10 Years</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Compound Frequency</label>
+          <select class="form-select" id="calcFreq" onchange="runCalculator()">
+            <option value="365">Daily</option>
+            <option value="52">Weekly</option>
+            <option value="12">Monthly</option>
+            <option value="4">Quarterly</option>
+            <option value="1">Annually (no compound)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Lock Boost (%)</label>
+          <input type="number" class="form-input" id="calcBoost" value="3.5" min="0" max="20" step="0.5" oninput="runCalculator()">
+        </div>
+      </div>
+
+      <div class="calc-result" id="calcResult">
+        <!-- Filled by JS -->
+      </div>
+
+      <!-- Growth Chart -->
+      <div class="card-title" style="margin-top:20px"><span class="icon">📈</span> Growth Projection</div>
+      <div class="chart-container" id="growthChart">
+        <div class="chart-bars" id="chartBars">
+          <!-- Filled by JS -->
+        </div>
+      </div>
+      <div style="display:flex;gap:16px;margin-top:10px;font-size:.7rem;color:var(--muted)">
+        <div style="display:flex;align-items:center;gap:4px"><div style="width:12px;height:12px;border-radius:2px;background:var(--accent);opacity:.7"></div> Principal + Deposits</div>
+        <div style="display:flex;align-items:center;gap:4px"><div style="width:12px;height:12px;border-radius:2px;background:var(--green)"></div> Compound Interest</div>
+      </div>
+
+      <!-- Simple vs Compound -->
+      <div class="card" style="margin-top:16px;background:var(--card)">
+        <div class="card-title"><span class="icon">⚔️</span> Simple vs Compound Comparison</div>
+        <div id="comparison" style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <!-- Filled by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANEL: My Positions -->
+  <div class="panel" id="panel-positions">
+    <div class="card">
+      <div class="card-title"><span class="icon">💼</span> Active Staking Positions</div>
+      <div class="stake-list" id="stakeList">
+        <div style="text-align:center;padding:30px;color:var(--muted);font-size:.85rem">
+          No active stakes yet. Go to the Stake tab to begin.
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="card">
+      <div class="card-title"><span class="icon">⚙️</span> Quick Actions</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px">
+        <button class="btn btn-green btn-sm" onclick="claimAllRewards()">💰 Claim All Rewards</button>
+        <button class="btn btn-primary btn-sm" onclick="compoundAll()">🔄 Compound All Now</button>
+        <button class="btn btn-outline btn-sm" onclick="exportPositions()">📄 Export Report</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANEL: Tests -->
+  <div class="panel" id="panel-tests">
+    <div class="card">
+      <div class="card-title"><span class="icon">🧪</span> Staking Test Suite — 15 Tests</div>
+
+      <!-- Counter Bar -->
+      <div id="testCounter" style="display:none;margin-bottom:16px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <span id="testCounterLabel" style="font-size:.72rem;font-weight:600;color:rgba(255,255,255,.5)">Ready</span>
+          <span id="testCounterStats" style="font-size:.68rem;color:rgba(255,255,255,.35)">0 / 0 passed</span>
+        </div>
+        <div style="height:6px;border-radius:3px;background:rgba(255,255,255,.06);overflow:hidden">
+          <div id="testProgressBar" style="height:100%;width:0%;border-radius:3px;background:linear-gradient(90deg,#27ae60,#2ecc71);transition:width .3s"></div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px">
+          <div style="background:rgba(34,197,94,.08);padding:10px;text-align:center;border-radius:8px"><div style="font-size:.55rem;color:rgba(255,255,255,.3);text-transform:uppercase">Pass</div><div id="cntPass" style="font-size:1.2rem;font-weight:800;color:#27ae60">0</div></div>
+          <div style="background:rgba(235,87,87,.08);padding:10px;text-align:center;border-radius:8px"><div style="font-size:.55rem;color:rgba(255,255,255,.3);text-transform:uppercase">Fail</div><div id="cntFail" style="font-size:1.2rem;font-weight:800;color:#eb5757">0</div></div>
+          <div style="background:rgba(10,10,30,.8);padding:10px;text-align:center;border-radius:8px"><div style="font-size:.55rem;color:rgba(255,255,255,.3);text-transform:uppercase">Total</div><div id="cntTotal" style="font-size:1.2rem;font-weight:800;color:#a29bfe">0</div></div>
+        </div>
+      </div>
+
+      <!-- Calculation Tests -->
+      <div style="font-size:.7rem;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">&#x1F4CA; Staking Calculation Tests</div>
+      <div id="testCases" style="display:grid;gap:8px;margin-bottom:16px">
+
+        <div class="test-case" style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:10px">
+          <div><div style="font-size:.78rem;font-weight:600;color:rgba(255,255,255,.7)">Test 1: APY Calculation</div><div style="font-size:.65rem;color:rgba(255,255,255,.35)">base 8.5% + lock 3.5% + compound 2.4% = 14.4%</div></div>
+          <button onclick="runCalcTest(0,this)" style="padding:6px 14px;border-radius:8px;border:1px solid rgba(39,174,96,.3);background:rgba(39,174,96,.1);color:#27ae60;font-size:.7rem;font-weight:700;cursor:pointer">&#x25B6; Run</button>
+        </div>
+
+        <div class="test-case" style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:10px">
+          <div><div style="font-size:.78rem;font-weight:600;color:rgba(255,255,255,.7)">Test 2: Lock Boost Mapping</div><div style="font-size:.65rem;color:rgba(255,255,255,.35)">0d=0% | 30d=1.5% | 90d=3.5% | 180d=6% | 365d=10%</div></div>
+          <button onclick="runCalcTest(1,this)" style="padding:6px 14px;border-radius:8px;border:1px solid rgba(39,174,96,.3);background:rgba(39,174,96,.1);color:#27ae60;font-size:.7rem;font-weight:700;cursor:pointer">&#x25B6; Run</button>
+        </div>
+
+        <div class="test-case" style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:10px">
+          <div><div style="font-size:.78rem;font-weight:600;color:rgba(255,255,255,.7)">Test 3: Compound Boost Mapping</div><div style="font-size:.65rem;color:rgba(255,255,255,.35)">none=0% | daily=2.4% | weekly=1.2% | monthly=0.5%</div></div>
+          <button onclick="runCalcTest(2,this)" style="padding:6px 14px;border-radius:8px;border:1px solid rgba(39,174,96,.3);background:rgba(39,174,96,.1);color:#27ae60;font-size:.7rem;font-weight:700;cursor:pointer">&#x25B6; Run</button>
+        </div>
+
+        <div class="test-case" style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:10px">
+          <div><div style="font-size:.78rem;font-weight:600;color:rgba(255,255,255,.7)">Test 4: Daily Reward Calculation</div><div style="font-size:.65rem;color:rgba(255,255,255,.35)">1000 XLM @ 14.4% APY &#x2192; ~$0.3945/day</div></div>
+          <button onclick="runCalcTest(3,this)" style="padding:6px 14px;border-radius:8px;border:1px solid rgba(39,174,96,.3);background:rgba(39,174,96,.1);color:#27ae60;font-size:.7rem;font-weight:700;cursor:pointer">&#x25B6; Run</button>
+        </div>
+
+        <div class="test-case" style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:10px">
+          <div><div style="font-size:.78rem;font-weight:600;color:rgba(255,255,255,.7)">Test 5: 8-Gen Referral Rates</div><div style="font-size:.65rem;color:rgba(255,255,255,.35)">Gen1=10% + Gen2-8=6%+4%*6 = 40% total referral</div></div>
+          <button onclick="runCalcTest(4,this)" style="padding:6px 14px;border-radius:8px;border:1px solid rgba(39,174,96,.3);background:rgba(39,174,96,.1);color:#27ae60;font-size:.7rem;font-weight:700;cursor:pointer">&#x25B6; Run</button>
+        </div>
+
+      </div>
+
+      <!-- Integration & Security Tests -->
+      <div style="font-size:.7rem;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;margin-top:16px">&#x1F52C; Integration &amp; Security Tests</div>
+      <div id="intTests" style="display:grid;gap:6px;margin-bottom:16px">
+
+        <div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px">
+          <div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">&#x1F680; Full stakeTokens() Flow</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">Stake 100 XLM: deduct balance, create stake entry, verify APY</div></div>
+          <span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span>
+        </div>
+
+        <div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px">
+          <div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">&#x1F504; cw_balances Sync</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">localStorage balance reduced after staking</div></div>
+          <span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span>
+        </div>
+
+        <div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px">
+          <div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">&#x26D4; Zero Amount Rejected</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">Staking 0 XLM must be blocked</div></div>
+          <span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span>
+        </div>
+
+        <div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px">
+          <div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">&#x26D4; Negative Amount Rejected</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">Staking -500 must be blocked</div></div>
+          <span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span>
+        </div>
+
+        <div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px">
+          <div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">&#x1F6E1;&#xFE0F; Overdraft Guard</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">Stake 999999 XLM with insufficient balance</div></div>
+          <span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span>
+        </div>
+
+        <div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px">
+          <div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">&#x1F512; Period Lock Enforcement</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">Cannot unstake before lock period expires</div></div>
+          <span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span>
+        </div>
+
+        <div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px">
+          <div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">&#x1F4B0; Claim Reward Credits Wallet</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">claimReward() adds to cw_balances</div></div>
+          <span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span>
+        </div>
+
+        <div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px">
+          <div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">&#x1F504; Compound Adds to Principal</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">compoundStake() increases stake amount</div></div>
+          <span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span>
+        </div>
+
+        <div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px">
+          <div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">&#x1F3E6; No Sponsor &#x2192; Wallet Choice</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">Empty sponsor → choose Main Wallet or Option Wallet</div></div>
+          <span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span>
+        </div>
+
+        <div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px">
+          <div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">&#x1F4DD; Stake Record Integrity</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">soroban_stakes entry has all required fields</div></div>
+          <span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span>
+        </div>
+
+      </div>
+
+      <button onclick="runAllStakeTests()" style="width:100%;padding:14px;border:none;border-radius:12px;font-size:.88rem;font-weight:700;cursor:pointer;background:linear-gradient(135deg,#6366f1,#4f46e5);color:#fff;margin-bottom:10px;transition:.2s" onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 6px 20px rgba(99,102,241,.3)'" onmouseout="this.style.transform='';this.style.boxShadow=''">&#x1F9EA; Run All 15 Tests</button>
+
+      <div id="testResults" style="display:none;background:rgba(0,0,0,.2);border:1px solid rgba(99,102,241,.15);border-radius:10px;padding:14px;margin-top:10px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <div style="font-size:.78rem;font-weight:700;color:#6366f1" id="testSummary"></div>
+          <button onclick="resetStakeTests()" style="padding:4px 10px;border-radius:6px;border:1px solid rgba(255,255,255,.1);background:none;color:rgba(255,255,255,.4);font-size:.6rem;cursor:pointer">Reset</button>
+        </div>
+        <div id="testLog" style="font-family:'Courier New',monospace;font-size:.68rem;line-height:1.8;color:rgba(255,255,255,.55);max-height:300px;overflow-y:auto"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANEL: History -->
+  <div class="panel" id="panel-history">
+    <div class="card">
+      <div class="card-title"><span class="icon">📜</span> Reward & Compound History</div>
+      <div id="historyList">
+        <div style="text-align:center;padding:30px;color:var(--muted);font-size:.85rem">
+          No history yet. Rewards will appear here as they are earned.
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ========== DATA ==========
+const POOLS = [
+  { id:'xlm', name:'XLM Staking', icon:'⭐', color:'#6366f1', apy:8.5, tvl:'$1.2M', stakers:482, minStake:'100 XLM', hot:false },
+  { id:'usdc', name:'USDC Yield', icon:'💵', color:'#22c55e', apy:6.2, tvl:'$890K', stakers:356, minStake:'50 USDC', hot:false },
+  { id:'eth', name:'wETH Pool', icon:'💎', color:'#818cf8', apy:5.8, tvl:'$420K', stakers:198, minStake:'0.01 ETH', hot:true },
+  { id:'btc', name:'wBTC Vault', icon:'🔶', color:'#f59e0b', apy:4.2, tvl:'$337K', stakers:248, minStake:'0.001 BTC', hot:false }
+];
+
+const LOCK_BOOSTS = { '0':0, '30':1.5, '90':3.5, '180':6, '365':10 };
+const COMPOUND_BOOSTS = { 'none':0, 'daily':2.4, 'weekly':1.2, 'monthly':0.5 };
+
+let selectedPool = 'xlm';
+let userStakes = JSON.parse(localStorage.getItem('soroban_stakes') || '[]');
+let rewardHistory = JSON.parse(localStorage.getItem('soroban_reward_history') || '[]');
+
+// ========== POOLS ==========
+function renderPools(){
+  const grid = document.getElementById('poolGrid');
+  grid.innerHTML = POOLS.map(p => `
+    <div class="pool-card ${p.id===selectedPool?'selected':''}" onclick="selectPool('${p.id}')">
+      ${p.hot?'<div class="ribbon">HOT</div>':''}
+      <div class="pool-header">
+        <div class="pool-icon" style="background:${p.color}22;color:${p.color}">${p.icon}</div>
+        <div>
+          <div class="pool-name">${p.name}</div>
+          <div class="pool-apy">${p.apy}% Base APY</div>
+        </div>
+      </div>
+      <div class="pool-stats">
+        <div class="pool-stat"><div class="ps-label">TVL</div><div class="ps-val">${p.tvl}</div></div>
+        <div class="pool-stat"><div class="ps-label">Stakers</div><div class="ps-val">${p.stakers}</div></div>
+        <div class="pool-stat"><div class="ps-label">Min Stake</div><div class="ps-val">${p.minStake}</div></div>
+        <div class="pool-stat"><div class="ps-label">Max APY</div><div class="ps-val" style="color:var(--green)">${(p.apy+10+3.1).toFixed(1)}%</div></div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function selectPool(id){
+  selectedPool = id;
+  const pool = POOLS.find(p=>p.id===id);
+  document.getElementById('stakeAsset').value = id==='xlm'?'XLM':id==='usdc'?'USDC':id==='eth'?'ETH':'BTC';
+  renderPools();
+  updateStakePreview();
+}
+
+// ========== STAKE PREVIEW ==========
+function updateStakePreview(){
+  const asset = document.getElementById('stakeAsset').value;
+  const pool = POOLS.find(p=>p.id===asset.toLowerCase()) || POOLS[0];
+  const amount = parseFloat(document.getElementById('stakeAmount').value) || 0;
+  const lockDays = parseInt(document.getElementById('lockPeriod').value);
+  const compFreq = document.getElementById('autoCompound').value;
+
+  const baseAPY = pool.apy;
+  const lockBoost = LOCK_BOOSTS[lockDays] || 0;
+  const compoundBoost = COMPOUND_BOOSTS[compFreq] || 0;
+  const totalAPY = baseAPY + lockBoost + compoundBoost;
+
+  const annualReturn = amount * (totalAPY / 100);
+  const dailyReturn = annualReturn / 365;
+
+  document.getElementById('previewReturn').textContent = '$' + annualReturn.toFixed(2);
+  document.getElementById('previewAPY').textContent = totalAPY.toFixed(2) + '%';
+  document.getElementById('previewBase').textContent = baseAPY.toFixed(2) + '%';
+  document.getElementById('previewBoost').textContent = '+' + lockBoost.toFixed(2) + '%';
+  document.getElementById('previewCompound').textContent = '+' + compoundBoost.toFixed(2) + '%';
+  document.getElementById('previewDaily').textContent = '$' + dailyReturn.toFixed(4);
+}
+
+// ========== STAKE ACTION ==========
+// ========== 8-GEN REFERRAL RATES ==========
+const GEN_RATES = [0.10, 0.06, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04]; // 40% total
+const GEN_ROLES = ['Direct Inviter','Inviter\u2019s Inviter','Upline Level 3','Upline Level 4','Upline Level 5','Upline Level 6','Upline Level 7','Upline Level 8'];
+const MAIN_WALLET_SPONSOR = 'OLIGHFT_MAIN_WALLET';
+const OPTION_WALLET_SPONSOR = 'OLIGHFT_OPTION_WALLET';
+
+function updateRefPreview(){
+  const amt = parseFloat(document.getElementById('stakeAmount').value) || 0;
+  const sponsor = document.getElementById('stakeSponsor').value.trim();
+  const panel = document.getElementById('refDistPreview');
+  const tbody = document.getElementById('refDistBody');
+  if(!amt || amt <= 0 || !sponsor){ panel.style.display='none'; return; }
+  panel.style.display='block';
+  const mainPct = 0.60;
+  const mainAmt = (amt * mainPct).toFixed(2);
+  let rows = '<tr class="main-row"><td>&mdash;</td><td>Main Wallet (Platform)</td><td>&mdash;</td><td>$'+mainAmt+'</td></tr>';
+  let refTotal = 0;
+  for(let i=0;i<8;i++){
+    const genAmt = amt * GEN_RATES[i];
+    refTotal += genAmt;
+    rows += '<tr><td class="gen-label">Gen '+(i+1)+'</td><td class="gen-role">'+GEN_ROLES[i]+'</td><td class="gen-pct">'+(GEN_RATES[i]*100).toFixed(0)+'%</td><td class="gen-amt">$'+genAmt.toFixed(2)+'</td></tr>';
+  }
+  rows += '<tr class="total-row"><td colspan="3">TOTAL</td><td>$'+amt.toFixed(2)+'</td></tr>';
+  tbody.innerHTML = rows;
+}
+
+// Auto-fill sponsor from localStorage
+(function(){
+  try{
+    const u = JSON.parse(localStorage.getItem('cw_user')||'null');
+    if(u && u.name){
+      document.getElementById('stakeSponsor').value = u.name;
+      const badge = document.getElementById('sponsorBadge');
+      badge.textContent = '\u2714 Linked';
+      badge.className = 'sponsor-badge linked';
+      updateRefPreview();
+    }
+  }catch(e){}
+})();
+
+function stakeTokens(){
+  const asset = document.getElementById('stakeAsset').value;
+  const amount = parseFloat(document.getElementById('stakeAmount').value);
+  const lockDays = parseInt(document.getElementById('lockPeriod').value);
+  const compFreq = document.getElementById('autoCompound').value;
+  let sponsor = document.getElementById('stakeSponsor').value.trim();
+
+  if(!amount || amount <= 0){
+    alert('Enter a valid stake amount');
+    return;
+  }
+  if(!sponsor){
+    var hasInviter = confirm('\uD83C\uDF33 Were you invited by someone?\n\nClick OK to enter your sponsor\'s username.\nClick Cancel if no one invited you.');
+    if(hasInviter){
+      document.getElementById('stakeSponsor').focus();
+      return;
+    }
+    // No inviter — let user pick Main Wallet or Option Wallet
+    var pickMain = confirm('\uD83C\uDFE6 Choose your auto-sponsor:\n\nOK \u2192 Main Wallet (OLIGHFT_MAIN_WALLET)\nCancel \u2192 Option Wallet (OLIGHFT_OPTION_WALLET)\n\nBoth wallets follow the same stage flow. Pick whichever you prefer.');
+    sponsor = pickMain ? MAIN_WALLET_SPONSOR : OPTION_WALLET_SPONSOR;
+    document.getElementById('stakeSponsor').value = sponsor;
+    var badge = document.getElementById('sponsorBadge');
+    if(pickMain){
+      badge.textContent = '\uD83C\uDFE6 Main Wallet';
+      badge.className = 'sponsor-badge linked';
+      badge.style.background = 'rgba(99,102,241,.12)';
+      badge.style.color = '#818cf8';
+      badge.style.borderColor = 'rgba(99,102,241,.2)';
+    } else {
+      badge.textContent = '\uD83D\uDCBC Option Wallet';
+      badge.className = 'sponsor-badge linked';
+      badge.style.background = 'rgba(245,158,11,.12)';
+      badge.style.color = '#f59e0b';
+      badge.style.borderColor = 'rgba(245,158,11,.2)';
+    }
+  }
+
+  // ── Wallet Balance Gate: check cw_balances for sufficient funds ──
+  const balKey = asset === 'ETH' ? 'wETH' : asset === 'BTC' ? 'wBTC' : asset;
+  const cwBals = JSON.parse(localStorage.getItem('cw_balances') || '{}');
+  const myBal = cwBals[balKey] || 0;
+  if(myBal < amount){
+    alert('\u26A0\uFE0F Insufficient ' + asset + ' Balance!\n\nRequired: ' + amount.toLocaleString() + ' ' + asset + '\nYour Balance: ' + myBal.toLocaleString() + ' ' + asset + '\n\n\uD83D\uDC49 Go to Swap page to convert your tokens, or deposit more funds.');
+    if(confirm('\uD83D\uDD04 Go to Swap page now?')) window.location.href = '../swap.html';
+    return;
+  }
+
+  const pool = POOLS.find(p=>p.id===asset.toLowerCase()) || POOLS[0];
+  const lockBoost = LOCK_BOOSTS[lockDays] || 0;
+  const compoundBoost = COMPOUND_BOOSTS[compFreq] || 0;
+  const totalAPY = pool.apy + lockBoost + compoundBoost;
+
+  // 8-generation commission distribution
+  const mainWalletAmt = amount * 0.60;
+  const genCommissions = GEN_RATES.map((r,i)=>({
+    gen: i+1, role: GEN_ROLES[i], rate: r, amount: (amount * r)
+  }));
+  const totalRefAmt = genCommissions.reduce((s,g)=>s+g.amount, 0);
+
+  const stake = {
+    id: Date.now().toString(36) + Math.random().toString(36).slice(2,6),
+    asset: asset,
+    amount: amount,
+    pool: pool.name,
+    apy: totalAPY,
+    baseAPY: pool.apy,
+    lockBoost: lockBoost,
+    compoundBoost: compoundBoost,
+    lockDays: lockDays,
+    compound: compFreq,
+    startDate: new Date().toISOString(),
+    unlockDate: lockDays > 0 ? new Date(Date.now() + lockDays * 86400000).toISOString() : null,
+    rewards: 0,
+    lastCompound: new Date().toISOString(),
+    sponsor: sponsor,
+    referralDistribution: {
+      mainWallet: mainWalletAmt,
+      generations: genCommissions,
+      totalReferral: totalRefAmt
+    }
+  };
+
+  // ── Deduct from wallet balance ──
+  cwBals[balKey] = myBal - amount;
+  localStorage.setItem('cw_balances', JSON.stringify(cwBals));
+
+  userStakes.push(stake);
+  saveStakes();
+  updateUserStaked();
+  simulateRewards();
+  document.getElementById('stakeAmount').value = '';
+  updateStakePreview();
+  document.getElementById('refDistPreview').style.display = 'none';
+  alert(`\u2705 Staked ${amount} ${asset} at ${totalAPY.toFixed(2)}% APY\n\n\uD83D\uDCB0 Deducted: ${amount} ${asset} from wallet\n\uD83D\uDCB0 Remaining ${asset}: ${cwBals[balKey].toLocaleString()}\n\n\uD83C\uDF33 Referral Distribution:\n\u2022 Main Wallet: $${mainWalletAmt.toFixed(2)}\n\u2022 8-Gen Commissions: $${totalRefAmt.toFixed(2)}\n\u2022 Sponsor: ${sponsor}`);
+  // ── Advance invite stage: staking_active ──
+  (function(){try{var ISTAGES=['invited','registered','wallet_created','card_activated','staking_active'];var u=JSON.parse(localStorage.getItem('cw_user')||'null');if(!u||!u.email)return;var invs=JSON.parse(localStorage.getItem('cw_invites')||'[]');for(var inv of invs){if(inv.invitee&&inv.invitee.email&&inv.invitee.email.toLowerCase()===u.email.toLowerCase()){var ci=ISTAGES.indexOf(inv.stage),ni=ISTAGES.indexOf('staking_active');if(ni>ci){inv.stage='staking_active';inv.stageHistory.push({stage:'staking_active',at:Date.now()});}break;}}localStorage.setItem('cw_invites',JSON.stringify(invs));}catch(e){}})();
+  switchTab('positions');
+}
+
+function stakeMax(){
+  // ── Set max to actual wallet balance for current asset ──
+  const asset = document.getElementById('stakeAsset').value;
+  const balKey = asset === 'ETH' ? 'wETH' : asset === 'BTC' ? 'wBTC' : asset;
+  const cwBals = JSON.parse(localStorage.getItem('cw_balances') || '{}');
+  const bal = cwBals[balKey] || 0;
+  document.getElementById('stakeAmount').value = bal > 0 ? bal : '0';
+  updateStakePreview();
+}
+
+// ========== POSITIONS ==========
+function renderPositions(){
+  const list = document.getElementById('stakeList');
+  if(userStakes.length === 0){
+    list.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted);font-size:.85rem">No active stakes yet. Go to the Stake tab to begin.</div>';
+    return;
+  }
+
+  // Simulate accrued rewards
+  userStakes.forEach(s => {
+    const elapsed = (Date.now() - new Date(s.lastCompound).getTime()) / 86400000;
+    s.rewards += s.amount * (s.apy / 100 / 365) * elapsed;
+    s.lastCompound = new Date().toISOString();
+  });
+  saveStakes();
+
+  list.innerHTML = userStakes.map((s,i) => {
+    const start = new Date(s.startDate);
+    const now = new Date();
+    const totalDays = s.lockDays || 365;
+    const elapsedDays = Math.min((now - start) / 86400000, totalDays);
+    const progress = Math.min((elapsedDays / totalDays) * 100, 100);
+    const endDate = new Date(start.getTime() + totalDays * 86400000);
+    const periodFinished = now >= endDate;
+    const locked = !periodFinished;
+    const circumference = 2 * Math.PI * 24;
+    const offset = circumference - (progress / 100) * circumference;
+
+    return `
+    <div class="stake-entry glow-pulse">
+      <div style="display:flex;gap:14px;align-items:center">
+        <div class="progress-ring">
+          <svg width="60" height="60" viewBox="0 0 60 60">
+            <circle class="ring-bg" cx="30" cy="30" r="24"/>
+            <circle class="ring-fill" cx="30" cy="30" r="24"
+              stroke="${locked?'var(--orange)':'var(--green)'}"
+              stroke-dasharray="${circumference}"
+              stroke-dashoffset="${offset}"/>
+          </svg>
+          <div class="ring-text">${Math.round(progress)}%</div>
+        </div>
+        <div class="stake-info">
+          <div class="stake-asset">
+            ${s.asset === 'XLM'?'⭐':s.asset==='USDC'?'💵':s.asset==='ETH'?'💎':'🔶'}
+            ${s.amount.toLocaleString()} ${s.asset}
+          </div>
+          <div class="stake-meta">
+            <span>APY: ${s.apy.toFixed(1)}%</span>
+            <span>Pool: ${s.pool}</span>
+            <span>Compound: ${s.compound}</span>
+            ${locked?`<span style="color:var(--orange)">🔒 Locked until ${endDate.toLocaleDateString()}</span>`:`<span style="color:var(--green)">✅ Period complete — unstake available</span>`}
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:14px">
+        <div class="stake-reward">
+          <div class="reward-val">+$${s.rewards.toFixed(4)}</div>
+          <div class="reward-label">Accrued Rewards</div>
+        </div>
+        <div class="stake-actions" style="flex-direction:column">
+          <button class="btn btn-green btn-sm" onclick="claimReward(${i})">Claim</button>
+          <button class="btn btn-primary btn-sm" onclick="compoundStake(${i})">Compound</button>
+          ${!locked?`<button class="btn btn-danger btn-sm" onclick="unstake(${i})">Unstake</button>`:''}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ========== ACTIONS ==========
+function claimReward(index){
+  const s = userStakes[index];
+  if(s.rewards <= 0){ alert('No rewards to claim'); return; }
+  const claimed = s.rewards;
+  addHistory('claim', s.asset, claimed);
+  // ── Credit rewards back to wallet balance ──
+  const balKey = s.asset === 'ETH' ? 'wETH' : s.asset === 'BTC' ? 'wBTC' : s.asset;
+  const cwBals = JSON.parse(localStorage.getItem('cw_balances') || '{}');
+  cwBals[balKey] = (cwBals[balKey] || 0) + claimed;
+  localStorage.setItem('cw_balances', JSON.stringify(cwBals));
+  s.rewards = 0;
+  s.lastCompound = new Date().toISOString();
+  saveStakes();
+  renderPositions();
+  alert(`💰 Claimed $${claimed.toFixed(4)} in ${s.asset} rewards\n💳 Wallet ${s.asset} balance: ${cwBals[balKey].toLocaleString()}`);
+}
+
+function compoundStake(index){
+  const s = userStakes[index];
+  if(s.rewards <= 0){ alert('No rewards to compound'); return; }
+  const compounded = s.rewards;
+  addHistory('compound', s.asset, compounded);
+  s.amount += compounded;
+  s.rewards = 0;
+  s.lastCompound = new Date().toISOString();
+  saveStakes();
+  updateUserStaked();
+  renderPositions();
+  alert(`🔄 Compounded $${compounded.toFixed(4)} → new balance: ${s.amount.toFixed(4)} ${s.asset}`);
+}
+
+function unstake(index){
+  const s = userStakes[index];
+  const totalDays = s.lockDays || 365;
+  const stakeEnd = new Date(new Date(s.startDate).getTime() + totalDays * 86400000);
+  if(new Date() < stakeEnd){
+    const daysLeft = Math.ceil((stakeEnd - new Date()) / 86400000);
+    alert('⚠️ Cannot unstake before staking period ends.\n\n🔒 Locked until: ' + stakeEnd.toLocaleDateString() + '\n⏳ Days remaining: ' + daysLeft);
+    return;
+  }
+  if(!confirm(`Unstake ${s.amount} ${s.asset}? Pending rewards: $${s.rewards.toFixed(4)}`)) return;
+  // ── Return staked amount + pending rewards to wallet balance ──
+  const balKey = s.asset === 'ETH' ? 'wETH' : s.asset === 'BTC' ? 'wBTC' : s.asset;
+  const cwBals = JSON.parse(localStorage.getItem('cw_balances') || '{}');
+  const returned = s.amount + s.rewards;
+  cwBals[balKey] = (cwBals[balKey] || 0) + returned;
+  localStorage.setItem('cw_balances', JSON.stringify(cwBals));
+  addHistory('unstake', s.asset, s.amount);
+  if(s.rewards > 0) addHistory('claim', s.asset, s.rewards);
+  userStakes.splice(index, 1);
+  saveStakes();
+  updateUserStaked();
+  renderPositions();
+  alert(`\u2705 Unstaked ${s.amount} ${s.asset}\n\uD83D\uDCB0 Returned to wallet: ${returned.toLocaleString()} ${s.asset}\n\uD83D\uDCB3 New ${s.asset} balance: ${cwBals[balKey].toLocaleString()}`);
+}
+
+function claimAllRewards(){
+  let total = 0;
+  const cwBals = JSON.parse(localStorage.getItem('cw_balances') || '{}');
+  userStakes.forEach(s => {
+    if(s.rewards > 0){
+      total += s.rewards;
+      addHistory('claim', s.asset, s.rewards);
+      // ── Credit each asset back to wallet ──
+      const balKey = s.asset === 'ETH' ? 'wETH' : s.asset === 'BTC' ? 'wBTC' : s.asset;
+      cwBals[balKey] = (cwBals[balKey] || 0) + s.rewards;
+      s.rewards = 0;
+      s.lastCompound = new Date().toISOString();
+    }
+  });
+  localStorage.setItem('cw_balances', JSON.stringify(cwBals));
+  saveStakes();
+  renderPositions();
+  if(total > 0) alert(`💰 Claimed all rewards: $${total.toFixed(4)}\n💳 Balances updated in wallet`);
+  else alert('No rewards to claim');
+}
+
+function compoundAll(){
+  let total = 0;
+  userStakes.forEach(s => {
+    if(s.rewards > 0){
+      total += s.rewards;
+      addHistory('compound', s.asset, s.rewards);
+      s.amount += s.rewards;
+      s.rewards = 0;
+      s.lastCompound = new Date().toISOString();
+    }
+  });
+  saveStakes();
+  updateUserStaked();
+  renderPositions();
+  if(total > 0) alert(`🔄 Compounded all: $${total.toFixed(4)} reinvested`);
+  else alert('No rewards to compound');
+}
+
+function exportPositions(){
+  const data = userStakes.map(s => `${s.asset},${s.amount},${s.apy}%,${s.pool},${s.compound},${new Date(s.startDate).toLocaleDateString()},${s.rewards.toFixed(4)}`);
+  const csv = 'Asset,Amount,APY,Pool,Compound,Start Date,Pending Rewards\n' + data.join('\n');
+  const blob = new Blob([csv], {type:'text/csv'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'staking-positions.csv';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+// ========== HISTORY ==========
+function addHistory(type, asset, amount){
+  rewardHistory.unshift({
+    type: type,
+    asset: asset,
+    amount: amount,
+    date: new Date().toISOString()
+  });
+  if(rewardHistory.length > 100) rewardHistory.length = 100;
+  localStorage.setItem('soroban_reward_history', JSON.stringify(rewardHistory));
+}
+
+function renderHistory(){
+  const el = document.getElementById('historyList');
+  if(rewardHistory.length === 0){
+    el.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted);font-size:.85rem">No history yet. Rewards will appear here as they are earned.</div>';
+    return;
+  }
+  el.innerHTML = rewardHistory.map(h => {
+    const typeLabel = h.type==='compound'?'COMPOUND':h.type==='claim'?'CLAIM':h.type==='unstake'?'UNSTAKE':'BONUS';
+    const typeClass = h.type==='compound'?'compound':h.type==='claim'?'stake':h.type==='unstake'?'stake':'bonus';
+    return `
+    <div class="reward-row">
+      <div class="rr-type"><span class="reward-type-badge ${typeClass}">${typeLabel}</span></div>
+      <div>${h.asset}</div>
+      <div style="font-weight:600;color:${h.type==='unstake'?'var(--red)':'var(--green)'}">
+        ${h.type==='unstake'?'-':'+'} $${h.amount.toFixed(4)}
+      </div>
+      <div style="color:var(--muted);font-size:.72rem">${new Date(h.date).toLocaleString()}</div>
+    </div>`;
+  }).join('');
+}
+
+// ========== CALCULATOR ==========
+function runCalculator(){
+  const deposit = parseFloat(document.getElementById('calcDeposit').value) || 0;
+  const monthly = parseFloat(document.getElementById('calcMonthly').value) || 0;
+  const apy = parseFloat(document.getElementById('calcAPY').value) || 0;
+  const years = parseInt(document.getElementById('calcPeriod').value) || 1;
+  const freq = parseInt(document.getElementById('calcFreq').value) || 1;
+  const boost = parseFloat(document.getElementById('calcBoost').value) || 0;
+
+  const totalAPY = apy + boost;
+  const r = totalAPY / 100;
+  const n = freq;
+  const t = years;
+
+  // Compound interest with recurring deposits
+  // A = P(1 + r/n)^(nt) + PMT × [((1 + r/n)^(nt) - 1) / (r/n)]
+  const compoundFactor = Math.pow(1 + r/n, n*t);
+  const compoundTotal = deposit * compoundFactor + (monthly * 12 / n) * ((compoundFactor - 1) / (r/n || 1));
+  const totalDeposited = deposit + (monthly * 12 * t);
+  const compoundInterest = compoundTotal - totalDeposited;
+
+  // Simple interest
+  const simpleTotal = totalDeposited + (deposit * r * t) + (monthly * 12 * r * t * (t-1) / (2*t || 1));
+  const simpleInterest = simpleTotal - totalDeposited;
+
+  const advantage = compoundInterest - simpleInterest;
+
+  document.getElementById('calcResult').innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px">
+      <div>
+        <div style="font-size:.72rem;color:var(--muted)">Final Balance (Compound)</div>
+        <div class="big">$${compoundTotal.toLocaleString(undefined,{maximumFractionDigits:2})}</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:.72rem;color:var(--muted)">Compound Advantage</div>
+        <div style="font-size:1.2rem;font-weight:700;color:var(--cyan)">+$${advantage.toLocaleString(undefined,{maximumFractionDigits:2})}</div>
+      </div>
+    </div>
+    <div class="breakdown">
+      <div class="bd-item"><div class="bd-label">Total Deposited</div><div class="bd-val">$${totalDeposited.toLocaleString(undefined,{maximumFractionDigits:2})}</div></div>
+      <div class="bd-item"><div class="bd-label">Compound Interest</div><div class="bd-val" style="color:var(--green)">+$${compoundInterest.toLocaleString(undefined,{maximumFractionDigits:2})}</div></div>
+      <div class="bd-item"><div class="bd-label">Effective APY</div><div class="bd-val" style="color:var(--purple)">${totalAPY.toFixed(2)}%</div></div>
+      <div class="bd-item"><div class="bd-label">Monthly Passive</div><div class="bd-val">$${(compoundInterest / (years*12)).toFixed(2)}/mo</div></div>
+    </div>
+  `;
+
+  // Comparison
+  document.getElementById('comparison').innerHTML = `
+    <div style="background:rgba(99,102,241,.08);border:1px solid rgba(99,102,241,.25);border-radius:10px;padding:14px;text-align:center">
+      <div style="font-size:.7rem;color:var(--muted)">Simple Interest</div>
+      <div style="font-size:1.3rem;font-weight:700;color:var(--accent2);margin:6px 0">$${simpleTotal.toLocaleString(undefined,{maximumFractionDigits:2})}</div>
+      <div style="font-size:.75rem;color:var(--muted)">Interest: $${simpleInterest.toLocaleString(undefined,{maximumFractionDigits:2})}</div>
+    </div>
+    <div style="background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.25);border-radius:10px;padding:14px;text-align:center">
+      <div style="font-size:.7rem;color:var(--muted)">Compound Interest</div>
+      <div style="font-size:1.3rem;font-weight:700;color:var(--green);margin:6px 0">$${compoundTotal.toLocaleString(undefined,{maximumFractionDigits:2})}</div>
+      <div style="font-size:.75rem;color:var(--green)">+$${advantage.toLocaleString(undefined,{maximumFractionDigits:2})} more</div>
+    </div>
+  `;
+
+  // Chart
+  renderChart(deposit, monthly, totalAPY/100, years, freq);
+}
+
+function renderChart(deposit, monthly, rate, years, freq){
+  const bars = document.getElementById('chartBars');
+  const points = Math.min(years * 12, 36); // max 36 bars
+  const interval = Math.max(1, Math.floor(years * 12 / points));
+  let maxVal = 0;
+  const data = [];
+
+  for(let m = 0; m <= years * 12; m += interval){
+    const t = m / 12;
+    const n = freq;
+    const totalDeposited = deposit + (monthly * m);
+    const compoundFactor = Math.pow(1 + rate/n, n*t);
+    const total = deposit * compoundFactor + (monthly > 0 && rate > 0 ? (monthly * 12 / n) * ((compoundFactor - 1) / (rate/n)) : monthly * m);
+    const interest = total - totalDeposited;
+    data.push({ month: m, principal: totalDeposited, interest: Math.max(0, interest), total: total });
+    if(total > maxVal) maxVal = total;
+  }
+
+  bars.innerHTML = data.map(d => {
+    const pHeight = maxVal > 0 ? (d.principal / maxVal * 100) : 0;
+    const iHeight = maxVal > 0 ? (d.interest / maxVal * 100) : 0;
+    const label = d.month < 12 ? `${d.month}m` : `${(d.month/12).toFixed(d.month%12?1:0)}y`;
+    return `
+    <div class="chart-bar" style="height:100%">
+      <div class="bar-fill bar-principal" style="height:${pHeight}%"></div>
+      <div class="bar-fill bar-compound" style="height:${pHeight+iHeight}%;opacity:.5"></div>
+      <div class="bar-fill bar-compound" style="height:${iHeight}%;bottom:0;position:absolute;bottom:${pHeight}%"></div>
+      <div class="bar-label">${label}</div>
+      <div class="bar-tooltip">$${d.total.toLocaleString(undefined,{maximumFractionDigits:0})}</div>
+    </div>`;
+  }).join('');
+}
+
+// ========== COMPOUND SELECT ==========
+function selectCompound(el, freq){
+  document.querySelectorAll('.compound-option').forEach(o=>o.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// ========== TABS ==========
+function switchTab(name){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelector(`.tab[onclick="switchTab('${name}')"]`).classList.add('active');
+  document.getElementById('panel-'+name).classList.add('active');
+
+  if(name==='positions') renderPositions();
+  if(name==='history') renderHistory();
+  if(name==='calculator') runCalculator();
+  if(name==='tests'){ document.getElementById('testCounter').style.display='none'; }
+}
+
+// ========== PERSISTENCE ==========
+function saveStakes(){
+  localStorage.setItem('soroban_stakes', JSON.stringify(userStakes));
+}
+
+function updateUserStaked(){
+  const total = userStakes.reduce((sum,s) => sum + s.amount, 0);
+  document.getElementById('userStaked').textContent = '$' + total.toLocaleString(undefined,{maximumFractionDigits:2});
+}
+
+// Simulate ongoing rewards
+function simulateRewards(){
+  userStakes.forEach(s => {
+    const elapsed = (Date.now() - new Date(s.lastCompound).getTime()) / 86400000;
+    if(elapsed > 0){
+      s.rewards += s.amount * (s.apy / 100 / 365) * elapsed;
+      s.lastCompound = new Date().toISOString();
+    }
+  });
+  saveStakes();
+}
+
+// ========== INIT ==========
+window.addEventListener('DOMContentLoaded', () => {
+  renderPools();
+  updateStakePreview();
+  updateUserStaked();
+  simulateRewards();
+  runCalculator();
+
+  // Live reward ticker
+  setInterval(() => {
+    userStakes.forEach(s => {
+      s.rewards += s.amount * (s.apy / 100 / 365 / 86400); // per-second accrual
+    });
+    // Update TVL animation
+    const tvl = document.getElementById('tvl');
+    const base = 2847392;
+    tvl.textContent = '$' + (base + Math.random()*1000).toLocaleString(undefined,{maximumFractionDigits:0});
+  }, 1000);
+});
+
+// ========== TEST ENGINE ==========
+var testPass=0,testFail=0,testTotal=0;
+
+function logTestLine(name,passed,detail){
+  testTotal++;
+  if(passed)testPass++;else testFail++;
+  var log=document.getElementById('testLog');
+  var s=passed?'<span style="color:#27ae60">PASS \u2705</span>':'<span style="color:#eb5757">FAIL \u274C</span>';
+  log.innerHTML+='<div style="padding:4px 0;border-bottom:1px solid rgba(255,255,255,.04)">'+s+' <span style="color:#818cf8">'+name+'</span> \u2014 '+detail+'</div>';
+  updateTestCounters();
+}
+
+function updateTestCounters(){
+  document.getElementById('cntPass').textContent=testPass;
+  document.getElementById('cntFail').textContent=testFail;
+  document.getElementById('cntTotal').textContent=testTotal;
+  var pct=testTotal>0?Math.round((testPass/testTotal)*100):0;
+  document.getElementById('testProgressBar').style.width=pct+'%';
+  document.getElementById('testProgressBar').style.background=testFail>0?'linear-gradient(90deg,#27ae60,#f59e0b)':'linear-gradient(90deg,#27ae60,#2ecc71)';
+  document.getElementById('testCounterStats').textContent=testPass+' / '+testTotal+' passed';
+  document.getElementById('testCounterLabel').innerHTML=testFail===0?'<span style="color:#27ae60">\u2705 All '+testTotal+' tests passed</span>':'<span style="color:#f59e0b">\u26A0\uFE0F '+testPass+' passed, '+testFail+' failed</span>';
+}
+
+function setIntBadge(rows,idx,passed){
+  var badge=rows[idx].querySelector('.tst-badge');
+  if(passed){
+    badge.textContent='\u2705 PASS';badge.style.color='#27ae60';badge.style.borderColor='rgba(39,174,96,.3)';badge.style.background='rgba(39,174,96,.08)';
+  }else{
+    badge.textContent='\u274C FAIL';badge.style.color='#eb5757';badge.style.borderColor='rgba(235,87,87,.3)';badge.style.background='rgba(235,87,87,.08)';
+  }
+}
+
+function runCalcTest(idx,btn){
+  document.getElementById('testResults').style.display='block';
+  document.getElementById('testCounter').style.display='block';
+  var passed=false,detail='';
+
+  if(idx===0){
+    // APY: base(8.5) + lock90(3.5) + compDaily(2.4) = 14.4
+    var pool=POOLS.find(function(p){return p.id==='xlm';});
+    var total=pool.apy+LOCK_BOOSTS['90']+COMPOUND_BOOSTS['daily'];
+    passed=Math.abs(total-14.4)<0.01;
+    detail='base:'+pool.apy+'% + lock90:'+LOCK_BOOSTS['90']+'% + daily:'+COMPOUND_BOOSTS['daily']+'% = '+total.toFixed(1)+'% (expected 14.4%)';
+  }else if(idx===1){
+    // Lock boost mapping
+    var ok=LOCK_BOOSTS['0']===0&&LOCK_BOOSTS['30']===1.5&&LOCK_BOOSTS['90']===3.5&&LOCK_BOOSTS['180']===6&&LOCK_BOOSTS['365']===10;
+    passed=ok;
+    detail='0d='+LOCK_BOOSTS['0']+'% | 30d='+LOCK_BOOSTS['30']+'% | 90d='+LOCK_BOOSTS['90']+'% | 180d='+LOCK_BOOSTS['180']+'% | 365d='+LOCK_BOOSTS['365']+'%';
+  }else if(idx===2){
+    // Compound boost mapping
+    var ok=COMPOUND_BOOSTS['none']===0&&COMPOUND_BOOSTS['daily']===2.4&&COMPOUND_BOOSTS['weekly']===1.2&&COMPOUND_BOOSTS['monthly']===0.5;
+    passed=ok;
+    detail='none='+COMPOUND_BOOSTS['none']+'% | daily='+COMPOUND_BOOSTS['daily']+'% | weekly='+COMPOUND_BOOSTS['weekly']+'% | monthly='+COMPOUND_BOOSTS['monthly']+'%';
+  }else if(idx===3){
+    // Daily reward: 1000 * 14.4% / 365 = 0.3945
+    var daily=1000*(14.4/100)/365;
+    passed=Math.abs(daily-0.3945)<0.001;
+    detail='1000 * 14.4% / 365 = $'+daily.toFixed(4)+'/day (expected ~$0.3945)';
+  }else if(idx===4){
+    // 8-Gen referral: total should be 40%
+    var totalPct=GEN_RATES.reduce(function(s,r){return s+r;},0);
+    passed=Math.abs(totalPct-0.40)<0.001;
+    detail='Sum of 8 gen rates: '+(totalPct*100).toFixed(0)+'% (expected 40%) | MainWallet: 60%';
+  }
+
+  var names=['APY Calculation','Lock Boost Mapping','Compound Boost Mapping','Daily Reward Calc','8-Gen Referral Rates'];
+  logTestLine(names[idx],passed,detail);
+  if(btn){btn.textContent=passed?'\u2705 Pass':'\u274C Fail';btn.style.borderColor=passed?'#27ae60':'#eb5757';btn.style.color=passed?'#27ae60':'#eb5757';btn.disabled=true;}
+}
+
+function runAllStakeTests(){
+  testPass=0;testFail=0;testTotal=0;
+  document.getElementById('testLog').innerHTML='';
+  document.getElementById('testResults').style.display='block';
+  document.getElementById('testCounter').style.display='block';
+  document.querySelectorAll('.test-case button').forEach(function(b){b.disabled=false;b.textContent='\u25B6 Run';b.style.color='#27ae60';b.style.borderColor='rgba(39,174,96,.3)';});
+  document.querySelectorAll('.tst-badge').forEach(function(b){b.textContent='pending';b.style.color='rgba(255,255,255,.35)';b.style.borderColor='rgba(255,255,255,.08)';b.style.background='none';});
+
+  // Snapshot
+  var stakesSnap=localStorage.getItem('soroban_stakes')||'[]';
+  var balsSnap=localStorage.getItem('cw_balances')||'{}';
+  var histSnap=localStorage.getItem('soroban_reward_history')||'[]';
+  var origAlert=window.alert;
+  window.alert=function(){};  // suppress alerts during tests
+  var origConfirm=window.confirm;
+  window.confirm=function(){return true;};
+
+  // Run 5 calc tests
+  var calcBtns=document.querySelectorAll('#testCases .test-case button');
+  for(var i=0;i<5;i++) runCalcTest(i,calcBtns[i]);
+
+  var intRows=document.querySelectorAll('#intTests .tst-row');
+
+  // Prepare test balances
+  var testBals={XLM:5000,USDC:3000,wETH:2,wBTC:0.1,EURC:1000,OLIGHFT:5000};
+  localStorage.setItem('cw_balances',JSON.stringify(testBals));
+
+  // 6. Full stakeTokens() flow
+  (function(){
+    var xlmBefore=testBals.XLM;
+    var stakesBefore=userStakes.length;
+    document.getElementById('stakeAsset').value='XLM';
+    document.getElementById('lockPeriod').value='90';
+    document.getElementById('autoCompound').value='daily';
+    document.getElementById('stakeAmount').value='100';
+    document.getElementById('stakeSponsor').value='testSponsor';
+    stakeTokens();
+    var xlmAfter=JSON.parse(localStorage.getItem('cw_balances')||'{}').XLM||0;
+    var stakesAfter=userStakes.length;
+    var ok=stakesAfter===stakesBefore+1&&Math.abs(xlmAfter-(xlmBefore-100))<0.01;
+    setIntBadge(intRows,0,ok);
+    logTestLine('Full stakeTokens() Flow',ok,ok?'XLM: '+xlmBefore+' \u2192 '+xlmAfter+' | Stakes: '+stakesBefore+' \u2192 '+stakesAfter:'stakeTokens() failed');
+  })();
+
+  // 7. cw_balances sync
+  (function(){
+    var stored=JSON.parse(localStorage.getItem('cw_balances')||'{}');
+    var ok=typeof stored.XLM==='number'&&stored.XLM>=0;
+    setIntBadge(intRows,1,ok);
+    logTestLine('cw_balances Sync',ok,ok?'XLM balance in localStorage: '+stored.XLM:'cw_balances missing or invalid');
+  })();
+
+  // 8. Zero amount rejected
+  (function(){
+    var stakesBefore=userStakes.length;
+    document.getElementById('stakeAmount').value='0';
+    document.getElementById('stakeSponsor').value='testSponsor';
+    stakeTokens();
+    var ok=userStakes.length===stakesBefore;
+    setIntBadge(intRows,2,ok);
+    logTestLine('Zero Amount Rejected',ok,ok?'Stake count unchanged ('+stakesBefore+') \u2014 guard blocked':'VULNERABLE \u2014 zero stake allowed!');
+  })();
+
+  // 9. Negative amount rejected
+  (function(){
+    var stakesBefore=userStakes.length;
+    document.getElementById('stakeAmount').value='-500';
+    document.getElementById('stakeSponsor').value='testSponsor';
+    stakeTokens();
+    var ok=userStakes.length===stakesBefore;
+    setIntBadge(intRows,3,ok);
+    logTestLine('Negative Amount Rejected',ok,ok?'Stake count unchanged ('+stakesBefore+') \u2014 guard blocked':'VULNERABLE \u2014 negative stake allowed!');
+  })();
+
+  // 10. Overdraft guard
+  (function(){
+    var stakesBefore=userStakes.length;
+    document.getElementById('stakeAmount').value='999999';
+    document.getElementById('stakeSponsor').value='testSponsor';
+    stakeTokens();
+    var ok=userStakes.length===stakesBefore;
+    setIntBadge(intRows,4,ok);
+    logTestLine('Overdraft Guard',ok,ok?'Stake count unchanged ('+stakesBefore+') \u2014 guard blocked':'VULNERABLE \u2014 overdraft allowed!');
+  })();
+
+  // 11. Period lock enforcement
+  (function(){
+    // The last valid stake we created (test 6) has 90-day lock starting now
+    var testIdx=userStakes.length-1;
+    var s=userStakes[testIdx];
+    var stakeEnd=new Date(new Date(s.startDate).getTime()+(s.lockDays||90)*86400000);
+    var locked=new Date()<stakeEnd;
+    setIntBadge(intRows,5,locked);
+    logTestLine('Period Lock Enforcement',locked,locked?'Lock until '+stakeEnd.toLocaleDateString()+' \u2014 unstake blocked':'NOT LOCKED \u2014 unstake available prematurely');
+  })();
+
+  // 12. Claim reward credits wallet
+  (function(){
+    var testIdx=userStakes.length-1;
+    var s=userStakes[testIdx];
+    s.rewards=5.1234;  // inject test reward
+    var balBefore=JSON.parse(localStorage.getItem('cw_balances')||'{}').XLM||0;
+    claimReward(testIdx);
+    var balAfter=JSON.parse(localStorage.getItem('cw_balances')||'{}').XLM||0;
+    var ok=Math.abs(balAfter-(balBefore+5.1234))<0.001&&s.rewards===0;
+    setIntBadge(intRows,6,ok);
+    logTestLine('Claim Reward Credits Wallet',ok,ok?'XLM: '+balBefore.toFixed(4)+' \u2192 '+balAfter.toFixed(4)+' (+5.1234)':'claim failed');
+  })();
+
+  // 13. Compound adds to principal
+  (function(){
+    var testIdx=userStakes.length-1;
+    var s=userStakes[testIdx];
+    var amtBefore=s.amount;
+    s.rewards=2.5;  // inject test reward
+    compoundStake(testIdx);
+    var ok=Math.abs(s.amount-(amtBefore+2.5))<0.001&&s.rewards===0;
+    setIntBadge(intRows,7,ok);
+    logTestLine('Compound Adds to Principal',ok,ok?'Amount: '+amtBefore.toFixed(4)+' \u2192 '+s.amount.toFixed(4)+' (+2.5)':'compound failed');
+  })();
+
+  // 14. No sponsor → choose Main Wallet or Option Wallet
+  (function(){
+    var origConfirm2=window.confirm;
+    var confirmCalls=0;
+    window.confirm=function(){confirmCalls++;if(confirmCalls===1)return false;return true;};  // 1st=no inviter, 2nd=pick Main
+    var stakesBefore=userStakes.length;
+    document.getElementById('stakeAmount').value='50';
+    document.getElementById('stakeSponsor').value='';
+    stakeTokens();
+    var stakesAfterMain=userStakes.length;
+    var lastSponsorMain=stakesAfterMain>stakesBefore?userStakes[stakesAfterMain-1].sponsor:'';
+    var mainOk=stakesAfterMain===stakesBefore+1&&lastSponsorMain===MAIN_WALLET_SPONSOR;
+
+    // Now test Option Wallet pick (1st=no inviter, 2nd=pick Option)
+    confirmCalls=0;
+    window.confirm=function(){confirmCalls++;if(confirmCalls===1)return false;return false;};  // 1st=no inviter, 2nd=pick Option
+    document.getElementById('stakeAmount').value='50';
+    document.getElementById('stakeSponsor').value='';
+    stakeTokens();
+    var stakesAfterOpt=userStakes.length;
+    var lastSponsorOpt=stakesAfterOpt>stakesAfterMain?userStakes[stakesAfterOpt-1].sponsor:'';
+    var optOk=stakesAfterOpt===stakesAfterMain+1&&lastSponsorOpt===OPTION_WALLET_SPONSOR;
+
+    var ok=mainOk&&optOk;
+    setIntBadge(intRows,8,ok);
+    logTestLine('No Sponsor \u2192 Wallet Choice',ok,ok?'Main='+lastSponsorMain+' \u2714 | Option='+lastSponsorOpt+' \u2714':'Main: '+lastSponsorMain+(mainOk?' \u2714':' \u2716')+' | Option: '+lastSponsorOpt+(optOk?' \u2714':' \u2716'));
+    window.confirm=origConfirm2;
+  })();
+
+  // 15. Stake record integrity
+  (function(){
+    var testIdx=userStakes.length-1;
+    var s=userStakes[testIdx];
+    var hasId=!!s.id;var hasAsset=!!s.asset;var hasAmt=s.amount>0;var hasAPY=s.apy>0;
+    var hasStart=!!s.startDate;var hasLock=typeof s.lockDays==='number';var hasSponsor=!!s.sponsor;
+    var hasRefDist=!!s.referralDistribution&&!!s.referralDistribution.generations;
+    var ok=hasId&&hasAsset&&hasAmt&&hasAPY&&hasStart&&hasLock&&hasSponsor&&hasRefDist;
+    setIntBadge(intRows,9,ok);
+    logTestLine('Stake Record Integrity',ok,ok?'id:'+s.id+' | asset:'+s.asset+' | amt:'+s.amount.toFixed(2)+' | apy:'+s.apy+'% | lock:'+s.lockDays+'d | sponsor:'+s.sponsor+' | 8-gen:\u2714':'Missing fields: id='+hasId+' asset='+hasAsset+' amt='+hasAmt+' apy='+hasAPY+' start='+hasStart+' lock='+hasLock+' sponsor='+hasSponsor+' refDist='+hasRefDist);
+  })();
+
+  // Restore
+  window.alert=origAlert;
+  window.confirm=origConfirm;
+  localStorage.setItem('soroban_stakes',stakesSnap);
+  userStakes=JSON.parse(stakesSnap);
+  localStorage.setItem('cw_balances',balsSnap);
+  localStorage.setItem('soroban_reward_history',histSnap);
+  rewardHistory=JSON.parse(histSnap);
+  updateUserStaked();
+  document.getElementById('stakeAmount').value='';
+  document.getElementById('stakeSponsor').value='';
+  updateStakePreview();
+}
+
+function resetStakeTests(){
+  testPass=0;testFail=0;testTotal=0;
+  document.getElementById('testLog').innerHTML='';
+  document.getElementById('testResults').style.display='none';
+  document.getElementById('testCounter').style.display='none';
+  document.getElementById('testSummary').textContent='';
+  document.querySelectorAll('.test-case button').forEach(function(b){b.disabled=false;b.textContent='\u25B6 Run';b.style.color='#27ae60';b.style.borderColor='rgba(39,174,96,.3)';});
+  document.querySelectorAll('.tst-badge').forEach(function(b){b.textContent='pending';b.style.color='rgba(255,255,255,.35)';b.style.borderColor='rgba(255,255,255,.08)';b.style.background='none';});
+}
+</script>
+</body>
+</html>

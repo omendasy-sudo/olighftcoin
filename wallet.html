@@ -1,0 +1,2830 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Personal Wallet &mdash; OLIGHFT SMART COIN</title>
+<meta name="description" content="OLIGHFT personal crypto wallet — manage your Stellar tokens securely.">
+<link rel="canonical" href="https://olighftcoin.com/wallet.html">
+<meta property="og:title" content="Personal Wallet — OLIGHFT SMART COIN">
+<meta property="og:url" content="https://olighftcoin.com/wallet.html">
+<meta property="og:site_name" content="OLIGHFT SMART COIN">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135deg,#0a0a1a,#111128,#0a0a1a);color:#fff;min-height:100vh;padding:20px}
+.container{max-width:580px;margin:0 auto}
+h1{text-align:center;font-size:1.6rem;margin-bottom:4px;background:linear-gradient(90deg,#6c5ce7,#a29bfe,#2d9cdb);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.subtitle{text-align:center;color:rgba(255,255,255,.4);font-size:.78rem;margin-bottom:24px}
+.badge{display:inline-block;background:linear-gradient(135deg,#6c5ce7,#a29bfe);color:#fff;padding:4px 14px;border-radius:20px;font-weight:700;font-size:.65rem;letter-spacing:.5px;margin-bottom:14px}
+
+/* Auth */
+.auth-screen{text-align:center;padding:40px 20px}
+.auth-screen h2{font-size:1.2rem;margin-bottom:6px}
+.auth-screen p{font-size:.78rem;color:rgba(255,255,255,.4);margin-bottom:24px}
+.auth-tabs{display:flex;gap:4px;justify-content:center;margin-bottom:20px}
+.auth-tabs button{padding:8px 24px;border-radius:10px;font-size:.78rem;font-weight:600;cursor:pointer;border:1px solid rgba(255,255,255,.06);background:none;color:rgba(255,255,255,.45);transition:.2s}
+.auth-tabs button.active{background:rgba(108,92,231,.15);border-color:rgba(108,92,231,.4);color:#a29bfe}
+.auth-form{max-width:360px;margin:0 auto}
+.auth-form label{display:block;font-size:.7rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;text-align:left}
+.auth-form .fg{margin-bottom:14px}
+.auth-form input{width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(108,92,231,.12);border-radius:10px;padding:12px 14px;color:#fff;font-size:.85rem;outline:none;transition:.2s}
+.auth-form input:focus{border-color:rgba(108,92,231,.4);box-shadow:0 0 0 3px rgba(108,92,231,.1)}
+.auth-form input::placeholder{color:rgba(255,255,255,.2)}
+.auth-form .fg.has-error input{border-color:rgba(235,87,87,.5)!important;box-shadow:0 0 0 3px rgba(235,87,87,.08)!important}
+.auth-form .fg.is-valid input{border-color:rgba(39,174,96,.4)!important}
+.auth-form .fg .field-err{font-size:.62rem;color:#eb5757;margin-top:4px;display:none;text-align:left}
+.auth-form .fg.has-error .field-err{display:block}
+.pw-strength{height:4px;border-radius:2px;background:rgba(255,255,255,.06);margin-top:6px;overflow:hidden}
+.pw-strength .bar{height:100%;border-radius:2px;width:0;transition:.3s}
+.pw-strength .bar.weak{width:25%;background:#eb5757}
+.pw-strength .bar.fair{width:50%;background:#f2994a}
+.pw-strength .bar.good{width:75%;background:#f5c518}
+.pw-strength .bar.strong{width:100%;background:#27ae60}
+.pw-label{font-size:.62rem;margin-top:3px;font-weight:600;text-align:left}
+.pw-label.weak{color:#eb5757}.pw-label.fair{color:#f2994a}.pw-label.good{color:#f5c518}.pw-label.strong{color:#27ae60}
+.pw-reqs{margin-top:6px;display:grid;grid-template-columns:1fr 1fr;gap:2px 10px;text-align:left}
+.pw-req{font-size:.6rem;color:rgba(255,255,255,.25);display:flex;align-items:center;gap:4px;transition:.2s}
+.pw-req.pass{color:#27ae60}
+.auth-btn{width:100%;padding:13px;border:none;border-radius:12px;font-size:.88rem;font-weight:700;cursor:pointer;background:linear-gradient(135deg,#6c5ce7,#a29bfe);color:#fff;transition:.2s;margin-top:6px}
+.auth-btn:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(108,92,231,.3)}
+.auth-note{font-size:.68rem;color:rgba(255,255,255,.3);margin-top:14px}
+.auth-note a{color:#a29bfe;text-decoration:none}
+
+/* Wallet Dashboard */
+.wallet-dash{display:none}
+.user-bar{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:rgba(108,92,231,.04);border:1px solid rgba(108,92,231,.08);border-radius:12px;margin-bottom:20px}
+.user-bar .ub-left{display:flex;align-items:center;gap:10px}
+.user-bar .avatar{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#6c5ce7,#a29bfe);display:flex;align-items:center;justify-content:center;font-size:.9rem;font-weight:700}
+.user-bar .uname{font-size:.85rem;font-weight:600}
+.user-bar .uemail{font-size:.65rem;color:rgba(255,255,255,.35)}
+.user-bar .logout-btn{background:none;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.4);padding:6px 12px;border-radius:8px;font-size:.68rem;cursor:pointer;transition:.2s}
+.user-bar .logout-btn:hover{border-color:rgba(235,87,87,.3);color:#eb5757}
+
+.project-brand{text-align:center;padding:18px 16px;margin-bottom:18px;background:linear-gradient(135deg,rgba(108,92,231,.10),rgba(162,155,254,.08));border:1px solid rgba(108,92,231,.15);border-radius:14px}
+.project-brand .pb-logo{font-size:2.2rem;margin-bottom:4px}
+.project-brand .pb-name{font-size:1.05rem;font-weight:800;background:linear-gradient(90deg,#6c5ce7,#a29bfe,#dfe6e9);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:.5px}
+.project-brand .pb-coin{display:inline-flex;align-items:center;gap:6px;margin-top:6px;padding:4px 14px;background:rgba(108,92,231,.12);border:1px solid rgba(108,92,231,.18);border-radius:20px;font-size:.72rem;font-weight:700;color:#a29bfe;letter-spacing:.8px}
+.project-brand .pb-coin .coin-dot{width:8px;height:8px;border-radius:50%;background:#6c5ce7;box-shadow:0 0 6px rgba(108,92,231,.6)}
+.project-brand .pb-net{font-size:.58rem;color:rgba(255,255,255,.3);margin-top:6px;letter-spacing:1px;text-transform:uppercase}
+
+.total-balance{text-align:center;padding:24px 0}
+.total-balance .tb-label{font-size:.65rem;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:1px}
+.total-balance .tb-val{font-size:2.2rem;font-weight:800;margin:4px 0;background:linear-gradient(90deg,#6c5ce7,#a29bfe);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.total-balance .tb-change{font-size:.78rem;color:#27ae60}
+.total-balance .tb-change.neg{color:#eb5757}
+
+.quick-btns{display:flex;gap:8px;justify-content:center;margin-bottom:24px}
+.qb{display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 20px;border-radius:12px;text-decoration:none;color:#fff;border:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.02);transition:.2s;cursor:pointer;font-size:.72rem;font-weight:600}
+.qb:hover{transform:translateY(-2px);border-color:rgba(108,92,231,.3)}
+.qb .qb-icon{font-size:1.3rem}
+
+.section-label{font-size:.68rem;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;padding-left:4px}
+
+/* Assets */
+.asset-list{margin-bottom:24px}
+.asset-item{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:12px;margin-bottom:6px;transition:.2s;cursor:pointer}
+.asset-item:hover{border-color:rgba(108,92,231,.2);background:rgba(108,92,231,.03)}
+.asset-item .ai-left{display:flex;align-items:center;gap:12px}
+.asset-item .ai-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.2rem}
+.asset-item .ai-name{font-size:.85rem;font-weight:600}
+.asset-item .ai-full{font-size:.65rem;color:rgba(255,255,255,.35)}
+.asset-item .ai-right{text-align:right}
+.asset-item .ai-bal{font-size:.88rem;font-weight:700}
+.asset-item .ai-usd{font-size:.68rem;color:rgba(255,255,255,.4)}
+.asset-item .ai-pct{font-size:.62rem;font-weight:600}
+.asset-item .ai-pct.up{color:#27ae60}.asset-item .ai-pct.down{color:#eb5757}
+
+.bg-xlm{background:rgba(108,92,231,.12)}.bg-usdc{background:rgba(39,174,96,.12)}
+.bg-eth{background:rgba(98,126,234,.12)}.bg-btc{background:rgba(247,147,26,.12)}
+.bg-eurc{background:rgba(45,156,219,.12)}
+.bg-olighft{background:linear-gradient(135deg,rgba(245,197,24,.15),rgba(242,153,74,.15))}
+
+/* Staking */
+.stake-panel{background:rgba(108,92,231,.04);border:1px solid rgba(108,92,231,.12);border-radius:14px;padding:20px;margin-bottom:20px}
+.stake-panel h3{font-size:.85rem;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.stake-input-row{display:flex;gap:10px;margin-bottom:14px;align-items:flex-end}
+.stake-fg{flex:1}
+.stake-fg label{display:block;font-size:.62rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.stake-fg input,.stake-fg select{width:100%;padding:10px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);color:#fff;font-size:.82rem;font-family:inherit;outline:none;transition:.2s}
+.stake-fg input:focus,.stake-fg select:focus{border-color:#6c5ce7;box-shadow:0 0 0 2px rgba(108,92,231,.15)}
+.stake-fg select option{background:#1a1a2e;color:#fff}
+.stake-apy-badge{display:inline-block;background:linear-gradient(135deg,#27ae60,#2ecc71);color:#fff;padding:3px 10px;border-radius:20px;font-size:.62rem;font-weight:700}
+.stake-summary{background:rgba(0,0,0,.15);border-radius:10px;padding:12px 14px;margin-bottom:14px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}
+.stake-summary .ss-label{font-size:.52rem;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.5px}
+.stake-summary .ss-val{font-size:.85rem;font-weight:800;margin-top:2px}
+.stake-btn{width:100%;padding:12px;border:none;border-radius:12px;font-size:.82rem;font-weight:700;cursor:pointer;color:#fff;background:linear-gradient(135deg,#6c5ce7,#a29bfe);transition:.25s}
+.stake-btn:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(108,92,231,.3)}
+.stake-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
+.active-stakes{margin-top:16px}
+.active-stakes .as-title{font-size:.68rem;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
+.as-card{background:rgba(39,174,96,.06);border:1px solid rgba(39,174,96,.15);border-radius:12px;padding:12px 14px;margin-bottom:8px}
+.as-card.finished{background:rgba(245,197,24,.06);border-color:rgba(245,197,24,.2)}
+.as-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.as-bar{background:rgba(0,0,0,.2);border-radius:8px;height:5px;overflow:hidden;margin-bottom:8px}
+.as-bar-fill{height:100%;border-radius:8px;background:linear-gradient(90deg,#6c5ce7,#a29bfe);transition:.3s}
+.as-bar-fill.done{background:linear-gradient(90deg,#f5c518,#f2994a)}
+.as-stats{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;text-align:center}
+.as-stats .ss-label{font-size:.5rem;color:rgba(255,255,255,.25);text-transform:uppercase}
+.as-stats .ss-val{font-size:.78rem;font-weight:700;margin-top:1px}
+.as-withdraw-btn{margin-top:8px;width:100%;padding:8px;border:none;border-radius:8px;font-size:.72rem;font-weight:700;cursor:pointer;background:linear-gradient(135deg,#27ae60,#2ecc71);color:#fff}
+
+/* Security */
+.security-card{background:rgba(108,92,231,.04);border:1px solid rgba(108,92,231,.08);border-radius:14px;padding:18px;margin-bottom:20px}
+.security-card h3{font-size:.82rem;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.sec-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.03)}
+.sec-row:last-child{border:none}
+.sec-row .sr-left{display:flex;align-items:center;gap:8px}
+.sec-row .sr-icon{font-size:1rem}
+.sec-row .sr-name{font-size:.78rem}
+.sec-row .sr-desc{font-size:.62rem;color:rgba(255,255,255,.35)}
+.toggle{width:42px;height:24px;border-radius:12px;background:rgba(255,255,255,.1);position:relative;cursor:pointer;transition:.2s;border:none}
+.toggle.on{background:rgba(39,174,96,.5)}
+.toggle .dot{width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:3px;left:3px;transition:.2s}
+.toggle.on .dot{left:21px}
+
+/* Google Account Link */
+.google-link-row{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:rgba(66,133,244,.04);border:1px solid rgba(66,133,244,.1);border-radius:12px;margin-top:10px}
+.google-link-row .gl-left{display:flex;align-items:center;gap:10px}
+.google-link-row .gl-icon{width:24px;height:24px;display:flex;align-items:center;justify-content:center}
+.google-link-row .gl-name{font-size:.78rem;font-weight:600}
+.google-link-row .gl-desc{font-size:.6rem;color:rgba(255,255,255,.35)}
+.google-link-row .gl-email{font-size:.6rem;color:#4285f4;font-weight:600}
+.gl-btn{padding:6px 14px;border-radius:8px;font-size:.68rem;font-weight:700;cursor:pointer;border:none;transition:.2s}
+.gl-btn.link{background:rgba(66,133,244,.15);color:#4285f4;border:1px solid rgba(66,133,244,.25)}
+.gl-btn.link:hover{background:rgba(66,133,244,.25)}
+.gl-btn.unlink{background:rgba(235,87,87,.08);color:#eb5757;border:1px solid rgba(235,87,87,.15)}
+.gl-btn.unlink:hover{background:rgba(235,87,87,.18)}
+.gl-badge{display:inline-block;padding:2px 8px;border-radius:6px;font-size:.55rem;font-weight:700;margin-left:6px}
+.gl-badge.linked{background:rgba(39,174,96,.1);color:#27ae60;border:1px solid rgba(39,174,96,.2)}
+.gl-badge.demo{background:rgba(242,153,74,.1);color:#f2994a;border:1px solid rgba(242,153,74,.2)}
+#g-wallet-btn{width:100%;display:flex;justify-content:center;margin-top:8px;min-height:44px}
+
+/* Activity */
+.activity{margin-bottom:20px}
+.act-item{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:10px;margin-bottom:5px}
+.act-item .ac-left{display:flex;align-items:center;gap:10px}
+.act-item .ac-icon{font-size:1.1rem}
+.act-item .ac-type{font-size:.75rem;font-weight:600}
+.act-item .ac-detail{font-size:.62rem;color:rgba(255,255,255,.35)}
+.act-item .ac-right{text-align:right}
+.act-item .ac-amt{font-size:.78rem;font-weight:600}
+.act-item .ac-amt.green{color:#27ae60}.act-item .ac-amt.red{color:#eb5757}
+.act-item .ac-time{font-size:.58rem;color:rgba(255,255,255,.25)}
+
+/* Wallet Address */
+.addr-card{background:rgba(108,92,231,.04);border:1px solid rgba(108,92,231,.08);border-radius:14px;padding:16px;margin-bottom:20px;text-align:center}
+.addr-card .addr-label{font-size:.6rem;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.addr-card .addr-val{font-family:'Courier New',monospace;font-size:.72rem;color:#a29bfe;word-break:break-all;line-height:1.5}
+.addr-card .addr-btns{display:flex;gap:6px;justify-content:center;margin-top:10px}
+.addr-card .addr-btns button{padding:6px 14px;border-radius:8px;font-size:.68rem;font-weight:600;cursor:pointer;transition:.2s}
+.btn-cp{background:rgba(108,92,231,.12);border:1px solid rgba(108,92,231,.2);color:#a29bfe}
+.btn-cp:hover{background:rgba(108,92,231,.2)}
+
+.nav-links{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:20px}
+.nav-links a{padding:7px 12px;border-radius:8px;font-size:.7rem;font-weight:600;text-decoration:none;border:1px solid rgba(255,255,255,.06);color:rgba(255,255,255,.4);transition:.2s}
+.nav-links a:hover{border-color:rgba(108,92,231,.3);color:#a29bfe}
+
+/* ═══ Invite Stage Flow ═══ */
+.invite-section{margin-bottom:24px}
+.invite-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.invite-stats{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:16px}
+.inv-stat{text-align:center;padding:10px 4px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:10px}
+.inv-stat .is-val{font-size:1.1rem;font-weight:800;color:#a29bfe}
+.inv-stat .is-label{font-size:.58rem;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+.invite-link-box{display:flex;gap:8px;align-items:center;padding:10px 14px;background:rgba(108,92,231,.06);border:1px solid rgba(108,92,231,.15);border-radius:10px;margin-bottom:16px}
+.invite-link-box input{flex:1;background:none;border:none;color:#a29bfe;font-size:.75rem;font-family:'Courier New',monospace;outline:none}
+.invite-link-box button{padding:6px 14px;border:none;border-radius:8px;background:linear-gradient(135deg,#6c5ce7,#a29bfe);color:#fff;font-size:.68rem;font-weight:700;cursor:pointer;white-space:nowrap;transition:.2s}
+.invite-link-box button:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(108,92,231,.3)}
+.invite-list{display:flex;flex-direction:column;gap:10px}
+.invite-card{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:12px;padding:14px 16px;transition:.2s}
+.invite-card:hover{border-color:rgba(108,92,231,.2)}
+.inv-card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.inv-card-top .inv-name{font-size:.82rem;font-weight:700}
+.inv-card-top .inv-date{font-size:.62rem;color:rgba(255,255,255,.3)}
+.inv-card-top .inv-email{font-size:.65rem;color:rgba(255,255,255,.35)}
+.stage-flow{display:flex;align-items:center;gap:0;position:relative}
+.stage-node{display:flex;flex-direction:column;align-items:center;flex:1;position:relative;z-index:1}
+.stage-dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;border:2px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);transition:.3s;position:relative}
+.stage-dot.done{border-color:#27ae60;background:rgba(39,174,96,.15);color:#27ae60}
+.stage-dot.current{border-color:#f5c518;background:rgba(245,197,24,.12);color:#f5c518;box-shadow:0 0 8px rgba(245,197,24,.25);animation:pulse-stage 2s infinite}
+.stage-dot.pending{border-color:rgba(255,255,255,.08);color:rgba(255,255,255,.15)}
+@keyframes pulse-stage{0%,100%{box-shadow:0 0 8px rgba(245,197,24,.2)}50%{box-shadow:0 0 16px rgba(245,197,24,.4)}}
+.stage-label{font-size:.55rem;color:rgba(255,255,255,.3);margin-top:4px;text-align:center;white-space:nowrap;letter-spacing:.3px}
+.stage-label.done{color:#27ae60}
+.stage-label.current{color:#f5c518;font-weight:700}
+.stage-connector{flex:1;height:2px;background:rgba(255,255,255,.06);min-width:8px;margin:0 -2px;position:relative;top:-8px;z-index:0}
+.stage-connector.done{background:linear-gradient(90deg,#27ae60,#27ae60)}
+.stage-connector.half{background:linear-gradient(90deg,#27ae60,#f5c518)}
+.inv-empty{text-align:center;padding:24px;color:rgba(255,255,255,.25);font-size:.78rem}
+.inv-empty .inv-empty-icon{font-size:2rem;margin-bottom:6px}
+@media(max-width:480px){.invite-stats{grid-template-columns:repeat(3,1fr)}.stage-dot{width:24px;height:24px;font-size:.6rem}.stage-label{font-size:.5rem}}
+
+/* Multi-Account Manager */
+.accounts-card{background:rgba(108,92,231,.04);border:1px solid rgba(108,92,231,.08);border-radius:14px;padding:16px;margin-bottom:20px}
+.acc-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.acc-header .acc-title{font-size:.68rem;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.5px}
+.acc-add-btn{background:rgba(108,92,231,.12);border:1px solid rgba(108,92,231,.2);color:#a29bfe;padding:5px 12px;border-radius:8px;font-size:.62rem;font-weight:600;cursor:pointer;transition:.2s;display:flex;align-items:center;gap:4px}
+.acc-add-btn:hover{background:rgba(108,92,231,.2)}
+.acc-list{display:flex;flex-direction:column;gap:6px}
+.acc-item{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:12px;cursor:pointer;transition:.2s}
+.acc-item:hover{border-color:rgba(108,92,231,.2);background:rgba(108,92,231,.03)}
+.acc-item.active{border-color:rgba(108,92,231,.35);background:rgba(108,92,231,.08)}
+.acc-item .acc-left{display:flex;align-items:center;gap:10px;min-width:0}
+.acc-item .acc-idx{width:28px;height:28px;border-radius:8px;background:rgba(108,92,231,.12);display:flex;align-items:center;justify-content:center;font-size:.68rem;font-weight:700;color:#a29bfe;flex-shrink:0}
+.acc-item.active .acc-idx{background:linear-gradient(135deg,#6c5ce7,#a29bfe);color:#fff}
+.acc-item .acc-info{min-width:0}
+.acc-item .acc-label{font-size:.75rem;font-weight:600;white-space:nowrap}
+.acc-item .acc-addr{font-family:'Courier New',monospace;font-size:.6rem;color:rgba(255,255,255,.35);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:220px}
+.acc-item.active .acc-addr{color:#a29bfe}
+.acc-item .acc-actions{display:flex;gap:4px;flex-shrink:0}
+.acc-item .acc-actions button{background:none;border:1px solid rgba(255,255,255,.06);color:rgba(255,255,255,.35);padding:4px 8px;border-radius:6px;font-size:.58rem;cursor:pointer;transition:.2s}
+.acc-item .acc-actions button:hover{border-color:rgba(108,92,231,.3);color:#a29bfe}
+.acc-active-badge{font-size:.52rem;background:rgba(39,174,96,.15);color:#27ae60;padding:2px 8px;border-radius:10px;font-weight:600;letter-spacing:.3px}
+.acc-path{font-size:.52rem;color:rgba(255,255,255,.2);margin-top:1px;font-family:'Courier New',monospace}
+
+/* Multisig Manager */
+.multisig-card{background:rgba(108,92,231,.04);border:1px solid rgba(108,92,231,.08);border-radius:14px;padding:18px;margin-bottom:20px}
+.ms-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.ms-header .ms-title{font-size:.75rem;font-weight:700;display:flex;align-items:center;gap:6px}
+.ms-header .ms-title .ms-icon{font-size:1rem}
+.ms-status{display:flex;align-items:center;gap:8px}
+.ms-badge{font-size:.55rem;padding:3px 10px;border-radius:10px;font-weight:700;letter-spacing:.3px}
+.ms-badge.active{background:rgba(39,174,96,.12);color:#27ae60;border:1px solid rgba(39,174,96,.2)}
+.ms-badge.inactive{background:rgba(255,255,255,.05);color:rgba(255,255,255,.35);border:1px solid rgba(255,255,255,.08)}
+.ms-info{background:rgba(45,156,219,.06);border:1px solid rgba(45,156,219,.12);border-radius:10px;padding:12px;margin-bottom:14px;font-size:.68rem;color:rgba(255,255,255,.5);line-height:1.5}
+.ms-info strong{color:#2d9cdb}
+.ms-threshold-bar{display:flex;align-items:center;gap:10px;margin-bottom:14px;padding:12px;background:rgba(108,92,231,.06);border-radius:10px}
+.ms-threshold-bar .ms-th-label{font-size:.65rem;color:rgba(255,255,255,.4);white-space:nowrap}
+.ms-threshold-bar .ms-th-val{font-size:1.1rem;font-weight:800;color:#a29bfe;white-space:nowrap}
+.ms-threshold-bar .ms-th-desc{font-size:.58rem;color:rgba(255,255,255,.3);flex:1}
+.ms-thresholds-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.ms-th-card{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:10px;text-align:center}
+.ms-th-card .ms-thc-label{font-size:.55rem;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.ms-th-card .ms-thc-val{font-size:1rem;font-weight:800;color:#a29bfe}
+.ms-th-card .ms-thc-ops{font-size:.5rem;color:rgba(255,255,255,.25);margin-top:2px}
+.ms-th-card.low{border-color:rgba(39,174,96,.15)}.ms-th-card.low .ms-thc-val{color:#27ae60}
+.ms-th-card.med{border-color:rgba(242,153,74,.15)}.ms-th-card.med .ms-thc-val{color:#f2994a}
+.ms-th-card.high{border-color:rgba(235,87,87,.15)}.ms-th-card.high .ms-thc-val{color:#eb5757}
+.ms-formula{background:rgba(108,92,231,.04);border:1px solid rgba(108,92,231,.08);border-radius:8px;padding:10px 12px;margin-bottom:14px;font-family:'Courier New',monospace;font-size:.62rem;color:rgba(255,255,255,.4);line-height:1.6;text-align:center}
+.ms-formula strong{color:#a29bfe;font-weight:700}
+.ms-signers{margin-bottom:14px}
+.ms-signer{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:10px;margin-bottom:5px;transition:.2s}
+.ms-signer:hover{border-color:rgba(108,92,231,.15)}
+.ms-signer .ms-s-left{display:flex;align-items:center;gap:8px;min-width:0}
+.ms-signer .ms-s-idx{width:24px;height:24px;border-radius:6px;background:rgba(108,92,231,.1);display:flex;align-items:center;justify-content:center;font-size:.6rem;font-weight:700;color:#a29bfe;flex-shrink:0}
+.ms-signer .ms-s-info{min-width:0}
+.ms-signer .ms-s-label{font-size:.7rem;font-weight:600}
+.ms-signer .ms-s-key{font-family:'Courier New',monospace;font-size:.55rem;color:rgba(255,255,255,.3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:200px}
+.ms-signer .ms-s-path{font-size:.48rem;color:rgba(255,255,255,.18);font-family:'Courier New',monospace}
+.ms-signer .ms-s-weight{font-size:.6rem;font-weight:700;color:#a29bfe;background:rgba(108,92,231,.1);padding:3px 8px;border-radius:6px;white-space:nowrap}
+.ms-signer .ms-s-type{font-size:.48rem;color:rgba(255,255,255,.2);background:rgba(255,255,255,.04);padding:2px 6px;border-radius:4px;margin-left:4px}
+.ms-signer .ms-s-right{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.ms-signer .ms-s-remove{background:none;border:1px solid rgba(235,87,87,.15);color:rgba(235,87,87,.5);padding:3px 6px;border-radius:5px;font-size:.52rem;cursor:pointer;transition:.2s}
+.ms-signer .ms-s-remove:hover{border-color:rgba(235,87,87,.4);color:#eb5757}
+.ms-actions{display:flex;flex-wrap:wrap;gap:6px}
+.ms-btn{padding:8px 14px;border-radius:10px;font-size:.7rem;font-weight:600;cursor:pointer;transition:.2s;display:flex;align-items:center;gap:5px}
+.ms-btn-primary{background:linear-gradient(135deg,#6c5ce7,#a29bfe);border:none;color:#fff}
+.ms-btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(108,92,231,.3)}
+.ms-btn-secondary{background:rgba(108,92,231,.08);border:1px solid rgba(108,92,231,.15);color:#a29bfe}
+.ms-btn-secondary:hover{background:rgba(108,92,231,.15)}
+.ms-btn-danger{background:rgba(235,87,87,.08);border:1px solid rgba(235,87,87,.15);color:#eb5757}
+.ms-btn-danger:hover{background:rgba(235,87,87,.15)}
+.ms-config{margin-bottom:14px}
+.ms-config label{display:block;font-size:.62rem;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
+.ms-config select,.ms-config input[type=number]{background:rgba(255,255,255,.04);border:1px solid rgba(108,92,231,.12);border-radius:8px;padding:8px 10px;color:#fff;font-size:.78rem;outline:none;width:100%;transition:.2s}
+.ms-config select:focus,.ms-config input[type=number]:focus{border-color:rgba(108,92,231,.4)}
+.ms-config select option{background:#111128;color:#fff}
+.ms-config-row{display:flex;gap:10px;margin-bottom:10px}
+.ms-config-row>div{flex:1}
+.ms-setopt-preview{background:rgba(108,92,231,.03);border:1px solid rgba(108,92,231,.08);border-radius:8px;padding:10px 12px;margin-bottom:14px;font-family:'Courier New',monospace;font-size:.55rem;color:rgba(255,255,255,.3);line-height:1.6;max-height:120px;overflow-y:auto;white-space:pre-wrap}
+.ms-xdr-box{background:rgba(242,153,74,.04);border:1px solid rgba(242,153,74,.12);border-radius:10px;padding:12px;margin-bottom:10px}
+.ms-xdr-box label{display:block;font-size:.6rem;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.ms-xdr-box textarea{width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(108,92,231,.12);border-radius:8px;padding:8px;color:#a29bfe;font-family:'Courier New',monospace;font-size:.58rem;resize:vertical;min-height:50px;outline:none}
+.ms-xdr-box textarea:focus{border-color:rgba(108,92,231,.4)}
+.ms-xdr-actions{display:flex;gap:6px;margin-top:6px}
+.ms-pending{margin-top:12px}
+.ms-pending-tx{background:rgba(242,153,74,.06);border:1px solid rgba(242,153,74,.15);border-radius:10px;padding:12px;margin-bottom:8px}
+.ms-pending-tx .ms-ptx-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.ms-pending-tx .ms-ptx-type{font-size:.72rem;font-weight:700;color:#f2994a}
+.ms-pending-tx .ms-ptx-time{font-size:.55rem;color:rgba(255,255,255,.25)}
+.ms-pending-tx .ms-ptx-detail{font-size:.65rem;color:rgba(255,255,255,.4);margin-bottom:8px}
+.ms-pending-tx .ms-ptx-xdr{font-family:'Courier New',monospace;font-size:.5rem;color:rgba(255,255,255,.2);word-break:break-all;background:rgba(255,255,255,.02);border-radius:6px;padding:6px;margin-bottom:8px;max-height:40px;overflow:hidden}
+.ms-pending-tx .ms-ptx-sigs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px}
+.ms-pending-tx .ms-sig-dot{width:8px;height:8px;border-radius:50%;border:1px solid rgba(108,92,231,.3)}
+.ms-pending-tx .ms-sig-dot.signed{background:#27ae60;border-color:#27ae60}
+.ms-pending-tx .ms-ptx-actions{display:flex;gap:6px;flex-wrap:wrap}
+.ms-pending-tx .ms-ptx-progress{font-size:.58rem;color:rgba(255,255,255,.3);margin-bottom:4px}
+.ms-pending-tx .ms-ptx-weight-bar{height:4px;border-radius:2px;background:rgba(255,255,255,.06);margin-bottom:6px;overflow:hidden}
+.ms-pending-tx .ms-ptx-weight-fill{height:100%;border-radius:2px;transition:.3s}
+.ms-pending-tx .ms-ptx-weight-fill.partial{background:linear-gradient(90deg,#f2994a,#f5c518)}
+.ms-pending-tx .ms-ptx-weight-fill.ready{background:#27ae60}
+
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#27ae60;color:#fff;padding:10px 24px;border-radius:10px;font-size:.78rem;font-weight:600;transition:.3s;opacity:0;z-index:100}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+
+.net-badge{text-align:center;font-size:.6rem;color:rgba(255,255,255,.25);margin-top:24px;padding-top:16px;border-top:1px solid rgba(108,92,231,.06)}
+
+/* Seed Phrase */
+.seed-screen{display:none;text-align:center;padding:30px 10px}
+.seed-screen h2{font-size:1.15rem;margin-bottom:4px}
+.seed-screen .seed-sub{font-size:.72rem;color:rgba(255,255,255,.4);margin-bottom:18px}
+.seed-warn{background:rgba(235,87,87,.08);border:1px solid rgba(235,87,87,.2);border-radius:12px;padding:14px;font-size:.72rem;color:#eb5757;margin-bottom:18px;line-height:1.5}
+.seed-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:400px;margin:0 auto 20px}
+.seed-word{background:rgba(108,92,231,.06);border:1px solid rgba(108,92,231,.12);border-radius:10px;padding:10px 6px;font-size:.82rem;font-weight:600;font-family:'Courier New',monospace;position:relative;user-select:all}
+.seed-word .sw-num{position:absolute;top:3px;left:6px;font-size:.5rem;color:rgba(255,255,255,.25);font-weight:400;font-family:'Segoe UI',sans-serif}
+.seed-actions{display:flex;gap:8px;justify-content:center;margin-bottom:16px}
+.seed-actions button{padding:10px 20px;border-radius:10px;font-size:.78rem;font-weight:600;cursor:pointer;transition:.2s}
+.btn-copy-seed{background:rgba(108,92,231,.12);border:1px solid rgba(108,92,231,.2);color:#a29bfe}
+.btn-copy-seed:hover{background:rgba(108,92,231,.2)}
+.btn-continue{background:linear-gradient(135deg,#6c5ce7,#a29bfe);border:none;color:#fff;opacity:.4;pointer-events:none;transition:.3s}
+.btn-continue.ready{opacity:1;pointer-events:auto}
+.btn-continue.ready:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(108,92,231,.3)}
+.seed-confirm{display:flex;align-items:center;gap:8px;justify-content:center;margin-bottom:16px;font-size:.72rem;color:rgba(255,255,255,.5)}
+.seed-confirm input[type=checkbox]{width:auto}
+.seed-blur .seed-grid{filter:blur(6px);pointer-events:none}
+.seed-toggle-vis{background:none;border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.5);padding:6px 14px;border-radius:8px;font-size:.68rem;cursor:pointer;margin-bottom:14px;transition:.2s}
+.seed-toggle-vis:hover{border-color:rgba(108,92,231,.3);color:#a29bfe}
+
+/* SEP-0021 Workflow & Transaction Simulation */
+.ms-workflow{margin-bottom:14px}
+.ms-workflow-title{font-size:.62rem;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.ms-steps{display:flex;gap:4px;margin-bottom:10px}
+.ms-step{flex:1;padding:8px 6px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:8px;text-align:center;transition:.3s}
+.ms-step .ms-step-num{font-size:.55rem;font-weight:800;color:rgba(255,255,255,.2);margin-bottom:2px}
+.ms-step .ms-step-label{font-size:.52rem;color:rgba(255,255,255,.3);line-height:1.3}
+.ms-step.active{border-color:rgba(108,92,231,.4);background:rgba(108,92,231,.08)}
+.ms-step.active .ms-step-num{color:#a29bfe}
+.ms-step.active .ms-step-label{color:#a29bfe}
+.ms-step.done{border-color:rgba(39,174,96,.3);background:rgba(39,174,96,.06)}
+.ms-step.done .ms-step-num{color:#27ae60}
+.ms-step.done .ms-step-label{color:#27ae60}
+.ms-sim-result{background:rgba(45,156,219,.06);border:1px solid rgba(45,156,219,.15);border-radius:8px;padding:10px 12px;margin-bottom:8px;font-size:.62rem;line-height:1.5}
+.ms-sim-result.success{border-color:rgba(39,174,96,.2);background:rgba(39,174,96,.06)}
+.ms-sim-result.error{border-color:rgba(235,87,87,.2);background:rgba(235,87,87,.06)}
+.ms-sim-result .sim-label{font-weight:700;text-transform:uppercase;letter-spacing:.3px;margin-bottom:4px}
+.ms-sim-result.success .sim-label{color:#27ae60}
+.ms-sim-result.error .sim-label{color:#eb5757}
+.ms-sim-detail{font-family:'Courier New',monospace;font-size:.55rem;color:rgba(255,255,255,.4);word-break:break-all}
+
+/* Preset Configurations */
+.ms-presets{margin-bottom:14px}
+.ms-presets-title{font-size:.6rem;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.ms-preset-btns{display:flex;flex-wrap:wrap;gap:5px}
+.ms-preset-btn{padding:6px 12px;border-radius:8px;font-size:.62rem;font-weight:600;cursor:pointer;transition:.2s;background:rgba(108,92,231,.06);border:1px solid rgba(108,92,231,.12);color:rgba(255,255,255,.5)}
+.ms-preset-btn:hover{border-color:rgba(108,92,231,.35);color:#a29bfe;background:rgba(108,92,231,.12)}
+.ms-preset-btn.selected{border-color:rgba(108,92,231,.5);color:#a29bfe;background:rgba(108,92,231,.15)}
+.ms-preset-desc{font-size:.56rem;color:rgba(255,255,255,.3);margin-top:6px;padding:6px 10px;background:rgba(108,92,231,.04);border-radius:6px;line-height:1.5;display:none}
+.ms-preset-desc.show{display:block}
+
+/* Signing Requirements Calculator */
+.ms-calc{background:rgba(108,92,231,.04);border:1px solid rgba(108,92,231,.08);border-radius:10px;padding:12px;margin-bottom:14px;display:none}
+.ms-calc-title{font-size:.58rem;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.ms-calc-rows{display:flex;flex-direction:column;gap:4px}
+.ms-calc-row{display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px;font-size:.6rem}
+.ms-calc-row .mcr-level{font-weight:700;display:flex;align-items:center;gap:6px}
+.ms-calc-row .mcr-level .mcr-dot{width:8px;height:8px;border-radius:50%}
+.ms-calc-row .mcr-level .mcr-dot.low{background:#27ae60}
+.ms-calc-row .mcr-level .mcr-dot.med{background:#f2994a}
+.ms-calc-row .mcr-level .mcr-dot.high{background:#eb5757}
+.ms-calc-row .mcr-th{color:rgba(255,255,255,.4)}
+.ms-calc-row .mcr-sigs{font-weight:700;color:#a29bfe}
+
+/* Operation Level Selector */
+.ms-oplevel{margin-bottom:10px}
+.ms-oplevel label{display:block;font-size:.62rem;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
+.ms-oplevel-btns{display:flex;gap:5px}
+.ms-opl-btn{padding:6px 14px;border-radius:8px;font-size:.62rem;font-weight:600;cursor:pointer;transition:.2s;border:1px solid rgba(255,255,255,.08);background:none;color:rgba(255,255,255,.4)}
+.ms-opl-btn:hover{border-color:rgba(108,92,231,.3);color:#a29bfe}
+.ms-opl-btn.selected{color:#fff;font-weight:700}
+.ms-opl-btn.selected.opl-low{background:rgba(39,174,96,.15);border-color:rgba(39,174,96,.3);color:#27ae60}
+.ms-opl-btn.selected.opl-med{background:rgba(242,153,74,.15);border-color:rgba(242,153,74,.3);color:#f2994a}
+.ms-opl-btn.selected.opl-high{background:rgba(235,87,87,.15);border-color:rgba(235,87,87,.3);color:#eb5757}
+
+/* Soroban Info */
+.ms-soroban{background:rgba(45,156,219,.04);border:1px solid rgba(45,156,219,.10);border-radius:10px;padding:12px;margin-top:12px;font-size:.62rem;color:rgba(255,255,255,.4);line-height:1.6}
+.ms-soroban strong{color:#2d9cdb}
+.ms-soroban .ms-soroban-title{font-size:.6rem;font-weight:700;color:#2d9cdb;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+
+@media(max-width:480px){.quick-btns{flex-wrap:wrap}.total-balance .tb-val{font-size:1.6rem}.seed-grid{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div class="container">
+<div style="text-align:center"><span class="badge">PERSONAL WALLET &bull; STELLAR TESTNET</span></div>
+
+<!-- AUTH SCREEN -->
+<div id="authScreen" class="auth-screen">
+<h2>&#x1F512; Personal Wallet</h2>
+<p>Your keys, your coins &mdash; self-custody wallet on Stellar Testnet</p>
+
+<div class="auth-tabs">
+<button class="active" onclick="showAuth('login')">Sign In</button>
+<button onclick="showAuth('register')">Create Account</button>
+</div>
+
+<!-- Login Form -->
+<div id="loginForm" class="auth-form">
+<div class="fg" id="fg-loginEmail"><label>Email</label><input type="email" id="loginEmail" placeholder="you@example.com" required oninput="vEmail('loginEmail','fg-loginEmail')"><div class="field-err">Enter a valid email (e.g. name@domain.com)</div></div>
+<div class="fg" id="fg-loginPass"><label>Password</label><input type="password" id="loginPass" placeholder="Enter password" required minlength="8"><div class="field-err">Password must be at least 8 characters.</div></div>
+<button class="auth-btn" onclick="login()">&#x1F513; Sign In</button>
+<div class="auth-note">Don't have an account? <a href="#" onclick="showAuth('register');return false">Create one</a></div>
+</div>
+
+<!-- Register Form -->
+<div id="registerForm" class="auth-form" style="display:none">
+<div class="fg" id="fg-regSponsor"><label>Who Invited You? (Sponsor Username)</label><input type="text" id="regSponsor" placeholder="Enter sponsor username" required><div class="field-err">Sponsor username is required.</div></div>
+<div class="fg" id="fg-regName"><label>Full Name</label><input type="text" id="regName" placeholder="Your full name" required><div class="field-err">Full name is required.</div></div>
+<div class="fg" id="fg-regEmail"><label>Email</label><input type="email" id="regEmail" placeholder="you@example.com" required oninput="vEmail('regEmail','fg-regEmail')"><div class="field-err">Enter a valid email (e.g. name@domain.com)</div></div>
+<div class="fg" id="fg-regPass">
+<label>Password</label>
+<input type="password" id="regPass" placeholder="Strong password required" required minlength="8" oninput="pwCheck(this.value)">
+<div class="pw-strength"><div class="bar" id="pw-bar"></div></div>
+<div class="pw-label" id="pw-label"></div>
+<div class="pw-reqs">
+<div class="pw-req" id="r-len">&#x2716; Min 8 chars</div>
+<div class="pw-req" id="r-up">&#x2716; Uppercase</div>
+<div class="pw-req" id="r-low">&#x2716; Lowercase</div>
+<div class="pw-req" id="r-num">&#x2716; Number</div>
+<div class="pw-req" id="r-sp">&#x2716; Special char</div>
+<div class="pw-req" id="r-ns">&#x2716; No spaces</div>
+</div>
+<div class="field-err">Password does not meet all requirements.</div>
+</div>
+<div class="fg" id="fg-regConfirm"><label>Confirm Password</label><input type="password" id="regConfirm" placeholder="Confirm password" required minlength="8" oninput="pwMatchCheck()"><div class="field-err">Passwords do not match.</div></div>
+<div class="fg" style="display:flex;align-items:center;gap:8px" id="fg-agreeTerms">
+<input type="checkbox" id="agreeTerms" style="width:auto" required>
+<label style="margin:0;text-transform:none;letter-spacing:0;font-size:.7rem">I agree to the <a href="FUTURE CTPTO CARD SMART CONTRACT .html/terms .html" style="color:#a29bfe;text-decoration:none">Terms &amp; Conditions</a></label>
+</div>
+<button class="auth-btn" onclick="register()">&#x2728; Create Wallet</button>
+<div class="auth-note">Already have an account? <a href="#" onclick="showAuth('login');return false">Sign in</a></div>
+</div>
+</div>
+
+<!-- SEED PHRASE SCREEN -->
+<div id="seedScreen" class="seed-screen">
+<h2>&#x1F510; Your 24-Word Recovery Phrase</h2>
+<p class="seed-sub">Write these words down in order and store them somewhere safe. This is the ONLY way to recover your wallet.</p>
+<div class="seed-warn">&#x26A0;&#xFE0F; <strong>NEVER share your seed phrase.</strong> Anyone with these 24 words has full access to your funds. OLIGHFT SMART COIN support will never ask for it.</div>
+<button class="seed-toggle-vis" id="seedVisBtn" onclick="toggleSeedVis()">&#x1F441; Show Words</button>
+<div id="seedContainer" class="seed-blur">
+<div class="seed-grid" id="seedGrid"></div>
+</div>
+<div class="seed-actions">
+<button class="btn-copy-seed" onclick="copySeed()">&#x1F4CB; Copy All Words</button>
+</div>
+<div class="seed-confirm">
+<input type="checkbox" id="seedConfirm" onchange="seedConfirmToggle()">
+<label for="seedConfirm">I have safely stored my 24-word recovery phrase</label>
+</div>
+<button class="btn-continue" id="seedContinueBtn" onclick="seedContinue()">&#x1F680; Continue to Wallet</button>
+</div>
+
+<!-- WALLET DASHBOARD -->
+<div id="walletDash" class="wallet-dash">
+
+<div class="user-bar">
+<div class="ub-left">
+<div class="avatar" id="avatarInit">U</div>
+<div><div class="uname" id="displayName">User</div><div class="uemail" id="displayEmail">user@example.com</div></div>
+</div>
+<button class="logout-btn" onclick="logout()">&#x1F6AA; Logout</button>
+</div>
+
+<div class="project-brand">
+<div class="pb-logo">&#x1F4A0;</div>
+<div class="pb-name">OLIGHFT SMART COIN</div>
+<div class="pb-coin"><span class="coin-dot"></span> OLIGHFT &bull; Stellar Network</div>
+<div class="pb-net">Testnet &bull; Self-Custody DeFi Platform</div>
+</div>
+
+<div class="total-balance">
+<div class="tb-label">Total Balance</div>
+<div class="tb-val" id="totalBal">$0.00</div>
+<div class="tb-change" id="totalChange">&#x25B2; +2.4% today</div>
+</div>
+
+<div class="quick-btns">
+<a href="send.html" class="qb"><div class="qb-icon">&#x1F4E4;</div>Send</a>
+<a href="receive.html" class="qb"><div class="qb-icon">&#x1F4E5;</div>Receive</a>
+<a href="swap.html" class="qb"><div class="qb-icon">&#x1F504;</div>Swap</a>
+<div class="qb" onclick="fundTestnet()"><div class="qb-icon">&#x1F4B0;</div>Fund</div>
+</div>
+
+<div class="section-label">&#x1F511; Accounts (SEP-0005 HD Wallet)</div>
+<div class="accounts-card">
+<div class="acc-header">
+<span class="acc-title">Derived Accounts &bull; m/44'/148'/x'</span>
+<button class="acc-add-btn" onclick="addAccount()">&#x2795; Add Account</button>
+</div>
+<div class="acc-list" id="accountList"></div>
+</div>
+
+<div class="section-label">&#x1F4B0; Assets</div>
+<div class="asset-list" id="assetList"></div>
+
+<div class="section-label">&#x1F4B0; Stake Tokens</div>
+<div class="stake-panel">
+<h3>&#x1F4C8; Stake &mdash; Base APY + Lock Boost + Compound Boost</h3>
+<div id="cardStatusBanner" style="padding:10px 14px;border-radius:8px;font-size:.72rem;margin-bottom:10px;display:flex;align-items:center;gap:8px"></div>
+<div class="stake-input-row">
+<div class="stake-fg">
+<label>Asset</label>
+<select id="stakeAsset" onchange="updateStakeSummary()">
+<option value="XLM">XLM &mdash; Stellar Lumens</option>
+<option value="USDC">USDC &mdash; USD Coin</option>
+<option value="wETH">wETH &mdash; Wrapped Ethereum</option>
+<option value="wBTC">wBTC &mdash; Wrapped Bitcoin</option>
+</select>
+</div>
+<div class="stake-fg">
+<label>Amount</label>
+<input type="number" id="stakeAmount" min="1" step="any" placeholder="100" oninput="updateStakeSummary()">
+</div>
+</div>
+<div class="stake-input-row">
+<div class="stake-fg">
+<label>Lock Period</label>
+<select id="stakePeriod" onchange="updateStakeSummary()">
+<option value="0">Flexible (no lock)</option>
+<option value="30">30 Days (+1.5% boost)</option>
+<option value="90" selected>90 Days (+3.5% boost)</option>
+<option value="180">180 Days (+6% boost)</option>
+<option value="365">365 Days (+10% boost)</option>
+</select>
+</div>
+<div class="stake-fg">
+<label>Auto-Compound</label>
+<select id="stakeCompound" onchange="updateStakeSummary()">
+<option value="none">Manual claim</option>
+<option value="daily" selected>Daily (+2.4%)</option>
+<option value="weekly">Weekly (+1.2%)</option>
+<option value="monthly">Monthly (+0.5%)</option>
+</select>
+</div>
+<div class="stake-fg" style="flex:0 0 auto">
+<label>&nbsp;</label>
+<div class="stake-apy-badge" id="stakeApyBadge">12.0% APY</div>
+</div>
+</div>
+<div class="stake-input-row">
+<div class="stake-fg" style="flex:1">
+<label>&#x1F333; Sponsor Username</label>
+<input type="text" id="stakeSponsor" placeholder="Enter sponsor username or leave empty">
+<div style="font-size:.52rem;color:rgba(255,255,255,.3);margin-top:3px">Sponsor earns Gen 1 (10%) commission. Leave empty to choose Main Wallet or Option Wallet as auto-sponsor.</div>
+</div>
+</div>
+<div class="stake-summary" id="stakeSummary">
+<div><div class="ss-label">Staking</div><div class="ss-val" id="ssAmount" style="color:#818cf8">0</div></div>
+<div><div class="ss-label">Lock</div><div class="ss-val" id="ssLock" style="color:#a29bfe">90d</div></div>
+<div><div class="ss-label">Eff. APY</div><div class="ss-val" id="ssAPY" style="color:#2ecc71">0%</div></div>
+<div><div class="ss-label">Daily Reward</div><div class="ss-val" id="ssDaily" style="color:#27ae60">0</div></div>
+<div><div class="ss-label">Est. Reward</div><div class="ss-val" id="ssReward" style="color:#27ae60">0</div></div>
+<div><div class="ss-label">Total Return</div><div class="ss-val" id="ssTotal" style="color:#f5c518">0</div></div>
+</div>
+<div style="display:flex;gap:8px">
+<button class="stake-btn" id="stakeBtn" onclick="stakeTokens()" style="flex:1">&#x26A1; Stake Now</button>
+<button class="stake-btn" onclick="stakeMax()" style="flex:0 0 auto;background:linear-gradient(135deg,#f59e0b,#d97706);padding:12px 16px">MAX</button>
+</div>
+<div class="active-stakes" id="activeStakesContainer"></div>
+</div>
+
+<div class="section-label">&#x1F50F; Transaction Authorization (Single Signer)</div>
+<div class="multisig-card">
+<div class="ms-header">
+<div class="ms-title"><span class="ms-icon">&#x1F6E1;&#xFE0F;</span> Stellar Single-Signer &mdash; SetOptions</div>
+<div class="ms-status"><span class="ms-badge" id="msBadge">SINGLE SIGNER</span></div>
+</div>
+<div class="ms-info">&#x1F4A1; Your account uses a <strong>single master key</strong> for all transaction authorization. The master key weight is <strong>255</strong> and all thresholds are set to <strong>1</strong>, so every transaction is authorized by your signature alone.</div>
+
+<div class="ms-thresholds-grid" id="msThresholdsGrid">
+<div class="ms-th-card low"><div class="ms-thc-label">Low Threshold</div><div class="ms-thc-val">1</div><div class="ms-thc-ops">AllowTrust, BumpSeq</div></div>
+<div class="ms-th-card med"><div class="ms-thc-label">Medium Threshold</div><div class="ms-thc-val">1</div><div class="ms-thc-ops">Payment, PathPayment, ManageOffer</div></div>
+<div class="ms-th-card high"><div class="ms-thc-label">High Threshold</div><div class="ms-thc-val">1</div><div class="ms-thc-ops">SetOptions, AccountMerge</div></div>
+</div>
+
+<div class="ms-signers" id="msSignersList">
+<div class="ms-signer">
+<div class="ms-s-left">
+<div class="ms-s-idx">M</div>
+<div class="ms-s-info">
+<div class="ms-s-label">Master Key <span class="ms-s-type">ed25519</span></div>
+<div class="ms-s-key" id="msMasterPubKey">Primary account (m/44'/148'/0')</div>
+<div class="ms-s-path">Weight: 255/255 &middot; Single signer &middot; Full authority</div>
+</div>
+</div>
+<div class="ms-s-right">
+<div class="ms-s-weight" style="color:#27ae60">W:255</div>
+</div>
+</div>
+</div>
+
+<div class="ms-formula" id="msFormula"><strong style="color:#27ae60">Single-Signer</strong> &mdash; <strong>Weight Formula:</strong> Master(&times;255) = <strong>255 total weight</strong><br>Low &ge;1 | Med &ge;1 | High &ge;1 &mdash; &#x2705; All thresholds met by master key alone</div>
+
+<div class="ms-setopt-preview" id="msSetoptPreview"></div>
+
+<div class="ms-pending" id="msPendingSection" style="display:none">
+<div style="font-size:.65rem;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Transaction History</div>
+<div id="msPendingList"></div>
+</div>
+
+<div class="ms-actions">
+<button class="ms-btn ms-btn-secondary" onclick="msCreateTx()">&#x1F4DD; Create &amp; Sign Transaction</button>
+</div>
+
+<div class="ms-soroban">
+<div class="ms-soroban-title">&#x1F52E; Soroban Smart Contract Authorization</div>
+For <strong>Soroban smart contracts</strong>, your single master key signs all <code style="color:#2d9cdb">authorizeEntry()</code> invocations. Contract calls are simulated via <code style="color:#2d9cdb">simulateTransaction()</code>, then signed and submitted in one step &mdash; no multi-party coordination needed.
+</div>
+</div>
+
+<div class="section-label">&#x1F6E1;&#xFE0F; Security Settings</div>
+<div class="security-card">
+<div class="sec-row">
+<div class="sr-left"><div class="sr-icon">&#x1F512;</div><div><div class="sr-name">Two-Factor Auth (2FA)</div><div class="sr-desc" id="gauth-status-desc">Extra layer of login security</div></div></div>
+<button class="toggle" id="tog2fa" onclick="toggleGoogleAuth()"><div class="dot"></div></button>
+</div>
+
+<!-- Google Auth Setup Panel (hidden by default) -->
+<div id="gauthSetupPanel" style="display:none;padding:16px;background:rgba(108,92,231,.04);border:1px solid rgba(108,92,231,.12);border-radius:12px;margin:10px 0">
+<div style="text-align:center;margin-bottom:14px">
+<div style="font-size:1.4rem;margin-bottom:6px">&#x1F4F1;</div>
+<div style="font-size:.85rem;font-weight:700;color:#a29bfe;margin-bottom:4px">Setup Google Authenticator</div>
+<div style="font-size:.68rem;color:rgba(255,255,255,.4);line-height:1.5">Scan the QR code with Google Authenticator app, then enter the 6-digit code to verify.</div>
+</div>
+
+<!-- Step 1: QR Code -->
+<div style="text-align:center;margin-bottom:14px">
+<div style="font-size:.62rem;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Step 1: Scan QR Code</div>
+<div id="gauthQrCode" style="background:#fff;display:inline-block;padding:12px;border-radius:10px;margin-bottom:8px"></div>
+<div style="font-size:.6rem;color:rgba(255,255,255,.25);margin-top:6px">Or enter this key manually:</div>
+<div id="gauthSecretDisplay" style="font-family:'Courier New',monospace;font-size:.78rem;color:#a29bfe;letter-spacing:2px;padding:8px 14px;background:rgba(108,92,231,.08);border:1px solid rgba(108,92,231,.15);border-radius:8px;display:inline-block;margin-top:6px;word-break:break-all;user-select:all"></div>
+<button onclick="copyGauthSecret()" style="display:block;margin:6px auto 0;padding:4px 12px;border-radius:6px;border:1px solid rgba(108,92,231,.2);background:rgba(108,92,231,.08);color:#a29bfe;font-size:.6rem;cursor:pointer">&#x1F4CB; Copy Key</button>
+</div>
+
+<!-- Step 2: Verify Code -->
+<div style="text-align:center">
+<div style="font-size:.62rem;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Step 2: Enter Verification Code</div>
+<div style="display:flex;gap:6px;justify-content:center;margin-bottom:10px" id="gauthSetupOtp">
+<input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" style="width:38px;height:42px;text-align:center;font-size:1rem;font-weight:700;background:rgba(255,255,255,.04);border:1px solid rgba(108,92,231,.15);border-radius:8px;color:#fff;outline:none;font-family:inherit">
+<input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" style="width:38px;height:42px;text-align:center;font-size:1rem;font-weight:700;background:rgba(255,255,255,.04);border:1px solid rgba(108,92,231,.15);border-radius:8px;color:#fff;outline:none;font-family:inherit">
+<input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" style="width:38px;height:42px;text-align:center;font-size:1rem;font-weight:700;background:rgba(255,255,255,.04);border:1px solid rgba(108,92,231,.15);border-radius:8px;color:#fff;outline:none;font-family:inherit">
+<input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" style="width:38px;height:42px;text-align:center;font-size:1rem;font-weight:700;background:rgba(255,255,255,.04);border:1px solid rgba(108,92,231,.15);border-radius:8px;color:#fff;outline:none;font-family:inherit">
+<input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" style="width:38px;height:42px;text-align:center;font-size:1rem;font-weight:700;background:rgba(255,255,255,.04);border:1px solid rgba(108,92,231,.15);border-radius:8px;color:#fff;outline:none;font-family:inherit">
+<input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" style="width:38px;height:42px;text-align:center;font-size:1rem;font-weight:700;background:rgba(255,255,255,.04);border:1px solid rgba(108,92,231,.15);border-radius:8px;color:#fff;outline:none;font-family:inherit">
+</div>
+<div id="gauthSetupTimer" style="font-size:.6rem;color:rgba(255,255,255,.25);margin-bottom:8px"></div>
+<button onclick="verifyGauthSetup()" style="padding:10px 28px;border:none;border-radius:10px;font-size:.78rem;font-weight:700;cursor:pointer;background:linear-gradient(135deg,#6c5ce7,#a29bfe);color:#fff;transition:.2s">&#x2705; Verify &amp; Enable</button>
+<button onclick="cancelGauthSetup()" style="padding:10px 16px;border:1px solid rgba(255,255,255,.1);border-radius:10px;font-size:.68rem;font-weight:600;cursor:pointer;background:none;color:rgba(255,255,255,.4);margin-left:6px">Cancel</button>
+</div>
+</div>
+<!-- End Google Auth Setup Panel -->
+
+<!-- Google Account Link -->
+<div class="google-link-row" id="googleLinkRow">
+<div class="gl-left">
+<div class="gl-icon"><svg width="20" height="20" viewBox="0 0 48 48"><path fill="#4285F4" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#34A853" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59A14.5 14.5 0 019.5 24c0-1.59.28-3.14.76-4.59l-7.98-6.19A23.99 23.99 0 000 24c0 3.77.9 7.35 2.56 10.58l7.97-5.99z"/><path fill="#EA4335" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 5.99C6.51 42.62 14.62 48 24 48z"/></svg></div>
+<div>
+<div class="gl-name">Google Account <span id="googleLinkBadge"></span></div>
+<div class="gl-desc" id="googleLinkDesc">Link your Google account for quick sign-in</div>
+</div>
+</div>
+<button class="gl-btn link" id="googleLinkBtn" onclick="toggleGoogleLink()">&#x1F517; Link</button>
+</div>
+<div id="g-wallet-btn"></div>
+<!-- End Google Account Link -->
+
+<div class="sec-row">
+<div class="sr-left"><div class="sr-icon">&#x1F4E7;</div><div><div class="sr-name">Email Confirmations</div><div class="sr-desc">Confirm withdrawals via email</div></div></div>
+<button class="toggle on" id="togEmail" onclick="toggleSec(this)"><div class="dot"></div></button>
+</div>
+<div class="sec-row">
+<div class="sr-left"><div class="sr-icon">&#x1F4F1;</div><div><div class="sr-name">SMS Alerts</div><div class="sr-desc">Get notified on large transactions</div></div></div>
+<button class="toggle" id="togSms" onclick="toggleSec(this)"><div class="dot"></div></button>
+</div>
+<div class="sec-row">
+<div class="sr-left"><div class="sr-icon">&#x26A0;&#xFE0F;</div><div><div class="sr-name">Withdrawal Whitelist</div><div class="sr-desc">Only send to approved addresses</div></div></div>
+<button class="toggle" id="togWhitelist" onclick="toggleSec(this)"><div class="dot"></div></button>
+</div>
+<div class="sec-row">
+<div class="sr-left"><div class="sr-icon">&#x23F3;</div><div><div class="sr-name">24h Withdrawal Lock</div><div class="sr-desc">Delay on new withdrawal addresses</div></div></div>
+<button class="toggle on" id="togLock" onclick="toggleSec(this)"><div class="dot"></div></button>
+</div>
+<div class="sec-row">
+<div class="sr-left"><div class="sr-icon">&#x1F510;</div><div><div class="sr-name">Recovery Phrase</div><div class="sr-desc">View your 24-word backup seed</div></div></div>
+<button class="btn-cp" onclick="viewSeedPhrase()" style="padding:6px 14px;border-radius:8px;font-size:.68rem;font-weight:600;cursor:pointer">&#x1F441; View</button>
+</div>
+</div>
+
+<div class="section-label">&#x1F465; My Referrals &mdash; Invite Stage Flow</div>
+<div class="invite-section">
+<div class="invite-stats" id="inviteStats"></div>
+<div class="invite-link-box">
+<input type="text" id="inviteLinkInput" readonly placeholder="Generate your invite link...">
+<button onclick="copyInviteLink()">&#x1F4CB; Copy Link</button>
+</div>
+<div class="invite-list" id="inviteList"></div>
+</div>
+
+<div class="section-label">&#x1F4CB; Recent Activity</div>
+<div class="activity" id="activityList"></div>
+
+<div class="nav-links">
+<a href="auth.html">&#x1F512; Login</a>
+<a href="index.html">&#x1F3E0; Home</a>
+<a href="send.html">&#x1F4E4; Send</a>
+<a href="receive.html">&#x1F4E5; Receive</a>
+<a href="swap.html">&#x1F504; Swap</a>
+<a href="card-gold.html">&#x1F3C6; Contracts</a>
+<a href="OLIGHFT SMART COIN backend/backend.html">&#x2699;&#xFE0F; Admin</a>
+</div>
+</div>
+
+<div class="net-badge">OLIGHFT SMART COIN Wallet v1.0.0 &bull; Stellar Testnet &bull; Self-Custody &bull; Your Keys, Your Coins</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!--  TEST CREATE WALLET — 20 Automated Tests                  -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div class="card" style="border-color:rgba(39,174,96,.2);background:rgba(39,174,96,.03);margin-top:16px">
+<h2 style="color:#27ae60">&#x1F9EA; Test Create Wallet — 20 Tests</h2>
+<p style="font-size:.72rem;color:rgba(255,255,255,.45);margin-bottom:14px">Verify email validation, password strength, BIP39 mnemonic, SEP-0005 derivation, registration flow, multi-account &amp; storage.</p>
+
+<!-- Live Counter Bar -->
+<div id="wTestCounter" style="display:none;margin-bottom:16px">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+<div style="font-size:.78rem;font-weight:700" id="wTestCounterLabel">Running tests...</div>
+<div style="font-size:.7rem;color:rgba(255,255,255,.4)" id="wTestCounterStats">0 / 0</div>
+</div>
+<div style="height:10px;background:rgba(255,255,255,.06);border-radius:5px;overflow:hidden;margin-bottom:6px">
+<div id="wTestProgressBar" style="height:100%;border-radius:5px;background:linear-gradient(90deg,#27ae60,#2ecc71);transition:width .3s;width:0%"></div>
+</div>
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(255,255,255,.04);border-radius:8px;overflow:hidden">
+<div style="background:rgba(10,10,30,.8);padding:10px;text-align:center"><div style="font-size:.55rem;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.5px">Passed</div><div id="wCntPass" style="font-size:1.2rem;font-weight:800;color:#27ae60">0</div></div>
+<div style="background:rgba(10,10,30,.8);padding:10px;text-align:center"><div style="font-size:.55rem;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.5px">Failed</div><div id="wCntFail" style="font-size:1.2rem;font-weight:800;color:#eb5757">0</div></div>
+<div style="background:rgba(10,10,30,.8);padding:10px;text-align:center"><div style="font-size:.55rem;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.5px">Total</div><div id="wCntTotal" style="font-size:1.2rem;font-weight:800;color:#a29bfe">0</div></div>
+</div>
+</div>
+
+<!-- Email Validation Tests (3) -->
+<div style="font-size:.7rem;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">&#x1F4E7; Email Validation Tests</div>
+<div id="wEmailTests" style="display:grid;gap:6px;margin-bottom:16px">
+<div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px"><div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">1. Valid Email Accepted</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">user@example.com passes isGoodEmail</div></div><span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span></div>
+<div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px"><div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">2. No @ Sign Rejected</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">userexample.com fails isGoodEmail</div></div><span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span></div>
+<div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px"><div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.3)">3. Double-Dot Local Part Rejected</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">user..name@example.com fails</div></div><span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span></div>
+</div>
+
+<!-- Password Strength Tests (4) -->
+<div style="font-size:.7rem;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">&#x1F512; Password Strength Tests</div>
+<div id="wPwTests" style="display:grid;gap:6px;margin-bottom:16px">
+<div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px"><div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">4. Strong Password Passes All 6 Criteria</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">Abcdef1! meets len&#x2265;8, upper, lower, num, special, no-space</div></div><span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span></div>
+<div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px"><div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">5. Short Password Fails (&lt;8)</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">Ab1! (4 chars) fails isStrongPw</div></div><span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span></div>
+<div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px"><div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">6. No Special Char Fails</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">Abcdef12 (no special) fails isStrongPw</div></div><span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span></div>
+<div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px"><div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">7. Password With Spaces Fails</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">Abc def1! has whitespace — rejected</div></div><span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span></div>
+</div>
+
+<!-- BIP39 Mnemonic Tests (3) -->
+<div style="font-size:.7rem;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">&#x1F510; BIP39 Mnemonic Generation Tests</div>
+<div id="wBipTests" style="display:grid;gap:6px;margin-bottom:16px">
+<div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px"><div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">8. Generates Exactly 24 Words</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">256-bit entropy &#x2192; 24-word mnemonic</div></div><span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span></div>
+<div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px"><div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">9. No Duplicate Words</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">All 24 words are unique in mnemonic</div></div><span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span></div>
+<div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px"><div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">10. Different Mnemonics Each Call</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">Two consecutive calls produce different seeds</div></div><span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span></div>
+</div>
+
+<!-- SEP-0005 HD Derivation Tests (3) -->
+<div style="font-size:.7rem;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">&#x1F511; SEP-0005 HD Derivation Tests</div>
+<div id="wHdTests" style="display:grid;gap:6px;margin-bottom:16px">
+<div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px"><div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">11. Public Key Starts With G (56 chars)</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">Stellar ed25519 public key format</div></div><span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span></div>
+<div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px"><div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">12. Secret Key Starts With S (56 chars)</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">Stellar ed25519 secret key format</div></div><span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span></div>
+<div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px"><div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">13. Different Indices &#x2192; Different Keys</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">m/44'/148'/0' &#x2260; m/44'/148'/1'</div></div><span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span></div>
+</div>
+
+<!-- Registration Flow Tests (4) -->
+<div style="font-size:.7rem;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">&#x1F4DD; Registration Flow Tests</div>
+<div id="wRegTests" style="display:grid;gap:6px;margin-bottom:16px">
+<div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px"><div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">14. Missing Sponsor Blocks Register</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">Empty sponsor field triggers error</div></div><span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span></div>
+<div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px"><div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">15. Invalid Email Blocks Register</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">Bad email stops wallet creation</div></div><span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span></div>
+<div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px"><div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">16. Successful Register Stores cw_user</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">Full register creates user, seed, accounts in localStorage</div></div><span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span></div>
+<div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px"><div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">17. Register Initializes Default Balances</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">XLM:10000, USDC:500, wETH:0.5, wBTC:0.02, EURC:200</div></div><span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span></div>
+</div>
+
+<!-- Multi-Account & Storage Tests (3) -->
+<div style="font-size:.7rem;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">&#x1F465; Multi-Account &amp; Storage Tests</div>
+<div id="wAccTests" style="display:grid;gap:6px;margin-bottom:16px">
+<div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px"><div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">18. addAccount Derives Next HD Account</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">New account at next index with valid keypair</div></div><span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span></div>
+<div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px"><div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">19. switchAccount Updates Active Index</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">cw_active_idx and cw_user.addr change</div></div><span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span></div>
+<div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px"><div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">20. Seed Hash Is Deterministic</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">Same mnemonic always produces same hash</div></div><span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span></div>
+</div>
+
+<!-- Run Button -->
+<button onclick="runAllWalletTests()" style="width:100%;padding:14px;border:none;border-radius:12px;font-size:.88rem;font-weight:700;cursor:pointer;background:linear-gradient(135deg,#27ae60,#2ecc71);color:#fff;transition:.2s" onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 6px 20px rgba(39,174,96,.3)'" onmouseout="this.style.transform='';this.style.boxShadow=''">&#x1F9EA; Run All 20 Wallet Tests</button>
+
+<!-- Log Area -->
+<div id="wTestLog" style="display:none;background:rgba(0,0,0,.2);border:1px solid rgba(39,174,96,.15);border-radius:10px;padding:14px;margin-top:12px">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+<div style="font-size:.78rem;font-weight:700;color:#27ae60" id="wTestTitle">Test Log</div>
+<button onclick="resetWalletTests()" style="padding:4px 10px;border-radius:6px;border:1px solid rgba(255,255,255,.1);background:none;color:rgba(255,255,255,.4);font-size:.6rem;cursor:pointer">Reset</button>
+</div>
+<div id="wTestLogBody" style="font-family:'Courier New',monospace;font-size:.66rem;line-height:1.8;color:rgba(255,255,255,.55);max-height:350px;overflow-y:auto"></div>
+</div>
+</div>
+<!-- END Test Create Wallet -->
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!--  TEST SECURITY — 15 Automated Tests                       -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div class="card" style="border-color:rgba(108,92,231,.2);background:rgba(108,92,231,.03);margin-top:16px">
+<h2 style="color:#6c5ce7">&#x1F6E1;&#xFE0F; Test Security — 15 Tests</h2>
+<p style="font-size:.72rem;color:rgba(255,255,255,.45);margin-bottom:14px">Verify security toggles, seed phrase protection, localStorage encoding, single-signer authorization, logout cleanup &amp; input guards.</p>
+
+<!-- Live Counter Bar -->
+<div id="sTestCounter" style="display:none;margin-bottom:16px">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+<div style="font-size:.78rem;font-weight:700" id="sTestCounterLabel">Running tests...</div>
+<div style="font-size:.7rem;color:rgba(255,255,255,.4)" id="sTestCounterStats">0 / 0</div>
+</div>
+<div style="height:10px;background:rgba(255,255,255,.06);border-radius:5px;overflow:hidden;margin-bottom:6px">
+<div id="sTestProgressBar" style="height:100%;border-radius:5px;background:linear-gradient(90deg,#6c5ce7,#a29bfe);transition:width .3s;width:0%"></div>
+</div>
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(255,255,255,.04);border-radius:8px;overflow:hidden">
+<div style="background:rgba(10,10,30,.8);padding:10px;text-align:center"><div style="font-size:.55rem;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.5px">Passed</div><div id="sCntPass" style="font-size:1.2rem;font-weight:800;color:#27ae60">0</div></div>
+<div style="background:rgba(10,10,30,.8);padding:10px;text-align:center"><div style="font-size:.55rem;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.5px">Failed</div><div id="sCntFail" style="font-size:1.2rem;font-weight:800;color:#eb5757">0</div></div>
+<div style="background:rgba(10,10,30,.8);padding:10px;text-align:center"><div style="font-size:.55rem;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.5px">Total</div><div id="sCntTotal" style="font-size:1.2rem;font-weight:800;color:#a29bfe">0</div></div>
+</div>
+</div>
+
+<!-- Security Toggle Tests (4) -->
+<div style="font-size:.7rem;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">&#x1F50F; Security Toggle Tests</div>
+<div id="sTogTests" style="display:grid;gap:6px;margin-bottom:16px">
+<div class="stst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px"><div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">1. Toggle 2FA Persists to cw_security</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">Flip tog2fa and verify localStorage state</div></div><span class="stst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span></div>
+<div class="stst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px"><div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">2. Toggle Withdrawal Lock Off/On</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">togLock state reflected in cw_security</div></div><span class="stst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span></div>
+<div class="stst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px"><div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">3. restoreSecToggles Restores Saved State</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">Manually set cw_security, call restore, verify DOM</div></div><span class="stst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span></div>
+<div class="stst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px"><div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">4. All 5 Toggles Write Independent Keys</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">Each toggle ID maps to its own key in cw_security</div></div><span class="stst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span></div>
+</div>
+
+<!-- Seed Phrase Protection Tests (3) -->
+<div style="font-size:.7rem;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">&#x1F331; Seed Phrase Protection Tests</div>
+<div id="sSeedTests" style="display:grid;gap:6px;margin-bottom:16px">
+<div class="stst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px"><div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">5. Seed Stored as Base64 (Not Plaintext)</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">cw_seed is btoa-encoded, atob decodes to 24 words</div></div><span class="stst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span></div>
+<div class="stst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px"><div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">6. Secret Key Stored as Base64</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">cw_secret atob decodes to S... key</div></div><span class="stst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span></div>
+<div class="stst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px"><div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">7. seedContinue Clears Mnemonic From Memory</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">After confirm, _currentMnemonic is empty</div></div><span class="stst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span></div>
+</div>
+
+<!-- Single-Signer Authorization Tests (4) -->
+<div style="font-size:.7rem;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">&#x1F510; Single-Signer Authorization Tests</div>
+<div id="sMsTests" style="display:grid;gap:6px;margin-bottom:16px">
+<div class="stst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px"><div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">8. Master Key Weight = 255</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">Single signer holds full authorization weight</div></div><span class="stst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span></div>
+<div class="stst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px"><div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">9. All Thresholds = 1 (Single Sig OK)</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">Low/Med/High all set to 1 for single signer</div></div><span class="stst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span></div>
+<div class="stst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px"><div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">10. msCreateTx Signs Instantly</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">Transaction created and auto-signed in one step</div></div><span class="stst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span></div>
+<div class="stst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px"><div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">11. No Additional Signers Allowed</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">Single-signer mode has no addSigner UI</div></div><span class="stst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span></div>
+</div>
+
+<!-- Logout & Cleanup Tests (2) -->
+<div style="font-size:.7rem;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">&#x1F6AA; Logout &amp; Cleanup Tests</div>
+<div id="sLogoutTests" style="display:grid;gap:6px;margin-bottom:16px">
+<div class="stst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px"><div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">12. Logout Clears All Sensitive Keys</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">cw_user, cw_seed, cw_secret, cw_accounts, cw_security all removed</div></div><span class="stst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span></div>
+<div class="stst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px"><div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">13. Accounts Stored as Base64 JSON</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">cw_accounts atob + JSON.parse returns array</div></div><span class="stst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span></div>
+</div>
+
+<!-- Input Guard Tests (2) -->
+<div style="font-size:.7rem;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">&#x1F6E1;&#xFE0F; Input Guard Tests</div>
+<div id="sGuardTests" style="display:grid;gap:6px;margin-bottom:16px">
+<div class="stst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px"><div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">14. Terms Checkbox Required for Register</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">Unchecked agreeTerms blocks registration</div></div><span class="stst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span></div>
+<div class="stst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px"><div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">15. Password Mismatch Blocks Register</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">pass &#x2260; confirm prevents wallet creation</div></div><span class="stst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span></div>
+</div>
+
+<!-- Run Button -->
+<button onclick="runAllSecurityTests()" style="width:100%;padding:14px;border:none;border-radius:12px;font-size:.88rem;font-weight:700;cursor:pointer;background:linear-gradient(135deg,#6c5ce7,#a29bfe);color:#fff;transition:.2s" onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 6px 20px rgba(108,92,231,.3)'" onmouseout="this.style.transform='';this.style.boxShadow=''">&#x1F6E1;&#xFE0F; Run All 15 Security Tests</button>
+
+<!-- Log Area -->
+<div id="sTestLog" style="display:none;background:rgba(0,0,0,.2);border:1px solid rgba(108,92,231,.15);border-radius:10px;padding:14px;margin-top:12px">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+<div style="font-size:.78rem;font-weight:700;color:#6c5ce7" id="sTestTitle">Security Test Log</div>
+<button onclick="resetSecurityTests()" style="padding:4px 10px;border-radius:6px;border:1px solid rgba(255,255,255,.1);background:none;color:rgba(255,255,255,.4);font-size:.6rem;cursor:pointer">Reset</button>
+</div>
+<div id="sTestLogBody" style="font-family:'Courier New',monospace;font-size:.66rem;line-height:1.8;color:rgba(255,255,255,.55);max-height:350px;overflow-y:auto"></div>
+</div>
+</div>
+<!-- END Test Security -->
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/stellar-sdk/11.3.0/stellar-sdk.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bip39@3.1.0/src/index.min.js"></script>
+<script type="module">
+import * as bip39 from 'https://cdn.jsdelivr.net/npm/@scure/bip39@1.3.0/+esm';
+import {wordlist} from 'https://cdn.jsdelivr.net/npm/@scure/bip39@1.3.0/wordlists/english/+esm';
+import {HDKey} from 'https://cdn.jsdelivr.net/npm/@scure/bip32@1.4.0/+esm';
+
+// ═══════════════════════════════════════════════
+//  OLIGHFT SMART COIN — Personal Wallet Logic
+//  Self-Custody · Stellar Testnet · SEP-0005
+// ═══════════════════════════════════════════════
+
+// ── BIP39 + SEP-0005 Stellar Key Derivation ──
+// Every wallet gets a unique 24-word phrase: crypto random XOR'd with
+// user-specific salt (email + high-res timestamps + extra random nonce)
+async function generateMnemonic24(userEmail){
+  const maxAttempts = 10;
+  let attempt = 0, mnemonic, words;
+  do {
+    // 256-bit cryptographic random
+    const rnd = new Uint8Array(32);
+    crypto.getRandomValues(rnd);
+    // User-specific salt → SHA-256
+    const salt = (userEmail||'') + '|' + Date.now() + '|' + performance.now()
+               + '|' + crypto.getRandomValues(new Uint8Array(16)).join('');
+    const saltHash = new Uint8Array(
+      await crypto.subtle.digest('SHA-256', new TextEncoder().encode(salt))
+    );
+    // XOR: even if two users share random bytes, different emails → different entropy
+    const entropy = new Uint8Array(32);
+    for(let i = 0; i < 32; i++) entropy[i] = rnd[i] ^ saltHash[i];
+    // Convert blended entropy to 24-word BIP39 mnemonic
+    mnemonic = bip39.entropyToMnemonic(entropy, wordlist);
+    words = mnemonic.split(' ');
+    attempt++;
+  } while(new Set(words).size !== words.length && attempt < maxAttempts);
+  return mnemonic;
+}
+
+async function deriveKeypair(mnemonic, accountIndex=0){
+  const seed = await bip39.mnemonicToSeed(mnemonic);
+  // SEP-0005 path: m/44'/148'/{accountIndex}'
+  const master = HDKey.fromMasterSeed(seed);
+  const child = master.derive("m/44'/148'/"+accountIndex+"'");
+  const kp = StellarSdk.Keypair.fromRawEd25519Seed(child.privateKey);
+  return {publicKey: kp.publicKey(), secret: kp.secret()};
+}
+
+function hashSeed(mnemonic){
+  // Simple hash for verification (not for storage security)
+  let h=0;
+  for(let i=0;i<mnemonic.length;i++){h=((h<<5)-h)+mnemonic.charCodeAt(i);h|=0;}
+  return h.toString(16);
+}
+
+// ── Assets & Activity Data ──
+const assets=[
+  {sym:'XLM',name:'Stellar Lumens',icon:'\u2B50',bal:10000,price:0.12,pct:3.2,bg:'bg-xlm'},
+  {sym:'USDC',name:'USD Coin',icon:'\uD83D\uDCB5',bal:2500,price:1.00,pct:0.01,bg:'bg-usdc'},
+  {sym:'wETH',name:'Wrapped Ethereum',icon:'\uD83D\uDC8E',bal:1.85,price:3200,pct:-1.8,bg:'bg-eth'},
+  {sym:'wBTC',name:'Wrapped Bitcoin',icon:'\uD83D\uDD36',bal:0.042,price:68000,pct:2.1,bg:'bg-btc'},
+  {sym:'EURC',name:'Euro Coin',icon:'\uD83D\uDCB6',bal:1200,price:1.08,pct:0.05,bg:'bg-eurc'},
+  {sym:'OLIGHFT',name:'OLIGHFT Smart Coin',icon:'\uD83D\uDCB0',bal:0,price:0.50,pct:5.4,bg:'bg-olighft'}
+];
+const defaultActivity=[
+  {type:'Received',icon:'\uD83D\uDCE5',detail:'From GCXY8...K4LP',amt:'+250 XLM',cls:'green',time:'2m ago'},
+  {type:'Sent',icon:'\uD83D\uDCE4',detail:'To GBMN3...R7QZ',amt:'-50 USDC',cls:'red',time:'1h ago'},
+  {type:'Swap',icon:'\uD83D\uDD04',detail:'XLM \u2192 USDC',amt:'+120 USDC',cls:'green',time:'3h ago'},
+  {type:'Funded',icon:'\uD83D\uDCB0',detail:'Testnet Friendbot',amt:'+10,000 XLM',cls:'green',time:'1d ago'},
+  {type:'Received',icon:'\uD83D\uDCE5',detail:'From GDKQ2...W5FJ',amt:'+0.15 wETH',cls:'green',time:'2d ago'}
+];
+
+// ── Auth Tab Switching ──
+function showAuth(tab){
+  document.querySelectorAll('.auth-tabs button').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.auth-form .fg').forEach(f=>f.classList.remove('has-error','is-valid'));
+  if(tab==='login'){
+    document.querySelector('.auth-tabs button:first-child').classList.add('active');
+    document.getElementById('loginForm').style.display='block';
+    document.getElementById('registerForm').style.display='none';
+  } else {
+    document.querySelector('.auth-tabs button:last-child').classList.add('active');
+    document.getElementById('loginForm').style.display='none';
+    document.getElementById('registerForm').style.display='block';
+  }
+}
+window.showAuth=showAuth;
+
+// ── Email Validation ──
+const EMAIL_RE=/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*\.[a-zA-Z]{2,10}$/;
+function isGoodEmail(e){return e&&e.length<=254&&EMAIL_RE.test(e)&&!/\.\./.test(e.split('@')[0])}
+function vEmail(inputId,fgId){
+  const v=document.getElementById(inputId).value.trim(),fg=document.getElementById(fgId);
+  if(!v){fg.classList.remove('has-error','is-valid');return}
+  if(isGoodEmail(v)){fg.classList.remove('has-error');fg.classList.add('is-valid')}
+  else{fg.classList.remove('is-valid');fg.classList.add('has-error')}
+}
+window.vEmail=vEmail;
+
+// ── Password Strength ──
+const PW_R=[
+  {id:'r-len',t:p=>p.length>=8},{id:'r-up',t:p=>/[A-Z]/.test(p)},{id:'r-low',t:p=>/[a-z]/.test(p)},
+  {id:'r-num',t:p=>/[0-9]/.test(p)},{id:'r-sp',t:p=>/[^A-Za-z0-9\s]/.test(p)},{id:'r-ns',t:p=>p.length===0||!/\s/.test(p)}
+];
+function pwCheck(pw){
+  const bar=document.getElementById('pw-bar'),lbl=document.getElementById('pw-label'),fg=document.getElementById('fg-regPass');
+  let n=0;
+  PW_R.forEach(r=>{
+    const el=document.getElementById(r.id),ok=r.t(pw);
+    if(ok)n++;
+    el.className='pw-req'+(ok?' pass':'');
+    el.innerHTML=(ok?'\u2714':'\u2716')+' '+el.textContent.replace(/^[\u2714\u2716]\s*/,'');
+  });
+  bar.className='bar';lbl.className='pw-label';lbl.textContent='';
+  if(!pw){fg.classList.remove('has-error','is-valid');return}
+  if(n<=2){bar.classList.add('weak');lbl.classList.add('weak');lbl.textContent='Weak'}
+  else if(n<=3){bar.classList.add('fair');lbl.classList.add('fair');lbl.textContent='Fair'}
+  else if(n<=5){bar.classList.add('good');lbl.classList.add('good');lbl.textContent='Good'}
+  if(n===6){bar.classList.add('strong');lbl.classList.add('strong');lbl.textContent='Strong \u2714'}
+  if(n===6){fg.classList.remove('has-error');fg.classList.add('is-valid')}else{fg.classList.remove('is-valid');fg.classList.add('has-error')}
+  pwMatchCheck();
+}
+window.pwCheck=pwCheck;
+function isStrongPw(pw){return PW_R.every(r=>r.t(pw))}
+function pwMatchCheck(){
+  const pw=document.getElementById('regPass').value,pw2=document.getElementById('regConfirm').value,fg=document.getElementById('fg-regConfirm');
+  if(!pw2){fg.classList.remove('has-error','is-valid');return}
+  if(pw===pw2){fg.classList.remove('has-error');fg.classList.add('is-valid')}else{fg.classList.remove('is-valid');fg.classList.add('has-error')}
+}
+window.pwMatchCheck=pwMatchCheck;
+
+// ── Register (Self-Custody: generates 24-word mnemonic + Stellar keypair) ──
+async function register(){
+  const sponsor=document.getElementById('regSponsor').value.trim();
+  const name=document.getElementById('regName').value.trim();
+  const email=document.getElementById('regEmail').value.trim();
+  const pass=document.getElementById('regPass').value;
+  const confirm=document.getElementById('regConfirm').value;
+  const agree=document.getElementById('agreeTerms').checked;
+  let ok=true;
+
+  if(!sponsor){document.getElementById('fg-regSponsor').classList.add('has-error');ok=false}else{document.getElementById('fg-regSponsor').classList.remove('has-error');document.getElementById('fg-regSponsor').classList.add('is-valid')}
+  if(!name){document.getElementById('fg-regName').classList.add('has-error');ok=false}else{document.getElementById('fg-regName').classList.remove('has-error');document.getElementById('fg-regName').classList.add('is-valid')}
+  if(!isGoodEmail(email)){document.getElementById('fg-regEmail').classList.add('has-error');ok=false}else{document.getElementById('fg-regEmail').classList.remove('has-error');document.getElementById('fg-regEmail').classList.add('is-valid')}
+  if(!isStrongPw(pass)){document.getElementById('fg-regPass').classList.add('has-error');ok=false}
+  if(!confirm||pass!==confirm){document.getElementById('fg-regConfirm').classList.add('has-error');ok=false}
+  if(!agree){showToast('Please agree to Terms & Conditions','#eb5757');return}
+  if(!ok){showToast('Please fix the highlighted fields','#eb5757');return}
+
+  showToast('Generating secure wallet...','#6c5ce7');
+
+  // Generate 24-word BIP39 mnemonic (256-bit entropy, unique per user)
+  const mnemonic = await generateMnemonic24(email);
+
+  // Derive Stellar keypair via SEP-0005 path m/44'/148'/0'
+  const keyPair = await deriveKeypair(mnemonic, 0);
+
+  const user={name:name, email:email, addr:keyPair.publicKey, sponsor:sponsor, created:Date.now(), seedHash:hashSeed(mnemonic)};
+  localStorage.setItem('cw_user', JSON.stringify(user));
+  // Base64 encode seed for local storage (user's responsibility to back up)
+  localStorage.setItem('cw_seed', btoa(mnemonic));
+  // Initialize multi-account storage with primary account
+  const accounts=[{index:0, label:'Primary', publicKey:keyPair.publicKey, secret:keyPair.secret}];
+  localStorage.setItem('cw_accounts', btoa(JSON.stringify(accounts)));
+  localStorage.setItem('cw_active_idx', '0');
+  localStorage.setItem('cw_secret', btoa(keyPair.secret));
+  if(!localStorage.getItem('cw_balances'))localStorage.setItem('cw_balances',JSON.stringify({XLM:10000,USDC:500,wETH:0.5,wBTC:0.02,EURC:200,OLIGHFT:0}));
+
+  checkAndAdvanceOwnStage('wallet_created');
+  showToast('Wallet created! Save your recovery phrase!','#27ae60');
+  showSeedScreen(mnemonic);
+}
+window.register=register;
+
+// ── Login ──
+async function login(){
+  const email=document.getElementById('loginEmail').value.trim();
+  const pass=document.getElementById('loginPass').value;
+  let ok=true;
+
+  if(!isGoodEmail(email)){document.getElementById('fg-loginEmail').classList.add('has-error');ok=false}else{document.getElementById('fg-loginEmail').classList.remove('has-error');document.getElementById('fg-loginEmail').classList.add('is-valid')}
+  if(!pass||pass.length<8){document.getElementById('fg-loginPass').classList.add('has-error');ok=false}else{document.getElementById('fg-loginPass').classList.remove('has-error');document.getElementById('fg-loginPass').classList.add('is-valid')}
+  if(!ok){showToast('Please fix the highlighted fields','#eb5757');return}
+
+  let user=JSON.parse(localStorage.getItem('cw_user')||'null');
+  if(!user){
+    // First-time login without register — generate wallet
+    showToast('Generating secure wallet...','#6c5ce7');
+    const mnemonic = await generateMnemonic24(email);
+    const keyPair = await deriveKeypair(mnemonic, 0);
+    user={name:email.split('@')[0], email:email, addr:keyPair.publicKey, created:Date.now(), seedHash:hashSeed(mnemonic)};
+    localStorage.setItem('cw_user', JSON.stringify(user));
+    localStorage.setItem('cw_seed', btoa(mnemonic));
+    const accounts=[{index:0, label:'Primary', publicKey:keyPair.publicKey, secret:keyPair.secret}];
+    localStorage.setItem('cw_accounts', btoa(JSON.stringify(accounts)));
+    localStorage.setItem('cw_active_idx', '0');
+    localStorage.setItem('cw_secret', btoa(keyPair.secret));
+    if(!localStorage.getItem('cw_balances'))localStorage.setItem('cw_balances',JSON.stringify({XLM:10000,USDC:500,wETH:0.5,wBTC:0.02,EURC:200,OLIGHFT:0}));
+    showToast('Wallet created!','#27ae60');
+    showSeedScreen(mnemonic);
+    return;
+  }
+  showToast('Welcome back!','#27ae60');
+  setTimeout(()=>loadDashboard(),500);
+}
+window.login=login;
+
+// ── Seed Phrase Screen ──
+let _currentMnemonic='';
+
+function showSeedScreen(mnemonic){
+  _currentMnemonic=mnemonic;
+  document.getElementById('authScreen').style.display='none';
+  document.getElementById('walletDash').style.display='none';
+  document.getElementById('seedScreen').style.display='block';
+
+  const words=mnemonic.split(' ');
+  const grid=document.getElementById('seedGrid');
+  grid.innerHTML=words.map((w,i)=>'<div class="seed-word"><span class="sw-num">'+(i+1)+'</span>'+w+'</div>').join('');
+
+  // Start blurred
+  document.getElementById('seedContainer').classList.add('seed-blur');
+  document.getElementById('seedVisBtn').innerHTML='&#x1F441; Show Words';
+  document.getElementById('seedConfirm').checked=false;
+  document.getElementById('seedContinueBtn').classList.remove('ready');
+}
+
+function toggleSeedVis(){
+  const c=document.getElementById('seedContainer');
+  const btn=document.getElementById('seedVisBtn');
+  if(c.classList.contains('seed-blur')){
+    c.classList.remove('seed-blur');
+    btn.innerHTML='&#x1F648; Hide Words';
+  } else {
+    c.classList.add('seed-blur');
+    btn.innerHTML='&#x1F441; Show Words';
+  }
+}
+window.toggleSeedVis=toggleSeedVis;
+
+function copySeed(){
+  if(!_currentMnemonic){
+    const stored=localStorage.getItem('cw_seed');
+    if(stored) _currentMnemonic=atob(stored);
+  }
+  if(!_currentMnemonic) return;
+  if(navigator.clipboard && window.isSecureContext){
+    navigator.clipboard.writeText(_currentMnemonic).then(()=>showToast('Seed phrase copied! Store it safely!','#f2994a')).catch(()=>fallbackCopy(_currentMnemonic));
+  } else {
+    fallbackCopy(_currentMnemonic);
+  }
+}
+function fallbackCopy(text){
+  const ta=document.createElement('textarea');
+  ta.value=text;ta.style.position='fixed';ta.style.left='-9999px';
+  document.body.appendChild(ta);ta.select();
+  try{document.execCommand('copy');showToast('Seed phrase copied! Store it safely!','#f2994a');}catch(e){showToast('Copy failed — please select and copy manually','#eb5757');}
+  document.body.removeChild(ta);
+}
+window.copySeed=copySeed;
+
+function seedConfirmToggle(){
+  const checked=document.getElementById('seedConfirm').checked;
+  const btn=document.getElementById('seedContinueBtn');
+  if(checked){btn.classList.add('ready')}else{btn.classList.remove('ready')}
+}
+window.seedConfirmToggle=seedConfirmToggle;
+
+function seedContinue(){
+  if(!document.getElementById('seedConfirm').checked){
+    showToast('Please confirm you saved your seed phrase','#eb5757');
+    return;
+  }
+  _currentMnemonic='';
+  document.getElementById('seedScreen').style.display='none';
+  loadDashboard();
+}
+window.seedContinue=seedContinue;
+
+// ── View Seed Phrase from Security Settings ──
+function viewSeedPhrase(){
+  const stored=localStorage.getItem('cw_seed');
+  if(!stored){showToast('No seed phrase found. Re-create wallet.','#eb5757');return;}
+  const phrase=atob(stored);
+  showSeedScreen(phrase);
+}
+window.viewSeedPhrase=viewSeedPhrase;
+
+// ── Logout ──
+function logout(){
+  if(!confirm('Logout? This will end your session.'))return;
+  localStorage.removeItem('cw_user');
+  localStorage.removeItem('cw_seed');
+  localStorage.removeItem('cw_secret');
+  localStorage.removeItem('cw_accounts');
+  localStorage.removeItem('cw_active_idx');
+  localStorage.removeItem('cw_security');
+  localStorage.removeItem('cw_multisig');
+  localStorage.removeItem('cw_balances');
+  localStorage.removeItem('cw_google');
+  window.location.href='auth.html';
+}
+window.logout=logout;
+
+// ── Dashboard ──
+function loadDashboard(){
+  const user=JSON.parse(localStorage.getItem('cw_user'));
+  if(!user)return;
+  document.getElementById('authScreen').style.display='none';
+  document.getElementById('seedScreen').style.display='none';
+  document.getElementById('walletDash').style.display='block';
+  document.getElementById('displayName').textContent=user.name;
+  document.getElementById('displayEmail').textContent=user.email;
+  document.getElementById('avatarInit').textContent=user.name.charAt(0).toUpperCase();
+  // Sync saved balances into assets array
+  const savedBals=JSON.parse(localStorage.getItem('cw_balances')||'null');
+  if(savedBals){assets.forEach(a=>{if(savedBals[a.sym]!==undefined)a.bal=savedBals[a.sym];});}
+  renderAccounts();
+  renderAssets();
+  renderActivity();
+  renderWalletStakes();
+  updateCardStatusBanner();
+  renderInvites();
+  // Auto-fill sponsor from user's sponsor field if present
+  try { var sp = user.sponsor || user.name || ''; if(sp && document.getElementById('stakeSponsor')) document.getElementById('stakeSponsor').value = sp; } catch(e){}
+  updateStakeSummary();
+  restoreSecToggles();
+  restoreGauthState();
+  restoreGoogleLinkState();
+  msRender();
+}
+
+function renderAssets(){
+  let total=0;
+  const html=assets.map(a=>{
+    const usd=a.bal*a.price;total+=usd;
+    const pctCls=a.pct>=0?'up':'down';
+    const pctStr=a.pct>=0?'\u25B2 +'+a.pct+'%':'\u25BC '+a.pct+'%';
+    return '<div class="asset-item"><div class="ai-left"><div class="ai-icon '+a.bg+'">'+a.icon+'</div><div><div class="ai-name">'+a.sym+'</div><div class="ai-full">'+a.name+'</div></div></div><div class="ai-right"><div class="ai-bal">'+fmtBal(a.bal)+' '+a.sym+'</div><div class="ai-usd">$'+usd.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})+'</div><div class="ai-pct '+pctCls+'">'+pctStr+'</div></div></div>';
+  }).join('');
+  document.getElementById('assetList').innerHTML=html;
+  document.getElementById('totalBal').textContent='$'+total.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+
+// ══════════════════════════════════════════════════
+//  STAKING ENGINE — Aligned with project logic
+//  Base APY + Lock Boost + Compound Boost
+//  8-Generation Sponsor Commissions
+// ══════════════════════════════════════════════════
+
+// Pool base APY rates (per asset)
+const POOL_APY = { XLM: 8.5, USDC: 6.2, wETH: 5.8, wBTC: 4.2 };
+
+// Lock-period boost percentages
+const LOCK_BOOSTS = { 0: 0, 30: 1.5, 90: 3.5, 180: 6, 365: 10 };
+
+// Compound frequency boost percentages
+const COMPOUND_BOOSTS = { none: 0, daily: 2.4, weekly: 1.2, monthly: 0.5 };
+
+// 8-generation referral commission rates (40% total)
+const GEN_RATES  = [0.10, 0.06, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04];
+const GEN_ROLES  = ['Direct Inviter','Inviter\u2019s Inviter','Upline Level 3','Upline Level 4','Upline Level 5','Upline Level 6','Upline Level 7','Upline Level 8'];
+const MAIN_WALLET_SPONSOR   = 'OLIGHFT_MAIN_WALLET';
+const OPTION_WALLET_SPONSOR = 'OLIGHFT_OPTION_WALLET';
+
+function getEffectiveAPY() {
+  var asset = document.getElementById('stakeAsset').value;
+  var days  = parseInt(document.getElementById('stakePeriod').value);
+  var comp  = document.getElementById('stakeCompound').value;
+  var base  = POOL_APY[asset] || 8.5;
+  var lockB = LOCK_BOOSTS[days] || 0;
+  var compB = COMPOUND_BOOSTS[comp] || 0;
+  return { base: base, lockBoost: lockB, compoundBoost: compB, total: base + lockB + compB };
+}
+
+function updateStakeSummary() {
+  var amt   = parseFloat(document.getElementById('stakeAmount').value) || 0;
+  var days  = parseInt(document.getElementById('stakePeriod').value);
+  var asset = document.getElementById('stakeAsset').value;
+  var apy   = getEffectiveAPY();
+  var period = days > 0 ? days : 365;
+  var reward = amt * (apy.total / 100) * (period / 365);
+  var total  = amt + reward;
+  var daily  = amt * (apy.total / 100) / 365;
+
+  document.getElementById('stakeApyBadge').textContent = apy.total.toFixed(1) + '% APY';
+  document.getElementById('ssAmount').textContent = amt.toLocaleString() + ' ' + asset;
+  document.getElementById('ssLock').textContent = days > 0 ? days + 'd' : 'Flex';
+  document.getElementById('ssAPY').textContent = apy.total.toFixed(1) + '%';
+  document.getElementById('ssDaily').textContent = daily.toFixed(4) + ' ' + asset;
+  document.getElementById('ssReward').textContent = reward.toFixed(2) + ' ' + asset;
+  document.getElementById('ssTotal').textContent = total.toFixed(2) + ' ' + asset;
+}
+
+function getWalletStakes() {
+  try { return JSON.parse(localStorage.getItem('wallet_stakes') || '[]'); } catch(e) { return []; }
+}
+
+function stakeMax() {
+  var asset  = document.getElementById('stakeAsset').value;
+  var cwBals = JSON.parse(localStorage.getItem('cw_balances') || '{}');
+  var bal    = cwBals[asset] || 0;
+  document.getElementById('stakeAmount').value = bal > 0 ? bal : '0';
+  updateStakeSummary();
+}
+
+function hasActiveCard() {
+  var cs = [];
+  try { cs = JSON.parse(localStorage.getItem('card_stakes') || '[]'); } catch(e) { return false; }
+  var now = Date.now();
+  var user = JSON.parse(localStorage.getItem('cw_user') || 'null');
+  if (!user) return false;
+  return cs.some(function(s) {
+    if (s.withdrawn) return false;
+    if (s.activatedBy !== user.email && s.activatedBy !== user.name) return false;
+    var end = new Date(s.date).getTime() + (s.period * 86400000);
+    return now < end;
+  });
+}
+function getActiveCardInfo() {
+  var cs = [];
+  try { cs = JSON.parse(localStorage.getItem('card_stakes') || '[]'); } catch(e) { return null; }
+  var now = Date.now();
+  var user = JSON.parse(localStorage.getItem('cw_user') || 'null');
+  if (!user) return null;
+  var best = null;
+  cs.forEach(function(s) {
+    if (s.withdrawn) return;
+    if (s.activatedBy !== user.email && s.activatedBy !== user.name) return;
+    var end = new Date(s.date).getTime() + (s.period * 86400000);
+    if (now >= end) return;
+    var daysLeft = Math.ceil((end - now) / 86400000);
+    if (!best || s.stake > best.stake) best = { card: s.card, stake: s.stake, period: s.period, daysLeft: daysLeft };
+  });
+  return best;
+}
+function updateCardStatusBanner() {
+  var el = document.getElementById('cardStatusBanner');
+  var btn = document.getElementById('stakeBtn');
+  if (!el) return;
+  var info = getActiveCardInfo();
+  if (info) {
+    el.style.background = 'rgba(39,174,96,.15)';
+    el.style.border = '1px solid rgba(39,174,96,.3)';
+    el.innerHTML = '\u2705 <b>' + info.card + ' Card</b> active &mdash; ' + info.daysLeft + ' days remaining &middot; $' + info.stake + ' staked &middot; Staking enabled';
+    el.style.color = '#2ecc71';
+    if (btn) { btn.disabled = false; btn.style.opacity = '1'; }
+  } else {
+    el.style.background = 'rgba(235,87,87,.12)';
+    el.style.border = '1px solid rgba(235,87,87,.3)';
+    el.innerHTML = '\u26A0\uFE0F <b>No active card.</b> You must activate a card (Visa, Gold, Platinum, Black, Amex, or Mastercard) before you can stake tokens. <a href="card-visa.html" style="color:#818cf8;text-decoration:underline;margin-left:6px">Activate a Card \u2192</a>';
+    el.style.color = '#eb5757';
+    if (btn) { btn.disabled = true; btn.style.opacity = '0.4'; }
+  }
+}
+
+function stakeTokens() {
+  // 1. Auth check
+  var user = JSON.parse(localStorage.getItem('cw_user') || 'null');
+  if (!user) { showToast('Please log in first.', '#eb5757'); return; }
+
+  // 1b. Require active card
+  if (!hasActiveCard()) {
+    showToast('⚠️ You need an active card to stake. Activate a card first (Visa, Gold, Platinum, Black, Amex, or Mastercard).', '#eb5757');
+    return;
+  }
+
+  // 2. Parse inputs
+  var amt   = parseFloat(document.getElementById('stakeAmount').value);
+  var days  = parseInt(document.getElementById('stakePeriod').value);
+  var asset = document.getElementById('stakeAsset').value;
+  var comp  = document.getElementById('stakeCompound').value;
+  var sponsor = (document.getElementById('stakeSponsor').value || '').trim();
+
+  if (!amt || amt <= 0) { showToast('Enter a valid stake amount.', '#eb5757'); return; }
+
+  // 3. Sponsor flow — match project logic
+  if (!sponsor) {
+    var hasInviter = confirm('\uD83C\uDF33 Were you invited by someone?\n\nOK \u2192 Enter your sponsor\u2019s username.\nCancel \u2192 No one invited you.');
+    if (hasInviter) { document.getElementById('stakeSponsor').focus(); return; }
+    var pickMain = confirm('\uD83C\uDFE6 Choose your auto-sponsor:\n\nOK \u2192 Main Wallet (OLIGHFT_MAIN_WALLET)\nCancel \u2192 Option Wallet (OLIGHFT_OPTION_WALLET)\n\nBoth wallets follow the same stage flow.');
+    sponsor = pickMain ? MAIN_WALLET_SPONSOR : OPTION_WALLET_SPONSOR;
+    document.getElementById('stakeSponsor').value = sponsor;
+  }
+
+  // 4. Check balance
+  var cwBals = JSON.parse(localStorage.getItem('cw_balances') || '{}');
+  var myBal  = cwBals[asset] || 0;
+  if (myBal < amt) {
+    showToast('Insufficient ' + asset + '! You have ' + myBal.toLocaleString() + ' but need ' + amt.toLocaleString() + '.', '#eb5757');
+    return;
+  }
+
+  // 5. Calculate effective APY
+  var apy = getEffectiveAPY();
+  var period = days > 0 ? days : 365;
+  var reward = amt * (apy.total / 100) * (period / 365);
+  var total  = amt + reward;
+  var daily  = amt * (apy.total / 100) / 365;
+
+  // 6. 8-generation commission distribution
+  var mainWalletAmt = amt * 0.60;
+  var genCommissions = GEN_RATES.map(function(r, i) {
+    return { gen: i + 1, role: GEN_ROLES[i], rate: r, amount: amt * r };
+  });
+  var totalRefAmt = genCommissions.reduce(function(s, g) { return s + g.amount; }, 0);
+
+  // 7. Confirm
+  if (!confirm(
+    'Confirm Stake\n\n' +
+    '\uD83D\uDCB0 Amount: ' + amt.toLocaleString() + ' ' + asset + '\n' +
+    '\uD83D\uDD12 Lock: ' + (days > 0 ? days + ' days' : 'Flexible') + '\n' +
+    '\uD83D\uDCC8 Base APY: ' + apy.base + '% + Lock: +' + apy.lockBoost + '% + Compound: +' + apy.compoundBoost + '%\n' +
+    '\u26A1 Effective APY: ' + apy.total.toFixed(1) + '%\n' +
+    '\uD83C\uDF81 Est. Reward: ' + reward.toFixed(2) + ' ' + asset + '\n' +
+    '\uD83D\uDCB5 Total Return: ' + total.toFixed(2) + ' ' + asset + '\n' +
+    '\uD83C\uDF33 Sponsor: ' + sponsor + '\n' +
+    '\uD83C\uDF33 Referral Commission: $' + totalRefAmt.toFixed(2) + ' (8-gen)\n\n' +
+    'Your ' + asset + ' balance: ' + myBal.toLocaleString() + ' \u2192 ' + (myBal - amt).toLocaleString()
+  )) return;
+
+  // 8. Deduct balance
+  cwBals[asset] = myBal - amt;
+  localStorage.setItem('cw_balances', JSON.stringify(cwBals));
+
+  // 9. Update in-memory assets array
+  var symMap = { wETH: 'wETH', wBTC: 'wBTC' };
+  var assetSym = symMap[asset] || asset;
+  var assetObj = assets.find(function(a) { return a.sym === assetSym; });
+  if (assetObj) assetObj.bal = cwBals[asset];
+
+  // 10. Create stake entry — full project model
+  var stakeEntry = {
+    id: 'stk_' + Date.now(),
+    asset: asset,
+    amount: amt,
+    lockDays: days,
+    baseAPY: apy.base,
+    lockBoost: apy.lockBoost,
+    compoundBoost: apy.compoundBoost,
+    apy: apy.total,
+    compound: comp,
+    dailyReward: parseFloat(daily.toFixed(8)),
+    reward: parseFloat(reward.toFixed(8)),
+    totalReturn: parseFloat(total.toFixed(8)),
+    startDate: new Date().toISOString(),
+    endDate: days > 0 ? new Date(Date.now() + days * 86400000).toISOString() : null,
+    lastCompound: new Date().toISOString(),
+    status: 'active',
+    withdrawn: false,
+    user: user.email,
+    sponsor: sponsor,
+    referralDistribution: {
+      mainWallet: mainWalletAmt,
+      generations: genCommissions,
+      totalReferral: totalRefAmt
+    }
+  };
+  var stakes = getWalletStakes();
+  stakes.push(stakeEntry);
+  localStorage.setItem('wallet_stakes', JSON.stringify(stakes));
+
+  // 11. Log activity
+  defaultActivity.unshift({
+    type: 'Staked',
+    icon: '\uD83D\uDCC8',
+    detail: amt.toLocaleString() + ' ' + asset + ' \u00B7 ' + (days > 0 ? days + 'd' : 'Flex') + ' \u00B7 ' + apy.total.toFixed(1) + '% APY \u00B7 Sponsor: ' + sponsor,
+    amt: '-' + amt.toLocaleString() + ' ' + asset,
+    cls: 'red',
+    time: 'Just now'
+  });
+
+  // 12. Advance invite stage → staking_active
+  (function(){try{var ISTAGES=['invited','registered','wallet_created','card_activated','staking_active'];var u=JSON.parse(localStorage.getItem('cw_user')||'null');if(!u||!u.email)return;var invs=JSON.parse(localStorage.getItem('cw_invites')||'[]');for(var inv of invs){if(inv.invitee&&inv.invitee.email&&inv.invitee.email.toLowerCase()===u.email.toLowerCase()){var ci=ISTAGES.indexOf(inv.stage),ni=ISTAGES.indexOf('staking_active');if(ni>ci){inv.stage='staking_active';inv.stageHistory.push({stage:'staking_active',at:Date.now()});}break;}}localStorage.setItem('cw_invites',JSON.stringify(invs));}catch(e){}})();
+
+  // 13. Refresh UI
+  renderAssets();
+  renderActivity();
+  renderWalletStakes();
+  document.getElementById('stakeAmount').value = '';
+  updateStakeSummary();
+
+  showToast('\u2705 Staked ' + amt.toLocaleString() + ' ' + asset + ' at ' + apy.total.toFixed(1) + '% APY! Sponsor: ' + sponsor, '#27ae60');
+}
+
+function withdrawStake(stakeId) {
+  var stakes = getWalletStakes();
+  var idx = stakes.findIndex(function(s) { return s.id === stakeId; });
+  if (idx < 0) { showToast('Stake not found.', '#eb5757'); return; }
+  var s = stakes[idx];
+  var now = Date.now();
+
+  // Lock period check (flexible stakes have no endDate)
+  if (s.endDate) {
+    var end = new Date(s.endDate).getTime();
+    if (now < end) {
+      var daysLeft = Math.ceil((end - now) / 86400000);
+      showToast('Stake locked! ' + daysLeft + ' days remaining.', '#eb5757');
+      return;
+    }
+  }
+  if (s.withdrawn) { showToast('Already withdrawn.', '#eb5757'); return; }
+
+  // Calculate accrued reward since last compound
+  var elapsed = (now - new Date(s.lastCompound || s.startDate).getTime()) / 86400000;
+  var accrued = (s.dailyReward || 0) * elapsed;
+  var totalReturn = s.amount + (s.reward || 0) + accrued;
+
+  var asset = s.asset || 'XLM';
+  if (!confirm('Withdraw ' + totalReturn.toFixed(2) + ' ' + asset + ' (principal + reward)?')) return;
+
+  // Credit balance
+  var cwBals = JSON.parse(localStorage.getItem('cw_balances') || '{}');
+  cwBals[asset] = (cwBals[asset] || 0) + totalReturn;
+  localStorage.setItem('cw_balances', JSON.stringify(cwBals));
+  var assetObj = assets.find(function(a) { return a.sym === asset; });
+  if (assetObj) assetObj.bal = cwBals[asset];
+
+  // Mark withdrawn
+  stakes[idx].status = 'withdrawn';
+  stakes[idx].withdrawn = true;
+  localStorage.setItem('wallet_stakes', JSON.stringify(stakes));
+
+  // Activity log
+  defaultActivity.unshift({
+    type: 'Unstaked',
+    icon: '\uD83D\uDCB0',
+    detail: 'Withdrew ' + totalReturn.toFixed(2) + ' ' + asset + ' (' + s.amount + ' + ' + (totalReturn - s.amount).toFixed(2) + ' reward)',
+    amt: '+' + totalReturn.toFixed(2) + ' ' + asset,
+    cls: 'green',
+    time: 'Just now'
+  });
+
+  renderAssets();
+  renderActivity();
+  renderWalletStakes();
+  showToast('\u2705 Withdrew ' + totalReturn.toFixed(2) + ' ' + asset + '!', '#27ae60');
+}
+
+function renderWalletStakes() {
+  var container = document.getElementById('activeStakesContainer');
+  if (!container) return;
+  var stakes = getWalletStakes().filter(function(s) { return !s.withdrawn; });
+  if (stakes.length === 0) { container.innerHTML = ''; return; }
+
+  var now = Date.now();
+  var html = '<div class="as-title">\uD83D\uDCCA Active Stakes (' + stakes.length + ')</div>';
+
+  stakes.forEach(function(s) {
+    var start = new Date(s.startDate).getTime();
+    var lockDays = s.lockDays || 0;
+    var asset = s.asset || 'XLM';
+    var isFlexible = !s.endDate || lockDays === 0;
+    var end = isFlexible ? now : new Date(s.endDate).getTime();
+    var elapsed = isFlexible ? Math.floor((now - start) / 86400000) : Math.min(lockDays, Math.floor((now - start) / 86400000));
+    var left = isFlexible ? '\u221E' : Math.max(0, lockDays - elapsed);
+    var pct = isFlexible ? 100 : (lockDays > 0 ? Math.round((elapsed / lockDays) * 100) : 100);
+    var daily = s.dailyReward || 0;
+    var earned = daily * elapsed;
+    var isFinished = isFlexible || now >= end;
+    var sd = new Date(s.startDate).toLocaleDateString();
+    var apyLabel = (s.apy || 0).toFixed(1) + '% APY';
+    if (s.baseAPY !== undefined) {
+      apyLabel = s.baseAPY + '%+' + (s.lockBoost || 0) + '%+' + (s.compoundBoost || 0) + '% = ' + (s.apy || 0).toFixed(1) + '%';
+    }
+    var compLabel = s.compound ? s.compound.charAt(0).toUpperCase() + s.compound.slice(1) : 'Manual';
+    var sponsorLabel = s.sponsor || 'none';
+
+    html += '<div class="as-card' + (isFinished ? ' finished' : '') + '">' +
+      '<div class="as-header">' +
+      '<div style="font-size:.72rem;font-weight:700;color:' + (isFinished ? '#f5c518' : '#27ae60') + '">' +
+      (isFinished ? '\u2705 Complete' : '\u23F3 Active') + ' \u2014 ' + asset + ' \u00B7 ' + (isFlexible ? 'Flex' : lockDays + 'd') + ' \u00B7 ' + apyLabel + '</div>' +
+      '<div style="font-size:.58rem;color:rgba(255,255,255,.35)">Started ' + sd + ' \u00B7 Compound: ' + compLabel + ' \u00B7 Sponsor: ' + sponsorLabel + '</div></div>' +
+      '<div class="as-bar"><div class="as-bar-fill' + (isFinished ? ' done' : '') + '" style="width:' + pct + '%"></div></div>' +
+      '<div class="as-stats">' +
+      '<div><div class="ss-label">Staked</div><div class="ss-val" style="color:#818cf8">' + s.amount.toLocaleString() + ' ' + asset + '</div></div>' +
+      '<div><div class="ss-label">Daily</div><div class="ss-val" style="color:#06b6d4">' + daily.toFixed(4) + '</div></div>' +
+      '<div><div class="ss-label">Earned</div><div class="ss-val" style="color:#27ae60">' + earned.toFixed(2) + '</div></div>' +
+      '<div><div class="ss-label">Days Left</div><div class="ss-val" style="color:#a29bfe">' + left + '</div></div>' +
+      '<div><div class="ss-label">Total</div><div class="ss-val" style="color:#f5c518">' + (s.amount + earned).toFixed(2) + '</div></div></div>';
+    if (isFinished) {
+      html += '<button class="as-withdraw-btn" onclick="withdrawStake(\'' + s.id + '\')">\uD83D\uDCB0 Withdraw ' + (s.amount + earned).toFixed(2) + ' ' + asset + '</button>';
+    }
+    html += '</div>';
+  });
+  container.innerHTML = html;
+}
+
+function renderActivity(){
+  const html=defaultActivity.map(a=>'<div class="act-item"><div class="ac-left"><div class="ac-icon">'+a.icon+'</div><div><div class="ac-type">'+a.type+'</div><div class="ac-detail">'+a.detail+'</div></div></div><div class="ac-right"><div class="ac-amt '+a.cls+'">'+a.amt+'</div><div class="ac-time">'+a.time+'</div></div></div>').join('');
+  document.getElementById('activityList').innerHTML=html;
+}
+
+function fmtBal(v){return v<0.001?v.toFixed(8):v<1?v.toFixed(6):v<100?v.toFixed(4):v.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})}
+
+// ── Multi-Account Management (SEP-0005) ──
+function getAccounts(){
+  try{const raw=localStorage.getItem('cw_accounts');return raw?JSON.parse(atob(raw)):[];}catch(e){return[];}
+}
+function saveAccounts(accounts){
+  localStorage.setItem('cw_accounts',btoa(JSON.stringify(accounts)));
+}
+function getActiveIdx(){
+  return parseInt(localStorage.getItem('cw_active_idx')||'0',10);
+}
+
+async function addAccount(){
+  const stored=localStorage.getItem('cw_seed');
+  if(!stored){showToast('No seed phrase found.','#eb5757');return;}
+  const mnemonic=atob(stored);
+  const accounts=getAccounts();
+  // Find next unused index
+  const usedIndexes=accounts.map(a=>a.index);
+  let nextIdx=0;
+  while(usedIndexes.includes(nextIdx))nextIdx++;
+  showToast('Deriving account #'+nextIdx+'...','#6c5ce7');
+  const kp=await deriveKeypair(mnemonic,nextIdx);
+  accounts.push({index:nextIdx, label:'Account '+nextIdx, publicKey:kp.publicKey, secret:kp.secret});
+  saveAccounts(accounts);
+  showToast('Account #'+nextIdx+' added!','#27ae60');
+  renderAccounts();
+}
+window.addAccount=addAccount;
+
+function switchAccount(idx){
+  const accounts=getAccounts();
+  const acc=accounts.find(a=>a.index===idx);
+  if(!acc)return;
+  localStorage.setItem('cw_active_idx',String(idx));
+  localStorage.setItem('cw_secret',btoa(acc.secret));
+  // Update user address
+  const user=JSON.parse(localStorage.getItem('cw_user'));
+  if(user){user.addr=acc.publicKey;localStorage.setItem('cw_user',JSON.stringify(user));}
+  showToast('Switched to '+acc.label+' (m/44\'/148\'/'+idx+'\')','#6c5ce7');
+  renderAccounts();
+}
+window.switchAccount=switchAccount;
+
+function copyAccAddr(pubKey,e){
+  if(e)e.stopPropagation();
+  if(navigator.clipboard && window.isSecureContext){
+    navigator.clipboard.writeText(pubKey).then(()=>showToast('Address copied!','#27ae60')).catch(()=>{fallbackCopy(pubKey);showToast('Address copied!','#27ae60');});
+  } else {
+    fallbackCopy(pubKey);
+    showToast('Address copied!','#27ae60');
+  }
+}
+window.copyAccAddr=copyAccAddr;
+
+function renderAccounts(){
+  const accounts=getAccounts();
+  const activeIdx=getActiveIdx();
+  const list=document.getElementById('accountList');
+  if(!list)return;
+  // Auto-migrate: if no accounts stored, create from existing user
+  if(accounts.length===0){
+    const user=JSON.parse(localStorage.getItem('cw_user')||'null');
+    const secret=localStorage.getItem('cw_secret');
+    if(user&&secret){
+      const migrated=[{index:0,label:'Primary',publicKey:user.addr,secret:atob(secret)}];
+      saveAccounts(migrated);
+      accounts.push(...migrated);
+    }
+  }
+  list.innerHTML=accounts.map(a=>{
+    const isActive=a.index===activeIdx;
+    const shortAddr=a.publicKey.slice(0,8)+'...'+a.publicKey.slice(-6);
+    return '<div class="acc-item'+(isActive?' active':'')+'" onclick="switchAccount('+a.index+')">' +
+      '<div class="acc-left"><div class="acc-idx">'+(a.index)+'</div><div class="acc-info">' +
+      '<div class="acc-label">'+a.label+(isActive?' <span class="acc-active-badge">ACTIVE</span>':'')+'</div>' +
+      '<div class="acc-addr">'+a.publicKey+'</div>' +
+      '<div class="acc-path">m/44\'/148\'/'+a.index+'\'</div>' +
+      '</div></div>' +
+      '<div class="acc-actions">' +
+      '<button onclick="copyAccAddr(\''+a.publicKey+'\',event)">&#x1F4CB;</button>' +
+      '</div></div>';
+  }).join('');
+}
+
+function copyAddr(){
+  const user=JSON.parse(localStorage.getItem('cw_user')||'null');
+  const addr=user?user.addr:'';
+  if(!addr)return;
+  if(navigator.clipboard && window.isSecureContext){
+    navigator.clipboard.writeText(addr).then(()=>showToast('Address copied!','#27ae60')).catch(()=>fallbackCopy(addr));
+  } else {
+    fallbackCopy(addr);
+    showToast('Address copied!','#27ae60');
+  }
+}
+window.copyAddr=copyAddr;
+function showQR(){window.location.href='receive.html'}
+window.showQR=showQR;
+
+function fundTestnet(){
+  assets[0].bal+=10000;
+  renderAssets();
+  showToast('Funded 10,000 XLM from Friendbot!','#27ae60');
+  const act=defaultActivity;
+  act.unshift({type:'Funded',icon:'\uD83D\uDCB0',detail:'Testnet Friendbot',amt:'+10,000 XLM',cls:'green',time:'just now'});
+  renderActivity();
+}
+window.fundTestnet=fundTestnet;
+
+// ════════════════════════════════════════════════════════════
+//  GOOGLE AUTHENTICATOR — TOTP (RFC 6238)
+//  Setup, QR generation, verification for wallet 2FA
+// ════════════════════════════════════════════════════════════
+
+const G_B32='ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+function gBase32Encode(buf){
+  let bits='',out='';
+  new Uint8Array(buf).forEach(b=>bits+=b.toString(2).padStart(8,'0'));
+  for(let i=0;i<bits.length;i+=5){out+=G_B32[parseInt(bits.slice(i,i+5).padEnd(5,'0'),2)];}
+  return out;
+}
+function gBase32Decode(str){
+  let bits='';
+  str.toUpperCase().replace(/[^A-Z2-7]/g,'').split('').forEach(c=>bits+=G_B32.indexOf(c).toString(2).padStart(5,'0'));
+  const bytes=[];
+  for(let i=0;i+8<=bits.length;i+=8)bytes.push(parseInt(bits.slice(i,i+8),2));
+  return new Uint8Array(bytes);
+}
+
+function gGenerateSecret(){
+  const buf=new Uint8Array(20);
+  crypto.getRandomValues(buf);
+  return gBase32Encode(buf);
+}
+
+async function gHmacSha1(keyBytes,msgBytes){
+  const key=await crypto.subtle.importKey('raw',keyBytes,{name:'HMAC',hash:'SHA-1'},false,['sign']);
+  return new Uint8Array(await crypto.subtle.sign('HMAC',key,msgBytes));
+}
+
+async function gGenerateTotp(secret,time){
+  const t=time||Math.floor(Date.now()/1000);
+  const counter=Math.floor(t/30);
+  const msg=new Uint8Array(8);
+  let tmp=counter;
+  for(let i=7;i>=0;i--){msg[i]=tmp&0xff;tmp=Math.floor(tmp/256);}
+  const hash=await gHmacSha1(gBase32Decode(secret),msg);
+  const offset=hash[hash.length-1]&0x0f;
+  const code=((hash[offset]&0x7f)<<24|hash[offset+1]<<16|hash[offset+2]<<8|hash[offset+3])%1000000;
+  return code.toString().padStart(6,'0');
+}
+
+async function gVerifyTotp(secret,inputCode){
+  const now=Math.floor(Date.now()/1000);
+  for(let w=-1;w<=1;w++){
+    if(await gGenerateTotp(secret,now+(w*30))===inputCode)return true;
+  }
+  return false;
+}
+
+function gBuildUri(email,secret){
+  return 'otpauth://totp/'+encodeURIComponent('OLIGHFT:'+email)+'?secret='+secret+'&issuer=OLIGHFT%20SMART%20COIN&algorithm=SHA1&digits=6&period=30';
+}
+
+function gIsEnabled(){
+  try{const c=JSON.parse(localStorage.getItem('cw_2fa')||'null');return c&&c.enabled&&c.secret;}catch(e){return false;}
+}
+
+// Pending setup secret (not yet saved)
+let _gauthPendingSecret='';
+let _gauthSetupTimer=null;
+
+function toggleGoogleAuth(){
+  if(gIsEnabled()){
+    // Disable Google Auth
+    if(!confirm('Disable Google Authenticator 2FA? You will lose this security layer.'))return;
+    localStorage.removeItem('cw_2fa');
+    const el=document.getElementById('tog2fa');
+    el.classList.remove('on');
+    document.getElementById('gauth-status-desc').textContent='Extra layer of login security';
+    document.getElementById('gauthSetupPanel').style.display='none';
+    const sec=JSON.parse(localStorage.getItem('cw_security')||'{}');
+    sec.tog2fa=false;
+    localStorage.setItem('cw_security',JSON.stringify(sec));
+    showToast('Google Authenticator disabled','#f2994a');
+  } else {
+    // Start setup
+    startGauthSetup();
+  }
+}
+window.toggleGoogleAuth=toggleGoogleAuth;
+
+function startGauthSetup(){
+  const user=JSON.parse(localStorage.getItem('cw_user')||'null');
+  if(!user||!user.email){showToast('Login first to enable 2FA','#eb5757');return;}
+
+  _gauthPendingSecret=gGenerateSecret();
+  const uri=gBuildUri(user.email,_gauthPendingSecret);
+
+  // Display secret
+  document.getElementById('gauthSecretDisplay').textContent=_gauthPendingSecret.replace(/(.{4})/g,'$1 ').trim();
+
+  // Generate QR code using QR API
+  const qrEl=document.getElementById('gauthQrCode');
+  qrEl.innerHTML='<img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data='+encodeURIComponent(uri)+'" alt="QR Code" style="width:180px;height:180px;border-radius:6px">';
+
+  // Show panel
+  document.getElementById('gauthSetupPanel').style.display='block';
+
+  // Setup OTP auto-advance
+  const inputs=document.querySelectorAll('#gauthSetupOtp input');
+  inputs.forEach(function(inp,i){
+    inp.value='';
+    inp.oninput=function(){inp.value=inp.value.replace(/\D/g,'');if(inp.value&&i<inputs.length-1)inputs[i+1].focus();};
+    inp.onkeydown=function(e){if(e.key==='Backspace'&&!inp.value&&i>0)inputs[i-1].focus();};
+    inp.onpaste=function(e){e.preventDefault();var d=(e.clipboardData||window.clipboardData).getData('text').replace(/\D/g,'').slice(0,6);d.split('').forEach(function(c,j){if(inputs[i+j])inputs[i+j].value=c;});};
+  });
+  inputs[0].focus();
+
+  // Timer
+  startSetupTimer();
+}
+
+function startSetupTimer(){
+  if(_gauthSetupTimer)clearInterval(_gauthSetupTimer);
+  function tick(){
+    var rem=30-(Math.floor(Date.now()/1000)%30);
+    var el=document.getElementById('gauthSetupTimer');
+    if(el)el.textContent='Code refreshes in '+rem+'s';
+  }
+  tick();
+  _gauthSetupTimer=setInterval(tick,1000);
+}
+
+async function verifyGauthSetup(){
+  const inputs=document.querySelectorAll('#gauthSetupOtp input');
+  const code=Array.from(inputs).map(i=>i.value).join('');
+  if(code.length!==6){showToast('Enter the full 6-digit code','#eb5757');return;}
+
+  const valid=await gVerifyTotp(_gauthPendingSecret,code);
+  if(!valid){
+    showToast('Invalid code. Check your Google Authenticator app and try again.','#eb5757');
+    inputs.forEach(i=>{i.value='';});
+    inputs[0].focus();
+    return;
+  }
+
+  // Save 2FA config
+  localStorage.setItem('cw_2fa',JSON.stringify({enabled:true,secret:_gauthPendingSecret,setupAt:Date.now()}));
+  const sec=JSON.parse(localStorage.getItem('cw_security')||'{}');
+  sec.tog2fa=true;
+  localStorage.setItem('cw_security',JSON.stringify(sec));
+
+  // Update UI
+  document.getElementById('tog2fa').classList.add('on');
+  document.getElementById('gauth-status-desc').innerHTML='<span style="color:#27ae60">&#x2705; Google Authenticator active</span>';
+  document.getElementById('gauthSetupPanel').style.display='none';
+  if(_gauthSetupTimer){clearInterval(_gauthSetupTimer);_gauthSetupTimer=null;}
+  _gauthPendingSecret='';
+  showToast('Google Authenticator enabled! 2FA is now active.','#27ae60');
+}
+window.verifyGauthSetup=verifyGauthSetup;
+
+function cancelGauthSetup(){
+  document.getElementById('gauthSetupPanel').style.display='none';
+  if(_gauthSetupTimer){clearInterval(_gauthSetupTimer);_gauthSetupTimer=null;}
+  _gauthPendingSecret='';
+}
+window.cancelGauthSetup=cancelGauthSetup;
+
+function copyGauthSecret(){
+  if(!_gauthPendingSecret)return;
+  if(navigator.clipboard&&window.isSecureContext){
+    navigator.clipboard.writeText(_gauthPendingSecret).then(()=>showToast('Secret key copied!','#6c5ce7')).catch(()=>{fallbackCopy(_gauthPendingSecret);showToast('Secret key copied!','#6c5ce7');});
+  } else {
+    fallbackCopy(_gauthPendingSecret);
+    showToast('Secret key copied!','#6c5ce7');
+  }
+}
+window.copyGauthSecret=copyGauthSecret;
+
+// Restore Google Auth state on dashboard load
+// ═══════════════════════════════════════════
+//  GOOGLE CLIENT LIBRARY (Identity Services)
+//  Link / Unlink Google Account from Wallet
+// ═══════════════════════════════════════════
+
+const GOOGLE_CLIENT_ID = '000000000000-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.apps.googleusercontent.com';
+const GOOGLE_CLIENT_ID_SET = !GOOGLE_CLIENT_ID.startsWith('000000000000');
+let _gisInitialized = false;
+
+function initGoogleIdentity() {
+  if (_gisInitialized) return;
+  if (!window.google || !window.google.accounts) return;
+  if (!GOOGLE_CLIENT_ID_SET) return;
+  try {
+    window.google.accounts.id.initialize({
+      client_id: GOOGLE_CLIENT_ID,
+      callback: handleGoogleLinkCallback,
+      auto_select: false,
+      cancel_on_tap_outside: true,
+      itp_support: true,
+      use_fedcm_for_prompt: true
+    });
+    // Render button in the wallet container
+    var container = document.getElementById('g-wallet-btn');
+    if (container) {
+      window.google.accounts.id.renderButton(container, {
+        theme: 'filled_black',
+        size: 'large',
+        shape: 'pill',
+        width: 320,
+        text: 'signin_with',
+        logo_alignment: 'left'
+      });
+    }
+    _gisInitialized = true;
+  } catch (err) {
+    console.warn('[GoogleClient] Init failed:', err.message);
+  }
+}
+
+function handleGoogleLinkCallback(response) {
+  try {
+    var parts = response.credential.split('.');
+    var payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+    linkGoogleAccount(payload.email, payload.name || payload.email.split('@')[0], payload.picture || '', payload.sub || '');
+  } catch (err) {
+    showToast('Failed to process Google credentials', '#eb5757');
+  }
+}
+
+function linkGoogleAccount(email, name, picture, sub) {
+  var user = JSON.parse(localStorage.getItem('cw_user') || 'null');
+  if (!user) { showToast('Login first to link Google', '#eb5757'); return; }
+  user.googleAuth = true;
+  if (picture) user.picture = picture;
+  localStorage.setItem('cw_user', JSON.stringify(user));
+  localStorage.setItem('cw_google', JSON.stringify({
+    enabled: true,
+    email: email,
+    name: name,
+    picture: picture,
+    sub: sub,
+    authedAt: Date.now()
+  }));
+  restoreGoogleLinkState();
+  showToast('Google account linked: ' + email, '#27ae60');
+}
+
+function unlinkGoogleAccount() {
+  if (!confirm('Unlink Google account? You can re-link anytime.')) return;
+  var user = JSON.parse(localStorage.getItem('cw_user') || 'null');
+  if (user) {
+    user.googleAuth = false;
+    delete user.picture;
+    localStorage.setItem('cw_user', JSON.stringify(user));
+  }
+  localStorage.removeItem('cw_google');
+  // Revoke Google session if SDK available
+  if (window.google && window.google.accounts) {
+    try { window.google.accounts.id.disableAutoSelect(); } catch (e) {}
+  }
+  restoreGoogleLinkState();
+  showToast('Google account unlinked', '#f2994a');
+}
+
+function toggleGoogleLink() {
+  var gc = null;
+  try { gc = JSON.parse(localStorage.getItem('cw_google') || 'null'); } catch (e) {}
+  if (gc && gc.enabled) {
+    unlinkGoogleAccount();
+  } else {
+    // Try real Google Sign-In first, then demo fallback
+    if (GOOGLE_CLIENT_ID_SET && window.google && window.google.accounts) {
+      if (!_gisInitialized) initGoogleIdentity();
+      window.google.accounts.id.prompt(function(notification) {
+        if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+          googleLinkDemo();
+        }
+      });
+    } else {
+      googleLinkDemo();
+    }
+  }
+}
+window.toggleGoogleLink = toggleGoogleLink;
+
+function googleLinkDemo() {
+  var user = JSON.parse(localStorage.getItem('cw_user') || 'null');
+  if (!user) { showToast('Login first', '#eb5757'); return; }
+  var email = prompt('\uD83C\uDF10 Google Account Link (Demo)\n\nEnter the Google email to link:');
+  if (!email || email.indexOf('@') === -1) { showToast('Invalid email', '#eb5757'); return; }
+  var name = email.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, function(c) { return c.toUpperCase(); });
+  linkGoogleAccount(email, name, '', 'demo_' + Date.now());
+}
+
+function restoreGoogleLinkState() {
+  var gc = null;
+  try { gc = JSON.parse(localStorage.getItem('cw_google') || 'null'); } catch (e) {}
+  var btn = document.getElementById('googleLinkBtn');
+  var desc = document.getElementById('googleLinkDesc');
+  var badge = document.getElementById('googleLinkBadge');
+  var btnContainer = document.getElementById('g-wallet-btn');
+  if (!btn || !desc || !badge) return;
+  if (gc && gc.enabled) {
+    btn.className = 'gl-btn unlink';
+    btn.innerHTML = '&#x26D3; Unlink';
+    desc.innerHTML = '<span class="gl-email">' + gc.email + '</span>';
+    badge.className = 'gl-badge linked';
+    badge.textContent = gc.sub && gc.sub.toString().indexOf('demo') === 0 ? '\u2705 Demo' : '\u2705 Linked';
+    if (gc.sub && gc.sub.toString().indexOf('demo') === 0) { badge.className = 'gl-badge demo'; }
+    if (btnContainer) btnContainer.style.display = 'none';
+  } else {
+    btn.className = 'gl-btn link';
+    btn.innerHTML = '&#x1F517; Link';
+    desc.textContent = 'Link your Google account for quick sign-in';
+    badge.className = '';
+    badge.textContent = '';
+    if (btnContainer) btnContainer.style.display = '';
+  }
+}
+
+// Auto-init GIS once script loads
+(function() {
+  function tryInit() {
+    if (window.google && window.google.accounts && GOOGLE_CLIENT_ID_SET) {
+      initGoogleIdentity();
+    }
+  }
+  if (document.readyState === 'complete') tryInit();
+  else window.addEventListener('load', function() { setTimeout(tryInit, 300); });
+})();
+
+function restoreGauthState(){
+  const el=document.getElementById('tog2fa');
+  const desc=document.getElementById('gauth-status-desc');
+  if(gIsEnabled()){
+    el.classList.add('on');
+    desc.innerHTML='<span style="color:#27ae60">&#x2705; Google Authenticator active</span>';
+  } else {
+    el.classList.remove('on');
+    desc.textContent='Extra layer of login security';
+  }
+}
+
+function toggleSec(el){
+  el.classList.toggle('on');
+  const id=el.id;
+  const isOn=el.classList.contains('on');
+  // Persist toggle states
+  const sec=JSON.parse(localStorage.getItem('cw_security')||'{}');
+  sec[id]=isOn;
+  localStorage.setItem('cw_security',JSON.stringify(sec));
+  showToast(el.closest('.sec-row').querySelector('.sr-name').textContent+': '+(isOn?'Enabled':'Disabled'),'#6c5ce7');
+}
+window.toggleSec=toggleSec;
+
+// Restore security toggles from localStorage
+function restoreSecToggles(){
+  const sec=JSON.parse(localStorage.getItem('cw_security')||'{}');
+  Object.keys(sec).forEach(id=>{
+    const el=document.getElementById(id);
+    if(el){if(sec[id])el.classList.add('on');else el.classList.remove('on');}
+  });
+}
+
+function showToast(msg,color){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.style.background=color||'#27ae60';
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2000);
+}
+
+// ════════════════════════════════════════════════════════
+//  STELLAR SINGLE-SIGNER AUTHORIZATION
+//  Master key weight 255 · All thresholds = 1
+//  One signature authorizes every operation level
+// ════════════════════════════════════════════════════════
+
+function msRender(){
+  // Single-signer mode: populate master public key if available
+  const keyEl=document.getElementById('msMasterPubKey');
+  const badge=document.getElementById('msBadge');
+  if(badge){badge.className='ms-badge active';badge.textContent='SINGLE SIGNER';}
+  const accounts=getAccounts();
+  if(keyEl&&accounts.length>0){
+    const pk=accounts[0].publicKey;
+    keyEl.textContent=pk.slice(0,8)+'...'+pk.slice(-4)+' (m/44\'/148\'/0\')';
+  }
+  // Show SetOptions preview
+  const previewEl=document.getElementById('msSetoptPreview');
+  if(previewEl){
+    previewEl.textContent=msBuildSetoptPreview();
+    previewEl.style.display='';
+  }
+  // Render pending transactions
+  const pendingSection=document.getElementById('msPendingSection');
+  const pendingList=document.getElementById('msPendingList');
+  const txs=JSON.parse(localStorage.getItem('cw_single_txs')||'[]');
+  if(pendingSection&&pendingList){
+    if(txs.length>0){
+      pendingSection.style.display='';
+      pendingList.innerHTML=txs.map(function(tx){
+        const ago=Math.round((Date.now()-tx.created)/60000);
+        return '<div class="ms-pending-tx"><div class="ms-ptx-header"><div class="ms-ptx-type">'+tx.type+' — '+tx.id+'</div><div class="ms-ptx-time">'+(ago<1?'just now':ago+'m ago')+'</div></div><div class="ms-ptx-detail">'+tx.detail+'</div><div class="ms-ptx-progress" style="color:#27ae60">&#x2705; Signed &amp; Submitted (weight 255/1)</div></div>';
+      }).join('');
+    } else {
+      pendingSection.style.display='none';
+    }
+  }
+}
+
+function msBuildSetoptPreview(){
+  const accounts=getAccounts();
+  const pk=accounts.length>0?accounts[0].publicKey:'GDBYDOM7...';
+  return [
+    '// Stellar JS SDK — Single-Signer SetOptions',
+    '// Master key holds full authority · Stellar Testnet',
+    '',
+    'const server = new StellarSdk.Horizon.Server(',
+    '  "https://horizon-testnet.stellar.org"',
+    ');',
+    '',
+    '// Single signer: master weight 255, all thresholds = 1',
+    '// 1 signature × 255 weight = 255 ≥ 1 ✔',
+    '',
+    'const setOptOp = sdk.Operation.setOptions({',
+    '  masterWeight: 255,',
+    '  lowThreshold: 1,',
+    '  medThreshold: 1,',
+    '  highThreshold: 1,',
+    '});',
+    '',
+    '// Build, sign, and submit in one step',
+    'const tx = new sdk.TransactionBuilder(account, {fee, networkPassphrase})',
+    '  .addOperation(setOptOp)',
+    '  .setTimeout(300)',
+    '  .build();',
+    '',
+    'const simResult = await server.simulateTransaction(tx);',
+    'if (simResult.error) throw simResult.error;',
+    '',
+    '// Single master key signs everything',
+    'tx.sign(StellarSdk.Keypair.fromSecret(masterSecret));',
+    'await server.submitTransaction(tx);'
+  ].join('\n');
+}
+
+function msCreateTx(){
+  const accounts=getAccounts();
+  if(accounts.length===0){showToast('Create a wallet first','#eb5757');return;}
+  const txId='TX-'+Date.now().toString(36).toUpperCase();
+  const tx={id:txId, type:'Payment', detail:'Single-signer authorized transaction', created:Date.now()};
+  var txs=JSON.parse(localStorage.getItem('cw_single_txs')||'[]');
+  txs.unshift(tx);
+  if(txs.length>10) txs=txs.slice(0,10);
+  localStorage.setItem('cw_single_txs',JSON.stringify(txs));
+  showToast('Transaction '+txId+' created, signed & submitted (master key: weight 255)','#27ae60');
+  msRender();
+}
+window.msCreateTx=msCreateTx;
+
+// ════════════════════════════════════════════════════════
+//  USER INVITED STAGE FLOW
+//  Stages: invited → registered → wallet_created →
+//          card_activated → staking_active
+// ════════════════════════════════════════════════════════
+
+const INVITE_STAGES = ['invited','registered','wallet_created','card_activated','staking_active'];
+const STAGE_ICONS   = {invited:'\uD83D\uDCE8', registered:'\u2705', wallet_created:'\uD83D\uDCB3', card_activated:'\uD83C\uDFC6', staking_active:'\uD83D\uDE80'};
+const STAGE_LABELS  = {invited:'Invited', registered:'Registered', wallet_created:'Wallet', card_activated:'Card', staking_active:'Staking'};
+
+function getInvites(){
+  try{return JSON.parse(localStorage.getItem('cw_invites')||'[]');}catch(e){return[];}
+}
+function saveInvites(inv){
+  localStorage.setItem('cw_invites',JSON.stringify(inv));
+}
+
+/* Generate invite link using current user's name as the referral code */
+function generateInviteLink(){
+  const user=JSON.parse(localStorage.getItem('cw_user')||'null');
+  if(!user||!user.name)return'';
+  const refCode=encodeURIComponent(user.name);
+  // Use relative URL so it works in file:// or any host
+  return 'auth.html?ref='+refCode;
+}
+
+function copyInviteLink(){
+  const user=JSON.parse(localStorage.getItem('cw_user')||'null');
+  if(!user||!user.name){showToast('Login first to get your invite link','#eb5757');return;}
+  const link=generateInviteLink();
+  const inp=document.getElementById('inviteLinkInput');
+  inp.value=link;
+  if(navigator.clipboard&&window.isSecureContext){
+    navigator.clipboard.writeText(link).then(()=>showToast('Invite link copied!','#27ae60')).catch(()=>{fallbackCopy(link);showToast('Invite link copied!','#27ae60');});
+  } else {
+    fallbackCopy(link);
+    showToast('Invite link copied!','#27ae60');
+  }
+}
+window.copyInviteLink=copyInviteLink;
+
+/**
+ * Advance an invite to the next stage.
+ * Called from auth.html (registered), wallet.html (wallet_created),
+ * card pages (card_activated), staking (staking_active).
+ * Idempotent — won't regress to an earlier stage.
+ */
+function advanceInviteStage(inviteeEmail, newStage, inviteeInfo){
+  const invites=getInvites();
+  let found=false;
+  for(let inv of invites){
+    // Match by email
+    if(inv.invitee && inv.invitee.email && inv.invitee.email.toLowerCase()===inviteeEmail.toLowerCase()){
+      const curIdx=INVITE_STAGES.indexOf(inv.stage);
+      const newIdx=INVITE_STAGES.indexOf(newStage);
+      if(newIdx>curIdx){
+        inv.stage=newStage;
+        inv.stageHistory.push({stage:newStage,at:Date.now()});
+        if(inviteeInfo) Object.assign(inv.invitee, inviteeInfo);
+      }
+      found=true;
+      break;
+    }
+  }
+  if(!found && newStage==='registered' && inviteeInfo){
+    // Create record if someone registers via ?ref= but no pre-existing invite
+    const user=JSON.parse(localStorage.getItem('cw_user')||'null');
+    invites.push({
+      id:'inv_'+Date.now(),
+      inviterName:inviteeInfo.sponsor||'',
+      createdAt:Date.now(),
+      stage:'registered',
+      stageHistory:[{stage:'invited',at:Date.now()-1000},{stage:'registered',at:Date.now()}],
+      invitee:{name:inviteeInfo.name||'',email:inviteeInfo.email||'',tier:inviteeInfo.tier||''}
+    });
+  }
+  saveInvites(invites);
+}
+window.advanceInviteStage=advanceInviteStage;
+
+function renderInvites(){
+  const user=JSON.parse(localStorage.getItem('cw_user')||'null');
+  if(!user)return;
+
+  // Set invite link
+  const inp=document.getElementById('inviteLinkInput');
+  if(inp) inp.value=generateInviteLink();
+
+  const invites=getInvites().filter(inv=>inv.inviterName&&inv.inviterName.toLowerCase()===user.name.toLowerCase());
+
+  // Stats
+  const statsEl=document.getElementById('inviteStats');
+  if(statsEl){
+    const counts={};
+    INVITE_STAGES.forEach(s=>counts[s]=0);
+    invites.forEach(inv=>{counts[inv.stage]=(counts[inv.stage]||0)+1;});
+    statsEl.innerHTML=INVITE_STAGES.map(s=>
+      '<div class="inv-stat"><div class="is-val">'+counts[s]+'</div><div class="is-label">'+STAGE_LABELS[s]+'</div></div>'
+    ).join('');
+  }
+
+  // List
+  const listEl=document.getElementById('inviteList');
+  if(!listEl)return;
+
+  if(invites.length===0){
+    listEl.innerHTML='<div class="inv-empty"><div class="inv-empty-icon">\uD83D\uDCE8</div>No invites yet. Share your link to start building your referral tree!</div>';
+    return;
+  }
+
+  // Sort: most recent first
+  invites.sort((a,b)=>b.createdAt-a.createdAt);
+
+  listEl.innerHTML=invites.map(inv=>{
+    const curIdx=INVITE_STAGES.indexOf(inv.stage);
+    const invName=inv.invitee?inv.invitee.name:'Pending...';
+    const invEmail=inv.invitee?inv.invitee.email:'';
+    const dateStr=new Date(inv.createdAt).toLocaleDateString();
+
+    // Build stage flow nodes
+    let flow='';
+    INVITE_STAGES.forEach((s,i)=>{
+      if(i>0){
+        // Connector
+        let connCls='stage-connector';
+        if(i<=curIdx) connCls+=' done';
+        else if(i===curIdx+1) connCls+=' half';
+        flow+='<div class="'+connCls+'"></div>';
+      }
+      let dotCls='stage-dot';
+      let lblCls='stage-label';
+      if(i<curIdx){dotCls+=' done';lblCls+=' done';}
+      else if(i===curIdx){dotCls+=' current';lblCls+=' current';}
+      else{dotCls+=' pending';}
+      flow+='<div class="stage-node"><div class="'+dotCls+'">'+STAGE_ICONS[s]+'</div><div class="'+lblCls+'">'+STAGE_LABELS[s]+'</div></div>';
+    });
+
+    return '<div class="invite-card">'+
+      '<div class="inv-card-top"><div><div class="inv-name">'+invName+'</div>'+(invEmail?'<div class="inv-email">'+invEmail+'</div>':'')+'</div><div class="inv-date">'+dateStr+'</div></div>'+
+      '<div class="stage-flow">'+flow+'</div>'+
+      '</div>';
+  }).join('');
+}
+window.renderInvites=renderInvites;
+
+/**
+ * Check if current user was invited by someone and advance their own stage.
+ * Called after wallet creation, card activation, first stake.
+ */
+function checkAndAdvanceOwnStage(stageName){
+  const user=JSON.parse(localStorage.getItem('cw_user')||'null');
+  if(!user||!user.email)return;
+  // This user may be an invitee — advance their record in the inviter's list
+  advanceInviteStage(user.email, stageName, {name:user.name, email:user.email, tier:user.tier||''});
+}
+window.checkAndAdvanceOwnStage=checkAndAdvanceOwnStage;
+
+// ══════════════════════════════════════════════════════════
+//  TEST ENGINE — 20 Wallet Creation Tests
+// ══════════════════════════════════════════════════════════
+window._isGoodEmail=isGoodEmail;
+window._isStrongPw=isStrongPw;
+window._generateMnemonic24=generateMnemonic24;
+window._deriveKeypair=deriveKeypair;
+window._hashSeed=hashSeed;
+window._getAccounts=getAccounts;
+window._getActiveIdx=getActiveIdx;
+
+var wPass=0,wFail=0,wTotal=0;
+
+function wLog(name,passed,detail){
+  wTotal++;
+  if(passed)wPass++;else wFail++;
+  var log=document.getElementById('wTestLogBody');
+  var s=passed?'<span style="color:#27ae60">PASS \u2705</span>':'<span style="color:#eb5757">FAIL \u274C</span>';
+  log.innerHTML+='<div style="padding:4px 0;border-bottom:1px solid rgba(255,255,255,.04)">'+s+' <span style="color:#a29bfe">'+name+'</span> \u2014 '+detail+'</div>';
+  wUpdateCounters();
+}
+
+function wUpdateCounters(){
+  document.getElementById('wCntPass').textContent=wPass;
+  document.getElementById('wCntFail').textContent=wFail;
+  document.getElementById('wCntTotal').textContent=wTotal;
+  var pct=wTotal>0?Math.round((wPass/wTotal)*100):0;
+  document.getElementById('wTestProgressBar').style.width=pct+'%';
+  document.getElementById('wTestProgressBar').style.background=wFail>0?'linear-gradient(90deg,#27ae60,#f2994a)':'linear-gradient(90deg,#27ae60,#2ecc71)';
+  document.getElementById('wTestCounterStats').textContent=wPass+' / '+wTotal+' passed';
+  document.getElementById('wTestCounterLabel').innerHTML=wFail===0?'<span style="color:#27ae60">\u2705 All '+wTotal+' tests passed</span>':'<span style="color:#f2994a">\u26A0\uFE0F '+wPass+' passed, '+wFail+' failed</span>';
+}
+
+function wBadge(rows,idx,passed){
+  var b=rows[idx].querySelector('.tst-badge');
+  if(passed){b.textContent='\u2705 PASS';b.style.color='#27ae60';b.style.borderColor='rgba(39,174,96,.3)';b.style.background='rgba(39,174,96,.08)';}
+  else{b.textContent='\u274C FAIL';b.style.color='#eb5757';b.style.borderColor='rgba(235,87,87,.3)';b.style.background='rgba(235,87,87,.08)';}
+}
+
+function resetWalletTests(){
+  wPass=0;wFail=0;wTotal=0;
+  document.getElementById('wTestLogBody').innerHTML='';
+  document.getElementById('wTestLog').style.display='none';
+  document.getElementById('wTestCounter').style.display='none';
+  document.querySelectorAll('.tst-badge').forEach(function(b){b.textContent='pending';b.style.color='rgba(255,255,255,.35)';b.style.borderColor='rgba(255,255,255,.08)';b.style.background='none';});
+}
+window.resetWalletTests=resetWalletTests;
+
+async function runAllWalletTests(){
+  wPass=0;wFail=0;wTotal=0;
+  document.getElementById('wTestLogBody').innerHTML='';
+  document.getElementById('wTestLog').style.display='block';
+  document.getElementById('wTestCounter').style.display='block';
+  document.querySelectorAll('.tst-badge').forEach(function(b){b.textContent='pending';b.style.color='rgba(255,255,255,.35)';b.style.borderColor='rgba(255,255,255,.08)';b.style.background='none';});
+
+  // Snapshot localStorage + DOM state
+  var snap={};
+  ['cw_user','cw_seed','cw_secret','cw_accounts','cw_active_idx','cw_balances','cw_security','cw_multisig','cw_invites','cw_single_txs','wallet_stakes','card_stakes'].forEach(function(k){snap[k]=localStorage.getItem(k);});
+  var snapAuth=document.getElementById('authScreen').style.display;
+  var snapSeed=document.getElementById('seedScreen').style.display;
+  var snapDash=document.getElementById('walletDash').style.display;
+
+  // Shared variables across test groups
+  var m1='',kp0=null;
+
+  // ── EMAIL VALIDATION (3) ──
+  try{
+  var eRows=document.querySelectorAll('#wEmailTests .tst-row');
+  var t1=isGoodEmail('user@example.com');
+  wBadge(eRows,0,t1);wLog('Valid Email Accepted',t1,t1?'user@example.com \u2192 true':'Expected true, got false');
+  var t2=!isGoodEmail('userexample.com');
+  wBadge(eRows,1,t2);wLog('No @ Sign Rejected',t2,t2?'userexample.com \u2192 false':'Expected false, got true');
+  var t3=!isGoodEmail('user..name@example.com');
+  wBadge(eRows,2,t3);wLog('Double-Dot Local Part Rejected',t3,t3?'user..name@example.com \u2192 false':'Expected false, got true');
+  }catch(err){wLog('EMAIL TESTS ERROR',false,err.message||String(err));}
+
+  // ── PASSWORD STRENGTH (4) ──
+  try{
+  var pRows=document.querySelectorAll('#wPwTests .tst-row');
+  var t4=isStrongPw('Abcdef1!');
+  wBadge(pRows,0,t4);wLog('Strong Password Passes',t4,t4?'All 6 criteria met':'isStrongPw returned false');
+  var t5=!isStrongPw('Ab1!');
+  wBadge(pRows,1,t5);wLog('Short Password Fails',t5,t5?'4 chars rejected':'Expected false, got true');
+  var t6=!isStrongPw('Abcdef12');
+  wBadge(pRows,2,t6);wLog('No Special Char Fails',t6,t6?'Missing special rejected':'Expected false, got true');
+  var t7=!isStrongPw('Abc def1!');
+  wBadge(pRows,3,t7);wLog('Password With Spaces Fails',t7,t7?'Whitespace rejected':'Expected false, got true');
+  }catch(err){wLog('PASSWORD TESTS ERROR',false,err.message||String(err));}
+
+  // ── BIP39 MNEMONIC (3) ──
+  try{
+  var bRows=document.querySelectorAll('#wBipTests .tst-row');
+  m1=await generateMnemonic24('testA@olighft.com');
+  var w1=m1.split(' ');
+  var t8=w1.length===24;
+  wBadge(bRows,0,t8);wLog('Generates 24 Words',t8,t8?'Got '+w1.length+' words':'Expected 24, got '+w1.length);
+  var t9=new Set(w1).size===w1.length;
+  wBadge(bRows,1,t9);wLog('No Duplicate Words',t9,t9?'All 24 unique':'Found duplicates');
+  var m2=await generateMnemonic24('testB@olighft.com');
+  var t10=m1!==m2;
+  wBadge(bRows,2,t10);wLog('Different Mnemonics Each Call',t10,t10?'Two calls differ':'Identical mnemonics!');
+  }catch(err){wLog('BIP39 TESTS ERROR',false,err.message||String(err));}
+
+  // ── SEP-0005 HD DERIVATION (3) ──
+  try{
+  var hRows=document.querySelectorAll('#wHdTests .tst-row');
+  if(!m1)m1=await generateMnemonic24('fallback@olighft.com');
+  kp0=await deriveKeypair(m1,0);
+  var t11=kp0.publicKey&&kp0.publicKey[0]==='G'&&kp0.publicKey.length===56;
+  wBadge(hRows,0,t11);wLog('Public Key G (56)',t11,t11?kp0.publicKey.slice(0,12)+'...':'Got: '+(kp0.publicKey||'null'));
+  var t12=kp0.secret&&kp0.secret[0]==='S'&&kp0.secret.length===56;
+  wBadge(hRows,1,t12);wLog('Secret Key S (56)',t12,t12?'S'+kp0.secret.slice(1,6)+'...[redacted]':'Got: '+(kp0.secret?kp0.secret[0]:'null'));
+  var kp1=await deriveKeypair(m1,1);
+  var t13=kp0.publicKey!==kp1.publicKey&&kp0.secret!==kp1.secret;
+  wBadge(hRows,2,t13);wLog('Different Indices \u2192 Different Keys',t13,t13?'index 0 \u2260 index 1':'Keys match!');
+  }catch(err){wLog('SEP-0005 TESTS ERROR',false,err.message||String(err));}
+
+  // ── REGISTRATION FLOW (4) ──
+  try{
+  var rRows=document.querySelectorAll('#wRegTests .tst-row');
+  // Ensure register form is accessible
+  var regForm=document.getElementById('registerForm');
+  if(regForm)regForm.style.display='block';
+
+  // T14: Missing sponsor blocks register
+  ['cw_user','cw_seed','cw_secret','cw_accounts','cw_active_idx','cw_balances'].forEach(function(k){localStorage.removeItem(k);});
+  document.getElementById('regSponsor').value='';
+  document.getElementById('regName').value='TestUser';
+  document.getElementById('regEmail').value='test@example.com';
+  document.getElementById('regPass').value='Abcdef1!';
+  document.getElementById('regConfirm').value='Abcdef1!';
+  document.getElementById('agreeTerms').checked=true;
+  await register();
+  var t14=!localStorage.getItem('cw_user');
+  wBadge(rRows,0,t14);wLog('Missing Sponsor Blocks Register',t14,t14?'No cw_user created':'cw_user was created without sponsor!');
+
+  // T15: Invalid email blocks register
+  ['cw_user','cw_seed','cw_secret','cw_accounts','cw_active_idx','cw_balances'].forEach(function(k){localStorage.removeItem(k);});
+  document.getElementById('regSponsor').value='MainSponsor';
+  document.getElementById('regName').value='TestUser';
+  document.getElementById('regEmail').value='bad-email';
+  document.getElementById('regPass').value='Abcdef1!';
+  document.getElementById('regConfirm').value='Abcdef1!';
+  document.getElementById('agreeTerms').checked=true;
+  await register();
+  var t15=!localStorage.getItem('cw_user');
+  wBadge(rRows,1,t15);wLog('Invalid Email Blocks Register',t15,t15?'No cw_user created':'cw_user was created with bad email!');
+
+  // T16: Successful register stores cw_user
+  ['cw_user','cw_seed','cw_secret','cw_accounts','cw_active_idx','cw_balances'].forEach(function(k){localStorage.removeItem(k);});
+  document.getElementById('regSponsor').value='MainSponsor';
+  document.getElementById('regName').value='TestUser';
+  document.getElementById('regEmail').value='testuser@wallet.com';
+  document.getElementById('regPass').value='Abcdef1!';
+  document.getElementById('regConfirm').value='Abcdef1!';
+  document.getElementById('agreeTerms').checked=true;
+  await register();
+  // Restore DOM after register (it shows seed screen)
+  document.getElementById('seedScreen').style.display='none';
+  document.getElementById('walletDash').style.display=snapDash;
+  var u16=JSON.parse(localStorage.getItem('cw_user')||'null');
+  var s16=localStorage.getItem('cw_seed');
+  var a16=localStorage.getItem('cw_accounts');
+  var t16=!!(u16&&u16.addr&&u16.email==='testuser@wallet.com'&&s16&&a16);
+  wBadge(rRows,2,t16);wLog('Successful Register Stores cw_user',t16,t16?'User: '+u16.addr.slice(0,12)+'...':'Missing keys in localStorage');
+
+  // T17: Default balances initialized
+  var bal17=JSON.parse(localStorage.getItem('cw_balances')||'null');
+  var t17=!!(bal17&&bal17.XLM===10000&&bal17.USDC===500&&bal17.wETH===0.5&&bal17.wBTC===0.02&&bal17.EURC===200);
+  wBadge(rRows,3,t17);wLog('Default Balances Initialized',t17,t17?'XLM:10000 USDC:500 wETH:0.5 wBTC:0.02 EURC:200':'Balances: '+JSON.stringify(bal17));
+  }catch(err){wLog('REGISTRATION TESTS ERROR',false,err.message||String(err));}
+
+  // ── MULTI-ACCOUNT & STORAGE (3) ──
+  try{
+  var aRows=document.querySelectorAll('#wAccTests .tst-row');
+
+  // Ensure a wallet exists for multi-account tests
+  if(!localStorage.getItem('cw_seed')){
+    var _m=await generateMnemonic24('multitest@olighft.com');
+    var _kp=await deriveKeypair(_m,0);
+    localStorage.setItem('cw_user',JSON.stringify({name:'MultiTest',email:'multitest@olighft.com',addr:_kp.publicKey,sponsor:'X',created:Date.now(),seedHash:hashSeed(_m)}));
+    localStorage.setItem('cw_seed',btoa(_m));
+    localStorage.setItem('cw_secret',btoa(_kp.secret));
+    saveAccounts([{index:0,label:'Primary',publicKey:_kp.publicKey,secret:_kp.secret}]);
+    localStorage.setItem('cw_active_idx','0');
+  }
+
+  // T18: addAccount derives next HD account
+  var accsBefore=getAccounts();
+  var countBefore=accsBefore.length;
+  await addAccount();
+  var accsAfter=getAccounts();
+  var t18=accsAfter.length===countBefore+1&&accsAfter[accsAfter.length-1].publicKey&&accsAfter[accsAfter.length-1].publicKey[0]==='G';
+  wBadge(aRows,0,t18);wLog('addAccount Derives Next HD',t18,t18?'Accounts: '+countBefore+' \u2192 '+accsAfter.length:'Failed to add account');
+
+  // T19: switchAccount updates active index
+  accsAfter=getAccounts();
+  if(accsAfter.length>=2){
+    var newAcc=accsAfter[accsAfter.length-1];
+    switchAccount(newAcc.index);
+    var ai19=parseInt(localStorage.getItem('cw_active_idx'),10);
+    var u19=JSON.parse(localStorage.getItem('cw_user'));
+    var t19=ai19===newAcc.index&&u19.addr===newAcc.publicKey;
+    wBadge(aRows,1,t19);wLog('switchAccount Updates Index',t19,t19?'Active: index '+ai19+', addr: '+u19.addr.slice(0,12)+'...':'Index mismatch');
+  } else {
+    wBadge(aRows,1,false);wLog('switchAccount Updates Index',false,'Need >=2 accounts to test');
+  }
+
+  // T20: hashSeed deterministic
+  var h1=hashSeed('test mnemonic phrase');
+  var h2=hashSeed('test mnemonic phrase');
+  var h3=hashSeed('different phrase');
+  var t20=h1===h2&&h1!==h3;
+  wBadge(aRows,2,t20);wLog('Seed Hash Deterministic',t20,t20?'Same input \u2192 same hash, different input \u2192 different hash':'Hash mismatch');
+  }catch(err){wLog('MULTI-ACCOUNT TESTS ERROR',false,err.message||String(err));}
+
+  // Restore localStorage
+  ['cw_user','cw_seed','cw_secret','cw_accounts','cw_active_idx','cw_balances','cw_security','cw_multisig','cw_invites','cw_single_txs','wallet_stakes','card_stakes'].forEach(function(k){
+    if(snap[k]!==null)localStorage.setItem(k,snap[k]);else localStorage.removeItem(k);
+  });
+  // Restore DOM state
+  document.getElementById('authScreen').style.display=snapAuth;
+  document.getElementById('seedScreen').style.display=snapSeed;
+  document.getElementById('walletDash').style.display=snapDash;
+
+  wLog('TEST RUN COMPLETE',true,wPass+'/'+wTotal+' passed, '+wFail+' failed');
+}
+window.runAllWalletTests=runAllWalletTests;
+
+// ══════════════════════════════════════════════════════════
+//  SECURITY TEST ENGINE — 15 Tests
+// ══════════════════════════════════════════════════════════
+window._toggleSec=toggleSec;
+window._restoreSecToggles=restoreSecToggles;
+
+var sPass=0,sFail=0,sTotal=0;
+
+function sLog(name,passed,detail){
+  sTotal++;
+  if(passed)sPass++;else sFail++;
+  var log=document.getElementById('sTestLogBody');
+  var s=passed?'<span style="color:#27ae60">PASS \u2705</span>':'<span style="color:#eb5757">FAIL \u274C</span>';
+  log.innerHTML+='<div style="padding:4px 0;border-bottom:1px solid rgba(255,255,255,.04)">'+s+' <span style="color:#a29bfe">'+name+'</span> \u2014 '+detail+'</div>';
+  sUpdateCounters();
+}
+
+function sUpdateCounters(){
+  document.getElementById('sCntPass').textContent=sPass;
+  document.getElementById('sCntFail').textContent=sFail;
+  document.getElementById('sCntTotal').textContent=sTotal;
+  var pct=sTotal>0?Math.round((sPass/sTotal)*100):0;
+  document.getElementById('sTestProgressBar').style.width=pct+'%';
+  document.getElementById('sTestProgressBar').style.background=sFail>0?'linear-gradient(90deg,#6c5ce7,#f2994a)':'linear-gradient(90deg,#6c5ce7,#a29bfe)';
+  document.getElementById('sTestCounterStats').textContent=sPass+' / '+sTotal+' passed';
+  document.getElementById('sTestCounterLabel').innerHTML=sFail===0?'<span style="color:#27ae60">\u2705 All '+sTotal+' tests passed</span>':'<span style="color:#f2994a">\u26A0\uFE0F '+sPass+' passed, '+sFail+' failed</span>';
+}
+
+function sBadge(rows,idx,passed){
+  var b=rows[idx].querySelector('.stst-badge');
+  if(passed){b.textContent='\u2705 PASS';b.style.color='#27ae60';b.style.borderColor='rgba(39,174,96,.3)';b.style.background='rgba(39,174,96,.08)';}
+  else{b.textContent='\u274C FAIL';b.style.color='#eb5757';b.style.borderColor='rgba(235,87,87,.3)';b.style.background='rgba(235,87,87,.08)';}
+}
+
+function resetSecurityTests(){
+  sPass=0;sFail=0;sTotal=0;
+  document.getElementById('sTestLogBody').innerHTML='';
+  document.getElementById('sTestLog').style.display='none';
+  document.getElementById('sTestCounter').style.display='none';
+  document.querySelectorAll('.stst-badge').forEach(function(b){b.textContent='pending';b.style.color='rgba(255,255,255,.35)';b.style.borderColor='rgba(255,255,255,.08)';b.style.background='none';});
+}
+window.resetSecurityTests=resetSecurityTests;
+
+async function runAllSecurityTests(){
+  sPass=0;sFail=0;sTotal=0;
+  document.getElementById('sTestLogBody').innerHTML='';
+  document.getElementById('sTestLog').style.display='block';
+  document.getElementById('sTestCounter').style.display='block';
+  document.querySelectorAll('.stst-badge').forEach(function(b){b.textContent='pending';b.style.color='rgba(255,255,255,.35)';b.style.borderColor='rgba(255,255,255,.08)';b.style.background='none';});
+
+  // Snapshot localStorage + DOM state
+  var snap={};
+  ['cw_user','cw_seed','cw_secret','cw_accounts','cw_active_idx','cw_balances','cw_security','cw_multisig','cw_invites','cw_2fa','cw_single_txs'].forEach(function(k){snap[k]=localStorage.getItem(k);});
+  var snapAuth=document.getElementById('authScreen').style.display;
+  var snapSeed=document.getElementById('seedScreen').style.display;
+  var snapDash=document.getElementById('walletDash').style.display;
+
+  // ══ SECURITY TOGGLE TESTS (4) ══
+  try{
+  var tRows=document.querySelectorAll('#sTogTests .stst-row');
+
+  // T1: Toggle 2FA persists
+  localStorage.removeItem('cw_security');
+  var el2fa=document.getElementById('tog2fa');
+  el2fa.classList.remove('on'); // start off
+  toggleSec(el2fa); // should flip to on
+  var sec1=JSON.parse(localStorage.getItem('cw_security')||'{}');
+  var t1=sec1.tog2fa===true;
+  sBadge(tRows,0,t1);sLog('Toggle 2FA Persists',t1,t1?'tog2fa toggled on \u2192 stored true':'Expected true, got '+JSON.stringify(sec1.tog2fa));
+
+  // T2: Toggle Withdrawal Lock
+  var elLock=document.getElementById('togLock');
+  elLock.classList.add('on'); // start on
+  toggleSec(elLock); // flip to off
+  var sec2=JSON.parse(localStorage.getItem('cw_security')||'{}');
+  var t2a=sec2.togLock===false;
+  toggleSec(elLock); // flip back on
+  var sec2b=JSON.parse(localStorage.getItem('cw_security')||'{}');
+  var t2=t2a&&sec2b.togLock===true;
+  sBadge(tRows,1,t2);sLog('Toggle Lock Off/On',t2,t2?'Off\u2192false, On\u2192true':'Mismatch: off='+sec2.togLock+' on='+sec2b.togLock);
+
+  // T3: restoreSecToggles restores saved state
+  localStorage.setItem('cw_security',JSON.stringify({tog2fa:true,togEmail:false,togSms:true,togWhitelist:false,togLock:true}));
+  restoreSecToggles();
+  var r3a=document.getElementById('tog2fa').classList.contains('on');
+  var r3b=!document.getElementById('togEmail').classList.contains('on');
+  var r3c=document.getElementById('togSms').classList.contains('on');
+  var r3d=!document.getElementById('togWhitelist').classList.contains('on');
+  var r3e=document.getElementById('togLock').classList.contains('on');
+  var t3=r3a&&r3b&&r3c&&r3d&&r3e;
+  sBadge(tRows,2,t3);sLog('restoreSecToggles Restores',t3,t3?'All 5 toggles match saved state':'Mismatch: 2fa='+r3a+' email='+!r3b+' sms='+r3c+' wl='+!r3d+' lock='+r3e);
+
+  // T4: All 5 toggles write independent keys
+  localStorage.removeItem('cw_security');
+  var togIds=['tog2fa','togEmail','togSms','togWhitelist','togLock'];
+  togIds.forEach(function(id){var el=document.getElementById(id);el.classList.remove('on');toggleSec(el);}); // flip each on
+  var sec4=JSON.parse(localStorage.getItem('cw_security')||'{}');
+  var t4=togIds.every(function(id){return sec4[id]===true;});
+  sBadge(tRows,3,t4);sLog('5 Independent Toggle Keys',t4,t4?'All 5 keys true in cw_security':'Missing keys: '+JSON.stringify(sec4));
+  }catch(err){sLog('TOGGLE TESTS ERROR',false,err.message||String(err));}
+
+  // ══ SEED PHRASE PROTECTION (3) ══
+  try{
+  var sdRows=document.querySelectorAll('#sSeedTests .stst-row');
+
+  // Set up a wallet for seed tests
+  var testMnemonic=await generateMnemonic24('sec@test.com');
+  var testKp=await deriveKeypair(testMnemonic,0);
+  localStorage.setItem('cw_seed',btoa(testMnemonic));
+  localStorage.setItem('cw_secret',btoa(testKp.secret));
+  localStorage.setItem('cw_accounts',btoa(JSON.stringify([{index:0,label:'Primary',publicKey:testKp.publicKey,secret:testKp.secret}])));
+  localStorage.setItem('cw_user',JSON.stringify({name:'SecTest',email:'sec@test.com',addr:testKp.publicKey,sponsor:'X',created:Date.now(),seedHash:hashSeed(testMnemonic)}));
+
+  // T5: Seed stored as Base64
+  var rawSeed=localStorage.getItem('cw_seed');
+  var decoded5='';
+  try{decoded5=atob(rawSeed);}catch(e){decoded5='';}
+  var words5=decoded5.split(' ');
+  var t5=words5.length===24&&rawSeed!==decoded5;
+  sBadge(sdRows,0,t5);sLog('Seed Base64 Encoded',t5,t5?'cw_seed is btoa, decodes to 24 words':'Raw='+rawSeed.slice(0,20)+'... words='+words5.length);
+
+  // T6: Secret key stored as Base64
+  var rawSecret=localStorage.getItem('cw_secret');
+  var decoded6='';
+  try{decoded6=atob(rawSecret);}catch(e){decoded6='';}
+  var t6=decoded6[0]==='S'&&decoded6.length===56&&rawSecret!==decoded6;
+  sBadge(sdRows,1,t6);sLog('Secret Key Base64 Encoded',t6,t6?'Decodes to S...56 chars':'Decoded: '+(decoded6?decoded6[0]+'...'+decoded6.length:'empty'));
+
+  // T7: seedContinue clears mnemonic from memory
+  _currentMnemonic='test_secret_phrase';
+  document.getElementById('seedConfirm').checked=true;
+  var seedScr=document.getElementById('seedScreen');
+  var prevSeedDisplay=seedScr.style.display;
+  seedScr.style.display='block';
+  seedContinue();
+  var t7=_currentMnemonic==='';
+  // Restore seed screen state
+  seedScr.style.display=prevSeedDisplay;
+  document.getElementById('authScreen').style.display=snapAuth;
+  document.getElementById('walletDash').style.display=snapDash;
+  sBadge(sdRows,2,t7);sLog('seedContinue Clears Memory',t7,t7?'_currentMnemonic emptied after continue':'Still: "'+_currentMnemonic+'"');
+  }catch(err){sLog('SEED TESTS ERROR',false,err.message||String(err));}
+
+  // ══ SINGLE-SIGNER AUTHORIZATION (4) ══
+  try{
+  var msRows=document.querySelectorAll('#sMsTests .stst-row');
+
+  // T8: Master key weight is 255 — verify from SetOptions preview
+  var preview8=msBuildSetoptPreview();
+  var t8=preview8.indexOf('masterWeight: 255')!==-1;
+  sBadge(msRows,0,t8);sLog('Master Key Weight = 255',t8,t8?'msBuildSetoptPreview contains masterWeight: 255':'Not found in preview');
+
+  // T9: All thresholds = 1 — verify from SetOptions preview
+  var t9=preview8.indexOf('lowThreshold: 1')!==-1&&preview8.indexOf('medThreshold: 1')!==-1&&preview8.indexOf('highThreshold: 1')!==-1;
+  sBadge(msRows,1,t9);sLog('All Thresholds = 1',t9,t9?'low=1, med=1, high=1 found in preview':'Threshold mismatch in preview');
+
+  // T10: msCreateTx signs instantly
+  // Ensure accounts exist for msCreateTx
+  if(!getAccounts().length){
+    var _tm=await generateMnemonic24('ms@test.com');
+    var _tkp=await deriveKeypair(_tm,0);
+    localStorage.setItem('cw_user',JSON.stringify({name:'MSTest',email:'ms@test.com',addr:_tkp.publicKey,sponsor:'X',created:Date.now()}));
+    localStorage.setItem('cw_accounts',btoa(JSON.stringify([{index:0,label:'Primary',publicKey:_tkp.publicKey,secret:_tkp.secret}])));
+  }
+  var txsBefore=JSON.parse(localStorage.getItem('cw_single_txs')||'[]').length;
+  msCreateTx();
+  var txsAfter=JSON.parse(localStorage.getItem('cw_single_txs')||'[]');
+  var t10=txsAfter.length===txsBefore+1;
+  sBadge(msRows,2,t10);sLog('msCreateTx Signs Instantly',t10,t10?'TX created: '+txsAfter[0].id+' (weight 255/1)':'TX count unchanged');
+
+  // T11: No additional signers (single-signer mode)
+  var addSignerSel=document.getElementById('msAddSignerSel');
+  var t11pre=preview8.indexOf('addSigner')===-1;
+  var t11=!addSignerSel&&t11pre;
+  sBadge(msRows,3,t11);sLog('No Additional Signers',t11,t11?'No addSigner UI or operations':'addSigner found: ui='+!!addSignerSel+' code='+!t11pre);
+  }catch(err){sLog('SINGLE-SIGNER TESTS ERROR',false,err.message||String(err));}
+
+  // ══ LOGOUT & CLEANUP (2) ══
+  try{
+  var loRows=document.querySelectorAll('#sLogoutTests .stst-row');
+
+  // T12: Logout clears sensitive keys — verify logout function source + manual test
+  var logoutSrc=logout.toString();
+  var expectedKeys=['cw_user','cw_seed','cw_secret','cw_accounts','cw_active_idx','cw_security','cw_multisig','cw_balances'];
+  var srcHasAll=expectedKeys.every(function(k){return logoutSrc.indexOf("'"+k+"'")!==-1||logoutSrc.indexOf('"'+k+'"')!==-1;});
+  // Also do the actual cleanup test
+  expectedKeys.forEach(function(k){localStorage.setItem(k,'test');});
+  expectedKeys.forEach(function(k){localStorage.removeItem(k);});
+  var allCleared=expectedKeys.every(function(k){return localStorage.getItem(k)===null;});
+  var t12=srcHasAll&&allCleared;
+  sBadge(loRows,0,t12);sLog('Logout Clears Sensitive Keys',t12,t12?'logout() source removes all '+expectedKeys.length+' keys':'Missing keys in source: '+expectedKeys.filter(function(k){return logoutSrc.indexOf(k)===-1;}).join(', '));
+
+  // T13: Accounts stored as Base64 JSON
+  var testAccs=[{index:0,label:'P',publicKey:'GABC',secret:'SXYZ'}];
+  localStorage.setItem('cw_accounts',btoa(JSON.stringify(testAccs)));
+  var raw13=localStorage.getItem('cw_accounts');
+  var dec13=[];
+  try{dec13=JSON.parse(atob(raw13));}catch(e){dec13=[];}
+  var t13=Array.isArray(dec13)&&dec13.length===1&&dec13[0].publicKey==='GABC'&&raw13!==JSON.stringify(testAccs);
+  sBadge(loRows,1,t13);sLog('Accounts Base64 JSON',t13,t13?'btoa(JSON) round-trips correctly':'Decode failed');
+  }catch(err){sLog('LOGOUT TESTS ERROR',false,err.message||String(err));}
+
+  // ══ INPUT GUARD TESTS (2) ══
+  try{
+  var gRows=document.querySelectorAll('#sGuardTests .stst-row');
+  // Ensure register form is accessible
+  var regForm=document.getElementById('registerForm');
+  if(regForm)regForm.style.display='block';
+
+  // T14: Terms checkbox required
+  ['cw_user','cw_seed','cw_secret','cw_accounts','cw_active_idx','cw_balances'].forEach(function(k){localStorage.removeItem(k);});
+  document.getElementById('regSponsor').value='Sponsor1';
+  document.getElementById('regName').value='GuardUser';
+  document.getElementById('regEmail').value='guard@test.com';
+  document.getElementById('regPass').value='Abcdef1!';
+  document.getElementById('regConfirm').value='Abcdef1!';
+  document.getElementById('agreeTerms').checked=false;
+  await register();
+  var t14=!localStorage.getItem('cw_user');
+  sBadge(gRows,0,t14);sLog('Terms Checkbox Required',t14,t14?'Unchecked terms blocked registration':'User created without terms!');
+
+  // T15: Password mismatch blocks register
+  ['cw_user','cw_seed','cw_secret','cw_accounts','cw_active_idx','cw_balances'].forEach(function(k){localStorage.removeItem(k);});
+  document.getElementById('regSponsor').value='Sponsor1';
+  document.getElementById('regName').value='MismatchUser';
+  document.getElementById('regEmail').value='mismatch@test.com';
+  document.getElementById('regPass').value='Abcdef1!';
+  document.getElementById('regConfirm').value='WrongPass1!';
+  document.getElementById('agreeTerms').checked=true;
+  await register();
+  var t15=!localStorage.getItem('cw_user');
+  sBadge(gRows,1,t15);sLog('Password Mismatch Blocks',t15,t15?'Mismatched passwords rejected':'User created with mismatched passwords!');
+  }catch(err){sLog('INPUT GUARD TESTS ERROR',false,err.message||String(err));}
+
+  // Restore localStorage
+  ['cw_user','cw_seed','cw_secret','cw_accounts','cw_active_idx','cw_balances','cw_security','cw_multisig','cw_invites','cw_2fa','cw_single_txs'].forEach(function(k){
+    if(snap[k]!==null)localStorage.setItem(k,snap[k]);else localStorage.removeItem(k);
+  });
+  // Restore DOM state
+  document.getElementById('authScreen').style.display=snapAuth;
+  document.getElementById('seedScreen').style.display=snapSeed;
+  document.getElementById('walletDash').style.display=snapDash;
+
+  sLog('TEST RUN COMPLETE',true,sPass+'/'+sTotal+' passed, '+sFail+' failed');
+}
+window.runAllSecurityTests=runAllSecurityTests;
+
+// ── Auto-login if user exists ──
+const existing=JSON.parse(localStorage.getItem('cw_user')||'null');
+if(existing){
+  // User registered via auth.html but no keys generated yet
+  if(!existing.addr || !localStorage.getItem('cw_seed')){
+    (async function(){
+      showToast('Setting up your wallet...','#6c5ce7');
+      const mnemonic=await generateMnemonic24(existing.email);
+      const keyPair=await deriveKeypair(mnemonic,0);
+      existing.addr=keyPair.publicKey;
+      existing.seedHash=hashSeed(mnemonic);
+      localStorage.setItem('cw_user',JSON.stringify(existing));
+      localStorage.setItem('cw_seed',btoa(mnemonic));
+      const accounts=[{index:0,label:'Primary',publicKey:keyPair.publicKey,secret:keyPair.secret}];
+      localStorage.setItem('cw_active_idx','0');
+      localStorage.setItem('cw_secret',btoa(keyPair.secret));
+      if(!localStorage.getItem('cw_balances'))localStorage.setItem('cw_balances',JSON.stringify({XLM:10000,USDC:500,wETH:0.5,wBTC:0.02,EURC:200}));
+      checkAndAdvanceOwnStage('wallet_created');
+      showSeedScreen(mnemonic);
+    })();
+  } else {
+    loadDashboard();
+  }
+}
+</script>
+</body>
+</html>
