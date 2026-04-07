@@ -24,34 +24,9 @@ h1{text-align:center;font-size:1.8rem;margin-bottom:6px;background:linear-gradie
 .net-badge{font-size:.6rem;color:rgba(255,255,255,.4);letter-spacing:2px;margin-top:16px}
 .section{background:rgba(218,165,32,.04);border:1px solid rgba(218,165,32,.1);border-radius:14px;padding:22px;margin-bottom:18px}
 .section h2{font-size:1rem;margin-bottom:14px;color:#daa520;display:flex;align-items:center;gap:8px}
-.code-block{background:#0d1117;border:1px solid rgba(218,165,32,.15);border-radius:10px;overflow:hidden;margin:12px 0}
-.code-head{display:flex;justify-content:space-between;align-items:center;padding:8px 14px;background:rgba(218,165,32,.06);border-bottom:1px solid rgba(218,165,32,.1)}
-.code-lang{font-size:.6rem;color:rgba(255,255,255,.4);font-weight:600;text-transform:uppercase;letter-spacing:.5px}
-.copy-btn{background:none;border:1px solid rgba(218,165,32,.2);color:rgba(255,255,255,.4);padding:2px 10px;border-radius:4px;font-size:.6rem;cursor:pointer}
-.copy-btn:hover{border-color:#daa520;color:#daa520}
-.code-body{padding:14px;overflow-x:auto;display:none}
-.code-body.open{display:block}
-.code-body pre{font-family:'Courier New',monospace;font-size:.72rem;line-height:1.65;color:#c9d1d9}
-.toggle-btn{background:none;border:1px solid rgba(218,165,32,.2);color:rgba(255,255,255,.4);padding:2px 10px;border-radius:4px;font-size:.6rem;cursor:pointer;margin-right:6px}
-.toggle-btn:hover{border-color:#daa520;color:#daa520}
-.kw{color:#ff7b72}.fn{color:#d2a8ff}.str{color:#a5d6ff}.cm{color:#8b949e}.ty{color:#79c0ff}.num{color:#f59e0b}.attr{color:#7ee787}
-.feature-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
-.feature-card{background:rgba(218,165,32,.04);border:1px solid rgba(218,165,32,.08);border-radius:10px;padding:14px;text-align:center;transition:.2s}
 .feature-card:hover{transform:translateY(-2px);border-color:rgba(218,165,32,.3)}
-.feature-card .icon{font-size:1.6rem;margin-bottom:6px}
-.feature-card h3{font-size:.8rem;margin-bottom:4px}
-.feature-card p{font-size:.68rem;color:rgba(255,255,255,.45);line-height:1.4}
-.tag{display:inline-block;font-size:.58rem;padding:2px 8px;border-radius:6px;margin-top:4px}
 .tag-gold{background:rgba(218,165,32,.15);color:#daa520;border:1px solid rgba(218,165,32,.25)}
-.tag-green{background:rgba(39,174,96,.15);color:#27ae60;border:1px solid rgba(39,174,96,.2)}
-.fn-table{width:100%;border-collapse:collapse;margin:10px 0}
-.fn-table th,.fn-table td{padding:10px 12px;text-align:left;font-size:.75rem;border-bottom:1px solid rgba(218,165,32,.08)}
-.fn-table th{color:rgba(255,255,255,.4);font-size:.65rem;text-transform:uppercase;letter-spacing:.5px}
-.fn-table td{color:rgba(255,255,255,.7)}
-.fn-table .fn-name{font-family:'Courier New',monospace;color:#daa520;font-weight:600;font-size:.72rem}
 .deploy-box{background:rgba(218,165,32,.06);border:1px solid rgba(218,165,32,.12);border-radius:12px;padding:16px;margin:12px 0}
-.cmd{background:rgba(0,0,0,.3);border:1px solid rgba(218,165,32,.12);border-radius:8px;padding:10px 14px;font-family:'Courier New',monospace;font-size:.75rem;color:#daa520;margin:8px 0;display:flex;align-items:center;gap:8px}
-.cmd .prompt{color:rgba(255,255,255,.3);user-select:none}
 .btn{padding:10px 20px;border:none;border-radius:10px;font-size:.82rem;font-weight:600;cursor:pointer;transition:.2s}
 .btn-gold{background:linear-gradient(135deg,#b8860b,#daa520);color:#fff}
 .btn-gold:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(218,165,32,.4)}
@@ -171,42 +146,8 @@ h1{text-align:center;font-size:1.8rem;margin-bottom:6px;background:linear-gradie
 </div>
 
 
-<div class="section">
-<h2>&#x2699;&#xFE0F; Contract Functions</h2>
-<table class="fn-table">
-<thead><tr><th>Function</th><th>Description</th><th>Auth</th><th>Gas (XLM)</th></tr></thead>
-<tbody>
-<tr><td class="fn-name">initialize</td><td>Deploy token with name, symbol, supply</td><td>Admin</td><td>~0.015</td></tr>
-<tr><td class="fn-name">transfer</td><td>Send tokens between addresses</td><td>Sender</td><td>~0.008</td></tr>
-<tr><td class="fn-name">approve</td><td>Set spending allowance for a spender</td><td>Owner</td><td>~0.006</td></tr>
-<tr><td class="fn-name">transfer_from</td><td>Transfer using allowance</td><td>Spender</td><td>~0.010</td></tr>
-<tr><td class="fn-name">mint</td><td>Create new tokens</td><td>Admin</td><td>~0.008</td></tr>
-<tr><td class="fn-name">burn</td><td>Destroy tokens from balance</td><td>Owner</td><td>~0.006</td></tr>
-<tr><td class="fn-name">balance</td><td>Query token balance (read-only)</td><td>None</td><td>~0.001</td></tr>
-<tr><td class="fn-name">total_supply</td><td>Get total token supply</td><td>None</td><td>~0.001</td></tr>
-</tbody>
-</table>
-</div>
 
-<div class="section">
-<h2>&#x1F680; Deploy &amp; Invoke</h2>
-<div class="cmd"><span class="prompt">$</span> soroban contract build</div>
-<div class="cmd"><span class="prompt">$</span> soroban contract deploy --wasm target/wasm32-unknown-unknown/release/gold_token.wasm --network testnet --source admin</div>
-<div class="cmd"><span class="prompt">$</span> soroban contract invoke --id CDLZ...X7KQ -- initialize --admin GDQP...ADMIN --name "Gold Token" --symbol "GOLD" --initial_supply 100000000000_0000000</div>
-<div class="cmd"><span class="prompt">$</span> soroban contract invoke --id CDLZ...X7KQ -- transfer --from GDQP...ADMIN --to GBUY...USER --amount 1000_0000000</div>
-</div>
 
-<div class="section">
-<h2>&#x2728; Gold Tier Features</h2>
-<div class="feature-grid">
-<div class="feature-card"><div class="icon">&#x1F3F7;&#xFE0F;</div><h3>SEP-41 Standard</h3><p>Full compliance with Stellar token interface</p><span class="tag tag-gold">STANDARD</span></div>
-<div class="feature-card"><div class="icon">&#x1F525;</div><h3>Burn & Mint</h3><p>Admin-controlled supply management on-chain</p><span class="tag tag-gold">SUPPLY</span></div>
-<div class="feature-card"><div class="icon">&#x1F512;</div><h3>Allowance System</h3><p>Approve spenders with per-address limits</p><span class="tag tag-green">SECURITY</span></div>
-<div class="feature-card"><div class="icon">&#x1F4CA;</div><h3>On-Chain Events</h3><p>Transfer, mint, burn events for indexing</p><span class="tag tag-gold">TRACKING</span></div>
-<div class="feature-card"><div class="icon">&#x26A1;</div><h3>Low Gas</h3><p>~0.008 XLM per transfer on Soroban</p><span class="tag tag-green">EFFICIENT</span></div>
-<div class="feature-card"><div class="icon">&#x1F6E1;&#xFE0F;</div><h3>Audited</h3><p>Independent security audit completed</p><span class="tag tag-green">VERIFIED</span></div>
-</div>
-</div>
 
 <div class="section">
 <h2>&#x1F4B0; Gold Staking Contract</h2>
@@ -372,8 +313,6 @@ h1{text-align:center;font-size:1.8rem;margin-bottom:6px;background:linear-gradie
 </div>
 </div>
 <script>
-function copyCode(btn){const c=btn.closest('.code-block').querySelector('pre').textContent;navigator.clipboard.writeText(c).then(()=>{btn.textContent='\u2713 Copied';setTimeout(()=>btn.textContent='Copy',2000)})}
-function toggleCode(btn){const body=btn.closest('.code-block').querySelector('.code-body');const open=body.classList.toggle('open');btn.textContent=open?'\u25B2 Hide':'\u25BC Show Code';}
 
 const CARD={name:'Gold',stake:400,daily:24,fee:160,color:'#daa520'};
 const PERIODS={90:{payout:2160},180:{payout:4320},365:{payout:8760}};

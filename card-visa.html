@@ -24,33 +24,8 @@ h1{text-align:center;font-size:1.8rem;margin-bottom:6px;background:linear-gradie
 .net-badge{font-size:.6rem;color:rgba(255,255,255,.4);letter-spacing:2px;margin-top:16px}
 .section{background:rgba(245,197,24,.04);border:1px solid rgba(245,197,24,.08);border-radius:14px;padding:22px;margin-bottom:18px}
 .section h2{font-size:1rem;margin-bottom:14px;color:#f5c518;display:flex;align-items:center;gap:8px}
-.code-block{background:#0d1117;border:1px solid rgba(245,197,24,.12);border-radius:10px;overflow:hidden;margin:12px 0}
-.code-head{display:flex;justify-content:space-between;align-items:center;padding:8px 14px;background:rgba(245,197,24,.04);border-bottom:1px solid rgba(245,197,24,.08)}
-.code-lang{font-size:.6rem;color:rgba(255,255,255,.4);font-weight:600;text-transform:uppercase;letter-spacing:.5px}
-.copy-btn{background:none;border:1px solid rgba(245,197,24,.2);color:rgba(255,255,255,.4);padding:2px 10px;border-radius:4px;font-size:.6rem;cursor:pointer}
-.copy-btn:hover{border-color:#f5c518;color:#f5c518}
-.code-body{padding:14px;overflow-x:auto;display:none}
-.code-body.open{display:block}
-.code-body pre{font-family:'Courier New',monospace;font-size:.72rem;line-height:1.65;color:#c9d1d9}
-.toggle-btn{background:none;border:1px solid rgba(245,197,24,.2);color:rgba(255,255,255,.4);padding:2px 10px;border-radius:4px;font-size:.6rem;cursor:pointer;margin-right:6px}
-.toggle-btn:hover{border-color:#f5c518;color:#f5c518}
-.kw{color:#ff7b72}.fn{color:#d2a8ff}.str{color:#a5d6ff}.cm{color:#8b949e}.ty{color:#79c0ff}.num{color:#f59e0b}.attr{color:#7ee787}
-.feature-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
-.feature-card{background:rgba(245,197,24,.04);border:1px solid rgba(245,197,24,.08);border-radius:10px;padding:14px;text-align:center;transition:.2s}
 .feature-card:hover{transform:translateY(-2px);border-color:rgba(245,197,24,.3)}
-.feature-card .icon{font-size:1.6rem;margin-bottom:6px}
-.feature-card h3{font-size:.8rem;margin-bottom:4px}
-.feature-card p{font-size:.68rem;color:rgba(255,255,255,.45);line-height:1.4}
-.tag{display:inline-block;font-size:.58rem;padding:2px 8px;border-radius:6px;margin-top:4px}
 .tag-visa{background:rgba(245,197,24,.15);color:#f5c518;border:1px solid rgba(245,197,24,.25)}
-.tag-green{background:rgba(39,174,96,.15);color:#27ae60;border:1px solid rgba(39,174,96,.2)}
-.fn-table{width:100%;border-collapse:collapse;margin:10px 0}
-.fn-table th,.fn-table td{padding:10px 12px;text-align:left;font-size:.75rem;border-bottom:1px solid rgba(245,197,24,.06)}
-.fn-table th{color:rgba(255,255,255,.4);font-size:.65rem;text-transform:uppercase;letter-spacing:.5px}
-.fn-table td{color:rgba(255,255,255,.7)}
-.fn-table .fn-name{font-family:'Courier New',monospace;color:#f5c518;font-weight:600;font-size:.72rem}
-.cmd{background:rgba(0,0,0,.3);border:1px solid rgba(245,197,24,.12);border-radius:8px;padding:10px 14px;font-family:'Courier New',monospace;font-size:.75rem;color:#f5c518;margin:8px 0;display:flex;align-items:center;gap:8px}
-.cmd .prompt{color:rgba(255,255,255,.3);user-select:none}
 .status-bar{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1px;background:rgba(245,197,24,.06);border-radius:12px;overflow:hidden;margin-bottom:20px}
 .status-item{background:rgba(13,2,33,.7);padding:14px;text-align:center}
 .status-item .s-label{font-size:.6rem;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.5px}
@@ -162,41 +137,8 @@ h1{text-align:center;font-size:1.8rem;margin-bottom:6px;background:linear-gradie
 </div>
 
 
-<div class="section">
-<h2>&#x2699;&#xFE0F; Contract Functions</h2>
-<table class="fn-table">
-<thead><tr><th>Function</th><th>Description</th><th>Auth</th><th>Gas (XLM)</th></tr></thead>
-<tbody>
-<tr><td class="fn-name">initialize</td><td>Set admin, fee rate, oracle address</td><td>Admin</td><td>~0.015</td></tr>
-<tr><td class="fn-name">send_payment</td><td>Cross-asset payment with auto-conversion</td><td>Sender</td><td>~0.012</td></tr>
-<tr><td class="fn-name">batch_pay</td><td>Send to multiple recipients in one tx</td><td>Sender</td><td>~0.025</td></tr>
-<tr><td class="fn-name">get_rate</td><td>Query oracle exchange rate (read-only)</td><td>None</td><td>~0.001</td></tr>
-<tr><td class="fn-name">refund</td><td>Reverse payment within 24h window</td><td>Admin</td><td>~0.010</td></tr>
-<tr><td class="fn-name">set_fee</td><td>Update fee basis points</td><td>Admin</td><td>~0.006</td></tr>
-<tr><td class="fn-name">get_receipt</td><td>Fetch payment receipt by tx_id</td><td>None</td><td>~0.001</td></tr>
-<tr><td class="fn-name">withdraw_fees</td><td>Claim accumulated protocol fees</td><td>Admin</td><td>~0.008</td></tr>
-</tbody>
-</table>
-</div>
 
-<div class="section">
-<h2>&#x1F680; Deploy &amp; Invoke</h2>
-<div class="cmd"><span class="prompt">$</span> soroban contract build</div>
-<div class="cmd"><span class="prompt">$</span> soroban contract deploy --wasm target/wasm32-unknown-unknown/release/visa_payment.wasm --network testnet --source admin</div>
-<div class="cmd"><span class="prompt">$</span> soroban contract invoke --id CBVS...9TRN -- send_payment --from GBUY...USER --to GDQP...RECV --asset_in CCUS...USDC --asset_out CCXL...XLM --amount 500_0000000</div>
-</div>
 
-<div class="section">
-<h2>&#x2728; Visa Tier Features</h2>
-<div class="feature-grid">
-<div class="feature-card"><div class="icon">&#x1F30D;</div><h3>Multi-Asset</h3><p>Pay in any Soroban token, receive in any other</p><span class="tag tag-visa">GLOBAL</span></div>
-<div class="feature-card"><div class="icon">&#x26A1;</div><h3>5s Finality</h3><p>Stellar consensus settles in ~5 seconds</p><span class="tag tag-visa">FAST</span></div>
-<div class="feature-card"><div class="icon">&#x1F4E6;</div><h3>Batch Payments</h3><p>Send to hundreds of recipients in one tx</p><span class="tag tag-green">EFFICIENT</span></div>
-<div class="feature-card"><div class="icon">&#x1F4B1;</div><h3>Oracle Rates</h3><p>TWAP price feeds for fair conversion</p><span class="tag tag-visa">PRICE</span></div>
-<div class="feature-card"><div class="icon">&#x1F9FE;</div><h3>On-Chain Receipts</h3><p>Every payment produces a verifiable receipt</p><span class="tag tag-green">AUDIT</span></div>
-<div class="feature-card"><div class="icon">&#x1F504;</div><h3>24h Refund</h3><p>Admin-reversible payments within window</p><span class="tag tag-visa">SAFETY</span></div>
-</div>
-</div>
 
 <div class="section">
 <h2>&#x1F4B0; Visa Staking Contract</h2>
@@ -363,8 +305,6 @@ h1{text-align:center;font-size:1.8rem;margin-bottom:6px;background:linear-gradie
 </div>
 </div>
 <script>
-function copyCode(btn){const c=btn.closest('.code-block').querySelector('pre').textContent;navigator.clipboard.writeText(c).then(()=>{btn.textContent='\u2713 Copied';setTimeout(()=>btn.textContent='Copy',2000)})}
-function toggleCode(btn){const body=btn.closest('.code-block').querySelector('.code-body');const open=body.classList.toggle('open');btn.textContent=open?'\u25B2 Hide':'\u25BC Show Code';}
 
 const CARD={name:'Visa',stake:100,daily:6,fee:40,color:'#f5c518'};
 const PERIODS={90:{payout:540},180:{payout:1080},365:{payout:2190}};

@@ -1652,6 +1652,202 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 </table>
 </div>
 </div>
+
+<!-- Contract Functions & Deploy Commands (from card pages) -->
+<div class="contract-card">
+<h3 style="color:#e74c3c">&#x1F4B3; Visa — Developer Reference</h3>
+<div class="section">
+<h2>&#x2699;&#xFE0F; Contract Functions</h2>
+<table class="fn-table">
+<thead><tr><th>Function</th><th>Description</th><th>Auth</th><th>Gas (XLM)</th></tr></thead>
+<tbody>
+<tr><td class="fn-name">initialize</td><td>Set admin, fee rate, oracle address</td><td>Admin</td><td>~0.015</td></tr>
+<tr><td class="fn-name">send_payment</td><td>Cross-asset payment with auto-conversion</td><td>Sender</td><td>~0.012</td></tr>
+<tr><td class="fn-name">batch_pay</td><td>Send to multiple recipients in one tx</td><td>Sender</td><td>~0.025</td></tr>
+<tr><td class="fn-name">get_rate</td><td>Query oracle exchange rate (read-only)</td><td>None</td><td>~0.001</td></tr>
+<tr><td class="fn-name">refund</td><td>Reverse payment within 24h window</td><td>Admin</td><td>~0.010</td></tr>
+<tr><td class="fn-name">set_fee</td><td>Update fee basis points</td><td>Admin</td><td>~0.006</td></tr>
+<tr><td class="fn-name">get_receipt</td><td>Fetch payment receipt by tx_id</td><td>None</td><td>~0.001</td></tr>
+<tr><td class="fn-name">withdraw_fees</td><td>Claim accumulated protocol fees</td><td>Admin</td><td>~0.008</td></tr>
+</tbody>
+</table>
+</div>
+<div class="section">
+<h2>&#x1F680; Deploy &amp; Invoke</h2>
+<div class="cmd"><span class="prompt">$</span> soroban contract build</div>
+<div class="cmd"><span class="prompt">$</span> soroban contract deploy --wasm target/wasm32-unknown-unknown/release/visa_payment.wasm --network testnet --source admin</div>
+<div class="cmd"><span class="prompt">$</span> soroban contract invoke --id CBVS...9TRN -- send_payment --from GBUY...USER --to GDQP...RECV --asset_in CCUS...USDC --asset_out CCXL...XLM --amount 500_0000000</div>
+</div>
+<div class="section">
+<h2>&#x2728; Visa Tier Features</h2>
+<div class="feature-grid">
+<div class="feature-card"><div class="icon">&#x1F30D;</div><h3>Multi-Asset</h3><p>Pay in any Soroban token, receive in any other</p><span class="tag tag-visa">GLOBAL</span></div>
+<div class="feature-card"><div class="icon">&#x26A1;</div><h3>5s Finality</h3><p>Stellar consensus settles in ~5 seconds</p><span class="tag tag-visa">FAST</span></div>
+<div class="feature-card"><div class="icon">&#x1F4E6;</div><h3>Batch Payments</h3><p>Send to hundreds of recipients in one tx</p><span class="tag tag-green">EFFICIENT</span></div>
+<div class="feature-card"><div class="icon">&#x1F4B1;</div><h3>Oracle Rates</h3><p>TWAP price feeds for fair conversion</p><span class="tag tag-visa">PRICE</span></div>
+<div class="feature-card"><div class="icon">&#x1F9FE;</div><h3>On-Chain Receipts</h3><p>Every payment produces a verifiable receipt</p><span class="tag tag-green">AUDIT</span></div>
+<div class="feature-card"><div class="icon">&#x1F504;</div><h3>24h Refund</h3><p>Admin-reversible payments within window</p><span class="tag tag-visa">SAFETY</span></div>
+</div>
+</div>
+</div>
+<div class="contract-card">
+<h3 style="color:#e74c3c">&#x1F4B3; Gold — Developer Reference</h3>
+<div class="section">
+<h2>&#x2699;&#xFE0F; Contract Functions</h2>
+<table class="fn-table">
+<thead><tr><th>Function</th><th>Description</th><th>Auth</th><th>Gas (XLM)</th></tr></thead>
+<tbody>
+<tr><td class="fn-name">initialize</td><td>Deploy token with name, symbol, supply</td><td>Admin</td><td>~0.015</td></tr>
+<tr><td class="fn-name">transfer</td><td>Send tokens between addresses</td><td>Sender</td><td>~0.008</td></tr>
+<tr><td class="fn-name">approve</td><td>Set spending allowance for a spender</td><td>Owner</td><td>~0.006</td></tr>
+<tr><td class="fn-name">transfer_from</td><td>Transfer using allowance</td><td>Spender</td><td>~0.010</td></tr>
+<tr><td class="fn-name">mint</td><td>Create new tokens</td><td>Admin</td><td>~0.008</td></tr>
+<tr><td class="fn-name">burn</td><td>Destroy tokens from balance</td><td>Owner</td><td>~0.006</td></tr>
+<tr><td class="fn-name">balance</td><td>Query token balance (read-only)</td><td>None</td><td>~0.001</td></tr>
+<tr><td class="fn-name">total_supply</td><td>Get total token supply</td><td>None</td><td>~0.001</td></tr>
+</tbody>
+</table>
+</div>
+<div class="section">
+<h2>&#x1F680; Deploy &amp; Invoke</h2>
+<div class="cmd"><span class="prompt">$</span> soroban contract build</div>
+<div class="cmd"><span class="prompt">$</span> soroban contract deploy --wasm target/wasm32-unknown-unknown/release/gold_token.wasm --network testnet --source admin</div>
+<div class="cmd"><span class="prompt">$</span> soroban contract invoke --id CDLZ...X7KQ -- initialize --admin GDQP...ADMIN --name "Gold Token" --symbol "GOLD" --initial_supply 100000000000_0000000</div>
+<div class="cmd"><span class="prompt">$</span> soroban contract invoke --id CDLZ...X7KQ -- transfer --from GDQP...ADMIN --to GBUY...USER --amount 1000_0000000</div>
+</div>
+<div class="section">
+<h2>&#x2728; Gold Tier Features</h2>
+<div class="feature-grid">
+<div class="feature-card"><div class="icon">&#x1F3F7;&#xFE0F;</div><h3>SEP-41 Standard</h3><p>Full compliance with Stellar token interface</p><span class="tag tag-gold">STANDARD</span></div>
+<div class="feature-card"><div class="icon">&#x1F525;</div><h3>Burn & Mint</h3><p>Admin-controlled supply management on-chain</p><span class="tag tag-gold">SUPPLY</span></div>
+<div class="feature-card"><div class="icon">&#x1F512;</div><h3>Allowance System</h3><p>Approve spenders with per-address limits</p><span class="tag tag-green">SECURITY</span></div>
+<div class="feature-card"><div class="icon">&#x1F4CA;</div><h3>On-Chain Events</h3><p>Transfer, mint, burn events for indexing</p><span class="tag tag-gold">TRACKING</span></div>
+<div class="feature-card"><div class="icon">&#x26A1;</div><h3>Low Gas</h3><p>~0.008 XLM per transfer on Soroban</p><span class="tag tag-green">EFFICIENT</span></div>
+<div class="feature-card"><div class="icon">&#x1F6E1;&#xFE0F;</div><h3>Audited</h3><p>Independent security audit completed</p><span class="tag tag-green">VERIFIED</span></div>
+</div>
+</div>
+</div>
+<div class="contract-card">
+<h3 style="color:#e74c3c">&#x1F4B3; Amex — Developer Reference</h3>
+<div class="section">
+<h2>&#x2699;&#xFE0F; Contract Functions</h2>
+<table class="fn-table">
+<thead><tr><th>Function</th><th>Description</th><th>Auth</th><th>Gas (XLM)</th></tr></thead>
+<tbody>
+<tr><td class="fn-name">create_proposal</td><td>Submit a new governance proposal</td><td>Member</td><td>~0.016</td></tr>
+<tr><td class="fn-name">vote</td><td>Cast for/against vote with token weight</td><td>Member</td><td>~0.010</td></tr>
+<tr><td class="fn-name">delegate</td><td>Delegate voting power to another address</td><td>Member</td><td>~0.008</td></tr>
+<tr><td class="fn-name">execute</td><td>Execute a passed + timelocked proposal</td><td>Any</td><td>~0.020</td></tr>
+<tr><td class="fn-name">cancel</td><td>Cancel a proposal (creator or admin only)</td><td>Creator</td><td>~0.006</td></tr>
+<tr><td class="fn-name">quorum</td><td>Check current quorum percentage</td><td>None</td><td>~0.001</td></tr>
+<tr><td class="fn-name">get_proposal</td><td>Query proposal details and vote tallies</td><td>None</td><td>~0.001</td></tr>
+<tr><td class="fn-name">withdraw_treasury</td><td>Move funds per governance approval</td><td>DAO</td><td>~0.014</td></tr>
+</tbody>
+</table>
+</div>
+<div class="section">
+<h2>&#x2728; Amex DAO Features</h2>
+<div class="feature-grid">
+<div class="feature-card"><div class="icon">&#x1F5F3;&#xFE0F;</div><h3>Token Voting</h3><p>Vote weight proportional to governance tokens locked</p><span class="tag tag-blue">CORE</span></div>
+<div class="feature-card"><div class="icon">&#x1F91D;</div><h3>Delegation</h3><p>Delegate power without transferring tokens</p><span class="tag tag-purple">SOCIAL</span></div>
+<div class="feature-card"><div class="icon">&#x23F3;</div><h3>Timelock</h3><p>Mandatory delay before execution for safety</p><span class="tag tag-blue">SAFETY</span></div>
+<div class="feature-card"><div class="icon">&#x1F4CA;</div><h3>Quorum Gate</h3><p>10% participation threshold to pass proposals</p><span class="tag tag-purple">GOVERNANCE</span></div>
+<div class="feature-card"><div class="icon">&#x1F4B0;</div><h3>Treasury Mgmt</h3><p>On-chain treasury controlled by DAO votes</p><span class="tag tag-blue">FINANCE</span></div>
+<div class="feature-card"><div class="icon">&#x1F4E1;</div><h3>Event Logs</h3><p>All votes and executions emit on-chain events</p><span class="tag tag-purple">AUDIT</span></div>
+</div>
+</div>
+</div>
+<div class="contract-card">
+<h3 style="color:#e74c3c">&#x1F4B3; Black — Developer Reference</h3>
+<div class="section">
+<h2>&#x2699;&#xFE0F; Contract Functions</h2>
+<table class="fn-table">
+<thead><tr><th>Function</th><th>Description</th><th>Auth</th><th>Gas (XLM)</th></tr></thead>
+<tbody>
+<tr><td class="fn-name">deposit</td><td>Send tokens to vault custody</td><td>Any</td><td>~0.008</td></tr>
+<tr><td class="fn-name">propose_withdrawal</td><td>Create multi-sig withdrawal request</td><td>Signer</td><td>~0.016</td></tr>
+<tr><td class="fn-name">approve</td><td>Sign/approve a pending withdrawal</td><td>Signer</td><td>~0.010</td></tr>
+<tr><td class="fn-name">execute</td><td>Execute after threshold + timelock</td><td>Any</td><td>~0.014</td></tr>
+<tr><td class="fn-name">cancel</td><td>Cancel a pending withdrawal</td><td>Signer</td><td>~0.006</td></tr>
+<tr><td class="fn-name">balance</td><td>Query vault holdings for a token</td><td>None</td><td>~0.001</td></tr>
+<tr><td class="fn-name">get_tx</td><td>Query withdrawal request details</td><td>None</td><td>~0.001</td></tr>
+<tr><td class="fn-name">update_signers</td><td>Add/remove vault signers (multi-sig)</td><td>Threshold</td><td>~0.018</td></tr>
+</tbody>
+</table>
+</div>
+<div class="section">
+<h2>&#x2728; Black Vault Features</h2>
+<div class="feature-grid">
+<div class="feature-card"><div class="icon">&#x1F510;</div><h3>Multi-Sig</h3><p>Configurable M-of-N threshold for all withdrawals</p><span class="tag tag-dark">SECURITY</span></div>
+<div class="feature-card"><div class="icon">&#x23F3;</div><h3>Timelock</h3><p>24-hour delay after approval before execution</p><span class="tag tag-red">CRITICAL</span></div>
+<div class="feature-card"><div class="icon">&#x1F4B0;</div><h3>Daily Limits</h3><p>Configurable daily withdrawal caps per token</p><span class="tag tag-dark">LIMIT</span></div>
+<div class="feature-card"><div class="icon">&#x1F6AB;</div><h3>Cancel Window</h3><p>Any signer can cancel during timelock period</p><span class="tag tag-red">SAFETY</span></div>
+<div class="feature-card"><div class="icon">&#x1F4E6;</div><h3>Multi-Token</h3><p>Hold XLM, USDC, wETH, wBTC and any SEP-41</p><span class="tag tag-dark">FLEXIBLE</span></div>
+<div class="feature-card"><div class="icon">&#x1F4CB;</div><h3>Full Audit Log</h3><p>Every deposit, approval, and execution on-chain</p><span class="tag tag-red">AUDIT</span></div>
+</div>
+</div>
+</div>
+<div class="contract-card">
+<h3 style="color:#e74c3c">&#x1F4B3; Mastercard — Developer Reference</h3>
+<div class="section">
+<h2>&#x2699;&#xFE0F; Contract Functions</h2>
+<table class="fn-table">
+<thead><tr><th>Function</th><th>Description</th><th>Auth</th><th>Gas (XLM)</th></tr></thead>
+<tbody>
+<tr><td class="fn-name">create_pool</td><td>Initialize a new token pair pool</td><td>Admin</td><td>~0.018</td></tr>
+<tr><td class="fn-name">add_liquidity</td><td>Deposit tokens, receive LP shares</td><td>User</td><td>~0.014</td></tr>
+<tr><td class="fn-name">remove_liquidity</td><td>Burn LP shares, withdraw tokens</td><td>User</td><td>~0.012</td></tr>
+<tr><td class="fn-name">swap</td><td>Exchange one token for another</td><td>User</td><td>~0.010</td></tr>
+<tr><td class="fn-name">get_quote</td><td>Preview swap output (read-only)</td><td>None</td><td>~0.001</td></tr>
+<tr><td class="fn-name">get_reserves</td><td>Query pool reserves</td><td>None</td><td>~0.001</td></tr>
+<tr><td class="fn-name">get_price</td><td>Current spot price of pair</td><td>None</td><td>~0.001</td></tr>
+<tr><td class="fn-name">collect_fees</td><td>Withdraw accrued protocol fees</td><td>Admin</td><td>~0.008</td></tr>
+</tbody>
+</table>
+</div>
+<div class="section">
+<h2>&#x2728; Mastercard DEX Features</h2>
+<div class="feature-grid">
+<div class="feature-card"><div class="icon">&#x1F4CA;</div><h3>x*y=k AMM</h3><p>Constant product market maker for trustless swaps</p><span class="tag tag-mc">CORE</span></div>
+<div class="feature-card"><div class="icon">&#x1F4A7;</div><h3>LP Shares</h3><p>Earn swap fees proportional to your liquidity</p><span class="tag tag-green">YIELD</span></div>
+<div class="feature-card"><div class="icon">&#x1F6E1;&#xFE0F;</div><h3>Slippage Guard</h3><p>min_out parameter prevents sandwich attacks</p><span class="tag tag-mc">SAFETY</span></div>
+<div class="feature-card"><div class="icon">&#x26A1;</div><h3>Atomic Swaps</h3><p>All-or-nothing execution in single transaction</p><span class="tag tag-mc">ATOMIC</span></div>
+<div class="feature-card"><div class="icon">&#x1F4B1;</div><h3>Multi-Fee Tiers</h3><p>0.05% stablecoins, 0.3% standard, 1% exotic</p><span class="tag tag-green">FLEXIBLE</span></div>
+<div class="feature-card"><div class="icon">&#x1F50D;</div><h3>On-Chain Quotes</h3><p>Query swap output before executing</p><span class="tag tag-mc">PREVIEW</span></div>
+</div>
+</div>
+</div>
+<div class="contract-card">
+<h3 style="color:#e74c3c">&#x1F4B3; Platinum — Developer Reference</h3>
+<div class="section">
+<h2>&#x2699;&#xFE0F; Contract Functions</h2>
+<table class="fn-table">
+<thead><tr><th>Function</th><th>Description</th><th>Auth</th><th>Gas (XLM)</th></tr></thead>
+<tbody>
+<tr><td class="fn-name">stake</td><td>Lock tokens with optional time boost</td><td>User</td><td>~0.014</td></tr>
+<tr><td class="fn-name">unstake</td><td>Withdraw after lock period expires</td><td>User</td><td>~0.012</td></tr>
+<tr><td class="fn-name">compound</td><td>Reinvest rewards into position</td><td>User</td><td>~0.010</td></tr>
+<tr><td class="fn-name">claim_rewards</td><td>Withdraw accrued rewards to wallet</td><td>User</td><td>~0.010</td></tr>
+<tr><td class="fn-name">pending_rewards</td><td>Read-only: check unclaimed rewards</td><td>None</td><td>~0.001</td></tr>
+<tr><td class="fn-name">get_position</td><td>Query user's stake details</td><td>None</td><td>~0.001</td></tr>
+<tr><td class="fn-name">get_pool_info</td><td>Query pool TVL, APY, totals</td><td>None</td><td>~0.001</td></tr>
+<tr><td class="fn-name">set_rewards</td><td>Admin: update reward rate per ledger</td><td>Admin</td><td>~0.008</td></tr>
+</tbody>
+</table>
+</div>
+<div class="section">
+<h2>&#x2728; Platinum Staking Features</h2>
+<div class="feature-grid">
+<div class="feature-card"><div class="icon">&#x1F512;</div><h3>Lock Boost</h3><p>Up to 2.5x rewards for longer lock periods</p><span class="tag tag-silver">BOOST</span></div>
+<div class="feature-card"><div class="icon">&#x1F504;</div><h3>Auto-Compound</h3><p>Reinvest rewards automatically each epoch</p><span class="tag tag-green">YIELD</span></div>
+<div class="feature-card"><div class="icon">&#x1F4C8;</div><h3>Per-Ledger Accrual</h3><p>Rewards accumulate every 5-second ledger close</p><span class="tag tag-silver">PRECISION</span></div>
+<div class="feature-card"><div class="icon">&#x26A1;</div><h3>Instant Claim</h3><p>Harvest rewards without touching principal</p><span class="tag tag-green">FLEXIBLE</span></div>
+<div class="feature-card"><div class="icon">&#x1F6E1;&#xFE0F;</div><h3>Lock Enforcement</h3><p>On-chain lock prevents early withdrawal</p><span class="tag tag-silver">SAFETY</span></div>
+<div class="feature-card"><div class="icon">&#x1F4CA;</div><h3>Transparent APY</h3><p>Pool rewards and positions fully on-chain</p><span class="tag tag-green">AUDIT</span></div>
+</div>
+</div>
+</div>
+
 <script>
 function toggleCode(btn){const body=btn.closest('.code-block').querySelector('.code-body');const open=body.classList.toggle('open');btn.textContent=open?'\u25B2 Hide':'\u25BC Show Code';}
 function copyCode(btn){const c=btn.closest('.code-block').querySelector('pre').textContent;navigator.clipboard.writeText(c).then(()=>{btn.textContent='\u2713 Copied';setTimeout(()=>btn.textContent='Copy',2000)})}
