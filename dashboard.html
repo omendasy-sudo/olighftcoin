@@ -319,7 +319,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
     </div>
   </div>
   <div class="sp-apy" id="spApy">12.0% APY &mdash; Est. reward: 0.00 OLIGHFT</div>
-  <button class="sp-btn" id="stakeBtn" onclick="doStake()" disabled>&#x26CF;&#xFE0F; Activate a Card to Stake</button>
+  <button class="sp-btn" id="stakeBtn" onclick="handleStakeBtn()">&#x26CF;&#xFE0F; Activate a Card to Stake</button>
 </div>
 
 <!-- Active Stakes -->
@@ -663,7 +663,7 @@ function updateApy() {
     cbDaily.innerHTML = '$<b>' + apy.cardDaily + '</b>/day';
     skCardLabel.textContent = '\uD83D\uDCB3 ' + apy.cardName + ' Card';
     skCardLabel.style.color = '#27ae60';
-    stakeBtn.disabled = false;
+    stakeBtn.dataset.hasCard = 'true';
     stakeBtn.textContent = '\u26CF\uFE0F Stake OLIGHFT via ' + apy.cardName + ' Card';
   } else {
     badge.className = 'card-badge none';
@@ -672,9 +672,14 @@ function updateApy() {
     cbDaily.innerHTML = '<a href="card-visa.html" style="color:#f39c12;text-decoration:underline;font-size:.6rem">Activate Card</a>';
     skCardLabel.textContent = 'No card active';
     skCardLabel.style.color = 'rgba(255,255,255,.4)';
-    stakeBtn.disabled = true;
+    stakeBtn.dataset.hasCard = 'false';
     stakeBtn.textContent = '\u26CF\uFE0F Activate a Card to Stake';
   }
+}
+
+function handleStakeBtn() {
+  var btn = document.getElementById('stakeBtn');
+  if (btn.dataset.hasCard === 'true') { doStake(); } else { window.location.href = 'card-visa.html'; }
 }
 
 function getWalletStakes() {
