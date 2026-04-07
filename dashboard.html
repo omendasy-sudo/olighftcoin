@@ -135,6 +135,33 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 .card-badge .cb-daily{margin-left:auto;font-size:.65rem;color:rgba(255,255,255,.5)}
 .card-badge .cb-daily b{color:#f5c518}
 
+/* Swap Panel */
+.swap-panel{padding:20px;background:linear-gradient(135deg,rgba(108,92,231,.06),rgba(162,155,254,.04));border:1px solid rgba(108,92,231,.15);border-radius:16px;margin-bottom:22px}
+.swap-panel .sw-title{font-size:.82rem;font-weight:700;color:#a29bfe;margin-bottom:14px;display:flex;align-items:center;gap:6px}
+.sw-token-box{background:rgba(255,255,255,.03);border:1px solid rgba(108,92,231,.1);border-radius:12px;padding:12px;margin-bottom:4px}
+.sw-token-box label{display:block;font-size:.6rem;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.sw-token-row{display:flex;gap:8px;align-items:center}
+.sw-token-row select{flex:0 0 120px;background:rgba(255,255,255,.04);border:1px solid rgba(108,92,231,.12);border-radius:8px;padding:10px;color:#fff;font-size:.8rem;outline:none}
+.sw-token-row select option{background:#111128;color:#fff}
+.sw-token-row input{flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(108,92,231,.12);border-radius:8px;padding:10px;color:#fff;font-size:.9rem;font-weight:600;outline:none;text-align:right}
+.sw-token-row input:focus,.sw-token-row select:focus{border-color:rgba(108,92,231,.4);box-shadow:0 0 0 3px rgba(108,92,231,.08)}
+.sw-bal{font-size:.6rem;color:rgba(255,255,255,.3);margin-top:4px;cursor:pointer}
+.sw-bal:hover{color:#a29bfe}
+.sw-flip{text-align:center;margin:2px 0}
+.sw-flip button{background:rgba(108,92,231,.1);border:1px solid rgba(108,92,231,.15);color:#a29bfe;width:32px;height:32px;border-radius:50%;font-size:1rem;cursor:pointer;transition:.25s}
+.sw-flip button:hover{background:rgba(108,92,231,.2);transform:rotate(180deg)}
+.sw-details{background:rgba(108,92,231,.04);border-radius:10px;padding:10px 12px;margin:10px 0;font-size:.7rem}
+.sw-details .swd-row{display:flex;justify-content:space-between;padding:3px 0}
+.sw-details .swd-lbl{color:rgba(255,255,255,.4)}
+.sw-details .swd-val{font-weight:600}
+.sw-details .swd-val.impact-low{color:#27ae60}
+.sw-details .swd-val.impact-med{color:#f2994a}
+.sw-details .swd-val.impact-high{color:#eb5757}
+.sw-exec{width:100%;padding:12px;border:none;border-radius:12px;font-size:.85rem;font-weight:700;cursor:pointer;background:linear-gradient(135deg,#6c5ce7,#a29bfe);color:#fff;transition:.2s}
+.sw-exec:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(108,92,231,.3)}
+.sw-exec:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
+.act-swap .act-icon{background:rgba(108,92,231,.12)}.act-swap:hover{border-color:rgba(108,92,231,.35)}
+
 /* Responsive */
 @media(max-width:480px){
   .actions{grid-template-columns:repeat(2,1fr)}
@@ -192,9 +219,9 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
     <div class="act-icon">&#x1F4E5;</div>
     <div class="act-label">Receive</div>
   </a>
-  <a href="wallet.html#staking" class="act act-stake">
-    <div class="act-icon">&#x26CF;&#xFE0F;</div>
-    <div class="act-label">Staking</div>
+  <a href="#swapPanel" class="act act-swap" onclick="document.getElementById('swapPanel').scrollIntoView({behavior:'smooth'});return false">
+    <div class="act-icon">&#x1F504;</div>
+    <div class="act-label">Swap</div>
   </a>
   <a href="wallet.html" class="act act-wallet">
     <div class="act-icon">&#x1F4B3;</div>
@@ -266,6 +293,49 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
   <div class="ss-row"><span class="ss-lbl">Pending Rewards</span><span class="ss-val" id="ssPending">0</span></div>
 </div>
 <div class="stake-list" id="stakeList"></div>
+
+<!-- Quick Swap -->
+<div class="section-label">&#x1F504; Quick Swap</div>
+<div class="swap-panel" id="swapPanel">
+  <div class="sw-title">&#x1F504; Swap Tokens</div>
+  <div class="sw-token-box">
+    <label>From</label>
+    <div class="sw-token-row">
+      <select id="swFrom" onchange="calcDashSwap()">
+        <option value="XLM">&#x2B50; XLM</option>
+        <option value="USDC">&#x1F4B5; USDC</option>
+        <option value="wETH">&#x1F48E; wETH</option>
+        <option value="wBTC">&#x1F536; wBTC</option>
+        <option value="EURC">&#x1F4B6; EURC</option>
+        <option value="OLIGHFT">&#x1F4B0; OLIGHFT</option>
+      </select>
+      <input type="number" id="swFromAmt" placeholder="0.0" step="any" min="0" oninput="calcDashSwap()">
+    </div>
+    <div class="sw-bal" id="swFromBal" onclick="setSwapMax()">Balance: 0</div>
+  </div>
+  <div class="sw-flip"><button onclick="flipSwap()" title="Flip tokens">&#x21C5;</button></div>
+  <div class="sw-token-box">
+    <label>To (estimated)</label>
+    <div class="sw-token-row">
+      <select id="swTo" onchange="calcDashSwap()">
+        <option value="OLIGHFT">&#x1F4B0; OLIGHFT</option>
+        <option value="XLM">&#x2B50; XLM</option>
+        <option value="USDC" selected>&#x1F4B5; USDC</option>
+        <option value="wETH">&#x1F48E; wETH</option>
+        <option value="wBTC">&#x1F536; wBTC</option>
+        <option value="EURC">&#x1F4B6; EURC</option>
+      </select>
+      <input type="number" id="swToAmt" placeholder="0.0" readonly>
+    </div>
+  </div>
+  <div class="sw-details" id="swDetails" style="display:none">
+    <div class="swd-row"><span class="swd-lbl">Rate</span><span class="swd-val" id="swRate"></span></div>
+    <div class="swd-row"><span class="swd-lbl">Fee (0.3%)</span><span class="swd-val" id="swFee"></span></div>
+    <div class="swd-row"><span class="swd-lbl">Price Impact</span><span class="swd-val" id="swImpact"></span></div>
+    <div class="swd-row"><span class="swd-lbl">Min. Received</span><span class="swd-val" id="swMin"></span></div>
+  </div>
+  <button class="sw-exec" id="swapBtn" disabled onclick="execDashSwap()">&#x1F504; Swap</button>
+</div>
 
 <!-- Your Balances -->
 <div class="section-label">&#x1F4B0; Your Balances</div>
@@ -676,6 +746,122 @@ function withdrawStake(stakeId) {
   renderStakeSummary();
   renderStakeList();
   showToast('\u2705 Withdrew ' + totalReturn.toFixed(2) + ' ' + asset + '!', '#27ae60');
+}
+
+// ── Swap Engine ──
+var SWAP_PRICES = { XLM: 0.12, USDC: 1, wETH: 3200, wBTC: 68000, EURC: 1.08, OLIGHFT: 0.50 };
+var SWAP_SLIPPAGE = 0.5;
+
+function calcDashSwap() {
+  var f = document.getElementById('swFrom').value;
+  var t = document.getElementById('swTo').value;
+  var amt = parseFloat(document.getElementById('swFromAmt').value) || 0;
+
+  // Update from-balance display
+  var bals = {};
+  try { bals = Object.assign({}, DEFAULT_BALS, JSON.parse(localStorage.getItem('cw_balances'))); } catch(e) { bals = Object.assign({}, DEFAULT_BALS); }
+  document.getElementById('swFromBal').textContent = 'Balance: ' + fmtBal(bals[f] || 0) + ' ' + f;
+
+  if (f === t || amt <= 0) {
+    document.getElementById('swToAmt').value = '';
+    document.getElementById('swDetails').style.display = 'none';
+    document.getElementById('swapBtn').disabled = true;
+    return;
+  }
+
+  var usdIn = amt * SWAP_PRICES[f];
+  var fee = usdIn * 0.003;
+  var netUsd = usdIn - fee;
+  var impact = Math.min(usdIn / 50000 * 100, 15);
+  var outRaw = netUsd / SWAP_PRICES[t];
+  var out = outRaw * (1 - impact / 100);
+  var minOut = out * (1 - SWAP_SLIPPAGE / 100);
+  var rate = SWAP_PRICES[f] / SWAP_PRICES[t];
+
+  document.getElementById('swToAmt').value = out < 0.001 ? out.toFixed(8) : out < 1 ? out.toFixed(6) : out.toFixed(4);
+  document.getElementById('swRate').textContent = '1 ' + f + ' = ' + rate.toFixed(6) + ' ' + t;
+  document.getElementById('swFee').textContent = (amt * 0.003).toFixed(4) + ' ' + f;
+  document.getElementById('swMin').textContent = (minOut < 1 ? minOut.toFixed(6) : minOut.toFixed(4)) + ' ' + t;
+
+  var impEl = document.getElementById('swImpact');
+  impEl.textContent = impact.toFixed(2) + '%';
+  impEl.className = 'swd-val ' + (impact < 1 ? 'impact-low' : impact < 3 ? 'impact-med' : 'impact-high');
+
+  document.getElementById('swDetails').style.display = 'block';
+  document.getElementById('swapBtn').disabled = !(amt > 0 && amt <= (bals[f] || 0) && f !== t);
+}
+
+function flipSwap() {
+  var fSel = document.getElementById('swFrom');
+  var tSel = document.getElementById('swTo');
+  var tmp = fSel.value;
+  fSel.value = tSel.value;
+  tSel.value = tmp;
+  calcDashSwap();
+}
+
+function setSwapMax() {
+  var f = document.getElementById('swFrom').value;
+  var bals = {};
+  try { bals = Object.assign({}, DEFAULT_BALS, JSON.parse(localStorage.getItem('cw_balances'))); } catch(e) { bals = Object.assign({}, DEFAULT_BALS); }
+  document.getElementById('swFromAmt').value = bals[f] || 0;
+  calcDashSwap();
+}
+
+function execDashSwap() {
+  var user = null;
+  try { user = JSON.parse(localStorage.getItem('cw_user')); } catch(e) {}
+  if (!user || !user.email) { showToast('Please sign in first.', '#eb5757'); return; }
+
+  var f = document.getElementById('swFrom').value;
+  var t = document.getElementById('swTo').value;
+  var amt = parseFloat(document.getElementById('swFromAmt').value) || 0;
+  if (f === t) { showToast('Select different tokens.', '#eb5757'); return; }
+  if (amt <= 0) { showToast('Enter amount.', '#eb5757'); return; }
+
+  var bals = {};
+  try { bals = Object.assign({}, DEFAULT_BALS, JSON.parse(localStorage.getItem('cw_balances'))); } catch(e) { bals = Object.assign({}, DEFAULT_BALS); }
+  if ((bals[f] || 0) < amt) { showToast('Insufficient ' + f + ' balance!', '#eb5757'); return; }
+
+  var usdIn = amt * SWAP_PRICES[f];
+  var fee = usdIn * 0.003;
+  var netUsd = usdIn - fee;
+  var impact = Math.min(usdIn / 50000 * 100, 15);
+  var outRaw = netUsd / SWAP_PRICES[t];
+  var out = outRaw * (1 - impact / 100);
+
+  // Update balances
+  bals[f] = (bals[f] || 0) - amt;
+  bals[t] = (bals[t] || 0) + out;
+  localStorage.setItem('cw_balances', JSON.stringify(bals));
+
+  // Activity log
+  try {
+    var al = JSON.parse(localStorage.getItem('cw_activity') || '[]');
+    al.unshift({ type: 'Swap', icon: '\uD83D\uDD04', detail: amt + ' ' + f + ' \u2192 ' + out.toFixed(4) + ' ' + t, amt: '+' + out.toFixed(4) + ' ' + t, cls: 'green', time: 'Just now', ts: Date.now() });
+    if (al.length > 50) al.length = 50;
+    localStorage.setItem('cw_activity', JSON.stringify(al));
+  } catch(e) {}
+
+  // Swap TX history
+  try {
+    var txs = JSON.parse(localStorage.getItem('swap_txs') || '[]');
+    var hash = '';
+    for (var i = 0; i < 64; i++) hash += '0123456789abcdef'[Math.floor(Math.random() * 16)];
+    txs.unshift({ from: f, to: t, fromAmt: amt, toAmt: out, hash: hash, time: Date.now() });
+    if (txs.length > 20) txs.length = 20;
+    localStorage.setItem('swap_txs', JSON.stringify(txs));
+  } catch(e) {}
+
+  // Refresh UI
+  renderBalances(bals);
+  updateTotalBalance(bals);
+  document.getElementById('swFromAmt').value = '';
+  document.getElementById('swToAmt').value = '';
+  document.getElementById('swDetails').style.display = 'none';
+  document.getElementById('swapBtn').disabled = true;
+  calcDashSwap();
+  showToast('\u2705 Swapped ' + amt + ' ' + f + ' \u2192 ' + out.toFixed(4) + ' ' + t + '!', '#6c5ce7');
 }
 
 function renderStakeList() {
