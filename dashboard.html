@@ -382,10 +382,7 @@ var DEFAULT_BALS = { XLM: 10000, USDC: 2500, wETH: 1.85, wBTC: 0.042, EURC: 1200
   try { user = JSON.parse(localStorage.getItem('cw_user')); } catch(e) {}
 
   if (!user || !user.email) {
-    document.getElementById('loginPrompt').style.display = 'block';
-    document.getElementById('userRow').style.display = 'none';
-    document.getElementById('dashContent').style.display = 'none';
-    renderPricesOnly();
+    window.location.href = 'auth.html';
     return;
   }
 

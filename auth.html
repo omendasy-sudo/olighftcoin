@@ -1006,7 +1006,7 @@ async function handleVerify() {
 
         showAlert('success', 'Welcome to OLIGHFT SMART COIN!');
         window._pendingAuth = null;
-        setTimeout(() => { window.location.href = 'wallet.html'; }, 800);
+        setTimeout(() => { window.location.href = 'dashboard.html'; }, 800);
     }, 1000);
 }
 
@@ -1213,7 +1213,7 @@ function connectWallet(provider) {
                         wcUser.addr = pubKey;
                         localStorage.setItem('cw_user', JSON.stringify(wcUser));
                         showAlert('success', 'Freighter connected: ' + pubKey.slice(0, 6) + '\u2026' + pubKey.slice(-4));
-                        setTimeout(() => { window.location.href = 'wallet.html'; }, 1200);
+                        setTimeout(() => { window.location.href = 'dashboard.html'; }, 1200);
                     });
                 } else {
                     showAlert('error', 'Freighter is installed but not connected. Please unlock it.');
@@ -1443,7 +1443,7 @@ function completeGoogleAuth(mode, email, name, picture) {
         }
 
         showAlert('success', 'Welcome back, ' + name + '!');
-        setTimeout(() => { window.location.href = 'wallet.html'; }, 800);
+        setTimeout(() => { window.location.href = 'dashboard.html'; }, 800);
 
     } else {
         // Register: create new account
@@ -1623,7 +1623,7 @@ async function autoFillFromCredManager() {
 (function() {
     const user = JSON.parse(localStorage.getItem('cw_user') || 'null');
     if (user && user.email) {
-        window.location.href = 'wallet.html';
+        window.location.href = 'dashboard.html';
         return;
     }
     // Try auto-fill from Credential Manager

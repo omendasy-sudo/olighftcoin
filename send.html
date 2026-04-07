@@ -366,7 +366,7 @@ select option{background:#1a1a2e;color:#fff}
 
 <script>
 // Auth guard — require login
-(function(){const u=JSON.parse(localStorage.getItem('cw_user')||'null');if(!u){alert('\u26A0\uFE0F Please log in first.');window.location.href='auth.html';}})();
+(function(){const u=JSON.parse(localStorage.getItem('cw_user')||'null');if(!u){window.location.href='auth.html';return;}})();
 
 // ── HD Account helpers (shared with wallet.html) ──
 function getAccounts(){

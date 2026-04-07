@@ -326,7 +326,7 @@ label{display:block;font-size:.72rem;color:rgba(255,255,255,.45);margin-bottom:6
 <script>
 const prices={XLM:0.12,USDC:1,wETH:3200,wBTC:68000,EURC:1.08,OLIGHFT:0.50};
 // Auth guard
-(function(){const u=JSON.parse(localStorage.getItem('cw_user')||'null');if(!u){alert('\u26A0\uFE0F Please log in first.');window.location.href='auth.html';}})();
+(function(){const u=JSON.parse(localStorage.getItem('cw_user')||'null');if(!u){window.location.href='auth.html';return;}})();
 
 // ── HD Account helpers ──
 function getAccounts(){
