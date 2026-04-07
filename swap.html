@@ -468,6 +468,8 @@ function executeSwap(){
   txs.unshift({from:f,to:t,fromAmt:fAmt,toAmt:tAmt,hash:hash,time:Date.now(),account:acctAddr,accountIdx:activeIdx});
   if(txs.length>20)txs.length=20;
   localStorage.setItem('swap_txs',JSON.stringify(txs));
+  // Unified activity log
+  try{var al=JSON.parse(localStorage.getItem('cw_activity')||'[]');al.unshift({type:'Swap',icon:'\uD83D\uDD04',detail:fAmt+' '+f+' \u2192 '+tAmt.toFixed(4)+' '+t,amt:'+'+tAmt.toFixed(4)+' '+t,cls:'green',time:'Just now',ts:Date.now()});if(al.length>50)al.length=50;localStorage.setItem('cw_activity',JSON.stringify(al));}catch(e){}
   document.getElementById('fromAmt').value='';
   document.getElementById('toAmt').value='';
   hideDetails();

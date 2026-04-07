@@ -321,6 +321,8 @@ function simulateReceive(token,amount,fromAddr){
   txs.unshift({from:fromAddr,to:addr,amount:amount,token:token,hash:h,time:Date.now()});
   if(txs.length>20)txs.length=20;
   localStorage.setItem('receive_txs',JSON.stringify(txs));
+  // Unified activity log
+  try{var al=JSON.parse(localStorage.getItem('cw_activity')||'[]');al.unshift({type:'Received',icon:'\uD83D\uDCE5',detail:amount+' '+token+' from '+(fromAddr?fromAddr.slice(0,6)+'...'+fromAddr.slice(-4):'unknown'),amt:'+'+amount+' '+token,cls:'green',time:'Just now',ts:Date.now()});if(al.length>50)al.length=50;localStorage.setItem('cw_activity',JSON.stringify(al));}catch(e){}
   renderRecentReceives();
   return true;
 }

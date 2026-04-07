@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Activity Log &mdash; OLIGHFT SMART COIN</title>
+<meta name="description" content="OLIGHFT transaction history — all sends, receives, swaps, stakes, and actions in one place.">
+<link rel="canonical" href="https://olighftcoin.com/activity.html">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135deg,#0a0a1a,#111128,#0a0a1a);color:#fff;min-height:100vh;padding:20px}
+.container{max-width:620px;margin:0 auto}
+
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.header a{color:rgba(255,255,255,.4);text-decoration:none;font-size:.72rem;transition:.2s}
+.header a:hover{color:#a29bfe}
+h1{text-align:center;font-size:1.4rem;font-weight:800;background:linear-gradient(90deg,#6c5ce7,#a29bfe,#2d9cdb);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:4px}
+.subtitle{text-align:center;color:rgba(255,255,255,.35);font-size:.72rem;margin-bottom:20px}
+
+/* Stats bar */
+.stats-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:rgba(108,92,231,.06);border-radius:12px;overflow:hidden;margin-bottom:20px}
+.sb-item{background:rgba(10,10,26,.7);padding:14px 10px;text-align:center}
+.sb-item .sb-val{font-size:1.1rem;font-weight:700;color:#a29bfe}
+.sb-item .sb-lbl{font-size:.55rem;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.5px;margin-top:3px}
+
+/* Filter tabs */
+.filters{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:16px}
+.filter-btn{padding:6px 14px;border-radius:8px;font-size:.68rem;font-weight:600;cursor:pointer;border:1px solid rgba(255,255,255,.06);background:none;color:rgba(255,255,255,.4);transition:.2s}
+.filter-btn.active{background:rgba(108,92,231,.15);border-color:rgba(108,92,231,.4);color:#a29bfe}
+.filter-btn:hover{border-color:rgba(108,92,231,.25);color:rgba(255,255,255,.6)}
+
+/* Search */
+.search-row{display:flex;gap:8px;margin-bottom:16px}
+.search-row input{flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(108,92,231,.1);border-radius:10px;padding:10px 14px;color:#fff;font-size:.8rem;outline:none;transition:.2s}
+.search-row input:focus{border-color:rgba(108,92,231,.4);box-shadow:0 0 0 3px rgba(108,92,231,.08)}
+.search-row input::placeholder{color:rgba(255,255,255,.2)}
+.clear-btn{padding:8px 16px;border-radius:10px;border:1px solid rgba(235,87,87,.15);background:none;color:rgba(235,87,87,.6);font-size:.68rem;font-weight:600;cursor:pointer;transition:.2s;white-space:nowrap}
+.clear-btn:hover{border-color:rgba(235,87,87,.4);color:#eb5757}
+
+/* Activity List */
+.tx-list{margin-bottom:24px}
+.tx-item{display:flex;align-items:center;padding:14px 16px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:12px;margin-bottom:6px;transition:.18s;cursor:default}
+.tx-item:hover{border-color:rgba(108,92,231,.18);background:rgba(108,92,231,.02)}
+.tx-item .tx-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.15rem;flex-shrink:0}
+.icon-send{background:rgba(108,92,231,.12)}
+.icon-recv{background:rgba(39,174,96,.12)}
+.icon-swap{background:rgba(242,153,74,.12)}
+.icon-stake{background:rgba(245,197,24,.12)}
+.icon-unstake{background:rgba(45,156,219,.12)}
+.icon-card{background:rgba(255,215,0,.12)}
+.icon-claim{background:rgba(39,174,96,.12)}
+.icon-login{background:rgba(108,92,231,.08)}
+.tx-item .tx-body{flex:1;margin:0 12px;min-width:0}
+.tx-item .tx-type{font-size:.72rem;font-weight:700;display:flex;align-items:center;gap:6px}
+.tx-item .tx-badge{font-size:.52rem;padding:2px 7px;border-radius:4px;font-weight:700;text-transform:uppercase;letter-spacing:.3px}
+.badge-send{background:rgba(108,92,231,.12);color:#a29bfe}
+.badge-recv{background:rgba(39,174,96,.12);color:#27ae60}
+.badge-swap{background:rgba(242,153,74,.12);color:#f2994a}
+.badge-stake{background:rgba(245,197,24,.12);color:#f5c518}
+.badge-unstake{background:rgba(45,156,219,.12);color:#2d9cdb}
+.badge-card{background:rgba(255,215,0,.12);color:#ffd700}
+.badge-claim{background:rgba(39,174,96,.12);color:#27ae60}
+.badge-login{background:rgba(108,92,231,.08);color:rgba(255,255,255,.4)}
+.tx-item .tx-detail{font-size:.65rem;color:rgba(255,255,255,.35);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tx-item .tx-hash{font-size:.55rem;color:rgba(108,92,231,.5);margin-top:2px;font-family:monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tx-item .tx-right{text-align:right;flex-shrink:0}
+.tx-item .tx-amt{font-size:.82rem;font-weight:700}
+.tx-item .tx-amt.green{color:#27ae60}
+.tx-item .tx-amt.red{color:#eb5757}
+.tx-item .tx-amt.neutral{color:rgba(255,255,255,.6)}
+.tx-item .tx-time{font-size:.58rem;color:rgba(255,255,255,.3);margin-top:2px}
+
+.empty-msg{text-align:center;padding:40px 20px;color:rgba(255,255,255,.25);font-size:.82rem}
+.empty-msg .em-icon{font-size:2rem;margin-bottom:8px}
+
+/* Export */
+.export-row{display:flex;gap:8px;justify-content:center;margin-bottom:20px}
+.export-btn{padding:8px 20px;border-radius:10px;border:1px solid rgba(108,92,231,.15);background:none;color:rgba(255,255,255,.45);font-size:.68rem;font-weight:600;cursor:pointer;transition:.2s}
+.export-btn:hover{border-color:rgba(108,92,231,.4);color:#a29bfe}
+
+/* Footer */
+.footer{text-align:center;padding:20px 0 8px;border-top:1px solid rgba(108,92,231,.06);margin-top:8px}
+.footer p{font-size:.6rem;color:rgba(255,255,255,.2)}
+.footer .f-links{display:flex;gap:10px;justify-content:center;margin-top:8px;flex-wrap:wrap}
+.footer .f-links a{font-size:.6rem;color:rgba(255,255,255,.3);text-decoration:none;transition:.2s}
+.footer .f-links a:hover{color:#a29bfe}
+
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);padding:12px 24px;border-radius:12px;font-size:.78rem;font-weight:600;color:#fff;z-index:9999;opacity:0;transition:.35s}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+
+@media(max-width:480px){
+  .stats-bar{grid-template-columns:repeat(2,1fr)}
+  .filters{gap:3px}
+  .filter-btn{padding:5px 10px;font-size:.62rem}
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="header">
+  <a href="index.html">&larr; Home</a>
+  <a href="dashboard.html">Dashboard</a>
+</div>
+
+<h1>&#x1F4CB; Activity Log</h1>
+<p class="subtitle">All transactions &amp; actions in one place</p>
+
+<!-- Stats -->
+<div class="stats-bar">
+  <div class="sb-item"><div class="sb-val" id="stTotal">0</div><div class="sb-lbl">Total</div></div>
+  <div class="sb-item"><div class="sb-val" id="stSend">0</div><div class="sb-lbl">Sent</div></div>
+  <div class="sb-item"><div class="sb-val" id="stRecv">0</div><div class="sb-lbl">Received</div></div>
+  <div class="sb-item"><div class="sb-val" id="stStake">0</div><div class="sb-lbl">Stakes</div></div>
+</div>
+
+<!-- Filters -->
+<div class="filters">
+  <button class="filter-btn active" data-filter="all" onclick="setFilter('all')">All</button>
+  <button class="filter-btn" data-filter="send" onclick="setFilter('send')">Sent</button>
+  <button class="filter-btn" data-filter="receive" onclick="setFilter('receive')">Received</button>
+  <button class="filter-btn" data-filter="swap" onclick="setFilter('swap')">Swaps</button>
+  <button class="filter-btn" data-filter="stake" onclick="setFilter('stake')">Stakes</button>
+  <button class="filter-btn" data-filter="card" onclick="setFilter('card')">Cards</button>
+</div>
+
+<!-- Search -->
+<div class="search-row">
+  <input type="text" id="searchInput" placeholder="Search by hash, address, token, amount..." oninput="renderList()">
+  <button class="clear-btn" onclick="clearAll()">Clear All</button>
+</div>
+
+<!-- Transaction List -->
+<div class="tx-list" id="txList"></div>
+
+<!-- Export -->
+<div class="export-row">
+  <button class="export-btn" onclick="exportCSV()">&#x1F4E5; Export CSV</button>
+  <button class="export-btn" onclick="exportJSON()">&#x1F4E6; Export JSON</button>
+</div>
+
+<!-- Footer -->
+<div class="footer">
+  <p>&copy; 2025 OLIGHFT SMART COIN &mdash; Stellar Testnet</p>
+  <div class="f-links">
+    <a href="index.html">Home</a>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="wallet.html">Wallet</a>
+    <a href="send.html">Send</a>
+    <a href="receive.html">Receive</a>
+    <a href="swap.html">Swap</a>
+  </div>
+</div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+var currentFilter = 'all';
+
+// ── Collect all activity from localStorage ──
+function loadAllActivity() {
+  var items = [];
+
+  // Send transactions
+  try {
+    var txs = JSON.parse(localStorage.getItem('send_txs') || '[]');
+    for (var i = 0; i < txs.length; i++) {
+      var tx = txs[i];
+      items.push({
+        type: 'send',
+        icon: '\uD83D\uDCE4',
+        label: 'Sent',
+        badge: 'badge-send',
+        iconCls: 'icon-send',
+        detail: tx.amount + ' ' + tx.token + ' to ' + shortAddr(tx.to),
+        hash: tx.hash || '',
+        amt: '-' + tx.amount + ' ' + tx.token,
+        amtCls: 'red',
+        time: tx.time || 0
+      });
+    }
+  } catch(e) {}
+
+  // Receive transactions
+  try {
+    var rxs = JSON.parse(localStorage.getItem('receive_txs') || '[]');
+    for (var i = 0; i < rxs.length; i++) {
+      var rx = rxs[i];
+      items.push({
+        type: 'receive',
+        icon: '\uD83D\uDCE5',
+        label: 'Received',
+        badge: 'badge-recv',
+        iconCls: 'icon-recv',
+        detail: rx.amount + ' ' + rx.token + ' from ' + shortAddr(rx.from),
+        hash: rx.hash || '',
+        amt: '+' + rx.amount + ' ' + rx.token,
+        amtCls: 'green',
+        time: rx.time || 0
+      });
+    }
+  } catch(e) {}
+
+  // Swap transactions
+  try {
+    var sxs = JSON.parse(localStorage.getItem('swap_txs') || '[]');
+    for (var i = 0; i < sxs.length; i++) {
+      var sx = sxs[i];
+      items.push({
+        type: 'swap',
+        icon: '\uD83D\uDD04',
+        label: 'Swap',
+        badge: 'badge-swap',
+        iconCls: 'icon-swap',
+        detail: sx.fromAmt + ' ' + sx.from + ' \u2192 ' + (sx.toAmt ? sx.toAmt.toFixed(4) : '?') + ' ' + sx.to,
+        hash: sx.hash || '',
+        amt: '+' + (sx.toAmt ? sx.toAmt.toFixed(4) : '?') + ' ' + sx.to,
+        amtCls: 'green',
+        time: sx.time || 0
+      });
+    }
+  } catch(e) {}
+
+  // Card stakes
+  try {
+    var cs = JSON.parse(localStorage.getItem('card_stakes') || '[]');
+    for (var i = 0; i < cs.length; i++) {
+      var c = cs[i];
+      if (c.withdrawn) {
+        items.push({
+          type: 'card',
+          icon: '\uD83D\uDCB3',
+          label: c.card + ' Withdrawn',
+          badge: 'badge-unstake',
+          iconCls: 'icon-unstake',
+          detail: 'Withdrew $' + (c.payout || c.stake) + ' from ' + c.card + ' stake' + (c.period ? ' (' + c.period + 'd)' : ''),
+          hash: c.txHash || '',
+          amt: '+$' + (c.payout || c.stake),
+          amtCls: 'green',
+          time: c.withdrawnAt ? new Date(c.withdrawnAt).getTime() : (c.date ? new Date(c.date).getTime() + 1000 : 0)
+        });
+      }
+      items.push({
+        type: 'card',
+        icon: '\uD83C\uDF1F',
+        label: c.card + ' Card Stake',
+        badge: 'badge-card',
+        iconCls: 'icon-card',
+        detail: '$' + c.stake + ' staked \u00B7 ' + (c.period || '?') + 'd \u00B7 $' + c.daily + '/day \u00B7 Sponsor: ' + (c.sponsor || '—'),
+        hash: c.txHash || '',
+        amt: '-' + (c.paidOLIGHFT ? c.paidOLIGHFT.toFixed(0) + ' OLIGHFT' : '$' + c.stake),
+        amtCls: 'red',
+        time: c.date ? new Date(c.date).getTime() : 0
+      });
+    }
+  } catch(e) {}
+
+  // Wallet stakes
+  try {
+    var ws = JSON.parse(localStorage.getItem('wallet_stakes') || '[]');
+    for (var i = 0; i < ws.length; i++) {
+      var w = ws[i];
+      var asset = w.asset || 'XLM';
+      if (w.withdrawn) {
+        var totalReturn = w.amount + (w.reward || 0);
+        items.push({
+          type: 'stake',
+          icon: '\uD83D\uDCB0',
+          label: 'Unstaked',
+          badge: 'badge-unstake',
+          iconCls: 'icon-unstake',
+          detail: 'Withdrew ' + totalReturn.toFixed(2) + ' ' + asset,
+          hash: w.txHash || '',
+          amt: '+' + totalReturn.toFixed(2) + ' ' + asset,
+          amtCls: 'green',
+          time: w.startDate ? new Date(w.startDate).getTime() + 1000 : 0
+        });
+      }
+      items.push({
+        type: 'stake',
+        icon: '\u26CF\uFE0F',
+        label: 'Staked',
+        badge: 'badge-stake',
+        iconCls: 'icon-stake',
+        detail: w.amount + ' ' + asset + ' \u00B7 ' + (w.apy ? w.apy.toFixed(1) + '% APY' : '') + (w.endDate ? ' \u00B7 locked' : ' \u00B7 flex'),
+        hash: w.txHash || '',
+        amt: '-' + w.amount + ' ' + asset,
+        amtCls: 'red',
+        time: w.startDate ? new Date(w.startDate).getTime() : 0
+      });
+    }
+  } catch(e) {}
+
+  // Sort by time descending (newest first)
+  items.sort(function(a, b) { return b.time - a.time; });
+  return items;
+}
+
+function shortAddr(addr) {
+  if (!addr) return '—';
+  if (addr.length > 12) return addr.slice(0, 6) + '...' + addr.slice(-4);
+  return addr;
+}
+
+function timeAgo(ts) {
+  if (!ts) return '—';
+  var diff = Date.now() - ts;
+  if (diff < 60000) return 'Just now';
+  if (diff < 3600000) return Math.floor(diff / 60000) + 'm ago';
+  if (diff < 86400000) return Math.floor(diff / 3600000) + 'h ago';
+  if (diff < 604800000) return Math.floor(diff / 86400000) + 'd ago';
+  return new Date(ts).toLocaleDateString('en', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function setFilter(f) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(function(b) {
+    b.classList.toggle('active', b.getAttribute('data-filter') === f);
+  });
+  renderList();
+}
+
+function renderList() {
+  var items = loadAllActivity();
+  var query = (document.getElementById('searchInput').value || '').toLowerCase().trim();
+
+  // Filter by type
+  if (currentFilter !== 'all') {
+    items = items.filter(function(it) { return it.type === currentFilter; });
+  }
+
+  // Filter by search
+  if (query) {
+    items = items.filter(function(it) {
+      return (it.label + ' ' + it.detail + ' ' + it.hash + ' ' + it.amt).toLowerCase().indexOf(query) >= 0;
+    });
+  }
+
+  // Stats
+  var all = loadAllActivity();
+  document.getElementById('stTotal').textContent = all.length;
+  document.getElementById('stSend').textContent = all.filter(function(x) { return x.type === 'send'; }).length;
+  document.getElementById('stRecv').textContent = all.filter(function(x) { return x.type === 'receive'; }).length;
+  document.getElementById('stStake').textContent = all.filter(function(x) { return x.type === 'stake' || x.type === 'card'; }).length;
+
+  if (items.length === 0) {
+    document.getElementById('txList').innerHTML = '<div class="empty-msg"><div class="em-icon">\uD83D\uDCED</div>No transactions found.</div>';
+    return;
+  }
+
+  var html = '';
+  for (var i = 0; i < items.length; i++) {
+    var it = items[i];
+    html += '<div class="tx-item">' +
+      '<div class="tx-icon ' + it.iconCls + '">' + it.icon + '</div>' +
+      '<div class="tx-body">' +
+        '<div class="tx-type">' + it.label + ' <span class="tx-badge ' + it.badge + '">' + it.type.toUpperCase() + '</span></div>' +
+        '<div class="tx-detail">' + escHtml(it.detail) + '</div>' +
+        (it.hash ? '<div class="tx-hash">' + it.hash + '</div>' : '') +
+      '</div>' +
+      '<div class="tx-right">' +
+        '<div class="tx-amt ' + it.amtCls + '">' + it.amt + '</div>' +
+        '<div class="tx-time">' + timeAgo(it.time) + '</div>' +
+      '</div>' +
+      '</div>';
+  }
+  document.getElementById('txList').innerHTML = html;
+}
+
+function escHtml(s) {
+  var d = document.createElement('div');
+  d.appendChild(document.createTextNode(s));
+  return d.innerHTML;
+}
+
+// ── Export ──
+function exportCSV() {
+  var items = loadAllActivity();
+  if (items.length === 0) { showToast('No transactions to export.', '#eb5757'); return; }
+  var lines = ['Type,Label,Detail,Amount,Hash,Date'];
+  for (var i = 0; i < items.length; i++) {
+    var it = items[i];
+    var date = it.time ? new Date(it.time).toISOString() : '';
+    lines.push('"' + it.type + '","' + it.label + '","' + it.detail.replace(/"/g, '""') + '","' + it.amt + '","' + it.hash + '","' + date + '"');
+  }
+  download('olighft-activity.csv', lines.join('\n'), 'text/csv');
+  showToast('\u2705 CSV exported!', '#27ae60');
+}
+
+function exportJSON() {
+  var items = loadAllActivity();
+  if (items.length === 0) { showToast('No transactions to export.', '#eb5757'); return; }
+  download('olighft-activity.json', JSON.stringify(items, null, 2), 'application/json');
+  showToast('\u2705 JSON exported!', '#27ae60');
+}
+
+function download(filename, content, mime) {
+  var blob = new Blob([content], { type: mime });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// ── Clear All ──
+function clearAll() {
+  if (!confirm('Clear ALL transaction history? This cannot be undone.')) return;
+  localStorage.removeItem('send_txs');
+  localStorage.removeItem('receive_txs');
+  localStorage.removeItem('swap_txs');
+  renderList();
+  showToast('\uD83D\uDDD1\uFE0F Transaction history cleared.', '#f2994a');
+}
+
+function showToast(msg, bg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = bg || '#6c5ce7';
+  t.classList.add('show');
+  setTimeout(function() { t.classList.remove('show'); }, 3000);
+}
+
+// ── Init ──
+renderList();
+</script>
+</body>
+</html>

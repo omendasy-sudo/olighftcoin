@@ -759,6 +759,8 @@ async function activateStake(){
   const stakes=JSON.parse(localStorage.getItem('card_stakes')||'[]');
   stakes.push({card:CARD.name,stake:CARD.stake,fee:CARD.fee,daily:CARD.daily,period:d,payout:p.payout,sponsor:sponsor,activatedBy:user.name,date:new Date().toISOString(),paidOLIGHFT:requiredOLIGHFT,referral:{mainWallet:parseFloat(mainWallet),genTotal:parseFloat(refTotal),gens:GEN_RATES.map((rt,i)=>({gen:i+1,amt:CARD.stake*rt}))}});
   localStorage.setItem('card_stakes',JSON.stringify(stakes));
+  // Unified activity log
+  try{var al=JSON.parse(localStorage.getItem('cw_activity')||'[]');al.unshift({type:CARD.name+' Card Stake',icon:'\uD83C\uDF1F',detail:'$'+CARD.stake+' staked \u00B7 '+d+'d \u00B7 $'+CARD.daily+'/day \u00B7 Sponsor: '+sponsor,amt:'-'+requiredOLIGHFT.toFixed(0)+' OLIGHFT',cls:'red',time:'Just now',ts:Date.now()});if(al.length>50)al.length=50;localStorage.setItem('cw_activity',JSON.stringify(al));}catch(e){}
   // ── Soroban on-chain activate_stake ──
   var onChainOk=false,txHash='';
   if(typeof STAKING_BACKEND!=='undefined'&&STAKING_BACKEND.isWalletConnected()){

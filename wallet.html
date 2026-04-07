@@ -976,13 +976,17 @@ const assets=[
   {sym:'EURC',name:'Euro Coin',icon:'\uD83D\uDCB6',bal:1200,price:1.08,pct:0.05,bg:'bg-eurc'},
   {sym:'OLIGHFT',name:'OLIGHFT Smart Coin',icon:'\uD83D\uDCB0',bal:0,price:0.50,pct:5.4,bg:'bg-olighft'}
 ];
-const defaultActivity=[
-  {type:'Received',icon:'\uD83D\uDCE5',detail:'From GCXY8...K4LP',amt:'+250 XLM',cls:'green',time:'2m ago'},
-  {type:'Sent',icon:'\uD83D\uDCE4',detail:'To GBMN3...R7QZ',amt:'-50 USDC',cls:'red',time:'1h ago'},
-  {type:'Swap',icon:'\uD83D\uDD04',detail:'XLM \u2192 USDC',amt:'+120 USDC',cls:'green',time:'3h ago'},
-  {type:'Funded',icon:'\uD83D\uDCB0',detail:'Testnet Friendbot',amt:'+10,000 XLM',cls:'green',time:'1d ago'},
-  {type:'Received',icon:'\uD83D\uDCE5',detail:'From GDKQ2...W5FJ',amt:'+0.15 wETH',cls:'green',time:'2d ago'}
-];
+const defaultActivity=(function(){
+  try{var saved=JSON.parse(localStorage.getItem('cw_activity')||'null');if(saved&&saved.length)return saved;}catch(e){}
+  return [
+    {type:'Received',icon:'\uD83D\uDCE5',detail:'From GCXY8...K4LP',amt:'+250 XLM',cls:'green',time:'2m ago',ts:Date.now()-120000},
+    {type:'Sent',icon:'\uD83D\uDCE4',detail:'To GBMN3...R7QZ',amt:'-50 USDC',cls:'red',time:'1h ago',ts:Date.now()-3600000},
+    {type:'Swap',icon:'\uD83D\uDD04',detail:'XLM \u2192 USDC',amt:'+120 USDC',cls:'green',time:'3h ago',ts:Date.now()-10800000},
+    {type:'Funded',icon:'\uD83D\uDCB0',detail:'Testnet Friendbot',amt:'+10,000 XLM',cls:'green',time:'1d ago',ts:Date.now()-86400000},
+    {type:'Received',icon:'\uD83D\uDCE5',detail:'From GDKQ2...W5FJ',amt:'+0.15 wETH',cls:'green',time:'2d ago',ts:Date.now()-172800000}
+  ];
+})();
+function saveActivity(){try{var keep=defaultActivity.slice(0,50);localStorage.setItem('cw_activity',JSON.stringify(keep));}catch(e){}}
 
 // ── Auth Tab Switching ──
 function showAuth(tab){
@@ -1498,8 +1502,10 @@ function stakeTokens() {
     detail: amt.toLocaleString() + ' ' + asset + ' \u00B7 ' + (days > 0 ? days + 'd' : 'Flex') + ' \u00B7 ' + apy.total.toFixed(1) + '% APY \u00B7 Sponsor: ' + sponsor,
     amt: '-' + amt.toLocaleString() + ' ' + asset,
     cls: 'red',
-    time: 'Just now'
+    time: 'Just now',
+    ts: Date.now()
   });
+  saveActivity();
 
   // 12. Advance invite stage → staking_active
   (function(){try{var ISTAGES=['invited','registered','wallet_created','card_activated','staking_active'];var u=JSON.parse(localStorage.getItem('cw_user')||'null');if(!u||!u.email)return;var invs=JSON.parse(localStorage.getItem('cw_invites')||'[]');for(var inv of invs){if(inv.invitee&&inv.invitee.email&&inv.invitee.email.toLowerCase()===u.email.toLowerCase()){var ci=ISTAGES.indexOf(inv.stage),ni=ISTAGES.indexOf('staking_active');if(ni>ci){inv.stage='staking_active';inv.stageHistory.push({stage:'staking_active',at:Date.now()});}break;}}localStorage.setItem('cw_invites',JSON.stringify(invs));}catch(e){}})();
@@ -1571,8 +1577,10 @@ function withdrawStake(stakeId) {
     detail: 'Withdrew ' + totalReturn.toFixed(2) + ' ' + asset + ' (' + s.amount + ' + ' + (totalReturn - s.amount).toFixed(2) + ' reward)',
     amt: '+' + totalReturn.toFixed(2) + ' ' + asset,
     cls: 'green',
-    time: 'Just now'
+    time: 'Just now',
+    ts: Date.now()
   });
+  saveActivity();
 
   renderAssets();
   renderActivity();
