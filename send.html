@@ -145,7 +145,7 @@ select option{background:#1a1a2e;color:#fff}
 <div class="input-group" style="position:relative">
 <label>Recipient Address <span id="addrTypeBadge"></span></label>
 <input type="text" id="recipient" placeholder="G... (Stellar) or C... (Contract) address" maxlength="56" oninput="onRecipientInput()" onfocus="showContacts()" onblur="setTimeout(hideContacts,200)">
-<div class="addr-hint" id="addrHint">Accepts Stellar public keys (G...) and Soroban contract addresses (C...)</div>
+<div class="addr-hint" id="addrHint">Accepts Stellar public keys (G...) and OLIGHFT addresses (C...)</div>
 <div class="contacts-dropdown" id="contactsDropdown"></div>
 </div>
 
@@ -209,7 +209,7 @@ select option{background:#1a1a2e;color:#fff}
 </div>
 
 <div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px">
-<div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">&#x1F4DC; Soroban Contract (C...)</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">CABCDEFGHIJKLMNOPQRSTUVWXYZ234567ABCDEFGHIJKLMNOPQRSTUV</div></div>
+<div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">&#x1F4DC; OLIGHFT (C...)</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">CABCDEFGHIJKLMNOPQRSTUVWXYZ234567ABCDEFGHIJKLMNOPQRSTUV</div></div>
 <span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span>
 </div>
 
@@ -430,13 +430,13 @@ function onRecipientInput(){
   const hint=document.getElementById('addrHint');
   const type=detectAddrType(addr);
   if(!addr){
-    badge.innerHTML='';hint.textContent='Accepts Stellar public keys (G...) and Soroban contract addresses (C...)';
+    badge.innerHTML='';hint.textContent='Accepts Stellar public keys (G...) and OLIGHFT addresses (C...)';
   }else if(type==='stellar'){
     badge.innerHTML='<span class="addr-type-badge stellar">STELLAR ACCOUNT</span>';
     hint.textContent='\u2705 Valid Stellar public key (G...)';hint.style.color='#2ecc71';
   }else if(type==='contract'){
-    badge.innerHTML='<span class="addr-type-badge contract">SOROBAN CONTRACT</span>';
-    hint.textContent='\u2705 Valid Soroban contract address (C...)';hint.style.color='#f2994a';
+    badge.innerHTML='<span class="addr-type-badge contract">OLIGHFT</span>';
+    hint.textContent='\u2705 Valid OLIGHFT address (C...)';hint.style.color='#f2994a';
   }else if(type==='partial'){
     badge.innerHTML='';hint.textContent='Typing... ('+(56-addr.length)+' characters remaining)';hint.style.color='rgba(255,255,255,.3)';
   }else{
@@ -557,7 +557,7 @@ function _doSend(){
   document.getElementById('recipient').value='';
   document.getElementById('memo').value='';
   document.getElementById('addrTypeBadge').innerHTML='';
-  document.getElementById('addrHint').textContent='Accepts Stellar public keys (G...) and Soroban contract addresses (C...)';
+  document.getElementById('addrHint').textContent='Accepts Stellar public keys (G...) and OLIGHFT addresses (C...)';
   document.getElementById('addrHint').style.color='rgba(255,255,255,.3)';
   document.getElementById('sendBtn').disabled=true;
   renderRecent();
