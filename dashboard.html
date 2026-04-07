@@ -445,10 +445,10 @@ var DEFAULT_BALS = { XLM: 10000, USDC: 2500, wETH: 1.85, wBTC: 0.042, EURC: 1200
 
   renderPrices();
   renderBalances(bals);
-  renderStakeSummary();
-  renderStakeList();
-  updateApy();
   updateTotalBalance(bals);
+  try { renderStakeSummary(); } catch(e) { console.warn('stakeSummary:', e); }
+  try { renderStakeList(); } catch(e) { console.warn('stakeList:', e); }
+  try { updateApy(); } catch(e) { console.warn('updateApy:', e); }
 })();
 
 function renderPricesOnly() {
