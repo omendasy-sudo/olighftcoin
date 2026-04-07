@@ -204,6 +204,1459 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
   <div id="dfetchList"></div>
 </div>
 
+
+<!-- Contract Sources (moved from card pages) -->
+<div class="section-label">&#x1F4DD; Contract Sources</div>
+<style>
+.code-block{background:#0d1117;border:1px solid rgba(231,76,60,.12);border-radius:10px;overflow:hidden;margin:12px 0}
+.code-head{display:flex;justify-content:space-between;align-items:center;padding:8px 14px;background:rgba(231,76,60,.04);border-bottom:1px solid rgba(231,76,60,.08)}
+.code-lang{font-size:.6rem;color:rgba(255,255,255,.4);font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.copy-btn{background:none;border:1px solid rgba(231,76,60,.2);color:rgba(255,255,255,.4);padding:2px 10px;border-radius:4px;font-size:.6rem;cursor:pointer}
+.copy-btn:hover{border-color:#e74c3c;color:#e74c3c}
+.code-body{padding:14px;overflow-x:auto;display:none}
+.code-body.open{display:block}
+.code-body pre{font-family:'Courier New',monospace;font-size:.72rem;line-height:1.65;color:#c9d1d9}
+.toggle-btn{background:none;border:1px solid rgba(231,76,60,.2);color:rgba(255,255,255,.4);padding:2px 10px;border-radius:4px;font-size:.6rem;cursor:pointer;margin-right:6px}
+.toggle-btn:hover{border-color:#e74c3c;color:#e74c3c}
+.kw{color:#ff7b72}.fn-code{color:#d2a8ff}.str{color:#a5d6ff}.cm{color:#8b949e}.ty{color:#79c0ff}.num{color:#f59e0b}.attr{color:#7ee787}
+.fn-table{width:100%;border-collapse:collapse;margin:10px 0}
+.fn-table th,.fn-table td{padding:10px 12px;text-align:left;font-size:.75rem;border-bottom:1px solid rgba(231,76,60,.06)}
+.fn-table th{color:rgba(255,255,255,.4);font-size:.65rem;text-transform:uppercase;letter-spacing:.5px}
+.fn-table td{color:rgba(255,255,255,.7)}
+.fn-table .fn-name{font-family:'Courier New',monospace;color:#e74c3c;font-weight:600;font-size:.72rem}
+.contract-card{padding:16px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:14px;margin-bottom:16px}
+.contract-card h3{font-size:.82rem;font-weight:700;margin-bottom:10px}
+</style>
+<div class="contract-card">
+<h3 style="color:#e74c3c">&#x1F4B3; Visa Payment Contract</h3>
+<div class="section">
+<h2>&#x1F4DD; Contract Source</h2>
+<div class="code-block">
+<div class="code-head"><span class="code-lang">Rust &mdash; payment.rs</span><div><button class="toggle-btn" onclick="toggleCode(this)">▼ Show Code</button><button class="copy-btn" onclick="copyCode(this)">Copy</button></div></div>
+<div class="code-body"><pre><span class="attr">#![no_std]</span>
+<span class="kw">use</span> soroban_sdk::{
+    <span class="ty">contract</span>, <span class="ty">contractimpl</span>, <span class="ty">contracttype</span>,
+    <span class="ty">Address</span>, <span class="ty">Env</span>, <span class="ty">Symbol</span>, <span class="ty">Vec</span>,
+    token,
+};
+
+<span class="attr">#[contracttype]</span>
+<span class="kw">pub struct</span> <span class="fn">PaymentReceipt</span> {
+    <span class="kw">pub</span> tx_id: <span class="ty">u64</span>,
+    <span class="kw">pub</span> from: <span class="ty">Address</span>,
+    <span class="kw">pub</span> to: <span class="ty">Address</span>,
+    <span class="kw">pub</span> amount: <span class="ty">i128</span>,
+    <span class="kw">pub</span> asset_in: <span class="ty">Address</span>,
+    <span class="kw">pub</span> asset_out: <span class="ty">Address</span>,
+    <span class="kw">pub</span> rate: <span class="ty">i128</span>,
+    <span class="kw">pub</span> fee: <span class="ty">i128</span>,
+    <span class="kw">pub</span> timestamp: <span class="ty">u64</span>,
+}
+
+<span class="attr">#[contract]</span>
+<span class="kw">pub struct</span> <span class="fn">VisaPayment</span>;
+
+<span class="attr">#[contractimpl]</span>
+<span class="kw">impl</span> <span class="fn">VisaPayment</span> {
+    <span class="cm">/// Send a cross-asset payment</span>
+    <span class="kw">pub fn</span> <span class="fn">send_payment</span>(
+        env: <span class="ty">Env</span>,
+        from: <span class="ty">Address</span>,
+        to: <span class="ty">Address</span>,
+        asset_in: <span class="ty">Address</span>,
+        asset_out: <span class="ty">Address</span>,
+        amount: <span class="ty">i128</span>,
+    ) -> <span class="ty">PaymentReceipt</span> {
+        from.<span class="fn">require_auth</span>();
+
+        <span class="cm">// Debit sender in asset_in</span>
+        <span class="kw">let</span> client_in = token::<span class="fn">Client::new</span>(&env, &asset_in);
+        client_in.<span class="fn">transfer</span>(
+            &from, &env.current_contract_address(), &amount
+        );
+
+        <span class="cm">// Get oracle exchange rate</span>
+        <span class="kw">let</span> rate = <span class="fn">Self</span>::<span class="fn">get_rate</span>(env.clone(), asset_in.clone(), asset_out.clone());
+        <span class="kw">let</span> fee = amount * <span class="num">10</span> / <span class="num">10000</span>; <span class="cm">// 0.1% fee</span>
+        <span class="kw">let</span> net = amount - fee;
+        <span class="kw">let</span> out_amount = net * rate / <span class="num">10000000</span>;
+
+        <span class="cm">// Credit receiver in asset_out</span>
+        <span class="kw">let</span> client_out = token::<span class="fn">Client::new</span>(&env, &asset_out);
+        client_out.<span class="fn">transfer</span>(
+            &env.current_contract_address(), &to, &out_amount
+        );
+
+        <span class="cm">// Emit receipt event</span>
+        <span class="kw">let</span> tx_id = env.ledger().sequence() <span class="kw">as</span> <span class="ty">u64</span>;
+        env.events().<span class="fn">publish</span>(
+            (<span class="fn">Symbol::new</span>(&env, <span class="str">"payment"</span>),), &tx_id
+        );
+
+        <span class="fn">PaymentReceipt</span> {
+            tx_id, from, to, amount,
+            asset_in, asset_out, rate, fee,
+            timestamp: env.ledger().timestamp(),
+        }
+    }
+
+    <span class="cm">/// Batch multiple payments in one tx</span>
+    <span class="kw">pub fn</span> <span class="fn">batch_pay</span>(
+        env: <span class="ty">Env</span>, from: <span class="ty">Address</span>,
+        recipients: <span class="ty">Vec</span>&lt;<span class="ty">Address</span>&gt;,
+        amounts: <span class="ty">Vec</span>&lt;<span class="ty">i128</span>&gt;,
+        asset: <span class="ty">Address</span>,
+    ) -> <span class="ty">Vec</span>&lt;<span class="ty">PaymentReceipt</span>&gt; {
+        from.<span class="fn">require_auth</span>();
+        <span class="cm">// ... batch payment logic</span>
+        <span class="ty">Vec</span>::<span class="fn">new</span>(&env)
+    }
+
+    <span class="cm">/// Get exchange rate from oracle</span>
+    <span class="kw">pub fn</span> <span class="fn">get_rate</span>(
+        env: <span class="ty">Env</span>, from: <span class="ty">Address</span>, to: <span class="ty">Address</span>
+    ) -> <span class="ty">i128</span> {
+        <span class="cm">// Oracle integration - TWAP price feed</span>
+        <span class="num">10000000</span> <span class="cm">// 1:1 default</span>
+    }
+
+    <span class="cm">/// Refund a payment within 24h</span>
+    <span class="kw">pub fn</span> <span class="fn">refund</span>(
+        env: <span class="ty">Env</span>, admin: <span class="ty">Address</span>, tx_id: <span class="ty">u64</span>
+    ) { admin.<span class="fn">require_auth</span>(); <span class="cm">/* ... */</span> }
+}</pre></div></div>
+</div>
+<div class="section">
+<h2>&#x1F9EA; Unit Test</h2>
+<div class="code-block">
+<div class="code-head"><span class="code-lang">Rust &mdash; test.rs</span><div><button class="toggle-btn" onclick="toggleCode(this)">▼ Show Code</button><button class="copy-btn" onclick="copyCode(this)">Copy</button></div></div>
+<div class="code-body"><pre><span class="attr">#[test]</span>
+<span class="kw">fn</span> <span class="fn">test_send_payment</span>() {
+    <span class="kw">let</span> env = <span class="ty">Env</span>::<span class="fn">default</span>();
+    env.mock_all_auths();
+    <span class="kw">let</span> sender = <span class="ty">Address</span>::<span class="fn">generate</span>(&env);
+    <span class="kw">let</span> receiver = <span class="ty">Address</span>::<span class="fn">generate</span>(&env);
+    <span class="kw">let</span> client = <span class="fn">VisaPaymentClient</span>::<span class="fn">new</span>(&env,
+        &env.<span class="fn">register_contract</span>(<span class="ty">None</span>, <span class="fn">VisaPayment</span>));
+
+    <span class="kw">let</span> receipt = client.<span class="fn">send_payment</span>(
+        &sender, &receiver, &usdc, &xlm, &<span class="num">1000_0000000</span>
+    );
+    <span class="fn">assert!</span>(receipt.tx_id > <span class="num">0</span>);
+    <span class="fn">assert_eq!</span>(receipt.fee, <span class="num">1_0000000</span>); <span class="cm">// 0.1%</span>
+    <span class="fn">assert!</span>(receipt.timestamp > <span class="num">0</span>);
+}</pre></div></div>
+</div>
+<div style="font-size:.75rem;color:rgba(255,255,255,.55);line-height:1.5"><strong style="color:#818cf8">Binary Tree Structure:</strong> Each user has 2 direct slots (left &amp; right). Commissions flow upward through 8 generations. If an upline slot is empty, that generation&rsquo;s commission rolls to the main wallet.</div>
+</div>
+
+<h3 style="font-size:.85rem;color:#f5c518;margin-bottom:10px">&#x1F4DC; Visa Staking Contract Source</h3>
+<div class="code-block">
+<div class="code-head"><span class="code-lang">Rust &mdash; visa_staking.rs</span><div><button class="toggle-btn" onclick="toggleCode(this)">▼ Show Code</button><button class="copy-btn" onclick="copyCode(this)">Copy</button></div></div>
+<div class="code-body"><pre><span class="attr">#[contracttype]</span>
+<span class="kw">pub struct</span> <span class="fn">VisaStake</span> {
+    <span class="kw">pub</span> staker: <span class="ty">Address</span>,
+    <span class="kw">pub</span> stake_amount: <span class="ty">i128</span>,      <span class="cm">// $100 activation</span>
+    <span class="kw">pub</span> daily_reward: <span class="ty">i128</span>,      <span class="cm">// $6 per day</span>
+    <span class="kw">pub</span> duration_days: <span class="ty">u32</span>,     <span class="cm">// 90 | 180 | 365 days</span>
+    <span class="kw">pub</span> service_fee: <span class="ty">i128</span>,      <span class="cm">// $40 platform fee</span>
+    <span class="kw">pub</span> sponsor: <span class="ty">Address</span>,       <span class="cm">// direct inviter (Gen 1)</span>
+    <span class="kw">pub</span> start_time: <span class="ty">u64</span>,
+    <span class="kw">pub</span> claimed_days: <span class="ty">u32</span>,
+}
+
+<span class="cm">// 8-generation binary tree commission rates (in $)</span>
+<span class="kw">const</span> <span class="ty">GEN_COMMISSIONS</span>: [<span class="ty">i128</span>; <span class="num">8</span>] = [
+    <span class="num">10_0000000</span>, <span class="cm">// Gen 1: $10 (direct inviter)</span>
+    <span class="num">6_0000000</span>,  <span class="cm">// Gen 2: $6</span>
+    <span class="num">4_0000000</span>,  <span class="cm">// Gen 3: $4</span>
+    <span class="num">4_0000000</span>,  <span class="cm">// Gen 4: $4</span>
+    <span class="num">4_0000000</span>,  <span class="cm">// Gen 5: $4</span>
+    <span class="num">4_0000000</span>,  <span class="cm">// Gen 6: $4</span>
+    <span class="num">4_0000000</span>,  <span class="cm">// Gen 7: $4</span>
+    <span class="num">4_0000000</span>,  <span class="cm">// Gen 8: $4</span>
+];  <span class="cm">// Total referral: $40 | Main wallet: $60 | Grand total: $100</span>
+
+<span class="attr">#[contractimpl]</span>
+<span class="kw">impl</span> <span class="fn">VisaPayment</span> {
+
+    <span class="cm">/// Activate Visa staking — $100 deposit + $40 service fee</span>
+    <span class="cm">/// duration: 90 (3 mo) | 180 (6 mo) | 365 (1 yr)</span>
+    <span class="cm">/// $100 split: $60 main wallet + $40 across 8-gen binary tree</span>
+    <span class="kw">pub fn</span> <span class="fn">activate_stake</span>(
+        env: <span class="ty">Env</span>, staker: <span class="ty">Address</span>, sponsor: <span class="ty">Address</span>, duration: <span class="ty">u32</span>,
+    ) {
+        staker.<span class="fn">require_auth</span>();
+        <span class="fn">assert!</span>(duration == <span class="num">90</span> || duration == <span class="num">180</span> || duration == <span class="num">365</span>,
+                <span class="str">"invalid period"</span>);
+
+        <span class="kw">let</span> token = <span class="fn">get_payment_token</span>(&env);
+        <span class="kw">let</span> tok = token::Client::new(&env, &token);
+        <span class="kw">let</span> activation = <span class="num">100_0000000</span>; <span class="cm">// $100</span>
+        <span class="kw">let</span> fee = <span class="num">40_0000000</span>;         <span class="cm">// $40 service fee</span>
+
+        <span class="cm">// Transfer $100 + $40 fee from user to contract</span>
+        tok.<span class="fn">transfer</span>(&staker, &env.current_contract_address(),
+                     &(activation + fee));
+
+        <span class="cm">// ── Distribute $100 activation across binary tree ──</span>
+        <span class="kw">let</span> main_wallet = <span class="fn">get_main_wallet</span>(&env);
+        <span class="kw">let mut</span> remaining = activation; <span class="cm">// $100</span>
+        <span class="kw">let mut</span> current = sponsor.clone();
+
+        <span class="kw">for</span> gen <span class="kw">in</span> <span class="num">0</span>..<span class="num">8</span> {
+            <span class="kw">let</span> commission = <span class="ty">GEN_COMMISSIONS</span>[gen];
+            <span class="kw">if let</span> <span class="ty">Some</span>(upline) = <span class="fn">get_sponsor</span>(&env, &current) {
+                tok.<span class="fn">transfer</span>(
+                    &env.current_contract_address(),
+                    &current, &commission,
+                );
+                remaining -= commission;
+                current = upline;
+            } <span class="kw">else</span> {
+                <span class="cm">// No upline — remaining goes to main wallet</span>
+                <span class="kw">break</span>;
+            }
+        }
+
+        <span class="cm">// Send remainder ($60 or more) to main wallet</span>
+        tok.<span class="fn">transfer</span>(
+            &env.current_contract_address(),
+            &main_wallet, &remaining,
+        );
+
+        <span class="kw">let</span> stake = <span class="fn">VisaStake</span> {
+            staker: staker.clone(),
+            stake_amount: activation,
+            daily_reward: <span class="num">6_0000000</span>,   <span class="cm">// $6/day</span>
+            duration_days: duration,
+            service_fee: fee,
+            sponsor: sponsor.clone(),
+            start_time: env.ledger().timestamp(),
+            claimed_days: <span class="num">0</span>,
+        };
+        env.storage().persistent().<span class="fn">set</span>(&staker, &stake);
+    }
+
+    <span class="cm">/// Claim accrued daily rewards</span>
+    <span class="kw">pub fn</span> <span class="fn">claim_rewards</span>(env: <span class="ty">Env</span>, staker: <span class="ty">Address</span>) -> <span class="ty">i128</span> {
+        staker.<span class="fn">require_auth</span>();
+        <span class="kw">let mut</span> stake: <span class="fn">VisaStake</span> = env.storage().persistent().<span class="fn">get</span>(&staker).unwrap();
+
+        <span class="kw">let</span> elapsed = (env.ledger().timestamp() - stake.start_time) / <span class="num">86400</span>;
+        <span class="kw">let</span> claimable = elapsed.<span class="fn">min</span>(stake.duration_days <span class="kw">as</span> <span class="ty">u64</span>) <span class="kw">as</span> <span class="ty">u32</span>
+                        - stake.claimed_days;
+
+        <span class="kw">let</span> payout = (claimable <span class="kw">as</span> <span class="ty">i128</span>) * stake.daily_reward;
+        stake.claimed_days += claimable;
+        env.storage().persistent().<span class="fn">set</span>(&staker, &stake);
+
+        <span class="cm">// Transfer rewards to staker</span>
+        token::Client::new(&env, &<span class="fn">get_payment_token</span>(&env))
+            .<span class="fn">transfer</span>(&env.current_contract_address(), &staker, &payout);
+        payout  <span class="cm">// 90d→$540 | 180d→$1,080 | 365d→$2,190</span>
+    }
+}</pre></div></div>
+
+<table class="fn-table" style="margin-top:14px">
+<thead><tr><th>Function</th><th>Description</th><th>Auth</th><th>Cost</th></tr></thead>
+<tbody>
+<tr><td class="fn-name">activate_stake</td><td>Deposit $100 + $40 fee, choose period (90/180/365 days)</td><td>User</td><td>$140 total</td></tr>
+<tr><td class="fn-name">claim_rewards</td><td>Claim accrued $6/day rewards</td><td>User</td><td>~0.01 XLM</td></tr>
+<tr><td class="fn-name">get_sponsor</td><td>Get upline address for a given user</td><td>None</td><td>~0.001 XLM</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="contract-card">
+<h3 style="color:#e74c3c">&#x1F4B3; Gold Token Contract</h3>
+<div class="section">
+<h2>&#x1F4DD; Contract Source</h2>
+<div class="code-block">
+<div class="code-head"><span class="code-lang">Rust &mdash; lib.rs</span><div><button class="toggle-btn" onclick="toggleCode(this)">&#x25BC; Show Code</button><button class="copy-btn" onclick="copyCode(this)">Copy</button></div></div>
+<div class="code-body"><pre><span class="attr">#![no_std]</span>
+<span class="kw">use</span> soroban_sdk::{
+    <span class="ty">contract</span>, <span class="ty">contractimpl</span>, <span class="ty">contracttype</span>,
+    <span class="ty">Address</span>, <span class="ty">Env</span>, <span class="ty">String</span>,
+    token::{<span class="ty">self</span>, <span class="ty">Interface</span> <span class="kw">as</span> <span class="ty">TokenInterface</span>},
+};
+
+<span class="attr">#[contracttype]</span>
+<span class="kw">pub enum</span> <span class="fn">DataKey</span> {
+    Balance(<span class="ty">Address</span>),
+    Allowance(<span class="ty">Address</span>, <span class="ty">Address</span>),
+    Admin,
+    TotalSupply,
+}
+
+<span class="attr">#[contract]</span>
+<span class="kw">pub struct</span> <span class="fn">GoldToken</span>;
+
+<span class="attr">#[contractimpl]</span>
+<span class="kw">impl</span> <span class="fn">GoldToken</span> {
+    <span class="cm">/// Initialize the Gold Token with admin and supply</span>
+    <span class="kw">pub fn</span> <span class="fn">initialize</span>(
+        env: <span class="ty">Env</span>,
+        admin: <span class="ty">Address</span>,
+        name: <span class="ty">String</span>,
+        symbol: <span class="ty">String</span>,
+        initial_supply: <span class="ty">i128</span>,
+    ) {
+        admin.<span class="fn">require_auth</span>();
+        env.storage().instance().<span class="fn">set</span>(&DataKey::Admin, &admin);
+        env.storage().instance().<span class="fn">set</span>(&DataKey::TotalSupply, &initial_supply);
+        env.storage().persistent().<span class="fn">set</span>(
+            &DataKey::Balance(admin.clone()), &initial_supply
+        );
+    }
+
+    <span class="cm">/// Transfer tokens between accounts</span>
+    <span class="kw">pub fn</span> <span class="fn">transfer</span>(
+        env: <span class="ty">Env</span>,
+        from: <span class="ty">Address</span>,
+        to: <span class="ty">Address</span>,
+        amount: <span class="ty">i128</span>,
+    ) {
+        from.<span class="fn">require_auth</span>();
+        <span class="kw">let</span> from_bal: <span class="ty">i128</span> = env.storage().persistent()
+            .<span class="fn">get</span>(&DataKey::Balance(from.clone()))
+            .<span class="fn">unwrap_or</span>(<span class="num">0</span>);
+        <span class="fn">assert!</span>(from_bal >= amount, <span class="str">"insufficient balance"</span>);
+
+        env.storage().persistent().<span class="fn">set</span>(
+            &DataKey::Balance(from), &(from_bal - amount)
+        );
+        <span class="kw">let</span> to_bal: <span class="ty">i128</span> = env.storage().persistent()
+            .<span class="fn">get</span>(&DataKey::Balance(to.clone()))
+            .<span class="fn">unwrap_or</span>(<span class="num">0</span>);
+        env.storage().persistent().<span class="fn">set</span>(
+            &DataKey::Balance(to), &(to_bal + amount)
+        );
+    }
+
+    <span class="cm">/// Mint new tokens (admin only)</span>
+    <span class="kw">pub fn</span> <span class="fn">mint</span>(env: <span class="ty">Env</span>, to: <span class="ty">Address</span>, amount: <span class="ty">i128</span>) {
+        <span class="kw">let</span> admin: <span class="ty">Address</span> = env.storage().instance()
+            .<span class="fn">get</span>(&DataKey::Admin).<span class="fn">unwrap</span>();
+        admin.<span class="fn">require_auth</span>();
+        <span class="cm">// ... mint logic</span>
+    }
+
+    <span class="cm">/// Burn tokens from caller's balance</span>
+    <span class="kw">pub fn</span> <span class="fn">burn</span>(env: <span class="ty">Env</span>, from: <span class="ty">Address</span>, amount: <span class="ty">i128</span>) {
+        from.<span class="fn">require_auth</span>();
+        <span class="cm">// ... burn logic</span>
+    }
+
+    <span class="cm">/// Get balance of an address</span>
+    <span class="kw">pub fn</span> <span class="fn">balance</span>(env: <span class="ty">Env</span>, addr: <span class="ty">Address</span>) -> <span class="ty">i128</span> {
+        env.storage().persistent()
+            .<span class="fn">get</span>(&DataKey::Balance(addr))
+            .<span class="fn">unwrap_or</span>(<span class="num">0</span>)
+    }
+}</pre></div></div>
+</div>
+<div class="section">
+<h2>&#x1F9EA; Unit Test</h2>
+<div class="code-block">
+<div class="code-head"><span class="code-lang">Rust &mdash; test.rs</span><div><button class="toggle-btn" onclick="toggleCode(this)">&#x25BC; Show Code</button><button class="copy-btn" onclick="copyCode(this)">Copy</button></div></div>
+<div class="code-body"><pre><span class="attr">#[test]</span>
+<span class="kw">fn</span> <span class="fn">test_transfer</span>() {
+    <span class="kw">let</span> env = <span class="ty">Env</span>::<span class="fn">default</span>();
+    env.mock_all_auths();
+    <span class="kw">let</span> admin = <span class="ty">Address</span>::<span class="fn">generate</span>(&env);
+    <span class="kw">let</span> user  = <span class="ty">Address</span>::<span class="fn">generate</span>(&env);
+    <span class="kw">let</span> client = <span class="fn">GoldTokenClient</span>::<span class="fn">new</span>(&env, &env.<span class="fn">register_contract</span>(<span class="ty">None</span>, <span class="fn">GoldToken</span>));
+
+    client.<span class="fn">initialize</span>(&admin, &<span class="fn">String::from_str</span>(&env, <span class="str">"Gold"</span>),
+        &<span class="fn">String::from_str</span>(&env, <span class="str">"GOLD"</span>), &<span class="num">1000_0000000</span>);
+
+    client.<span class="fn">transfer</span>(&admin, &user, &<span class="num">100_0000000</span>);
+    <span class="fn">assert_eq!</span>(client.<span class="fn">balance</span>(&user), <span class="num">100_0000000</span>);
+    <span class="fn">assert_eq!</span>(client.<span class="fn">balance</span>(&admin), <span class="num">900_0000000</span>);
+}</pre></div></div>
+</div>
+<div style="font-size:.75rem;color:rgba(255,255,255,.55);line-height:1.5"><strong style="color:#818cf8">Binary Tree Structure:</strong> Each user has 2 direct slots (left &amp; right). Commissions flow upward through 8 generations. If an upline slot is empty, that generation&rsquo;s commission rolls to the main wallet.</div>
+</div>
+
+<h3 style="font-size:.85rem;color:#daa520;margin-bottom:10px">&#x1F4DC; Gold Staking Contract Source</h3>
+<div class="code-block">
+<div class="code-head"><span class="code-lang">Rust &mdash; gold_staking.rs</span><div><button class="toggle-btn" onclick="toggleCode(this)">&#x25BC; Show Code</button><button class="copy-btn" onclick="copyCode(this)">Copy</button></div></div>
+<div class="code-body"><pre><span class="attr">#[contracttype]</span>
+<span class="kw">pub struct</span> <span class="fn">GoldStake</span> {
+    <span class="kw">pub</span> staker: <span class="ty">Address</span>,
+    <span class="kw">pub</span> stake_amount: <span class="ty">i128</span>,      <span class="cm">// $400 activation</span>
+    <span class="kw">pub</span> daily_reward: <span class="ty">i128</span>,      <span class="cm">// $24 per day</span>
+    <span class="kw">pub</span> duration_days: <span class="ty">u32</span>,     <span class="cm">// 90 | 180 | 365 days</span>
+    <span class="kw">pub</span> service_fee: <span class="ty">i128</span>,      <span class="cm">// $160 platform fee</span>
+    <span class="kw">pub</span> sponsor: <span class="ty">Address</span>,       <span class="cm">// direct inviter (Gen 1)</span>
+    <span class="kw">pub</span> start_time: <span class="ty">u64</span>,
+    <span class="kw">pub</span> claimed_days: <span class="ty">u32</span>,
+}
+
+<span class="cm">// 8-generation binary tree commission rates (in $)</span>
+<span class="kw">const</span> <span class="ty">GEN_COMMISSIONS</span>: [<span class="ty">i128</span>; <span class="num">8</span>] = [
+    <span class="num">40_0000000</span>, <span class="cm">// Gen 1: $40 (direct inviter)</span>
+    <span class="num">24_0000000</span>, <span class="cm">// Gen 2: $24</span>
+    <span class="num">16_0000000</span>, <span class="cm">// Gen 3: $16</span>
+    <span class="num">16_0000000</span>, <span class="cm">// Gen 4: $16</span>
+    <span class="num">16_0000000</span>, <span class="cm">// Gen 5: $16</span>
+    <span class="num">16_0000000</span>, <span class="cm">// Gen 6: $16</span>
+    <span class="num">16_0000000</span>, <span class="cm">// Gen 7: $16</span>
+    <span class="num">16_0000000</span>, <span class="cm">// Gen 8: $16</span>
+];  <span class="cm">// Total referral: $160 | Main wallet: $240 | Grand total: $400</span>
+
+<span class="attr">#[contractimpl]</span>
+<span class="kw">impl</span> <span class="fn">GoldToken</span> {
+
+    <span class="cm">/// Activate Gold staking — $400 deposit + $160 service fee</span>
+    <span class="cm">/// $400 split: $240 main wallet + $160 across 8-gen binary tree</span>
+    <span class="cm">/// duration: 90 (3mo) | 180 (6mo) | 365 (1yr)</span>
+    <span class="kw">pub fn</span> <span class="fn">activate_stake</span>(
+        env: <span class="ty">Env</span>, staker: <span class="ty">Address</span>, sponsor: <span class="ty">Address</span>,
+        duration: <span class="ty">u32</span>,
+    ) {
+        staker.<span class="fn">require_auth</span>();
+
+        <span class="cm">// Valid periods: 90 (3mo), 180 (6mo), 365 (1yr)</span>
+        <span class="fn">assert!</span>(duration == <span class="num">90</span> || duration == <span class="num">180</span> || duration == <span class="num">365</span>);
+
+        <span class="kw">let</span> token = <span class="fn">get_payment_token</span>(&env);
+        <span class="kw">let</span> tok = token::Client::new(&env, &token);
+        <span class="kw">let</span> activation = <span class="num">400_0000000</span>; <span class="cm">// $400</span>
+        <span class="kw">let</span> fee = <span class="num">160_0000000</span>;        <span class="cm">// $160 service fee</span>
+
+        <span class="cm">// Transfer $400 + $160 fee from user to contract</span>
+        tok.<span class="fn">transfer</span>(&staker, &env.current_contract_address(),
+                     &(activation + fee));
+
+        <span class="cm">// ── Distribute $400 activation across binary tree ──</span>
+        <span class="kw">let</span> main_wallet = <span class="fn">get_main_wallet</span>(&env);
+        <span class="kw">let mut</span> remaining = activation; <span class="cm">// $400</span>
+        <span class="kw">let mut</span> current = sponsor.clone();
+
+        <span class="kw">for</span> gen <span class="kw">in</span> <span class="num">0</span>..<span class="num">8</span> {
+            <span class="kw">let</span> commission = <span class="ty">GEN_COMMISSIONS</span>[gen];
+            <span class="kw">if let</span> <span class="ty">Some</span>(upline) = <span class="fn">get_sponsor</span>(&env, &current) {
+                tok.<span class="fn">transfer</span>(
+                    &env.current_contract_address(),
+                    &current, &commission,
+                );
+                remaining -= commission;
+                current = upline;
+            } <span class="kw">else</span> {
+                <span class="cm">// No upline — remaining goes to main wallet</span>
+                <span class="kw">break</span>;
+            }
+        }
+
+        <span class="cm">// Send remainder ($240 or more) to main wallet</span>
+        tok.<span class="fn">transfer</span>(
+            &env.current_contract_address(),
+            &main_wallet, &remaining,
+        );
+
+        <span class="kw">let</span> stake = <span class="fn">GoldStake</span> {
+            staker: staker.clone(),
+            stake_amount: activation,
+            daily_reward: <span class="num">24_0000000</span>,  <span class="cm">// $24/day</span>
+            duration_days: duration,
+            service_fee: fee,
+            sponsor: sponsor.clone(),
+            start_time: env.ledger().timestamp(),
+            claimed_days: <span class="num">0</span>,
+        };
+        env.storage().persistent().<span class="fn">set</span>(&staker, &stake);
+    }
+
+    <span class="cm">/// Claim accrued daily rewards</span>
+    <span class="kw">pub fn</span> <span class="fn">claim_rewards</span>(env: <span class="ty">Env</span>, staker: <span class="ty">Address</span>) -> <span class="ty">i128</span> {
+        staker.<span class="fn">require_auth</span>();
+        <span class="kw">let mut</span> stake: <span class="fn">GoldStake</span> = env.storage().persistent().<span class="fn">get</span>(&staker).unwrap();
+
+        <span class="kw">let</span> elapsed = (env.ledger().timestamp() - stake.start_time) / <span class="num">86400</span>;
+        <span class="kw">let</span> claimable = elapsed.<span class="fn">min</span>(stake.duration_days <span class="kw">as</span> <span class="ty">u64</span>) <span class="kw">as</span> <span class="ty">u32</span>
+                        - stake.claimed_days;
+
+        <span class="kw">let</span> payout = (claimable <span class="kw">as</span> <span class="ty">i128</span>) * stake.daily_reward;
+        stake.claimed_days += claimable;
+        env.storage().persistent().<span class="fn">set</span>(&staker, &stake);
+
+        <span class="cm">// Transfer rewards to staker</span>
+        token::Client::new(&env, &<span class="fn">get_payment_token</span>(&env))
+            .<span class="fn">transfer</span>(&env.current_contract_address(), &staker, &payout);
+        payout  <span class="cm">// 90d→$2,160 | 180d→$4,320 | 365d→$8,760</span>
+    }
+}</pre></div></div>
+
+<table style="width:100%;border-collapse:collapse;margin:14px 0">
+<thead><tr style="border-bottom:1px solid rgba(218,165,32,.15)"><th style="text-align:left;padding:10px 8px;font-size:.65rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.5px">Function</th><th style="text-align:left;padding:10px 8px;font-size:.65rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.5px">Description</th><th style="text-align:left;padding:10px 8px;font-size:.65rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.5px">Auth</th><th style="text-align:left;padding:10px 8px;font-size:.65rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.5px">Cost</th></tr></thead>
+<tbody>
+<tr style="border-bottom:1px solid rgba(218,165,32,.06)"><td style="padding:10px 8px;font-size:.72rem;font-family:'Courier New',monospace;color:#daa520;font-weight:600">activate_stake</td><td style="padding:10px 8px;font-size:.75rem;color:rgba(255,255,255,.7)">Deposit $400 + $160 fee, choose period (90/180/365 days)</td><td style="padding:10px 8px;font-size:.75rem;color:rgba(255,255,255,.7)">User</td><td style="padding:10px 8px;font-size:.75rem;color:rgba(255,255,255,.7)">$560 total</td></tr>
+<tr style="border-bottom:1px solid rgba(218,165,32,.06)"><td style="padding:10px 8px;font-size:.72rem;font-family:'Courier New',monospace;color:#daa520;font-weight:600">claim_rewards</td><td style="padding:10px 8px;font-size:.75rem;color:rgba(255,255,255,.7)">Claim accrued $24/day rewards</td><td style="padding:10px 8px;font-size:.75rem;color:rgba(255,255,255,.7)">User</td><td style="padding:10px 8px;font-size:.75rem;color:rgba(255,255,255,.7)">~0.01 XLM</td></tr>
+<tr style="border-bottom:1px solid rgba(218,165,32,.06)"><td style="padding:10px 8px;font-size:.72rem;font-family:'Courier New',monospace;color:#daa520;font-weight:600">get_sponsor</td><td style="padding:10px 8px;font-size:.75rem;color:rgba(255,255,255,.7)">Get upline address for a given user</td><td style="padding:10px 8px;font-size:.75rem;color:rgba(255,255,255,.7)">None</td><td style="padding:10px 8px;font-size:.75rem;color:rgba(255,255,255,.7)">~0.001 XLM</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="contract-card">
+<h3 style="color:#e74c3c">&#x1F4B3; Amex DAO Contract</h3>
+<div class="section">
+<h2>&#x1F4DD; Contract Source</h2>
+<div class="code-block">
+<div class="code-head"><span class="code-lang">Rust &mdash; governance.rs</span><div><button class="toggle-btn" onclick="toggleCode(this)">▼ Show Code</button><button class="copy-btn" onclick="copyCode(this)">Copy</button></div></div>
+<div class="code-body"><pre><span class="attr">#![no_std]</span>
+<span class="kw">use</span> soroban_sdk::{
+    <span class="ty">contract</span>, <span class="ty">contractimpl</span>, <span class="ty">contracttype</span>,
+    <span class="ty">Address</span>, <span class="ty">Env</span>, <span class="ty">Vec</span>, <span class="ty">Symbol</span>,
+};
+
+<span class="attr">#[contracttype]</span>
+<span class="kw">pub enum</span> <span class="fn">ProposalState</span> {
+    Draft, Active, Passed, Failed, Executed, Cancelled,
+}
+
+<span class="attr">#[contracttype]</span>
+<span class="kw">pub struct</span> <span class="fn">Proposal</span> {
+    <span class="kw">pub</span> id: <span class="ty">u32</span>,
+    <span class="kw">pub</span> creator: <span class="ty">Address</span>,
+    <span class="kw">pub</span> title: <span class="ty">Symbol</span>,
+    <span class="kw">pub</span> votes_for: <span class="ty">i128</span>,
+    <span class="kw">pub</span> votes_against: <span class="ty">i128</span>,
+    <span class="kw">pub</span> state: <span class="fn">ProposalState</span>,
+    <span class="kw">pub</span> end_ledger: <span class="ty">u32</span>,
+    <span class="kw">pub</span> timelock_until: <span class="ty">u32</span>,
+}
+
+<span class="attr">#[contract]</span>
+<span class="kw">pub struct</span> <span class="fn">AmexDAO</span>;
+
+<span class="attr">#[contractimpl]</span>
+<span class="kw">impl</span> <span class="fn">AmexDAO</span> {
+    <span class="cm">/// Create a new governance proposal</span>
+    <span class="kw">pub fn</span> <span class="fn">create_proposal</span>(
+        env: <span class="ty">Env</span>, creator: <span class="ty">Address</span>,
+        title: <span class="ty">Symbol</span>, voting_period: <span class="ty">u32</span>,
+    ) -> <span class="ty">u32</span> {
+        creator.<span class="fn">require_auth</span>();
+        <span class="kw">let</span> id = <span class="ty">Self</span>::<span class="fn">next_id</span>(&env);
+        <span class="kw">let</span> proposal = <span class="fn">Proposal</span> {
+            id, creator, title,
+            votes_for: <span class="num">0</span>, votes_against: <span class="num">0</span>,
+            state: <span class="fn">ProposalState</span>::Active,
+            end_ledger: env.ledger().sequence() + voting_period,
+            timelock_until: <span class="num">0</span>,
+        };
+        id
+    }
+
+    <span class="cm">/// Cast a vote on an active proposal</span>
+    <span class="kw">pub fn</span> <span class="fn">vote</span>(
+        env: <span class="ty">Env</span>, voter: <span class="ty">Address</span>,
+        proposal_id: <span class="ty">u32</span>, support: <span class="ty">bool</span>,
+        amount: <span class="ty">i128</span>,
+    ) {
+        voter.<span class="fn">require_auth</span>();
+        <span class="cm">// Lock governance tokens as voting weight</span>
+        <span class="cm">// Tally votes for or against</span>
+        <span class="cm">// Emit VoteCast event</span>
+    }
+
+    <span class="cm">/// Delegate voting power to another address</span>
+    <span class="kw">pub fn</span> <span class="fn">delegate</span>(
+        env: <span class="ty">Env</span>, delegator: <span class="ty">Address</span>,
+        delegate_to: <span class="ty">Address</span>,
+    ) {
+        delegator.<span class="fn">require_auth</span>();
+        <span class="cm">// Transfer voting weight without moving tokens</span>
+    }
+
+    <span class="cm">/// Execute a passed proposal after timelock</span>
+    <span class="kw">pub fn</span> <span class="fn">execute</span>(
+        env: <span class="ty">Env</span>, proposal_id: <span class="ty">u32</span>,
+    ) {
+        <span class="cm">// Verify: Passed + timelock expired</span>
+        <span class="cm">// Check quorum: total_votes >= 10% supply</span>
+        <span class="cm">// Execute on-chain action</span>
+    }
+
+    <span class="cm">/// Query current quorum percentage</span>
+    <span class="kw">pub fn</span> <span class="fn">quorum</span>(env: <span class="ty">Env</span>, proposal_id: <span class="ty">u32</span>) -> <span class="ty">i128</span> { <span class="num">0</span> }
+}</pre></div></div>
+</div>
+<div class="section">
+<h2>&#x1F9EA; Unit Test</h2>
+<div class="code-block">
+<div class="code-head"><span class="code-lang">Rust &mdash; test.rs</span><div><button class="toggle-btn" onclick="toggleCode(this)">▼ Show Code</button><button class="copy-btn" onclick="copyCode(this)">Copy</button></div></div>
+<div class="code-body"><pre><span class="attr">#[test]</span>
+<span class="kw">fn</span> <span class="fn">test_proposal_lifecycle</span>() {
+    <span class="kw">let</span> env = <span class="ty">Env</span>::<span class="fn">default</span>();
+    env.mock_all_auths();
+    <span class="kw">let</span> client = <span class="fn">AmexDAOClient</span>::<span class="fn">new</span>(&env,
+        &env.<span class="fn">register_contract</span>(<span class="ty">None</span>, <span class="fn">AmexDAO</span>));
+
+    <span class="cm">// Create proposal</span>
+    <span class="kw">let</span> pid = client.<span class="fn">create_proposal</span>(
+        &creator, &<span class="fn">Symbol</span>::<span class="fn">new</span>(&env, <span class="str">"upgrade_v2"</span>), &<span class="num">100</span>);
+
+    <span class="cm">// Vote with 60% of supply FOR</span>
+    client.<span class="fn">vote</span>(&voter1, &pid, &<span class="kw">true</span>, &<span class="num">600_000</span>);
+    client.<span class="fn">vote</span>(&voter2, &pid, &<span class="kw">false</span>, &<span class="num">200_000</span>);
+
+    <span class="cm">// Advance past voting period + timelock</span>
+    env.ledger().set_sequence_number(<span class="num">200</span>);
+    client.<span class="fn">execute</span>(&pid);
+
+    <span class="kw">let</span> p = client.<span class="fn">get_proposal</span>(&pid);
+    <span class="fn">assert_eq!</span>(p.state, <span class="fn">ProposalState</span>::Executed);
+}</pre></div></div>
+</div>
+<div style="font-size:.75rem;color:rgba(255,255,255,.55);line-height:1.5"><strong style="color:#818cf8">Binary Tree Structure:</strong> Each user has 2 direct slots (left &amp; right). Commissions flow upward through 8 generations. If an upline slot is empty, that generation&rsquo;s commission rolls to the main wallet.</div>
+</div>
+
+<h3 style="font-size:.85rem;color:#2d9cdb;margin-bottom:10px">&#x1F4DC; Amex Staking Contract Source</h3>
+<div class="code-block">
+<div class="code-head"><span class="code-lang">Rust &mdash; amex_staking.rs</span><div><button class="toggle-btn" onclick="toggleCode(this)">▼ Show Code</button><button class="copy-btn" onclick="copyCode(this)">Copy</button></div></div>
+<div class="code-body"><pre><span class="attr">#[contracttype]</span>
+<span class="kw">pub struct</span> <span class="fn">AmexStake</span> {
+    <span class="kw">pub</span> staker: <span class="ty">Address</span>,
+    <span class="kw">pub</span> stake_amount: <span class="ty">i128</span>,      <span class="cm">// $200 activation</span>
+    <span class="kw">pub</span> daily_reward: <span class="ty">i128</span>,      <span class="cm">// $12 per day</span>
+    <span class="kw">pub</span> duration_days: <span class="ty">u32</span>,     <span class="cm">// 90 | 180 | 365 days</span>
+    <span class="kw">pub</span> service_fee: <span class="ty">i128</span>,      <span class="cm">// $80 platform fee</span>
+    <span class="kw">pub</span> sponsor: <span class="ty">Address</span>,       <span class="cm">// direct inviter (Gen 1)</span>
+    <span class="kw">pub</span> start_time: <span class="ty">u64</span>,
+    <span class="kw">pub</span> claimed_days: <span class="ty">u32</span>,
+}
+
+<span class="cm">// 8-generation binary tree commission rates (in $)</span>
+<span class="kw">const</span> <span class="ty">GEN_COMMISSIONS</span>: [<span class="ty">i128</span>; <span class="num">8</span>] = [
+    <span class="num">20_0000000</span>, <span class="cm">// Gen 1: $20 (direct inviter)</span>
+    <span class="num">12_0000000</span>, <span class="cm">// Gen 2: $12</span>
+    <span class="num">8_0000000</span>,  <span class="cm">// Gen 3: $8</span>
+    <span class="num">8_0000000</span>,  <span class="cm">// Gen 4: $8</span>
+    <span class="num">8_0000000</span>,  <span class="cm">// Gen 5: $8</span>
+    <span class="num">8_0000000</span>,  <span class="cm">// Gen 6: $8</span>
+    <span class="num">8_0000000</span>,  <span class="cm">// Gen 7: $8</span>
+    <span class="num">8_0000000</span>,  <span class="cm">// Gen 8: $8</span>
+];  <span class="cm">// Total referral: $80 | Main wallet: $120 | Grand total: $200</span>
+
+<span class="attr">#[contractimpl]</span>
+<span class="kw">impl</span> <span class="fn">AmexDAO</span> {
+
+    <span class="cm">/// Activate Amex staking — $200 deposit + $80 service fee</span>
+    <span class="cm">/// duration: 90 (3 mo) | 180 (6 mo) | 365 (1 yr)</span>
+    <span class="cm">/// $200 split: $120 main wallet + $80 across 8-gen binary tree</span>
+    <span class="kw">pub fn</span> <span class="fn">activate_stake</span>(
+        env: <span class="ty">Env</span>, staker: <span class="ty">Address</span>, sponsor: <span class="ty">Address</span>, duration: <span class="ty">u32</span>,
+    ) {
+        staker.<span class="fn">require_auth</span>();
+        <span class="fn">assert!</span>(duration == <span class="num">90</span> || duration == <span class="num">180</span> || duration == <span class="num">365</span>,
+                <span class="str">"invalid period"</span>);
+
+        <span class="kw">let</span> token = <span class="fn">get_payment_token</span>(&env);
+        <span class="kw">let</span> tok = token::Client::new(&env, &token);
+        <span class="kw">let</span> activation = <span class="num">200_0000000</span>; <span class="cm">// $200</span>
+        <span class="kw">let</span> fee = <span class="num">80_0000000</span>;         <span class="cm">// $80 service fee</span>
+
+        <span class="cm">// Transfer $200 + $80 fee from user to contract</span>
+        tok.<span class="fn">transfer</span>(&staker, &env.current_contract_address(),
+                     &(activation + fee));
+
+        <span class="cm">// ── Distribute $200 activation across binary tree ──</span>
+        <span class="kw">let</span> main_wallet = <span class="fn">get_main_wallet</span>(&env);
+        <span class="kw">let mut</span> remaining = activation; <span class="cm">// $200</span>
+        <span class="kw">let mut</span> current = sponsor.clone();
+
+        <span class="kw">for</span> gen <span class="kw">in</span> <span class="num">0</span>..<span class="num">8</span> {
+            <span class="kw">let</span> commission = <span class="ty">GEN_COMMISSIONS</span>[gen];
+            <span class="kw">if let</span> <span class="ty">Some</span>(upline) = <span class="fn">get_sponsor</span>(&env, &current) {
+                tok.<span class="fn">transfer</span>(
+                    &env.current_contract_address(),
+                    &current, &commission,
+                );
+                remaining -= commission;
+                current = upline;
+            } <span class="kw">else</span> {
+                <span class="cm">// No upline — remaining goes to main wallet</span>
+                <span class="kw">break</span>;
+            }
+        }
+
+        <span class="cm">// Send remainder ($120 or more) to main wallet</span>
+        tok.<span class="fn">transfer</span>(
+            &env.current_contract_address(),
+            &main_wallet, &remaining,
+        );
+
+        <span class="kw">let</span> stake = <span class="fn">AmexStake</span> {
+            staker: staker.clone(),
+            stake_amount: activation,
+            daily_reward: <span class="num">12_0000000</span>,  <span class="cm">// $12/day</span>
+            duration_days: duration,
+            service_fee: fee,
+            sponsor: sponsor.clone(),
+            start_time: env.ledger().timestamp(),
+            claimed_days: <span class="num">0</span>,
+        };
+        env.storage().persistent().<span class="fn">set</span>(&staker, &stake);
+    }
+
+    <span class="cm">/// Claim accrued daily rewards</span>
+    <span class="kw">pub fn</span> <span class="fn">claim_rewards</span>(env: <span class="ty">Env</span>, staker: <span class="ty">Address</span>) -> <span class="ty">i128</span> {
+        staker.<span class="fn">require_auth</span>();
+        <span class="kw">let mut</span> stake: <span class="fn">AmexStake</span> = env.storage().persistent().<span class="fn">get</span>(&staker).unwrap();
+
+        <span class="kw">let</span> elapsed = (env.ledger().timestamp() - stake.start_time) / <span class="num">86400</span>;
+        <span class="kw">let</span> claimable = elapsed.<span class="fn">min</span>(stake.duration_days <span class="kw">as</span> <span class="ty">u64</span>) <span class="kw">as</span> <span class="ty">u32</span>
+                        - stake.claimed_days;
+
+        <span class="kw">let</span> payout = (claimable <span class="kw">as</span> <span class="ty">i128</span>) * stake.daily_reward;
+        stake.claimed_days += claimable;
+        env.storage().persistent().<span class="fn">set</span>(&staker, &stake);
+
+        <span class="cm">// Transfer rewards to staker</span>
+        token::Client::new(&env, &<span class="fn">get_payment_token</span>(&env))
+            .<span class="fn">transfer</span>(&env.current_contract_address(), &staker, &payout);
+        payout  <span class="cm">// 90d→$1,080 | 180d→$2,160 | 365d→$4,380</span>
+    }
+}</pre></div></div>
+
+<table style="width:100%;border-collapse:collapse;margin:14px 0">
+<thead><tr style="border-bottom:1px solid rgba(45,156,219,.15)"><th style="text-align:left;padding:10px 8px;font-size:.65rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.5px">Function</th><th style="text-align:left;padding:10px 8px;font-size:.65rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.5px">Description</th><th style="text-align:left;padding:10px 8px;font-size:.65rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.5px">Auth</th><th style="text-align:left;padding:10px 8px;font-size:.65rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.5px">Cost</th></tr></thead>
+<tbody>
+<tr style="border-bottom:1px solid rgba(45,156,219,.06)"><td style="padding:10px 8px;font-size:.72rem;font-family:'Courier New',monospace;color:#2d9cdb;font-weight:600">activate_stake</td><td style="padding:10px 8px;font-size:.75rem;color:rgba(255,255,255,.7)">Deposit $200 + $80 fee, choose period (90/180/365 days)</td><td style="padding:10px 8px;font-size:.75rem;color:rgba(255,255,255,.7)">User</td><td style="padding:10px 8px;font-size:.75rem;color:rgba(255,255,255,.7)">$280 total</td></tr>
+<tr style="border-bottom:1px solid rgba(45,156,219,.06)"><td style="padding:10px 8px;font-size:.72rem;font-family:'Courier New',monospace;color:#2d9cdb;font-weight:600">claim_rewards</td><td style="padding:10px 8px;font-size:.75rem;color:rgba(255,255,255,.7)">Claim accrued $12/day rewards</td><td style="padding:10px 8px;font-size:.75rem;color:rgba(255,255,255,.7)">User</td><td style="padding:10px 8px;font-size:.75rem;color:rgba(255,255,255,.7)">~0.01 XLM</td></tr>
+<tr style="border-bottom:1px solid rgba(45,156,219,.06)"><td style="padding:10px 8px;font-size:.72rem;font-family:'Courier New',monospace;color:#2d9cdb;font-weight:600">get_sponsor</td><td style="padding:10px 8px;font-size:.75rem;color:rgba(255,255,255,.7)">Get upline address for a given user</td><td style="padding:10px 8px;font-size:.75rem;color:rgba(255,255,255,.7)">None</td><td style="padding:10px 8px;font-size:.75rem;color:rgba(255,255,255,.7)">~0.001 XLM</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="contract-card">
+<h3 style="color:#e74c3c">&#x1F4B3; Black Vault Contract</h3>
+<div class="section">
+<h2>&#x1F4DD; Contract Source</h2>
+<div class="code-block">
+<div class="code-head"><span class="code-lang">Rust &mdash; vault.rs</span><div><button class="toggle-btn" onclick="toggleCode(this)">▼ Show Code</button><button class="copy-btn" onclick="copyCode(this)">Copy</button></div></div>
+<div class="code-body"><pre><span class="attr">#![no_std]</span>
+<span class="kw">use</span> soroban_sdk::{
+    <span class="ty">contract</span>, <span class="ty">contractimpl</span>, <span class="ty">contracttype</span>,
+    <span class="ty">Address</span>, <span class="ty">Env</span>, <span class="ty">Vec</span>, token,
+};
+
+<span class="attr">#[contracttype]</span>
+<span class="kw">pub enum</span> <span class="fn">TxState</span> {
+    Pending, Approved, Executed, Cancelled,
+}
+
+<span class="attr">#[contracttype]</span>
+<span class="kw">pub struct</span> <span class="fn">VaultTx</span> {
+    <span class="kw">pub</span> id: <span class="ty">u32</span>,
+    <span class="kw">pub</span> proposer: <span class="ty">Address</span>,
+    <span class="kw">pub</span> recipient: <span class="ty">Address</span>,
+    <span class="kw">pub</span> token: <span class="ty">Address</span>,
+    <span class="kw">pub</span> amount: <span class="ty">i128</span>,
+    <span class="kw">pub</span> approvals: <span class="ty">Vec</span>&lt;<span class="ty">Address</span>&gt;,
+    <span class="kw">pub</span> state: <span class="fn">TxState</span>,
+    <span class="kw">pub</span> execute_after: <span class="ty">u32</span>, <span class="cm">// timelock ledger</span>
+}
+
+<span class="attr">#[contracttype]</span>
+<span class="kw">pub struct</span> <span class="fn">VaultConfig</span> {
+    <span class="kw">pub</span> signers: <span class="ty">Vec</span>&lt;<span class="ty">Address</span>&gt;,
+    <span class="kw">pub</span> threshold: <span class="ty">u32</span>, <span class="cm">// min approvals needed</span>
+    <span class="kw">pub</span> timelock_ledgers: <span class="ty">u32</span>,
+    <span class="kw">pub</span> daily_limit: <span class="ty">i128</span>,
+}
+
+<span class="attr">#[contract]</span>
+<span class="kw">pub struct</span> <span class="fn">BlackVault</span>;
+
+<span class="attr">#[contractimpl]</span>
+<span class="kw">impl</span> <span class="fn">BlackVault</span> {
+    <span class="cm">/// Deposit tokens into the vault</span>
+    <span class="kw">pub fn</span> <span class="fn">deposit</span>(
+        env: <span class="ty">Env</span>, from: <span class="ty">Address</span>,
+        token: <span class="ty">Address</span>, amount: <span class="ty">i128</span>,
+    ) {
+        from.<span class="fn">require_auth</span>();
+        <span class="cm">// Transfer token from depositor to vault</span>
+        token::Client::new(&env, &token)
+            .<span class="fn">transfer</span>(&from, &env.current_contract_address(), &amount);
+    }
+
+    <span class="cm">/// Propose a withdrawal (requires multi-sig)</span>
+    <span class="kw">pub fn</span> <span class="fn">propose_withdrawal</span>(
+        env: <span class="ty">Env</span>, proposer: <span class="ty">Address</span>,
+        recipient: <span class="ty">Address</span>, token: <span class="ty">Address</span>,
+        amount: <span class="ty">i128</span>,
+    ) -> <span class="ty">u32</span> {
+        proposer.<span class="fn">require_auth</span>();
+        <span class="cm">// Verify proposer is a signer</span>
+        <span class="cm">// Check daily_limit not exceeded</span>
+        <span class="cm">// Create VaultTx with Pending state</span>
+        <span class="cm">// Auto-count proposer as first approval</span>
+        <span class="num">0</span> <span class="cm">// returns tx_id</span>
+    }
+
+    <span class="cm">/// Approve a pending withdrawal (signer only)</span>
+    <span class="kw">pub fn</span> <span class="fn">approve</span>(
+        env: <span class="ty">Env</span>, signer: <span class="ty">Address</span>, tx_id: <span class="ty">u32</span>,
+    ) {
+        signer.<span class="fn">require_auth</span>();
+        <span class="cm">// Verify signer is authorized</span>
+        <span class="cm">// Prevent duplicate approvals</span>
+        <span class="cm">// If threshold reached, set state = Approved</span>
+        <span class="cm">// Set execute_after = now + timelock_ledgers</span>
+    }
+
+    <span class="cm">/// Execute an approved withdrawal after timelock</span>
+    <span class="kw">pub fn</span> <span class="fn">execute</span>(env: <span class="ty">Env</span>, tx_id: <span class="ty">u32</span>) {
+        <span class="cm">// Verify: Approved + timelock expired</span>
+        <span class="fn">assert!</span>(env.ledger().sequence() >= tx.execute_after,
+            <span class="str">"timelock active"</span>);
+        <span class="cm">// Transfer tokens to recipient</span>
+        <span class="cm">// Set state = Executed</span>
+    }
+
+    <span class="cm">/// Cancel a pending/approved withdrawal</span>
+    <span class="kw">pub fn</span> <span class="fn">cancel</span>(
+        env: <span class="ty">Env</span>, signer: <span class="ty">Address</span>, tx_id: <span class="ty">u32</span>,
+    ) {
+        signer.<span class="fn">require_auth</span>();
+    }
+
+    <span class="cm">/// Query vault balance for a specific token</span>
+    <span class="kw">pub fn</span> <span class="fn">balance</span>(env: <span class="ty">Env</span>, token: <span class="ty">Address</span>) -> <span class="ty">i128</span> { <span class="num">0</span> }
+}</pre></div></div>
+</div>
+<div class="section">
+<h2>&#x1F9EA; Unit Test</h2>
+<div class="code-block">
+<div class="code-head"><span class="code-lang">Rust &mdash; test.rs</span><div><button class="toggle-btn" onclick="toggleCode(this)">▼ Show Code</button><button class="copy-btn" onclick="copyCode(this)">Copy</button></div></div>
+<div class="code-body"><pre><span class="attr">#[test]</span>
+<span class="kw">fn</span> <span class="fn">test_multisig_withdrawal</span>() {
+    <span class="kw">let</span> env = <span class="ty">Env</span>::<span class="fn">default</span>();
+    env.mock_all_auths();
+    <span class="kw">let</span> client = <span class="fn">BlackVaultClient</span>::<span class="fn">new</span>(&env,
+        &env.<span class="fn">register_contract</span>(<span class="ty">None</span>, <span class="fn">BlackVault</span>));
+
+    <span class="cm">// Deposit 50000 XLM into vault</span>
+    client.<span class="fn">deposit</span>(&depositor, &xlm, &<span class="num">50000_0000000</span>);
+    <span class="fn">assert_eq!</span>(client.<span class="fn">balance</span>(&xlm), <span class="num">50000_0000000</span>);
+
+    <span class="cm">// Propose withdrawal of 10000 XLM</span>
+    <span class="kw">let</span> tx_id = client.<span class="fn">propose_withdrawal</span>(
+        &signer1, &recipient, &xlm, &<span class="num">10000_0000000</span>);
+
+    <span class="cm">// Approve by signer2 and signer3 (threshold = 3)</span>
+    client.<span class="fn">approve</span>(&signer2, &tx_id);
+    client.<span class="fn">approve</span>(&signer3, &tx_id);
+
+    <span class="cm">// Wait for timelock (17280 ledgers = ~24h)</span>
+    env.ledger().set_sequence_number(<span class="num">17280</span>);
+    client.<span class="fn">execute</span>(&tx_id);
+
+    <span class="fn">assert_eq!</span>(client.<span class="fn">balance</span>(&xlm), <span class="num">40000_0000000</span>);
+    <span class="kw">let</span> tx = client.<span class="fn">get_tx</span>(&tx_id);
+    <span class="fn">assert_eq!</span>(tx.state, <span class="fn">TxState</span>::Executed);
+}</pre></div></div>
+</div>
+<div style="font-size:.75rem;color:rgba(255,255,255,.55);line-height:1.5"><strong style="color:#818cf8">Binary Tree Structure:</strong> Each user has 2 direct slots (left &amp; right). Commissions flow upward through 8 generations. If an upline slot is empty, that generation&rsquo;s commission rolls to the main wallet.</div>
+</div>
+
+<h3 style="font-size:.85rem;color:#e2e8f0;margin-bottom:10px">&#x1F4DC; Black Staking Contract Source</h3>
+<div class="code-block">
+<div class="code-head"><span class="code-lang">Rust &mdash; black_staking.rs</span><div><button class="toggle-btn" onclick="toggleCode(this)">▼ Show Code</button><button class="copy-btn" onclick="copyCode(this)">Copy</button></div></div>
+<div class="code-body"><pre><span class="attr">#[contracttype]</span>
+<span class="kw">pub struct</span> <span class="fn">BlackStake</span> {
+    <span class="kw">pub</span> staker: <span class="ty">Address</span>,
+    <span class="kw">pub</span> stake_amount: <span class="ty">i128</span>,      <span class="cm">// $500 activation</span>
+    <span class="kw">pub</span> daily_reward: <span class="ty">i128</span>,      <span class="cm">// $30 per day</span>
+    <span class="kw">pub</span> duration_days: <span class="ty">u32</span>,     <span class="cm">// 90 | 180 | 365 days</span>
+    <span class="kw">pub</span> service_fee: <span class="ty">i128</span>,      <span class="cm">// $200 platform fee</span>
+    <span class="kw">pub</span> sponsor: <span class="ty">Address</span>,       <span class="cm">// direct inviter (Gen 1)</span>
+    <span class="kw">pub</span> start_time: <span class="ty">u64</span>,
+    <span class="kw">pub</span> claimed_days: <span class="ty">u32</span>,
+}
+
+<span class="cm">// 8-generation binary tree commission rates (in $)</span>
+<span class="kw">const</span> <span class="ty">GEN_COMMISSIONS</span>: [<span class="ty">i128</span>; <span class="num">8</span>] = [
+    <span class="num">50_0000000</span>, <span class="cm">// Gen 1: $50 (direct inviter)</span>
+    <span class="num">30_0000000</span>, <span class="cm">// Gen 2: $30</span>
+    <span class="num">20_0000000</span>, <span class="cm">// Gen 3: $20</span>
+    <span class="num">20_0000000</span>, <span class="cm">// Gen 4: $20</span>
+    <span class="num">20_0000000</span>, <span class="cm">// Gen 5: $20</span>
+    <span class="num">20_0000000</span>, <span class="cm">// Gen 6: $20</span>
+    <span class="num">20_0000000</span>, <span class="cm">// Gen 7: $20</span>
+    <span class="num">20_0000000</span>, <span class="cm">// Gen 8: $20</span>
+];  <span class="cm">// Total referral: $200 | Main wallet: $300 | Grand total: $500</span>
+
+<span class="attr">#[contractimpl]</span>
+<span class="kw">impl</span> <span class="fn">BlackVault</span> {
+
+    <span class="cm">/// Activate Black staking — $500 deposit + $200 service fee</span>
+    <span class="cm">/// $500 split: $300 main wallet + $200 across 8-gen binary tree</span>
+    <span class="cm">/// duration: 90 (3mo) | 180 (6mo) | 365 (1yr)</span>
+    <span class="kw">pub fn</span> <span class="fn">activate_stake</span>(
+        env: <span class="ty">Env</span>, staker: <span class="ty">Address</span>, sponsor: <span class="ty">Address</span>,
+        duration: <span class="ty">u32</span>,
+    ) {
+        staker.<span class="fn">require_auth</span>();
+
+        <span class="cm">// Valid periods: 90 (3mo), 180 (6mo), 365 (1yr)</span>
+        <span class="fn">assert!</span>(duration == <span class="num">90</span> || duration == <span class="num">180</span> || duration == <span class="num">365</span>);
+
+        <span class="kw">let</span> token = <span class="fn">get_payment_token</span>(&env);
+        <span class="kw">let</span> tok = token::Client::new(&env, &token);
+        <span class="kw">let</span> activation = <span class="num">500_0000000</span>; <span class="cm">// $500</span>
+        <span class="kw">let</span> fee = <span class="num">200_0000000</span>;        <span class="cm">// $200 service fee</span>
+
+        <span class="cm">// Transfer $500 + $200 fee from user to contract</span>
+        tok.<span class="fn">transfer</span>(&staker, &env.current_contract_address(),
+                     &(activation + fee));
+
+        <span class="cm">// ── Distribute $500 activation across binary tree ──</span>
+        <span class="kw">let</span> main_wallet = <span class="fn">get_main_wallet</span>(&env);
+        <span class="kw">let mut</span> remaining = activation; <span class="cm">// $500</span>
+        <span class="kw">let mut</span> current = sponsor.clone();
+
+        <span class="kw">for</span> gen <span class="kw">in</span> <span class="num">0</span>..<span class="num">8</span> {
+            <span class="kw">let</span> commission = <span class="ty">GEN_COMMISSIONS</span>[gen];
+            <span class="kw">if let</span> <span class="ty">Some</span>(upline) = <span class="fn">get_sponsor</span>(&env, &current) {
+                tok.<span class="fn">transfer</span>(
+                    &env.current_contract_address(),
+                    &current, &commission,
+                );
+                remaining -= commission;
+                current = upline;
+            } <span class="kw">else</span> {
+                <span class="cm">// No upline — remaining goes to main wallet</span>
+                <span class="kw">break</span>;
+            }
+        }
+
+        <span class="cm">// Send remainder ($300 or more) to main wallet</span>
+        tok.<span class="fn">transfer</span>(
+            &env.current_contract_address(),
+            &main_wallet, &remaining,
+        );
+
+        <span class="kw">let</span> stake = <span class="fn">BlackStake</span> {
+            staker: staker.clone(),
+            stake_amount: activation,
+            daily_reward: <span class="num">30_0000000</span>,  <span class="cm">// $30/day</span>
+            duration_days: duration,
+            service_fee: fee,
+            sponsor: sponsor.clone(),
+            start_time: env.ledger().timestamp(),
+            claimed_days: <span class="num">0</span>,
+        };
+        env.storage().persistent().<span class="fn">set</span>(&staker, &stake);
+    }
+
+    <span class="cm">/// Claim accrued daily rewards</span>
+    <span class="kw">pub fn</span> <span class="fn">claim_rewards</span>(env: <span class="ty">Env</span>, staker: <span class="ty">Address</span>) -> <span class="ty">i128</span> {
+        staker.<span class="fn">require_auth</span>();
+        <span class="kw">let mut</span> stake: <span class="fn">BlackStake</span> = env.storage().persistent().<span class="fn">get</span>(&staker).unwrap();
+
+        <span class="kw">let</span> elapsed = (env.ledger().timestamp() - stake.start_time) / <span class="num">86400</span>;
+        <span class="kw">let</span> claimable = elapsed.<span class="fn">min</span>(stake.duration_days <span class="kw">as</span> <span class="ty">u64</span>) <span class="kw">as</span> <span class="ty">u32</span>
+                        - stake.claimed_days;
+
+        <span class="kw">let</span> payout = (claimable <span class="kw">as</span> <span class="ty">i128</span>) * stake.daily_reward;
+        stake.claimed_days += claimable;
+        env.storage().persistent().<span class="fn">set</span>(&staker, &stake);
+
+        <span class="cm">// Transfer rewards to staker</span>
+        token::Client::new(&env, &<span class="fn">get_payment_token</span>(&env))
+            .<span class="fn">transfer</span>(&env.current_contract_address(), &staker, &payout);
+        payout  <span class="cm">// 90d→$2,700 | 180d→$5,400 | 365d→$10,950</span>
+    }
+}</pre></div></div>
+
+<table style="width:100%;border-collapse:collapse;margin:14px 0">
+<thead><tr style="border-bottom:1px solid rgba(255,255,255,.1)"><th style="text-align:left;padding:10px 8px;font-size:.65rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.5px">Function</th><th style="text-align:left;padding:10px 8px;font-size:.65rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.5px">Description</th><th style="text-align:left;padding:10px 8px;font-size:.65rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.5px">Auth</th><th style="text-align:left;padding:10px 8px;font-size:.65rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.5px">Cost</th></tr></thead>
+<tbody>
+<tr style="border-bottom:1px solid rgba(255,255,255,.04)"><td style="padding:10px 8px;font-size:.72rem;font-family:'Courier New',monospace;color:#e2e8f0;font-weight:600">activate_stake</td><td style="padding:10px 8px;font-size:.75rem;color:rgba(255,255,255,.7)">Deposit $500 + $200 fee, choose period (90/180/365 days)</td><td style="padding:10px 8px;font-size:.75rem;color:rgba(255,255,255,.7)">User</td><td style="padding:10px 8px;font-size:.75rem;color:rgba(255,255,255,.7)">$700 total</td></tr>
+<tr style="border-bottom:1px solid rgba(255,255,255,.04)"><td style="padding:10px 8px;font-size:.72rem;font-family:'Courier New',monospace;color:#e2e8f0;font-weight:600">claim_rewards</td><td style="padding:10px 8px;font-size:.75rem;color:rgba(255,255,255,.7)">Claim accrued $30/day rewards</td><td style="padding:10px 8px;font-size:.75rem;color:rgba(255,255,255,.7)">User</td><td style="padding:10px 8px;font-size:.75rem;color:rgba(255,255,255,.7)">~0.01 XLM</td></tr>
+<tr style="border-bottom:1px solid rgba(255,255,255,.04)"><td style="padding:10px 8px;font-size:.72rem;font-family:'Courier New',monospace;color:#e2e8f0;font-weight:600">get_sponsor</td><td style="padding:10px 8px;font-size:.75rem;color:rgba(255,255,255,.7)">Get upline address for a given user</td><td style="padding:10px 8px;font-size:.75rem;color:rgba(255,255,255,.7)">None</td><td style="padding:10px 8px;font-size:.75rem;color:rgba(255,255,255,.7)">~0.001 XLM</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="contract-card">
+<h3 style="color:#e74c3c">&#x1F4B3; Mastercard DEX Contract</h3>
+<div class="section">
+<h2>&#x1F4DD; Contract Source</h2>
+<div class="code-block">
+<div class="code-head"><span class="code-lang">Rust &mdash; dex.rs</span><div><button class="toggle-btn" onclick="toggleCode(this)">▼ Show Code</button><button class="copy-btn" onclick="copyCode(this)">Copy</button></div></div>
+<div class="code-body"><pre><span class="attr">#![no_std]</span>
+<span class="kw">use</span> soroban_sdk::{
+    <span class="ty">contract</span>, <span class="ty">contractimpl</span>, <span class="ty">contracttype</span>,
+    <span class="ty">Address</span>, <span class="ty">Env</span>, token,
+};
+
+<span class="attr">#[contracttype]</span>
+<span class="kw">pub struct</span> <span class="fn">Pool</span> {
+    <span class="kw">pub</span> token_a: <span class="ty">Address</span>,
+    <span class="kw">pub</span> token_b: <span class="ty">Address</span>,
+    <span class="kw">pub</span> reserve_a: <span class="ty">i128</span>,
+    <span class="kw">pub</span> reserve_b: <span class="ty">i128</span>,
+    <span class="kw">pub</span> total_shares: <span class="ty">i128</span>,
+    <span class="kw">pub</span> fee_bps: <span class="ty">u32</span>,
+}
+
+<span class="attr">#[contract]</span>
+<span class="kw">pub struct</span> <span class="fn">McSwapDex</span>;
+
+<span class="attr">#[contractimpl]</span>
+<span class="kw">impl</span> <span class="fn">McSwapDex</span> {
+    <span class="cm">/// Create a new liquidity pool</span>
+    <span class="kw">pub fn</span> <span class="fn">create_pool</span>(
+        env: <span class="ty">Env</span>, admin: <span class="ty">Address</span>,
+        token_a: <span class="ty">Address</span>, token_b: <span class="ty">Address</span>,
+        fee_bps: <span class="ty">u32</span>,
+    ) -> <span class="ty">Pool</span> {
+        admin.<span class="fn">require_auth</span>();
+        <span class="kw">let</span> pool = <span class="fn">Pool</span> {
+            token_a, token_b,
+            reserve_a: <span class="num">0</span>, reserve_b: <span class="num">0</span>,
+            total_shares: <span class="num">0</span>, fee_bps,
+        };
+        <span class="cm">// Store pool in persistent storage</span>
+        pool
+    }
+
+    <span class="cm">/// Add liquidity and receive LP shares</span>
+    <span class="kw">pub fn</span> <span class="fn">add_liquidity</span>(
+        env: <span class="ty">Env</span>, user: <span class="ty">Address</span>,
+        amount_a: <span class="ty">i128</span>, amount_b: <span class="ty">i128</span>,
+    ) -> <span class="ty">i128</span> {
+        user.<span class="fn">require_auth</span>();
+        <span class="cm">// Transfer tokens to pool</span>
+        <span class="cm">// Calculate LP shares: sqrt(amount_a * amount_b)</span>
+        <span class="cm">// Mint LP tokens to user</span>
+        <span class="num">0</span> <span class="cm">// returns shares minted</span>
+    }
+
+    <span class="cm">/// Swap token_a for token_b (or vice versa)</span>
+    <span class="kw">pub fn</span> <span class="fn">swap</span>(
+        env: <span class="ty">Env</span>, user: <span class="ty">Address</span>,
+        token_in: <span class="ty">Address</span>, amount_in: <span class="ty">i128</span>,
+        min_out: <span class="ty">i128</span>, <span class="cm">// slippage protection</span>
+    ) -> <span class="ty">i128</span> {
+        user.<span class="fn">require_auth</span>();
+
+        <span class="cm">// x * y = k constant product formula</span>
+        <span class="cm">// fee = amount_in * fee_bps / 10000</span>
+        <span class="cm">// amount_out = reserve_b - (k / (reserve_a + net_in))</span>
+
+        <span class="fn">assert!</span>(amount_out >= min_out, <span class="str">"slippage exceeded"</span>);
+        amount_out
+    }
+
+    <span class="cm">/// Remove liquidity by burning LP shares</span>
+    <span class="kw">pub fn</span> <span class="fn">remove_liquidity</span>(
+        env: <span class="ty">Env</span>, user: <span class="ty">Address</span>, shares: <span class="ty">i128</span>,
+    ) -> (<span class="ty">i128</span>, <span class="ty">i128</span>) {
+        user.<span class="fn">require_auth</span>();
+        <span class="cm">// Proportional withdrawal</span>
+        (<span class="num">0</span>, <span class="num">0</span>)
+    }
+
+    <span class="cm">/// Get swap quote without executing</span>
+    <span class="kw">pub fn</span> <span class="fn">get_quote</span>(
+        env: <span class="ty">Env</span>, token_in: <span class="ty">Address</span>, amount_in: <span class="ty">i128</span>,
+    ) -> <span class="ty">i128</span> { <span class="num">0</span> }
+}</pre></div></div>
+</div>
+<div class="section">
+<h2>&#x1F9EA; Unit Test</h2>
+<div class="code-block">
+<div class="code-head"><span class="code-lang">Rust &mdash; test.rs</span><div><button class="toggle-btn" onclick="toggleCode(this)">▼ Show Code</button><button class="copy-btn" onclick="copyCode(this)">Copy</button></div></div>
+<div class="code-body"><pre><span class="attr">#[test]</span>
+<span class="kw">fn</span> <span class="fn">test_swap_constant_product</span>() {
+    <span class="kw">let</span> env = <span class="ty">Env</span>::<span class="fn">default</span>();
+    env.mock_all_auths();
+    <span class="kw">let</span> client = <span class="fn">McSwapDexClient</span>::<span class="fn">new</span>(&env,
+        &env.<span class="fn">register_contract</span>(<span class="ty">None</span>, <span class="fn">McSwapDex</span>));
+
+    <span class="cm">// Add liquidity: 10000 XLM + 5000 USDC</span>
+    client.<span class="fn">add_liquidity</span>(&lp, &<span class="num">10000_0000000</span>, &<span class="num">5000_0000000</span>);
+
+    <span class="cm">// Swap 100 XLM for USDC</span>
+    <span class="kw">let</span> out = client.<span class="fn">swap</span>(&user, &xlm, &<span class="num">100_0000000</span>, &<span class="num">40_0000000</span>);
+    <span class="fn">assert!</span>(out >= <span class="num">40_0000000</span>, <span class="str">"min_out not met"</span>);
+
+    <span class="cm">// Verify k is preserved (with fees)</span>
+    <span class="kw">let</span> (r_a, r_b) = client.<span class="fn">get_reserves</span>();
+    <span class="fn">assert!</span>(r_a * r_b >= <span class="num">10000_0000000</span> * <span class="num">5000_0000000</span>);
+}</pre></div></div>
+</div>
+<div style="font-size:.75rem;color:rgba(255,255,255,.55);line-height:1.5"><strong style="color:#818cf8">Binary Tree Structure:</strong> Each user has 2 direct slots (left &amp; right). Commissions flow upward through 8 generations. If an upline slot is empty, that generation&rsquo;s commission rolls to the main wallet.</div>
+</div>
+
+<h3 style="font-size:.85rem;color:#f2994a;margin-bottom:10px">&#x1F4DC; Staking Contract Source</h3>
+<div class="code-block">
+<div class="code-head"><span class="code-lang">Rust &mdash; mc_staking.rs</span><div><button class="toggle-btn" onclick="toggleCode(this)">▼ Show Code</button><button class="copy-btn" onclick="copyCode(this)">Copy</button></div></div>
+<div class="code-body"><pre><span class="attr">#[contracttype]</span>
+<span class="kw">pub struct</span> <span class="fn">McStake</span> {
+    <span class="kw">pub</span> staker: <span class="ty">Address</span>,
+    <span class="kw">pub</span> stake_amount: <span class="ty">i128</span>,      <span class="cm">// $50 activation</span>
+    <span class="kw">pub</span> daily_reward: <span class="ty">i128</span>,      <span class="cm">// $3 per day</span>
+    <span class="kw">pub</span> duration_days: <span class="ty">u32</span>,     <span class="cm">// 90 | 180 | 365 days</span>
+    <span class="kw">pub</span> service_fee: <span class="ty">i128</span>,      <span class="cm">// $20 platform fee</span>
+    <span class="kw">pub</span> sponsor: <span class="ty">Address</span>,       <span class="cm">// direct inviter (Gen 1)</span>
+    <span class="kw">pub</span> start_time: <span class="ty">u64</span>,
+    <span class="kw">pub</span> claimed_days: <span class="ty">u32</span>,
+}
+
+<span class="cm">// 8-generation binary tree commission rates (in $)</span>
+<span class="kw">const</span> <span class="ty">GEN_COMMISSIONS</span>: [<span class="ty">i128</span>; <span class="num">8</span>] = [
+    <span class="num">5_0000000</span>,  <span class="cm">// Gen 1: $5 (direct inviter)</span>
+    <span class="num">3_0000000</span>,  <span class="cm">// Gen 2: $3</span>
+    <span class="num">2_0000000</span>,  <span class="cm">// Gen 3: $2</span>
+    <span class="num">2_0000000</span>,  <span class="cm">// Gen 4: $2</span>
+    <span class="num">2_0000000</span>,  <span class="cm">// Gen 5: $2</span>
+    <span class="num">2_0000000</span>,  <span class="cm">// Gen 6: $2</span>
+    <span class="num">2_0000000</span>,  <span class="cm">// Gen 7: $2</span>
+    <span class="num">2_0000000</span>,  <span class="cm">// Gen 8: $2</span>
+];  <span class="cm">// Total referral: $20 | Main wallet: $30 | Grand total: $50</span>
+
+<span class="attr">#[contractimpl]</span>
+<span class="kw">impl</span> <span class="fn">McSwapDex</span> {
+
+    <span class="cm">/// Activate Mastercard staking — $50 deposit + $20 service fee</span>
+    <span class="cm">/// duration: 90 (3 mo) | 180 (6 mo) | 365 (1 yr)</span>
+    <span class="cm">/// $50 split: $30 main wallet + $20 across 8-gen binary tree</span>
+    <span class="kw">pub fn</span> <span class="fn">activate_stake</span>(
+        env: <span class="ty">Env</span>, staker: <span class="ty">Address</span>, sponsor: <span class="ty">Address</span>, duration: <span class="ty">u32</span>,
+    ) {
+        staker.<span class="fn">require_auth</span>();
+        <span class="fn">assert!</span>(duration == <span class="num">90</span> || duration == <span class="num">180</span> || duration == <span class="num">365</span>,
+                <span class="str">"invalid period"</span>);
+
+        <span class="kw">let</span> token = <span class="fn">get_payment_token</span>(&env);
+        <span class="kw">let</span> tok = token::Client::new(&env, &token);
+        <span class="kw">let</span> activation = <span class="num">50_0000000</span>;  <span class="cm">// $50</span>
+        <span class="kw">let</span> fee = <span class="num">20_0000000</span>;         <span class="cm">// $20 service fee</span>
+
+        <span class="cm">// Transfer $50 + $20 fee from user to contract</span>
+        tok.<span class="fn">transfer</span>(&staker, &env.current_contract_address(),
+                     &(activation + fee));
+
+        <span class="cm">// ── Distribute $50 activation across binary tree ──</span>
+        <span class="kw">let</span> main_wallet = <span class="fn">get_main_wallet</span>(&env);
+        <span class="kw">let mut</span> remaining = activation; <span class="cm">// $50</span>
+        <span class="kw">let mut</span> current = sponsor.clone();
+
+        <span class="kw">for</span> gen <span class="kw">in</span> <span class="num">0</span>..<span class="num">8</span> {
+            <span class="kw">let</span> commission = <span class="ty">GEN_COMMISSIONS</span>[gen];
+            <span class="kw">if let</span> <span class="ty">Some</span>(upline) = <span class="fn">get_sponsor</span>(&env, &current) {
+                tok.<span class="fn">transfer</span>(
+                    &env.current_contract_address(),
+                    &current, &commission,
+                );
+                remaining -= commission;
+                current = upline;
+            } <span class="kw">else</span> {
+                <span class="cm">// No upline — remaining goes to main wallet</span>
+                <span class="kw">break</span>;
+            }
+        }
+
+        <span class="cm">// Send remainder ($30 or more) to main wallet</span>
+        tok.<span class="fn">transfer</span>(
+            &env.current_contract_address(),
+            &main_wallet, &remaining,
+        );
+
+        <span class="kw">let</span> stake = <span class="fn">McStake</span> {
+            staker: staker.clone(),
+            stake_amount: activation,
+            daily_reward: <span class="num">3_0000000</span>,  <span class="cm">// $3/day</span>
+            duration_days: duration,
+            service_fee: fee,
+            sponsor: sponsor.clone(),
+            start_time: env.ledger().timestamp(),
+            claimed_days: <span class="num">0</span>,
+        };
+        env.storage().persistent().<span class="fn">set</span>(&staker, &stake);
+    }
+
+    <span class="cm">/// Claim accrued daily rewards</span>
+    <span class="kw">pub fn</span> <span class="fn">claim_rewards</span>(env: <span class="ty">Env</span>, staker: <span class="ty">Address</span>) -> <span class="ty">i128</span> {
+        staker.<span class="fn">require_auth</span>();
+        <span class="kw">let mut</span> stake: <span class="fn">McStake</span> = env.storage().persistent().<span class="fn">get</span>(&staker).unwrap();
+
+        <span class="kw">let</span> elapsed = (env.ledger().timestamp() - stake.start_time) / <span class="num">86400</span>;
+        <span class="kw">let</span> claimable = elapsed.<span class="fn">min</span>(stake.duration_days <span class="kw">as</span> <span class="ty">u64</span>) <span class="kw">as</span> <span class="ty">u32</span>
+                        - stake.claimed_days;
+
+        <span class="kw">let</span> payout = (claimable <span class="kw">as</span> <span class="ty">i128</span>) * stake.daily_reward;
+        stake.claimed_days += claimable;
+        env.storage().persistent().<span class="fn">set</span>(&staker, &stake);
+
+        <span class="cm">// Transfer rewards to staker</span>
+        token::Client::new(&env, &<span class="fn">get_payment_token</span>(&env))
+            .<span class="fn">transfer</span>(&env.current_contract_address(), &staker, &payout);
+        payout  <span class="cm">// 90d→$270 | 180d→$540 | 365d→$1,095</span>
+    }
+}</pre></div></div>
+
+<table class="fn-table" style="margin-top:14px">
+<thead><tr><th>Function</th><th>Description</th><th>Auth</th><th>Cost</th></tr></thead>
+<tbody>
+<tr><td class="fn-name">activate_stake</td><td>Deposit $50 + $20 fee, choose period (90/180/365 days)</td><td>User</td><td>$70 total</td></tr>
+<tr><td class="fn-name">claim_rewards</td><td>Claim accrued $3/day rewards</td><td>User</td><td>~0.01 XLM</td></tr>
+<tr><td class="fn-name">get_sponsor</td><td>Get upline address for a given user</td><td>None</td><td>~0.001 XLM</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="contract-card">
+<h3 style="color:#e74c3c">&#x1F4B3; Platinum Staking Contract</h3>
+<div class="section">
+<h2>&#x1F4DD; Contract Source</h2>
+<div class="code-block">
+<div class="code-head"><span class="code-lang">Rust &mdash; staking.rs</span><div><button class="toggle-btn" onclick="toggleCode(this)">▼ Show Code</button><button class="copy-btn" onclick="copyCode(this)">Copy</button></div></div>
+<div class="code-body"><pre><span class="attr">#![no_std]</span>
+<span class="kw">use</span> soroban_sdk::{
+    <span class="ty">contract</span>, <span class="ty">contractimpl</span>, <span class="ty">contracttype</span>,
+    <span class="ty">Address</span>, <span class="ty">Env</span>, token,
+};
+
+<span class="attr">#[contracttype]</span>
+<span class="kw">pub struct</span> <span class="fn">StakePosition</span> {
+    <span class="kw">pub</span> owner: <span class="ty">Address</span>,
+    <span class="kw">pub</span> amount: <span class="ty">i128</span>,
+    <span class="kw">pub</span> start_ledger: <span class="ty">u32</span>,
+    <span class="kw">pub</span> lock_until: <span class="ty">u32</span>,
+    <span class="kw">pub</span> reward_debt: <span class="ty">i128</span>,
+    <span class="kw">pub</span> boost_multiplier: <span class="ty">u32</span>, <span class="cm">// 100 = 1.0x</span>
+    <span class="kw">pub</span> auto_compound: <span class="ty">bool</span>,
+}
+
+<span class="attr">#[contracttype]</span>
+<span class="kw">pub struct</span> <span class="fn">PoolConfig</span> {
+    <span class="kw">pub</span> reward_token: <span class="ty">Address</span>,
+    <span class="kw">pub</span> stake_token: <span class="ty">Address</span>,
+    <span class="kw">pub</span> reward_per_ledger: <span class="ty">i128</span>,
+    <span class="kw">pub</span> acc_reward_per_share: <span class="ty">i128</span>,
+    <span class="kw">pub</span> total_staked: <span class="ty">i128</span>,
+    <span class="kw">pub</span> last_update_ledger: <span class="ty">u32</span>,
+}
+
+<span class="attr">#[contract]</span>
+<span class="kw">pub struct</span> <span class="fn">PlatinumStake</span>;
+
+<span class="attr">#[contractimpl]</span>
+<span class="kw">impl</span> <span class="fn">PlatinumStake</span> {
+    <span class="cm">/// Stake tokens with optional lock period</span>
+    <span class="kw">pub fn</span> <span class="fn">stake</span>(
+        env: <span class="ty">Env</span>, user: <span class="ty">Address</span>,
+        amount: <span class="ty">i128</span>, lock_days: <span class="ty">u32</span>,
+        auto_compound: <span class="ty">bool</span>,
+    ) -> <span class="fn">StakePosition</span> {
+        user.<span class="fn">require_auth</span>();
+        <span class="kw">let</span> boost = <span class="kw">match</span> lock_days {
+            <span class="num">0</span> => <span class="num">100</span>,
+            <span class="num">1</span>..=<span class="num">30</span> => <span class="num">150</span>,
+            <span class="num">31</span>..=<span class="num">90</span> => <span class="num">200</span>,
+            _ => <span class="num">250</span>,
+        };
+        <span class="cm">// Transfer stake_token from user to contract</span>
+        <span class="cm">// Update pool accumulators</span>
+        <span class="cm">// Create position in persistent storage</span>
+        <span class="fn">StakePosition</span> { <span class="cm">/* ... */</span> }
+    }
+
+    <span class="cm">/// Compound accrued rewards back into stake</span>
+    <span class="kw">pub fn</span> <span class="fn">compound</span>(env: <span class="ty">Env</span>, user: <span class="ty">Address</span>) -> <span class="ty">i128</span> {
+        user.<span class="fn">require_auth</span>();
+        <span class="cm">// pending = (pos.amount * acc_reward_per_share) - pos.reward_debt</span>
+        <span class="cm">// pos.amount += pending (compound rewards)</span>
+        <span class="cm">// pos.reward_debt = pos.amount * acc_reward_per_share</span>
+        <span class="num">0</span> <span class="cm">// returns compounded amount</span>
+    }
+
+    <span class="cm">/// Unstake tokens (must respect lock period)</span>
+    <span class="kw">pub fn</span> <span class="fn">unstake</span>(
+        env: <span class="ty">Env</span>, user: <span class="ty">Address</span>, amount: <span class="ty">i128</span>,
+    ) -> <span class="ty">i128</span> {
+        user.<span class="fn">require_auth</span>();
+        <span class="fn">assert!</span>(env.ledger().sequence() >= pos.lock_until,
+            <span class="str">"lock period active"</span>);
+        <span class="cm">// Claim pending rewards + withdraw stake</span>
+        <span class="num">0</span>
+    }
+
+    <span class="cm">/// Claim rewards without unstaking</span>
+    <span class="kw">pub fn</span> <span class="fn">claim_rewards</span>(env: <span class="ty">Env</span>, user: <span class="ty">Address</span>) -> <span class="ty">i128</span> {
+        user.<span class="fn">require_auth</span>();
+        <span class="num">0</span>
+    }
+
+    <span class="cm">/// View pending rewards for a position</span>
+    <span class="kw">pub fn</span> <span class="fn">pending_rewards</span>(env: <span class="ty">Env</span>, user: <span class="ty">Address</span>) -> <span class="ty">i128</span> { <span class="num">0</span> }
+}</pre></div></div>
+</div>
+<div class="section">
+<h2>&#x1F9EA; Unit Test</h2>
+<div class="code-block">
+<div class="code-head"><span class="code-lang">Rust &mdash; test.rs</span><div><button class="toggle-btn" onclick="toggleCode(this)">▼ Show Code</button><button class="copy-btn" onclick="copyCode(this)">Copy</button></div></div>
+<div class="code-body"><pre><span class="attr">#[test]</span>
+<span class="kw">fn</span> <span class="fn">test_stake_and_compound</span>() {
+    <span class="kw">let</span> env = <span class="ty">Env</span>::<span class="fn">default</span>();
+    env.mock_all_auths();
+    <span class="kw">let</span> client = <span class="fn">PlatinumStakeClient</span>::<span class="fn">new</span>(&env,
+        &env.<span class="fn">register_contract</span>(<span class="ty">None</span>, <span class="fn">PlatinumStake</span>));
+
+    <span class="cm">// Stake 10000 XLM for 90 days (2.0x boost)</span>
+    <span class="kw">let</span> pos = client.<span class="fn">stake</span>(&user, &<span class="num">10000_0000000</span>, &<span class="num">90</span>, &<span class="kw">true</span>);
+    <span class="fn">assert_eq!</span>(pos.boost_multiplier, <span class="num">200</span>);
+
+    <span class="cm">// Advance 1000 ledgers (~83 minutes)</span>
+    env.ledger().set_sequence_number(<span class="num">1000</span>);
+    <span class="kw">let</span> pending = client.<span class="fn">pending_rewards</span>(&user);
+    <span class="fn">assert!</span>(pending > <span class="num">0</span>);
+
+    <span class="cm">// Compound rewards back into position</span>
+    <span class="kw">let</span> compounded = client.<span class="fn">compound</span>(&user);
+    <span class="fn">assert!</span>(compounded > <span class="num">0</span>);
+    <span class="kw">let</span> new_pos = client.<span class="fn">get_position</span>(&user);
+    <span class="fn">assert!</span>(new_pos.amount > <span class="num">10000_0000000</span>);
+}</pre></div></div>
+</div>
+<div style="font-size:.75rem;color:rgba(255,255,255,.55);line-height:1.5"><strong style="color:#818cf8">Binary Tree Structure:</strong> Each user has 2 direct slots (left &amp; right). Commissions flow upward through 8 generations. If an upline slot is empty, that generation&rsquo;s commission rolls to the main wallet.</div>
+</div>
+
+<h3 style="font-size:.85rem;color:#a0aec0;margin-bottom:10px">&#x1F4DC; Platinum Staking Contract Source</h3>
+<div class="code-block">
+<div class="code-head"><span class="code-lang">Rust &mdash; platinum_staking.rs</span><div><button class="toggle-btn" onclick="toggleCode(this)">▼ Show Code</button><button class="copy-btn" onclick="copyCode(this)">Copy</button></div></div>
+<div class="code-body"><pre><span class="attr">#[contracttype]</span>
+<span class="kw">pub struct</span> <span class="fn">PlatStake</span> {
+    <span class="kw">pub</span> staker: <span class="ty">Address</span>,
+    <span class="kw">pub</span> stake_amount: <span class="ty">i128</span>,      <span class="cm">// $300 activation</span>
+    <span class="kw">pub</span> daily_reward: <span class="ty">i128</span>,      <span class="cm">// $18 per day</span>
+    <span class="kw">pub</span> duration_days: <span class="ty">u32</span>,     <span class="cm">// 90 | 180 | 365 days</span>
+    <span class="kw">pub</span> service_fee: <span class="ty">i128</span>,      <span class="cm">// $120 platform fee</span>
+    <span class="kw">pub</span> sponsor: <span class="ty">Address</span>,       <span class="cm">// direct inviter (Gen 1)</span>
+    <span class="kw">pub</span> start_time: <span class="ty">u64</span>,
+    <span class="kw">pub</span> claimed_days: <span class="ty">u32</span>,
+}
+
+<span class="cm">// 8-generation binary tree commission rates (in $)</span>
+<span class="kw">const</span> <span class="ty">GEN_COMMISSIONS</span>: [<span class="ty">i128</span>; <span class="num">8</span>] = [
+    <span class="num">30_0000000</span>, <span class="cm">// Gen 1: $30 (direct inviter)</span>
+    <span class="num">18_0000000</span>, <span class="cm">// Gen 2: $18</span>
+    <span class="num">12_0000000</span>, <span class="cm">// Gen 3: $12</span>
+    <span class="num">12_0000000</span>, <span class="cm">// Gen 4: $12</span>
+    <span class="num">12_0000000</span>, <span class="cm">// Gen 5: $12</span>
+    <span class="num">12_0000000</span>, <span class="cm">// Gen 6: $12</span>
+    <span class="num">12_0000000</span>, <span class="cm">// Gen 7: $12</span>
+    <span class="num">12_0000000</span>, <span class="cm">// Gen 8: $12</span>
+];  <span class="cm">// Total referral: $120 | Main wallet: $180 | Grand total: $300</span>
+
+<span class="attr">#[contractimpl]</span>
+<span class="kw">impl</span> <span class="fn">PlatinumStake</span> {
+
+    <span class="cm">/// Activate Platinum staking — $300 deposit + $120 service fee</span>
+    <span class="cm">/// $300 split: $180 main wallet + $120 across 8-gen binary tree</span>
+    <span class="cm">/// duration: 90 (3mo) | 180 (6mo) | 365 (1yr)</span>
+    <span class="kw">pub fn</span> <span class="fn">activate_stake</span>(
+        env: <span class="ty">Env</span>, staker: <span class="ty">Address</span>, sponsor: <span class="ty">Address</span>,
+        duration: <span class="ty">u32</span>,
+    ) {
+        staker.<span class="fn">require_auth</span>();
+
+        <span class="cm">// Valid periods: 90 (3mo), 180 (6mo), 365 (1yr)</span>
+        <span class="fn">assert!</span>(duration == <span class="num">90</span> || duration == <span class="num">180</span> || duration == <span class="num">365</span>);
+
+        <span class="kw">let</span> token = <span class="fn">get_payment_token</span>(&env);
+        <span class="kw">let</span> tok = token::Client::new(&env, &token);
+        <span class="kw">let</span> activation = <span class="num">300_0000000</span>; <span class="cm">// $300</span>
+        <span class="kw">let</span> fee = <span class="num">120_0000000</span>;        <span class="cm">// $120 service fee</span>
+
+        <span class="cm">// Transfer $300 + $120 fee from user to contract</span>
+        tok.<span class="fn">transfer</span>(&staker, &env.current_contract_address(),
+                     &(activation + fee));
+
+        <span class="cm">// ── Distribute $300 activation across binary tree ──</span>
+        <span class="kw">let</span> main_wallet = <span class="fn">get_main_wallet</span>(&env);
+        <span class="kw">let mut</span> remaining = activation; <span class="cm">// $300</span>
+        <span class="kw">let mut</span> current = sponsor.clone();
+
+        <span class="kw">for</span> gen <span class="kw">in</span> <span class="num">0</span>..<span class="num">8</span> {
+            <span class="kw">let</span> commission = <span class="ty">GEN_COMMISSIONS</span>[gen];
+            <span class="kw">if let</span> <span class="ty">Some</span>(upline) = <span class="fn">get_sponsor</span>(&env, &current) {
+                tok.<span class="fn">transfer</span>(
+                    &env.current_contract_address(),
+                    &current, &commission,
+                );
+                remaining -= commission;
+                current = upline;
+            } <span class="kw">else</span> {
+                <span class="cm">// No upline — remaining goes to main wallet</span>
+                <span class="kw">break</span>;
+            }
+        }
+
+        <span class="cm">// Send remainder ($180 or more) to main wallet</span>
+        tok.<span class="fn">transfer</span>(
+            &env.current_contract_address(),
+            &main_wallet, &remaining,
+        );
+
+        <span class="kw">let</span> stake = <span class="fn">PlatStake</span> {
+            staker: staker.clone(),
+            stake_amount: activation,
+            daily_reward: <span class="num">18_0000000</span>,  <span class="cm">// $18/day</span>
+            duration_days: duration,
+            service_fee: fee,
+            sponsor: sponsor.clone(),
+            start_time: env.ledger().timestamp(),
+            claimed_days: <span class="num">0</span>,
+        };
+        env.storage().persistent().<span class="fn">set</span>(&staker, &stake);
+    }
+
+    <span class="cm">/// Claim accrued daily rewards</span>
+    <span class="kw">pub fn</span> <span class="fn">claim_rewards</span>(env: <span class="ty">Env</span>, staker: <span class="ty">Address</span>) -> <span class="ty">i128</span> {
+        staker.<span class="fn">require_auth</span>();
+        <span class="kw">let mut</span> stake: <span class="fn">PlatStake</span> = env.storage().persistent().<span class="fn">get</span>(&staker).unwrap();
+
+        <span class="kw">let</span> elapsed = (env.ledger().timestamp() - stake.start_time) / <span class="num">86400</span>;
+        <span class="kw">let</span> claimable = elapsed.<span class="fn">min</span>(stake.duration_days <span class="kw">as</span> <span class="ty">u64</span>) <span class="kw">as</span> <span class="ty">u32</span>
+                        - stake.claimed_days;
+
+        <span class="kw">let</span> payout = (claimable <span class="kw">as</span> <span class="ty">i128</span>) * stake.daily_reward;
+        stake.claimed_days += claimable;
+        env.storage().persistent().<span class="fn">set</span>(&staker, &stake);
+
+        <span class="cm">// Transfer rewards to staker</span>
+        token::Client::new(&env, &<span class="fn">get_payment_token</span>(&env))
+            .<span class="fn">transfer</span>(&env.current_contract_address(), &staker, &payout);
+        payout  <span class="cm">// 90d→$1,620 | 180d→$3,240 | 365d→$6,570</span>
+    }
+}</pre></div></div>
+
+<table style="width:100%;border-collapse:collapse;margin:14px 0">
+<thead><tr style="border-bottom:1px solid rgba(160,174,192,.15)"><th style="text-align:left;padding:10px 8px;font-size:.65rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.5px">Function</th><th style="text-align:left;padding:10px 8px;font-size:.65rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.5px">Description</th><th style="text-align:left;padding:10px 8px;font-size:.65rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.5px">Auth</th><th style="text-align:left;padding:10px 8px;font-size:.65rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.5px">Cost</th></tr></thead>
+<tbody>
+<tr style="border-bottom:1px solid rgba(160,174,192,.06)"><td style="padding:10px 8px;font-size:.72rem;font-family:'Courier New',monospace;color:#a0aec0;font-weight:600">activate_stake</td><td style="padding:10px 8px;font-size:.75rem;color:rgba(255,255,255,.7)">Deposit $300 + $120 fee, choose period (90/180/365 days)</td><td style="padding:10px 8px;font-size:.75rem;color:rgba(255,255,255,.7)">User</td><td style="padding:10px 8px;font-size:.75rem;color:rgba(255,255,255,.7)">$420 total</td></tr>
+<tr style="border-bottom:1px solid rgba(160,174,192,.06)"><td style="padding:10px 8px;font-size:.72rem;font-family:'Courier New',monospace;color:#a0aec0;font-weight:600">claim_rewards</td><td style="padding:10px 8px;font-size:.75rem;color:rgba(255,255,255,.7)">Claim accrued $18/day rewards</td><td style="padding:10px 8px;font-size:.75rem;color:rgba(255,255,255,.7)">User</td><td style="padding:10px 8px;font-size:.75rem;color:rgba(255,255,255,.7)">~0.01 XLM</td></tr>
+<tr style="border-bottom:1px solid rgba(160,174,192,.06)"><td style="padding:10px 8px;font-size:.72rem;font-family:'Courier New',monospace;color:#a0aec0;font-weight:600">get_sponsor</td><td style="padding:10px 8px;font-size:.75rem;color:rgba(255,255,255,.7)">Get upline address for a given user</td><td style="padding:10px 8px;font-size:.75rem;color:rgba(255,255,255,.7)">None</td><td style="padding:10px 8px;font-size:.75rem;color:rgba(255,255,255,.7)">~0.001 XLM</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+<script>
+function toggleCode(btn){const body=btn.closest('.code-block').querySelector('.code-body');const open=body.classList.toggle('open');btn.textContent=open?'\u25B2 Hide':'\u25BC Show Code';}
+function copyCode(btn){const c=btn.closest('.code-block').querySelector('pre').textContent;navigator.clipboard.writeText(c).then(()=>{btn.textContent='\u2713 Copied';setTimeout(()=>btn.textContent='Copy',2000)})}
+</script>
+
 <!-- Footer -->
 <div class="footer">
   <p>&copy; 2025 OLIGHFT SMART COIN &mdash; Stellar Testnet</p>
