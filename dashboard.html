@@ -98,10 +98,48 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);padding:12px 24px;border-radius:12px;font-size:.78rem;font-weight:600;color:#fff;z-index:9999;opacity:0;transition:.35s}
 .toast.show{transform:translateX(-50%) translateY(0);opacity:1}
 
+/* Staking Panel */
+.stake-panel{padding:20px;background:linear-gradient(135deg,rgba(242,153,74,.06),rgba(245,197,24,.04));border:1px solid rgba(242,153,74,.15);border-radius:16px;margin-bottom:22px}
+.stake-panel .sp-title{font-size:.82rem;font-weight:700;color:#f2994a;margin-bottom:14px;display:flex;align-items:center;gap:6px}
+.sp-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.sp-field label{display:block;font-size:.6rem;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.sp-field select,.sp-field input{width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(242,153,74,.12);border-radius:8px;padding:10px 12px;color:#fff;font-size:.8rem;outline:none;transition:.2s}
+.sp-field select:focus,.sp-field input:focus{border-color:rgba(242,153,74,.4);box-shadow:0 0 0 3px rgba(242,153,74,.08)}
+.sp-field select option{background:#111128;color:#fff}
+.sp-apy{text-align:center;padding:8px;background:rgba(242,153,74,.08);border-radius:8px;margin-bottom:12px;font-size:.78rem;font-weight:700;color:#f5c518}
+.sp-btn{width:100%;padding:12px;border:none;border-radius:12px;font-size:.85rem;font-weight:700;cursor:pointer;background:linear-gradient(135deg,#f2994a,#f5c518);color:#111;transition:.2s}
+.sp-btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(242,153,74,.3)}
+.sp-btn:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
+
+/* Active Stakes List */
+.stake-list{margin-bottom:22px}
+.stk-item{display:flex;align-items:center;padding:12px 14px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:12px;margin-bottom:6px;transition:.18s}
+.stk-item:hover{border-color:rgba(242,153,74,.18)}
+.stk-item .si-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1rem;background:rgba(242,153,74,.12);flex-shrink:0}
+.stk-item .si-info{flex:1;margin:0 12px;min-width:0}
+.stk-item .si-top{font-size:.78rem;font-weight:600}
+.stk-item .si-sub{font-size:.6rem;color:rgba(255,255,255,.35);margin-top:2px}
+.stk-item .si-right{text-align:right;flex-shrink:0}
+.stk-item .si-amt{font-size:.82rem;font-weight:700;color:#f5c518}
+.stk-item .si-reward{font-size:.6rem;color:#27ae60;margin-top:2px}
+.withdraw-btn{padding:5px 12px;border-radius:6px;border:1px solid rgba(235,87,87,.2);background:none;color:rgba(235,87,87,.7);font-size:.6rem;font-weight:600;cursor:pointer;transition:.2s;margin-top:4px}
+.withdraw-btn:hover{border-color:#eb5757;color:#eb5757}
+
+/* Card Badge */
+.card-badge{display:flex;align-items:center;gap:6px;padding:8px 12px;border-radius:10px;font-size:.7rem;font-weight:600;margin-bottom:12px}
+.card-badge.active{background:rgba(39,174,96,.08);border:1px solid rgba(39,174,96,.15);color:#27ae60}
+.card-badge.none{background:rgba(243,156,18,.06);border:1px solid rgba(243,156,18,.12);color:#f39c12}
+.card-badge .cb-icon{font-size:1rem}
+.card-badge .cb-tier{padding:2px 8px;border-radius:5px;font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px}
+.card-badge.active .cb-tier{background:rgba(39,174,96,.15);color:#27ae60}
+.card-badge .cb-daily{margin-left:auto;font-size:.65rem;color:rgba(255,255,255,.5)}
+.card-badge .cb-daily b{color:#f5c518}
+
 /* Responsive */
 @media(max-width:480px){
   .actions{grid-template-columns:repeat(2,1fr)}
   .bal-card .bl-amount{font-size:1.8rem}
+  .sp-grid{grid-template-columns:1fr}
 }
 </style>
 </head>
@@ -168,7 +206,56 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 <div class="section-label">&#x1F4C8; Current Prices</div>
 <div class="price-list" id="priceList"></div>
 
-<!-- Staking Summary -->
+<!-- Staking Panel -->
+<div class="section-label">&#x26CF;&#xFE0F; Quick Stake</div>
+<div class="stake-panel">
+  <div class="sp-title">&#x1F4C8; Stake &amp; Earn</div>
+  <div class="card-badge none" id="cardBadge">
+    <span class="cb-icon">&#x1F4B3;</span>
+    <span id="cbText">No active card &mdash; activate one for APY boost</span>
+    <span class="cb-tier" id="cbTier" style="display:none"></span>
+    <span class="cb-daily" id="cbDaily"></span>
+  </div>
+  <div class="sp-grid">
+    <div class="sp-field">
+      <label>Asset</label>
+      <select id="skAsset" onchange="updateApy()">
+        <option value="OLIGHFT">OLIGHFT</option>
+        <option value="XLM">XLM</option>
+        <option value="USDC">USDC</option>
+        <option value="wETH">wETH</option>
+        <option value="wBTC">wBTC</option>
+      </select>
+    </div>
+    <div class="sp-field">
+      <label>Amount</label>
+      <input type="number" id="skAmount" placeholder="0.00" min="0" step="any" oninput="updateApy()">
+    </div>
+    <div class="sp-field">
+      <label>Lock Period</label>
+      <select id="skPeriod" onchange="updateApy()">
+        <option value="0">Flexible</option>
+        <option value="30">30 Days (+1.5%)</option>
+        <option value="90">90 Days (+3.5%)</option>
+        <option value="180">180 Days (+6%)</option>
+        <option value="365">365 Days (+10%)</option>
+      </select>
+    </div>
+    <div class="sp-field">
+      <label>Compound</label>
+      <select id="skCompound" onchange="updateApy()">
+        <option value="none">None</option>
+        <option value="daily">Daily (+2.4%)</option>
+        <option value="weekly">Weekly (+1.2%)</option>
+        <option value="monthly">Monthly (+0.5%)</option>
+      </select>
+    </div>
+  </div>
+  <div class="sp-apy" id="spApy">12.0% APY &mdash; Est. reward: 0.00</div>
+  <button class="sp-btn" id="stakeBtn" onclick="doStake()">&#x26CF;&#xFE0F; Stake Now</button>
+</div>
+
+<!-- Active Stakes -->
 <div class="stake-summary" id="stakeSummary" style="display:none">
   <div class="ss-head">
     <div class="ss-title">&#x26CF;&#xFE0F; Active Stakes</div>
@@ -178,6 +265,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
   <div class="ss-row"><span class="ss-lbl">Total Staked</span><span class="ss-val" id="ssTotalStaked">0</span></div>
   <div class="ss-row"><span class="ss-lbl">Pending Rewards</span><span class="ss-val" id="ssPending">0</span></div>
 </div>
+<div class="stake-list" id="stakeList"></div>
 
 <!-- Your Balances -->
 <div class="section-label">&#x1F4B0; Your Balances</div>
@@ -204,6 +292,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 
 <div class="toast" id="toast"></div>
 
+<script src="staking-backend.js"></script>
 <script>
 // ── Coin Data ──
 var COINS = [
@@ -244,6 +333,8 @@ var DEFAULT_BALS = { XLM: 10000, USDC: 2500, wETH: 1.85, wBTC: 0.042, EURC: 1200
   renderPrices();
   renderBalances(bals);
   renderStakeSummary();
+  renderStakeList();
+  updateApy();
   updateTotalBalance(bals);
 })();
 
@@ -361,6 +452,253 @@ function showToast(msg, bg) {
   t.style.background = bg || '#6c5ce7';
   t.classList.add('show');
   setTimeout(function() { t.classList.remove('show'); }, 3000);
+}
+
+// ── Card Tier Config ──
+var CARD_TIERS = {
+  Visa:       { min: 100, daily: 6,  fee: 40,  boost: 1.0 },
+  Gold:       { min: 400, daily: 24, fee: 160, boost: 2.0 },
+  Platinum:   { min: 300, daily: 18, fee: 120, boost: 1.5 },
+  Black:      { min: 500, daily: 30, fee: 200, boost: 3.0 },
+  Amex:       { min: 200, daily: 12, fee: 80,  boost: 1.2 },
+  Mastercard: { min: 50,  daily: 3,  fee: 20,  boost: 0.5 }
+};
+
+function getActiveCards() {
+  var cs = [];
+  try { cs = JSON.parse(localStorage.getItem('card_stakes') || '[]'); } catch(e) { return []; }
+  var user = null;
+  try { user = JSON.parse(localStorage.getItem('cw_user')); } catch(e) {}
+  if (!user) return [];
+  var now = Date.now();
+  return cs.filter(function(s) {
+    if (s.withdrawn) return false;
+    if (s.activatedBy !== user.email && s.activatedBy !== user.name) return false;
+    if (s.period > 0) {
+      var end = new Date(s.date).getTime() + (s.period * 86400000);
+      return now < end;
+    }
+    return true;
+  });
+}
+
+function getBestCard() {
+  var active = getActiveCards();
+  if (active.length === 0) return null;
+  var best = active[0];
+  for (var i = 1; i < active.length; i++) {
+    var ti = CARD_TIERS[active[i].card];
+    var tb = CARD_TIERS[best.card];
+    if (ti && tb && ti.boost > tb.boost) best = active[i];
+  }
+  return best;
+}
+
+// ── Staking Engine ──
+var POOL_APY = { OLIGHFT: 12.0, XLM: 8.5, USDC: 6.2, wETH: 5.8, wBTC: 4.2 };
+var LOCK_BOOSTS = { 0: 0, 30: 1.5, 90: 3.5, 180: 6, 365: 10 };
+var COMPOUND_BOOSTS = { none: 0, daily: 2.4, weekly: 1.2, monthly: 0.5 };
+
+function getApy() {
+  var asset = document.getElementById('skAsset').value;
+  var days = parseInt(document.getElementById('skPeriod').value);
+  var comp = document.getElementById('skCompound').value;
+  var base = POOL_APY[asset] || 8.5;
+  var cardBoost = 0;
+  var bestCard = getBestCard();
+  if (bestCard && CARD_TIERS[bestCard.card]) cardBoost = CARD_TIERS[bestCard.card].boost;
+  return {
+    base: base, lock: LOCK_BOOSTS[days] || 0, comp: COMPOUND_BOOSTS[comp] || 0,
+    card: cardBoost, cardName: bestCard ? bestCard.card : null,
+    cardDaily: bestCard && CARD_TIERS[bestCard.card] ? CARD_TIERS[bestCard.card].daily : 0,
+    total: base + (LOCK_BOOSTS[days] || 0) + (COMPOUND_BOOSTS[comp] || 0) + cardBoost
+  };
+}
+
+function updateApy() {
+  var apy = getApy();
+  var amt = parseFloat(document.getElementById('skAmount').value) || 0;
+  var days = parseInt(document.getElementById('skPeriod').value);
+  var period = days > 0 ? days : 365;
+  var reward = amt * (apy.total / 100) * (period / 365);
+  var asset = document.getElementById('skAsset').value;
+  var cardTag = apy.cardName ? ' \uD83D\uDCB3 +' + apy.card.toFixed(1) + '%' : '';
+  document.getElementById('spApy').textContent = apy.total.toFixed(1) + '% APY' + cardTag + ' \u2014 Est. reward: ' + reward.toFixed(2) + ' ' + asset;
+
+  // Update card badge
+  var badge = document.getElementById('cardBadge');
+  var cbText = document.getElementById('cbText');
+  var cbTier = document.getElementById('cbTier');
+  var cbDaily = document.getElementById('cbDaily');
+  if (apy.cardName) {
+    badge.className = 'card-badge active';
+    cbText.textContent = apy.cardName + ' Card Active';
+    cbTier.style.display = 'inline-block';
+    cbTier.textContent = '+' + apy.card.toFixed(1) + '% BOOST';
+    cbDaily.innerHTML = '$<b>' + apy.cardDaily + '</b>/day';
+  } else {
+    badge.className = 'card-badge none';
+    cbText.textContent = 'No active card \u2014 activate one for APY boost';
+    cbTier.style.display = 'none';
+    cbDaily.innerHTML = '<a href="card-visa.html" style="color:#f39c12;text-decoration:underline;font-size:.6rem">Activate Card</a>';
+  }
+}
+
+function getWalletStakes() {
+  try { return JSON.parse(localStorage.getItem('wallet_stakes') || '[]'); } catch(e) { return []; }
+}
+
+function doStake() {
+  var user = null;
+  try { user = JSON.parse(localStorage.getItem('cw_user')); } catch(e) {}
+  if (!user || !user.email) { showToast('Please sign in first.', '#eb5757'); return; }
+
+  var asset = document.getElementById('skAsset').value;
+  var amt = parseFloat(document.getElementById('skAmount').value);
+  if (!amt || amt <= 0) { showToast('Enter a valid amount.', '#eb5757'); return; }
+
+  // Check balance
+  var bals = {};
+  try { bals = Object.assign({}, DEFAULT_BALS, JSON.parse(localStorage.getItem('cw_balances'))); } catch(e) { bals = Object.assign({}, DEFAULT_BALS); }
+  if ((bals[asset] || 0) < amt) { showToast('Insufficient ' + asset + ' balance!', '#eb5757'); return; }
+
+  // Check active card for OLIGHFT
+  if (asset === 'OLIGHFT') {
+    if (getActiveCards().length === 0) { showToast('Activate a card stake first to stake OLIGHFT.', '#eb5757'); return; }
+  }
+
+  var days = parseInt(document.getElementById('skPeriod').value);
+  var comp = document.getElementById('skCompound').value;
+  var apy = getApy();
+  var dailyReward = amt * (apy.total / 100) / 365;
+
+  // Deduct balance
+  bals[asset] = (bals[asset] || 0) - amt;
+  localStorage.setItem('cw_balances', JSON.stringify(bals));
+
+  // Create stake record
+  var stakeId = 'dsk_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
+  var now = new Date();
+  var endDate = days > 0 ? new Date(now.getTime() + days * 86400000).toISOString() : null;
+  var stake = {
+    id: stakeId, asset: asset, amount: amt, apy: apy.total, dailyReward: dailyReward,
+    startDate: now.toISOString(), endDate: endDate, lastCompound: now.toISOString(),
+    reward: 0, status: 'active', withdrawn: false, compound: comp, lockDays: days,
+    cardTier: apy.cardName || null, cardBoost: apy.card || 0
+  };
+
+  var stakes = getWalletStakes();
+  stakes.push(stake);
+  localStorage.setItem('wallet_stakes', JSON.stringify(stakes));
+
+  // Unified activity log
+  try { var al = JSON.parse(localStorage.getItem('cw_activity') || '[]'); al.unshift({ type: 'Staked', icon: '\uD83D\uDCC8', detail: amt + ' ' + asset + ' \u00B7 ' + (days > 0 ? days + 'd' : 'Flex') + ' \u00B7 ' + apy.total.toFixed(1) + '% APY', amt: '-' + amt + ' ' + asset, cls: 'red', time: 'Just now', ts: Date.now() }); if (al.length > 50) al.length = 50; localStorage.setItem('cw_activity', JSON.stringify(al)); } catch(e) {}
+
+  // On-chain Soroban stake (async, non-blocking)
+  var bestCard = getBestCard();
+  var tierName = bestCard ? bestCard.card : 'Visa';
+  if (typeof STAKING_BACKEND !== 'undefined' && STAKING_BACKEND.isWalletConnected() && asset === 'OLIGHFT') {
+    (async function() {
+      try {
+        var res = await STAKING_BACKEND.activateStake(tierName, amt);
+        if (res && res.success) {
+          stake.onChainIndex = res.stakeIndex;
+          stake.txHash = res.txHash || '';
+          localStorage.setItem('wallet_stakes', JSON.stringify(getWalletStakes().map(function(s) { return s.id === stakeId ? stake : s; })));
+        }
+      } catch(e) { console.warn('On-chain stake failed:', e.message); }
+    })();
+  }
+
+  // Refresh
+  var newBals = {};
+  try { newBals = Object.assign({}, DEFAULT_BALS, JSON.parse(localStorage.getItem('cw_balances'))); } catch(e) { newBals = Object.assign({}, DEFAULT_BALS); }
+  renderBalances(newBals);
+  updateTotalBalance(newBals);
+  renderStakeSummary();
+  renderStakeList();
+  document.getElementById('skAmount').value = '';
+  updateApy();
+  showToast('\u2705 Staked ' + amt + ' ' + asset + ' at ' + apy.total.toFixed(1) + '% APY!', '#27ae60');
+}
+
+function withdrawStake(stakeId) {
+  var stakes = getWalletStakes();
+  var idx = stakes.findIndex(function(s) { return s.id === stakeId; });
+  if (idx < 0) { showToast('Stake not found.', '#eb5757'); return; }
+  var s = stakes[idx];
+  var now = Date.now();
+
+  if (s.endDate) {
+    var end = new Date(s.endDate).getTime();
+    if (now < end) {
+      var daysLeft = Math.ceil((end - now) / 86400000);
+      showToast('Stake locked! ' + daysLeft + ' days remaining.', '#eb5757');
+      return;
+    }
+  }
+  if (s.withdrawn) { showToast('Already withdrawn.', '#eb5757'); return; }
+
+  var elapsed = (now - new Date(s.lastCompound || s.startDate).getTime()) / 86400000;
+  var accrued = (s.dailyReward || 0) * elapsed;
+  var totalReturn = s.amount + (s.reward || 0) + accrued;
+  var asset = s.asset || 'XLM';
+
+  if (!confirm('Withdraw ' + totalReturn.toFixed(2) + ' ' + asset + ' (principal + reward)?')) return;
+
+  // On-chain withdraw
+  var bestCard = getBestCard();
+  var tierName = bestCard ? bestCard.card : 'Visa';
+  if (typeof STAKING_BACKEND !== 'undefined' && STAKING_BACKEND.isWalletConnected() && asset === 'OLIGHFT') {
+    (async function() {
+      try {
+        var sIdx = s.onChainIndex != null ? s.onChainIndex : idx;
+        await STAKING_BACKEND.withdrawStake(tierName, sIdx);
+      } catch(e) { console.warn('On-chain withdraw failed:', e.message); }
+    })();
+  }
+
+  // Credit balance
+  var bals = {};
+  try { bals = Object.assign({}, DEFAULT_BALS, JSON.parse(localStorage.getItem('cw_balances'))); } catch(e) { bals = Object.assign({}, DEFAULT_BALS); }
+  bals[asset] = (bals[asset] || 0) + totalReturn;
+  localStorage.setItem('cw_balances', JSON.stringify(bals));
+
+  stakes[idx].status = 'withdrawn';
+  stakes[idx].withdrawn = true;
+  localStorage.setItem('wallet_stakes', JSON.stringify(stakes));
+
+  // Activity log
+  try { var al = JSON.parse(localStorage.getItem('cw_activity') || '[]'); al.unshift({ type: 'Unstaked', icon: '\uD83D\uDCB0', detail: 'Withdrew ' + totalReturn.toFixed(2) + ' ' + asset, amt: '+' + totalReturn.toFixed(2) + ' ' + asset, cls: 'green', time: 'Just now', ts: Date.now() }); if (al.length > 50) al.length = 50; localStorage.setItem('cw_activity', JSON.stringify(al)); } catch(e) {}
+
+  renderBalances(bals);
+  updateTotalBalance(bals);
+  renderStakeSummary();
+  renderStakeList();
+  showToast('\u2705 Withdrew ' + totalReturn.toFixed(2) + ' ' + asset + '!', '#27ae60');
+}
+
+function renderStakeList() {
+  var stakes = getWalletStakes().filter(function(s) { return !s.withdrawn; });
+  var el = document.getElementById('stakeList');
+  if (stakes.length === 0) { el.innerHTML = ''; return; }
+
+  var now = Date.now();
+  var html = '';
+  for (var i = 0; i < stakes.length; i++) {
+    var s = stakes[i];
+    var asset = s.asset || 'XLM';
+    var elapsed = (now - new Date(s.lastCompound || s.startDate).getTime()) / 86400000;
+    var pending = (s.dailyReward || 0) * elapsed + (s.reward || 0);
+    var lockLabel = s.endDate ? Math.max(0, Math.ceil((new Date(s.endDate).getTime() - now) / 86400000)) + 'd left' : 'Flex';
+    var cardTag = s.cardTier ? ' \u00B7 ' + s.cardTier : '';
+    html += '<div class="stk-item">' +
+      '<div class="si-icon">\u26CF\uFE0F</div>' +
+      '<div class="si-info"><div class="si-top">' + fmtBal(s.amount) + ' ' + asset + '</div><div class="si-sub">' + (s.apy || 0).toFixed(1) + '% APY \u00B7 ' + lockLabel + cardTag + '</div></div>' +
+      '<div class="si-right"><div class="si-amt">+' + pending.toFixed(4) + '</div><div class="si-reward">pending reward</div>' +
+      '<button class="withdraw-btn" onclick="withdrawStake(\'' + s.id + '\')">Withdraw</button></div></div>';
+  }
+  el.innerHTML = html;
 }
 </script>
 </body>
