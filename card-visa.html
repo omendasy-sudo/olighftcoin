@@ -378,6 +378,13 @@ h1{text-align:center;font-size:1.8rem;margin-bottom:6px;background:linear-gradie
 </div>
 </div>
 
+<div id="poolStatsBar" style="display:none;background:rgba(245,197,24,.06);border:1px solid rgba(245,197,24,.1);border-radius:10px;padding:12px;margin-bottom:10px">
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center">
+<div><div style="font-size:.52rem;color:rgba(255,255,255,.3);text-transform:uppercase">Pool TVL</div><div id="poolTvl" style="font-size:.85rem;font-weight:800;color:#f5c518">—</div></div>
+<div><div style="font-size:.52rem;color:rgba(255,255,255,.3);text-transform:uppercase">Your Pending</div><div id="poolPending" style="font-size:.85rem;font-weight:800;color:#27ae60">—</div></div>
+<div><div style="font-size:.52rem;color:rgba(255,255,255,.3);text-transform:uppercase">RPC Status</div><div id="poolRpc" style="font-size:.85rem;font-weight:800;color:#818cf8">—</div></div>
+</div>
+</div>
 <div id="stakeSlotCounter" style="text-align:center;font-size:.72rem;color:rgba(255,255,255,.4);margin-bottom:8px"></div>
 <div id="multiStakeContainer" style="display:flex;flex-direction:column;gap:10px;margin-bottom:14px"></div>
 
@@ -833,13 +840,79 @@ function renderStakeStatus(){
       '<div><div style="font-size:.52rem;color:rgba(255,255,255,.3);text-transform:uppercase">Earned</div><div style="font-size:.85rem;font-weight:800;color:#27ae60">$'+earned.toLocaleString()+'</div></div>'+
       '<div><div style="font-size:.52rem;color:rgba(255,255,255,.3);text-transform:uppercase">Days Left</div><div style="font-size:.85rem;font-weight:800;color:#818cf8">'+left+'</div></div>'+
       '<div><div style="font-size:.52rem;color:rgba(255,255,255,.3);text-transform:uppercase">Total Payout</div><div style="font-size:.85rem;font-weight:800;color:#f5c518">$'+s.payout.toLocaleString()+'</div></div></div>'+
+      '<div id="pendingReward_'+i+'" style="text-align:center;font-size:.72rem;color:#27ae60;margin:6px 0;display:none"></div>'+
+      '<button onclick="claimCardRewards(\''+s.date+'\','+i+')" style="width:100%;padding:8px;border:none;border-radius:10px;font-size:.72rem;font-weight:700;cursor:pointer;background:linear-gradient(135deg,#27ae60,#2ecc71);color:#fff;margin-top:6px">\uD83C\uDF81 Claim Rewards</button>'+
       '</div>';
   });
   container.innerHTML=html;
+  loadPendingRewards();
+}
+
+async function claimCardRewards(stakeDate, activeIdx){
+  if(typeof STAKING_BACKEND==='undefined'||!STAKING_BACKEND.isWalletConnected()){
+    alert('\u26A0\uFE0F Wallet not connected. Please log in from Wallet page first.');return;
+  }
+  var all=JSON.parse(localStorage.getItem('card_stakes')||'[]');
+  var idx=all.findIndex(function(s){return s.card===CARD.name&&s.date===stakeDate&&!s.withdrawn;});
+  if(idx===-1){alert('\u26A0\uFE0F Stake not found.');return;}
+  var sIdx=all[idx].onChainIndex!=null?all[idx].onChainIndex:idx;
+  try{
+    var res=await STAKING_BACKEND.claimRewards(CARD.name,sIdx);
+    var OLIGHFT_PRICE=0.50;
+    var rewardUSD=res.rewards*OLIGHFT_PRICE;
+    var cwBals=JSON.parse(localStorage.getItem('cw_balances')||'{}');
+    cwBals.OLIGHFT=(cwBals.OLIGHFT||0)+res.rewards;
+    localStorage.setItem('cw_balances',JSON.stringify(cwBals));
+    alert('\u2705 Rewards Claimed!\n\n\uD83C\uDF81 +'+res.rewards.toLocaleString()+' OLIGHFT ($'+rewardUSD.toFixed(2)+')\n\uD83D\uDD17 TX: '+(res.txHash||'').slice(0,12)+'...\n\uD83D\uDCB0 OLIGHFT Balance: '+cwBals.OLIGHFT.toLocaleString());
+    loadPendingRewards();
+  }catch(e){
+    console.warn('On-chain claim failed:',e.message);
+    alert('\u26A0\uFE0F Claim failed: '+e.message);
+  }
+}
+
+async function loadPendingRewards(){
+  if(typeof STAKING_BACKEND==='undefined'||!STAKING_BACKEND.isWalletConnected())return;
+  var activeStakes=getActiveStakes();
+  var totalPending=0;
+  for(var i=0;i<activeStakes.length;i++){
+    var s=activeStakes[i];
+    var all=JSON.parse(localStorage.getItem('card_stakes')||'[]');
+    var idx=all.findIndex(function(x){return x.card===CARD.name&&x.date===s.date&&!x.withdrawn;});
+    var sIdx=(idx>=0&&all[idx].onChainIndex!=null)?all[idx].onChainIndex:idx;
+    try{
+      var pending=await STAKING_BACKEND.getPendingRewards(CARD.name,sIdx);
+      var el=document.getElementById('pendingReward_'+i);
+      if(el){el.textContent='\uD83C\uDF81 Pending: '+pending.toLocaleString()+' OLIGHFT ($'+(pending*0.50).toFixed(2)+')';el.style.display='block';}
+      totalPending+=pending;
+    }catch(e){console.warn('Pending reward query failed for stake '+i+':',e.message);}
+  }
+  var poolPendingEl=document.getElementById('poolPending');
+  if(poolPendingEl) poolPendingEl.textContent=totalPending>0?totalPending.toLocaleString()+' OLIGHFT':'\u2014';
+}
+
+async function loadPoolStats(){
+  var bar=document.getElementById('poolStatsBar');
+  if(!bar)return;
+  var rpcEl=document.getElementById('poolRpc');
+  var tvlEl=document.getElementById('poolTvl');
+  if(typeof STAKING_BACKEND!=='undefined'){
+    try{
+      var healthy=await STAKING_BACKEND.checkRpcHealth();
+      if(rpcEl)rpcEl.innerHTML=healthy?'<span style="color:#27ae60">\u2705 Online</span>':'<span style="color:#e74c3c">\u274C Offline</span>';
+      bar.style.display='block';
+    }catch(e){if(rpcEl)rpcEl.innerHTML='<span style="color:#e74c3c">\u274C Error</span>';bar.style.display='block';}
+    try{
+      var tvl=await STAKING_BACKEND.getTotalStaked(CARD.name);
+      if(tvlEl)tvlEl.textContent=tvl>0?tvl.toLocaleString()+' OLIGHFT':'\u2014';
+    }catch(e){if(tvlEl)tvlEl.textContent='\u2014';}
+    try{await STAKING_BACKEND.syncStakesToLocal(CARD.name);}catch(e){console.warn('Sync failed:',e.message);}
+  }
 }
 
 (function(){try{const u=JSON.parse(localStorage.getItem('cw_user')||'null');if(u&&u.name)document.getElementById('stakeSponsor').value=u.name;}catch(e){}
   renderStakeStatus();
+  loadPoolStats();
 }());
 updatePeriodUI();
 
