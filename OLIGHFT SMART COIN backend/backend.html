@@ -381,7 +381,7 @@ function showToast(msg){const t=document.getElementById('toast');t.textContent=m
 
 // ── Token & Balance Data ──
 const TOKEN_META={XLM:{name:'Stellar Lumens',icon:'⭐',price:0.12},USDC:{name:'USD Coin',icon:'💵',price:1.00},wETH:{name:'Wrapped Ethereum',icon:'💎',price:3200},wBTC:{name:'Wrapped Bitcoin',icon:'🔶',price:68000},EURC:{name:'Euro Coin',icon:'💶',price:1.08}};
-const DEFAULT_BALS={XLM:10000,USDC:500,wETH:0.5,wBTC:0.02,EURC:200};
+const DEFAULT_BALS={XLM:10000,USDC:500,wETH:0.5,wBTC:0.02,EURC:200,OLIGHFT:10000};
 function getBalances(){try{return JSON.parse(localStorage.getItem('cw_balances')||'null')||DEFAULT_BALS;}catch(e){return DEFAULT_BALS;}}
 function fmtBal(v){return v<0.001?v.toFixed(8):v<1?v.toFixed(6):v<100?v.toFixed(4):v.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})}
 

@@ -453,7 +453,7 @@ h1{text-align:center;font-size:1.6rem;margin-bottom:4px;background:linear-gradie
 <div class="fg" id="fg-regConfirm"><label>Confirm Password</label><input type="password" id="regConfirm" placeholder="Confirm password" required minlength="8" oninput="pwMatchCheck()"><div class="field-err">Passwords do not match.</div></div>
 <div class="fg" style="display:flex;align-items:center;gap:8px" id="fg-agreeTerms">
 <input type="checkbox" id="agreeTerms" style="width:auto" required>
-<label style="margin:0;text-transform:none;letter-spacing:0;font-size:.7rem">I agree to the <a href="FUTURE CTPTO CARD SMART CONTRACT .html/terms .html" style="color:#a29bfe;text-decoration:none">Terms &amp; Conditions</a></label>
+<label style="margin:0;text-transform:none;letter-spacing:0;font-size:.7rem">I agree to the <a href="FUTURE%20CTPTO%20CARD%20SMART%20CONTRACT%20.html/terms.html" style="color:#a29bfe;text-decoration:none">Terms &amp; Conditions</a></label>
 </div>
 <button class="auth-btn" onclick="register()">&#x2728; Create Wallet</button>
 <div class="auth-note">Already have an account? <a href="#" onclick="showAuth('login');return false">Sign in</a></div>
@@ -736,7 +736,7 @@ For <strong>Soroban smart contracts</strong>, your single master key signs all <
 <a href="receive.html">&#x1F4E5; Receive</a>
 <a href="swap.html">&#x1F504; Swap</a>
 <a href="card-gold.html">&#x1F3C6; Contracts</a>
-<a href="OLIGHFT SMART COIN backend/backend.html">&#x2699;&#xFE0F; Admin</a>
+<a href="OLIGHFT%20SMART%20COIN%20backend/backend.html">&#x2699;&#xFE0F; Admin</a>
 </div>
 </div>
 
@@ -1082,7 +1082,7 @@ async function register(){
   localStorage.setItem('cw_accounts', btoa(JSON.stringify(accounts)));
   localStorage.setItem('cw_active_idx', '0');
   localStorage.setItem('cw_secret', btoa(keyPair.secret));
-  if(!localStorage.getItem('cw_balances'))localStorage.setItem('cw_balances',JSON.stringify({XLM:10000,USDC:500,wETH:0.5,wBTC:0.02,EURC:200,OLIGHFT:0}));
+  if(!localStorage.getItem('cw_balances'))localStorage.setItem('cw_balances',JSON.stringify({XLM:10000,USDC:500,wETH:0.5,wBTC:0.02,EURC:200,OLIGHFT:10000}));
 
   checkAndAdvanceOwnStage('wallet_created');
   showToast('Wallet created! Save your recovery phrase!','#27ae60');
@@ -1113,7 +1113,7 @@ async function login(){
     localStorage.setItem('cw_accounts', btoa(JSON.stringify(accounts)));
     localStorage.setItem('cw_active_idx', '0');
     localStorage.setItem('cw_secret', btoa(keyPair.secret));
-    if(!localStorage.getItem('cw_balances'))localStorage.setItem('cw_balances',JSON.stringify({XLM:10000,USDC:500,wETH:0.5,wBTC:0.02,EURC:200,OLIGHFT:0}));
+    if(!localStorage.getItem('cw_balances'))localStorage.setItem('cw_balances',JSON.stringify({XLM:10000,USDC:500,wETH:0.5,wBTC:0.02,EURC:200,OLIGHFT:10000}));
     showToast('Wallet created!','#27ae60');
     showSeedScreen(mnemonic);
     return;

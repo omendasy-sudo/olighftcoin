@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin &mdash; OLIGHFT SMART COIN</title>
+<meta name="description" content="OLIGHFT Admin — V4 Liquidity Management, Position Minting, Fee Collection.">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135deg,#0a0a1a,#111128,#0a0a1a);color:#fff;min-height:100vh;padding:20px}
+.container{max-width:560px;margin:0 auto}
+
+/* Header */
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}
+.header .logo{display:flex;align-items:center;gap:10px}
+.header .logo-icon{width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#e74c3c,#c0392b);display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:700}
+.header .logo-text{font-size:.92rem;font-weight:700;background:linear-gradient(90deg,#e74c3c,#e67e22);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.header .net-badge{padding:4px 12px;border-radius:8px;font-size:.58rem;font-weight:700;letter-spacing:.5px;text-transform:uppercase;background:rgba(231,76,60,.1);border:1px solid rgba(231,76,60,.2);color:#e74c3c}
+
+.admin-banner{padding:14px 18px;background:linear-gradient(135deg,rgba(231,76,60,.08),rgba(192,57,43,.06));border:1px solid rgba(231,76,60,.15);border-radius:12px;margin-bottom:20px;text-align:center}
+.admin-banner .ab-title{font-size:.85rem;font-weight:700;color:#e74c3c;margin-bottom:4px}
+.admin-banner .ab-sub{font-size:.6rem;color:rgba(255,255,255,.35)}
+
+.user-row{display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:12px;margin-bottom:20px}
+.user-row .avatar{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#e74c3c,#c0392b);display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:700;flex-shrink:0}
+.user-row .uinfo{flex:1;min-width:0}
+.user-row .uname{font-size:.82rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.user-row .uemail{font-size:.62rem;color:rgba(255,255,255,.35);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.user-row .back-btn{background:none;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.4);padding:5px 10px;border-radius:8px;font-size:.62rem;cursor:pointer;transition:.2s;flex-shrink:0;text-decoration:none}
+.user-row .back-btn:hover{border-color:rgba(108,92,231,.3);color:#a29bfe}
+
+.section-label{font-size:.72rem;font-weight:700;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px;margin-top:18px}
+.card{padding:16px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:14px;margin-bottom:16px}
+
+/* Balance Summary */
+.bal-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
+.bal-item{padding:10px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:10px;text-align:center}
+.bal-item .bi-sym{font-size:.6rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.5px}
+.bal-item .bi-val{font-size:.82rem;font-weight:700;color:rgba(255,255,255,.7);margin-top:2px}
+
+/* LP Panel */
+.lp-panel{padding:20px;background:linear-gradient(135deg,rgba(39,174,96,.06),rgba(46,204,113,.04));border:1px solid rgba(39,174,96,.15);border-radius:16px;margin-bottom:22px}
+.lp-panel .lp-title{font-size:.82rem;font-weight:700;color:#27ae60;margin-bottom:14px;display:flex;align-items:center;gap:6px}
+.lp-pool-row{display:flex;gap:8px;margin-bottom:10px}
+.lp-pool-row select{flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(39,174,96,.12);border-radius:8px;padding:10px;color:#fff;font-size:.8rem;outline:none}
+.lp-pool-row select option{background:#111128;color:#fff}
+.lp-range-row{display:flex;gap:6px;margin-bottom:10px}
+.lp-range-row button{padding:5px 10px;border-radius:6px;font-size:.65rem;font-weight:600;cursor:pointer;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);color:rgba(255,255,255,.5);transition:.2s}
+.lp-range-row button.active{background:rgba(39,174,96,.15);border-color:rgba(39,174,96,.4);color:#27ae60}
+.lp-amt-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.lp-amt-row .lp-in{background:rgba(255,255,255,.03);border:1px solid rgba(39,174,96,.08);border-radius:8px;padding:10px}
+.lp-amt-row .lp-in label{display:block;font-size:.55rem;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.lp-amt-row .lp-in input{width:100%;background:none;border:none;color:#fff;font-size:.9rem;font-weight:600;outline:none}
+.lp-amt-row .lp-in input::placeholder{color:rgba(255,255,255,.15)}
+.lp-amt-row .lp-in .lp-b{font-size:.55rem;color:rgba(255,255,255,.3);margin-top:3px;cursor:pointer}
+.lp-amt-row .lp-in .lp-b:hover{color:#27ae60}
+.lp-details{background:rgba(39,174,96,.04);border-radius:8px;padding:8px 10px;margin:8px 0;font-size:.65rem}
+.lp-details .lpd-row{display:flex;justify-content:space-between;padding:2px 0}
+.lp-details .lpd-lbl{color:rgba(255,255,255,.4)}
+.lp-details .lpd-val{font-weight:600;color:rgba(255,255,255,.7)}
+.lp-exec{width:100%;padding:11px;border:none;border-radius:10px;font-size:.82rem;font-weight:700;cursor:pointer;background:linear-gradient(135deg,#27ae60,#2ecc71);color:#fff;transition:.2s}
+.lp-exec:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(39,174,96,.3)}
+
+/* Position list */
+.lp-pos-list .lp-pos{padding:8px 10px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px;margin-bottom:5px;font-size:.68rem}
+.lp-pos .lp-pos-pair{font-weight:600;color:rgba(255,255,255,.7)}
+.lp-pos .lp-pos-detail{font-size:.58rem;color:rgba(255,255,255,.35);margin-top:2px}
+.lp-pos .lp-pos-fees{font-size:.55rem;color:#f39c12;margin-top:2px}
+.lp-pos .lp-pos-fees .fee-val{color:#e67e22;font-weight:600}
+.lp-pos .lp-pos-lifetime{font-size:.48rem;color:rgba(255,255,255,.2);margin-top:1px}
+.lp-collect-btn{padding:4px 10px;border:1px solid rgba(243,156,18,.3);background:rgba(243,156,18,.08);color:#f39c12;border-radius:6px;font-size:.56rem;font-weight:700;cursor:pointer;transition:.2s;margin-top:3px}
+.lp-collect-btn:hover{background:rgba(243,156,18,.18);border-color:rgba(243,156,18,.5)}
+.lp-collect-btn:disabled{opacity:.4;cursor:not-allowed}
+.lp-pos-actions{display:flex;gap:4px;flex-wrap:wrap;margin-top:3px}
+.lp-add-btn{padding:4px 10px;border:1px solid rgba(39,174,96,.3);background:rgba(39,174,96,.08);color:#27ae60;border-radius:6px;font-size:.56rem;font-weight:700;cursor:pointer;transition:.2s}
+.lp-add-btn:hover{background:rgba(39,174,96,.18);border-color:rgba(39,174,96,.5)}
+.lp-rm-btn{padding:4px 10px;border:1px solid rgba(235,87,87,.3);background:rgba(235,87,87,.08);color:#eb5757;border-radius:6px;font-size:.56rem;font-weight:700;cursor:pointer;transition:.2s}
+.lp-rm-btn:hover{background:rgba(235,87,87,.18);border-color:rgba(235,87,87,.5)}
+.lp-rm-pct{padding:3px 7px;border:1px solid rgba(235,87,87,.2);background:rgba(235,87,87,.04);color:#c0392b;border-radius:5px;font-size:.5rem;font-weight:600;cursor:pointer;transition:.2s}
+.lp-rm-pct:hover{background:rgba(235,87,87,.14);border-color:rgba(235,87,87,.4)}
+
+/* Fetch Positions */
+.fetch-pos-btn{padding:10px 18px;background:linear-gradient(135deg,#8e44ad,#9b59b6);color:#fff;border:none;border-radius:10px;font-size:.75rem;font-weight:700;cursor:pointer;transition:.2s}
+.fetch-pos-btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(142,68,173,.35)}
+.fetch-pos-card{padding:8px 10px;background:rgba(142,68,173,.06);border:1px solid rgba(142,68,173,.12);border-radius:8px;margin-bottom:5px}
+.fetch-pos-card .fp-pair{font-size:.72rem;font-weight:600;color:rgba(255,255,255,.7)}
+.fetch-pos-card .fp-detail{font-size:.6rem;color:rgba(255,255,255,.4);margin-top:2px}
+.fetch-pos-card .fp-packed{font-size:.5rem;color:rgba(142,68,173,.55);font-family:'Courier New',monospace;margin-top:2px}
+.fp-status{font-size:.65rem;color:rgba(255,255,255,.35);padding:6px 0;text-align:center}
+
+/* Footer */
+.footer{text-align:center;padding:24px 0 12px;border-top:1px solid rgba(255,255,255,.04);margin-top:28px}
+.footer p{font-size:.6rem;color:rgba(255,255,255,.2)}
+.footer .f-links{display:flex;gap:10px;justify-content:center;margin-top:8px;flex-wrap:wrap}
+.footer .f-links a{font-size:.6rem;color:rgba(255,255,255,.3);text-decoration:none;transition:.2s}
+.footer .f-links a:hover{color:#a29bfe}
+
+/* Toast */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(80px);background:#27ae60;color:#fff;padding:12px 24px;border-radius:12px;font-size:.75rem;font-weight:600;opacity:0;transition:.3s;z-index:9999;pointer-events:none;max-width:90%;text-align:center}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+
+@media(max-width:480px){
+  .bal-summary{grid-template-columns:repeat(2,1fr)}
+  .lp-amt-row{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- Header -->
+<div class="header">
+  <div class="logo">
+    <div class="logo-icon">&#x1F6E1;</div>
+    <div class="logo-text">OLIGHFT Admin</div>
+  </div>
+  <div class="net-badge">&#x1F534; Admin Panel</div>
+</div>
+
+<!-- Admin Banner -->
+<div class="admin-banner">
+  <div class="ab-title">&#x1F6E1;&#xFE0F; V4 Liquidity Admin Panel</div>
+  <div class="ab-sub">Mint positions, manage liquidity, collect fees, fetch on-chain data</div>
+</div>
+
+<!-- User Row -->
+<div class="user-row" id="userRow" style="display:none">
+  <div class="avatar" id="aAvatar">A</div>
+  <div class="uinfo">
+    <div class="uname" id="aName">Admin</div>
+    <div class="uemail" id="aEmail"></div>
+  </div>
+  <a href="dashboard.html" class="back-btn">&#x2190; Dashboard</a>
+</div>
+
+<!-- Balance Summary -->
+<div class="section-label">&#x1F4B0; Wallet Balances</div>
+<div class="bal-summary" id="balSummary"></div>
+
+<!-- Mint Position Panel -->
+<div class="section-label">&#x1F4A7; Mint Liquidity Position</div>
+<div class="lp-panel" id="adminLpPanel">
+  <div class="lp-title">&#x1F4A7; Mint Position (V4 PositionManager)</div>
+  <div class="lp-pool-row">
+    <select id="dlpT0" onchange="calcAdminLP()">
+      <option value="XLM">&#x2B50; XLM</option>
+      <option value="USDC">&#x1F4B5; USDC</option>
+      <option value="wETH">&#x1F48E; wETH</option>
+      <option value="wBTC">&#x1F536; wBTC</option>
+      <option value="EURC">&#x1F4B6; EURC</option>
+      <option value="OLIGHFT" selected>&#x1F4B0; OLIGHFT</option>
+    </select>
+    <span style="color:rgba(255,255,255,.25);align-self:center">/</span>
+    <select id="dlpT1" onchange="calcAdminLP()">
+      <option value="XLM">&#x2B50; XLM</option>
+      <option value="USDC" selected>&#x1F4B5; USDC</option>
+      <option value="wETH">&#x1F48E; wETH</option>
+      <option value="wBTC">&#x1F536; wBTC</option>
+      <option value="EURC">&#x1F4B6; EURC</option>
+      <option value="OLIGHFT">&#x1F4B0; OLIGHFT</option>
+    </select>
+  </div>
+  <div class="lp-range-row">
+    <button class="active" onclick="setAdminLPRange(this,'narrow')">Narrow</button>
+    <button onclick="setAdminLPRange(this,'medium')">Medium</button>
+    <button onclick="setAdminLPRange(this,'wide')">Wide</button>
+    <button onclick="setAdminLPRange(this,'full')">Full</button>
+  </div>
+  <div class="lp-amt-row">
+    <div class="lp-in">
+      <label id="dlpL0">OLIGHFT</label>
+      <input type="number" id="dlpA0" placeholder="0.0" step="any" min="0" oninput="calcAdminLP()">
+      <div class="lp-b" id="dlpB0" onclick="setAdminLPMax(0)">Balance: 0</div>
+    </div>
+    <div class="lp-in">
+      <label id="dlpL1">USDC</label>
+      <input type="number" id="dlpA1" placeholder="0.0" step="any" min="0" oninput="calcAdminLP()">
+      <div class="lp-b" id="dlpB1" onclick="setAdminLPMax(1)">Balance: 0</div>
+    </div>
+  </div>
+  <div class="lp-details" id="dlpInfo" style="display:none">
+    <div class="lpd-row"><span class="lpd-lbl">Pool</span><span class="lpd-val" id="dlpPool">-</span></div>
+    <div class="lpd-row"><span class="lpd-lbl">Tick Range</span><span class="lpd-val" id="dlpTicks">-</span></div>
+    <div class="lpd-row"><span class="lpd-lbl">Liquidity</span><span class="lpd-val" id="dlpLiq">-</span></div>
+    <div class="lpd-row"><span class="lpd-lbl">Share</span><span class="lpd-val" id="dlpShare">-</span></div>
+    <div class="lpd-row"><span class="lpd-lbl">Fee</span><span class="lpd-val" id="dlpFee">-</span></div>
+  </div>
+  <button class="lp-exec" onclick="execAdminMint()">&#x1F4A7; Mint Position</button>
+</div>
+
+<!-- LP Positions -->
+<div class="section-label">&#x1F5BC;&#xFE0F; Your LP Positions</div>
+<div class="lp-pos-list" id="dlpPositions"></div>
+
+<!-- Fetch V4 Positions -->
+<div class="section-label">&#x1F50D; Fetch V4 Positions</div>
+<div class="card" style="border-color:rgba(142,68,173,.15);background:rgba(142,68,173,.03)">
+  <p style="font-size:.62rem;color:rgba(255,255,255,.35);margin-bottom:8px">Query PositionManager subgraph &amp; decode packed on-chain position data.</p>
+  <div style="display:flex;gap:6px;margin-bottom:8px">
+    <input type="text" id="dfetchAddr" placeholder="Owner address (blank = your wallet)" style="flex:1;padding:8px 10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:8px;color:#fff;font-size:.68rem;outline:none">
+    <button class="fetch-pos-btn" onclick="fetchAdminV4Positions()">&#x1F50E; Fetch</button>
+  </div>
+  <div id="dfetchStatus" class="fp-status" style="display:none"></div>
+  <div id="dfetchList"></div>
+</div>
+
+<!-- Footer -->
+<div class="footer">
+  <p>&copy; 2025 OLIGHFT SMART COIN &mdash; Stellar Testnet</p>
+  <div class="f-links">
+    <a href="dashboard.html">Dashboard</a>
+    <a href="index.html">Home</a>
+    <a href="activity.html">Activity</a>
+    <a href="wallet.html">Wallet</a>
+    <a href="swap.html">Swap</a>
+    <a href="testnet.html">Testnet</a>
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── Constants ──
+var DEFAULT_BALS = { XLM: 10000, USDC: 2500, wETH: 1.85, wBTC: 0.042, EURC: 1200, OLIGHFT: 10000 };
+var SWAP_SLIPPAGE = 0.5;
+var TOKEN_PRICES = { XLM: 0.12, USDC: 1, wETH: 3200, wBTC: 68000, EURC: 1.08, OLIGHFT: 0.50 };
+var MIN_TICK = -887272;
+var MAX_TICK = 887272;
+var ADMIN_LP_RANGE = 'narrow';
+var ADMIN_LP_TICKS = { narrow: 500, medium: 2500, wide: 5000, full: 0 };
+
+// ── Pool Registry ──
+var POOL_REGISTRY = {
+  'XLM/USDC':     { currency0: 'XLM',     currency1: 'USDC',    fee: 3000, tickSpacing: 60,  hooks: '0x0000000000000000000000000000000000000000', reserve0: 5000000,  reserve1: 600000 },
+  'XLM/OLIGHFT':  { currency0: 'XLM',     currency1: 'OLIGHFT', fee: 3000, tickSpacing: 60,  hooks: '0x0000000000000000000000000000000000000000', reserve0: 2000000,  reserve1: 480000 },
+  'USDC/OLIGHFT': { currency0: 'USDC',    currency1: 'OLIGHFT', fee: 500,  tickSpacing: 10,  hooks: '0x0000000000000000000000000000000000000000', reserve0: 500000,   reserve1: 1000000 },
+  'USDC/EURC':    { currency0: 'USDC',    currency1: 'EURC',    fee: 100,  tickSpacing: 1,   hooks: '0x0000000000000000000000000000000000000000', reserve0: 2000000,  reserve1: 1851852 },
+  'wETH/USDC':    { currency0: 'wETH',    currency1: 'USDC',    fee: 3000, tickSpacing: 60,  hooks: '0x0000000000000000000000000000000000000000', reserve0: 500,      reserve1: 1600000 },
+  'wBTC/USDC':    { currency0: 'wBTC',    currency1: 'USDC',    fee: 3000, tickSpacing: 60,  hooks: '0x0000000000000000000000000000000000000000', reserve0: 25,       reserve1: 1700000 },
+  'wETH/OLIGHFT': { currency0: 'wETH',    currency1: 'OLIGHFT', fee: 3000, tickSpacing: 60,  hooks: '0x0000000000000000000000000000000000000000', reserve0: 200,      reserve1: 1280000 },
+  'wBTC/OLIGHFT': { currency0: 'wBTC',    currency1: 'OLIGHFT', fee: 3000, tickSpacing: 60,  hooks: '0x0000000000000000000000000000000000000000', reserve0: 10,       reserve1: 1360000 }
+};
+function findPool(a, b) { return POOL_REGISTRY[a + '/' + b] || POOL_REGISTRY[b + '/' + a] || null; }
+
+// ── UI Helpers ──
+function fmtBal(v) { return v < 0.001 ? v.toFixed(8) : v < 1 ? v.toFixed(6) : v < 100 ? v.toFixed(4) : v.toLocaleString('en', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+function showToast(msg, bg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg; t.style.background = bg || '#27ae60';
+  t.classList.add('show');
+  setTimeout(function() { t.classList.remove('show'); }, 3500);
+}
+function getBals() {
+  try { return Object.assign({}, DEFAULT_BALS, JSON.parse(localStorage.getItem('cw_balances'))); } catch(e) { return Object.assign({}, DEFAULT_BALS); }
+}
+
+function renderBalSummary() {
+  var bals = getBals();
+  var el = document.getElementById('balSummary');
+  var tokens = ['XLM', 'USDC', 'wETH', 'wBTC', 'EURC', 'OLIGHFT'];
+  el.innerHTML = tokens.map(function(t) {
+    return '<div class="bal-item"><div class="bi-sym">' + t + '</div><div class="bi-val">' + fmtBal(bals[t] || 0) + '</div></div>';
+  }).join('');
+}
+
+// ── Token class ──
+function Token(chainId, address, decimals, symbol, name) {
+  this.chainId = chainId; this.address = address; this.decimals = decimals; this.symbol = symbol; this.name = name || symbol;
+  this.isNative = (address === '0x0000000000000000000000000000000000000000');
+}
+var TOKENS = {
+  XLM:     new Token(0, 'native', 7, 'XLM', 'Stellar Lumens'),
+  USDC:    new Token(0, 'CUSDC000000000000000000000000000000000000000000000000000', 6, 'USDC', 'USD Coin'),
+  wETH:    new Token(0, 'CWETH000000000000000000000000000000000000000000000000000', 18, 'wETH', 'Wrapped Ether'),
+  wBTC:    new Token(0, 'CWBTC000000000000000000000000000000000000000000000000000', 8, 'wBTC', 'Wrapped Bitcoin'),
+  EURC:    new Token(0, 'CEURC000000000000000000000000000000000000000000000000000', 6, 'EURC', 'Euro Coin'),
+  OLIGHFT: new Token(0, 'COLIGHFT0000000000000000000000000000000000000000000000000', 7, 'OLIGHFT', 'OLIGHFT Smart Coin')
+};
+TOKENS.XLM.isNative = true;
+
+var CONTRACTS = {
+  PERMIT2: '0x000000000022D473030F116dDEE9F6B43aC78BA3',
+  POSITION_MANAGER: '0x4529a01c7a0410167c5740c487a8de60232617bf',
+  STATE_VIEW: '0x86e8631a016f9068c3f085faf484ee3f5fdee8f2'
+};
+
+// ── nearestUsableTick ──
+function nearestUsableTick(tick, tickSpacing) {
+  if (tickSpacing <= 0) return tick;
+  var rounded = Math.round(tick / tickSpacing) * tickSpacing;
+  if (rounded < MIN_TICK) return MIN_TICK + tickSpacing - (MIN_TICK % tickSpacing);
+  if (rounded > MAX_TICK) return MAX_TICK - (MAX_TICK % tickSpacing);
+  return rounded;
+}
+
+// ── V4Pool ──
+function V4Pool(token0, token1, fee, tickSpacing, hookAddress, sqrtPriceX96, liquidity, tick) {
+  this.token0 = token0; this.token1 = token1;
+  this.currency0 = (typeof token0 === 'string') ? token0 : token0.symbol;
+  this.currency1 = (typeof token1 === 'string') ? token1 : token1.symbol;
+  this.fee = fee; this.tickSpacing = tickSpacing;
+  this.hooks = hookAddress || '0x0000000000000000000000000000000000000000';
+  this.sqrtPriceX96 = sqrtPriceX96; this.liquidity = liquidity; this.tick = tick;
+  var sqrtP = Number(sqrtPriceX96) / (2 ** 96);
+  this.reserve0 = Number(liquidity) / sqrtP;
+  this.reserve1 = Number(liquidity) * sqrtP;
+}
+V4Pool.getPoolId = function(token0, token1, fee, tickSpacing, hookAddress) {
+  var t0 = (typeof token0 === 'string') ? token0 : token0.symbol;
+  var t1 = (typeof token1 === 'string') ? token1 : token1.symbol;
+  var raw = t0 + ':' + t1 + ':' + fee + ':' + tickSpacing + ':' + (hookAddress || '0x00');
+  var hash = 0;
+  for (var i = 0; i < raw.length; i++) { hash = ((hash << 5) - hash) + raw.charCodeAt(i); hash |= 0; }
+  var hex = '';
+  for (var i = 0; i < 64; i++) hex += '0123456789abcdef'[(Math.abs(hash * (i + 1)) >>> 0) % 16];
+  return '0x' + hex;
+};
+
+function poolFromRegistry(regEntry) {
+  var sqrtP = Math.sqrt(regEntry.reserve1 / regEntry.reserve0);
+  var sqrtPriceX96 = sqrtP * (2 ** 96);
+  var liquidity = Math.sqrt(regEntry.reserve0 * regEntry.reserve1);
+  var tick = Math.round(Math.log(regEntry.reserve1 / regEntry.reserve0) / Math.log(1.0001));
+  var p = new V4Pool(regEntry.currency0, regEntry.currency1, regEntry.fee, regEntry.tickSpacing, regEntry.hooks, sqrtPriceX96.toString(), liquidity.toString(), tick);
+  p.reserve0 = regEntry.reserve0; p.reserve1 = regEntry.reserve1;
+  p._registryKey = regEntry.currency0 + '/' + regEntry.currency1;
+  return p;
+}
+
+// ── V4Position ──
+function V4Position(params) {
+  this.pool = params.pool; this.tickLower = params.tickLower; this.tickUpper = params.tickUpper;
+  this.liquidity = params.liquidity || 0; this.amount0 = params.amount0 || 0; this.amount1 = params.amount1 || 0;
+}
+Object.defineProperty(V4Position.prototype, 'mintAmounts', {
+  get: function() { return { amount0: this.amount0, amount1: this.amount1 }; }
+});
+V4Position.fromAmounts = function(params) {
+  var pool = params.pool;
+  var tickLower = params.tickLower, tickUpper = params.tickUpper;
+  var amount0 = Number(params.amount0) || 0, amount1 = Number(params.amount1) || 0;
+  var sqrtCurrent = Math.sqrt(pool.reserve1 / pool.reserve0);
+  var sqrtLower = Math.sqrt(Math.pow(1.0001, tickLower));
+  var sqrtUpper = Math.sqrt(Math.pow(1.0001, tickUpper));
+  var liquidity0 = amount0 * (sqrtCurrent * sqrtUpper) / (sqrtUpper - sqrtCurrent);
+  var liquidity1 = amount1 / (sqrtCurrent - sqrtLower);
+  var liquidity = Math.min(liquidity0, liquidity1);
+  if (liquidity <= 0) liquidity = Math.max(liquidity0, liquidity1);
+  var actualAmt0 = liquidity * (sqrtUpper - sqrtCurrent) / (sqrtCurrent * sqrtUpper);
+  var actualAmt1 = liquidity * (sqrtCurrent - sqrtLower);
+  if (actualAmt0 < 0) actualAmt0 = 0;
+  if (actualAmt1 < 0) actualAmt1 = 0;
+  return new V4Position({
+    pool: pool, tickLower: tickLower, tickUpper: tickUpper,
+    liquidity: Math.abs(liquidity),
+    amount0: Math.min(actualAmt0, amount0),
+    amount1: Math.min(actualAmt1, amount1)
+  });
+};
+
+// ── Permit2 ──
+function generatePermit2BatchSignature(permitDetails, spender, sigDeadline, ownerAddress) {
+  var raw = ownerAddress + ':' + spender + ':' + sigDeadline;
+  for (var i = 0; i < permitDetails.length; i++) { raw += ':' + permitDetails[i].token + ':' + permitDetails[i].amount; }
+  var sig = '', h = 0;
+  for (var i = 0; i < raw.length; i++) { h = ((h << 5) - h) + raw.charCodeAt(i); h |= 0; }
+  for (var i = 0; i < 130; i++) sig += '0123456789abcdef'[(Math.abs(h * (i + 1)) >>> 0) % 16];
+  return '0x' + sig;
+}
+function buildBatchPermit(token0sym, token1sym, ownerAddress, deadline) {
+  var permitDetails = [];
+  var t0 = TOKENS[token0sym], t1 = TOKENS[token1sym];
+  if (t0 && !t0.isNative) { permitDetails.push({ token: t0.address, amount: '1461501637330902918203684832716283019655932542975', expiration: deadline.toString(), nonce: '0' }); }
+  if (t1 && !t1.isNative) { permitDetails.push({ token: t1.address, amount: '1461501637330902918203684832716283019655932542975', expiration: deadline.toString(), nonce: '0' }); }
+  if (permitDetails.length === 0) return null;
+  var permitBatch = { details: permitDetails, spender: CONTRACTS.POSITION_MANAGER, sigDeadline: deadline.toString() };
+  var signature = generatePermit2BatchSignature(permitDetails, CONTRACTS.POSITION_MANAGER, deadline, ownerAddress);
+  return { owner: ownerAddress, permitBatch: permitBatch, signature: signature };
+}
+
+// ── V4PositionManager ──
+var V4PositionManager = {};
+V4PositionManager.addCallParameters = function(position, mintOptions) {
+  var slipMul = 1 + (mintOptions.slippageTolerance || 0.5) / 100;
+  var amount0Max = position.amount0 * slipMul, amount1Max = position.amount1 * slipMul;
+  var actions = [];
+  var poolKey = { currency0: position.pool.currency0, currency1: position.pool.currency1, fee: position.pool.fee, tickSpacing: position.pool.tickSpacing, hooks: position.pool.hooks || '0x0000000000000000000000000000000000000000' };
+  if (mintOptions.batchPermit) { actions.push({ action: 'PERMIT2_BATCH', params: mintOptions.batchPermit }); }
+  if (mintOptions.createPool && mintOptions.sqrtPriceX96) { actions.push({ action: 'INITIALIZE_POOL', params: { poolKey: poolKey, sqrtPriceX96: mintOptions.sqrtPriceX96 } }); }
+  actions.push({ action: 'MINT_POSITION', params: { poolKey: poolKey, tickLower: position.tickLower, tickUpper: position.tickUpper, liquidity: position.liquidity, amount0Max: amount0Max, amount1Max: amount1Max, recipient: mintOptions.recipient, hookData: mintOptions.hookData || '0x' } });
+  actions.push({ action: 'SETTLE_PAIR', params: { currency0: poolKey.currency0, currency1: poolKey.currency1 } });
+  var value = '0';
+  if (mintOptions.useNative) {
+    actions.push({ action: 'SWEEP', params: { currency: mintOptions.useNative, recipient: mintOptions.recipient } });
+    if (poolKey.currency0 === mintOptions.useNative) value = amount0Max.toString();
+    else if (poolKey.currency1 === mintOptions.useNative) value = amount1Max.toString();
+  }
+  var seed = position.liquidity.toString() + mintOptions.deadline.toString() + Date.now().toString();
+  var calldata = '', h = 0;
+  for (var i = 0; i < seed.length; i++) { h = ((h << 5) - h) + seed.charCodeAt(i); h |= 0; }
+  for (var i = 0; i < 128; i++) calldata += '0123456789abcdef'[(Math.abs(h * (i + 1)) >>> 0) % 16];
+  return { calldata: '0x' + calldata, value: value, actions: actions, multicall: true };
+};
+
+V4PositionManager.collectCallParameters = function(position, collectOptions) {
+  var actions = [];
+  var poolKey = { currency0: position.pool.currency0, currency1: position.pool.currency1, fee: position.pool.fee, tickSpacing: position.pool.tickSpacing, hooks: position.pool.hooks || '0x0000000000000000000000000000000000000000' };
+  actions.push({ action: 'DECREASE_LIQUIDITY', params: { tokenId: collectOptions.tokenId, liquidity: 0, amount0Min: 0, amount1Min: 0, hookData: collectOptions.hookData || '0x' } });
+  actions.push({ action: 'TAKE_PAIR', params: { currency0: poolKey.currency0, currency1: poolKey.currency1, recipient: collectOptions.recipient } });
+  var seed = collectOptions.tokenId + ':' + collectOptions.deadline + ':' + Date.now();
+  var calldata = '', h = 0;
+  for (var i = 0; i < seed.length; i++) { h = ((h << 5) - h) + seed.charCodeAt(i); h |= 0; }
+  for (var i = 0; i < 128; i++) calldata += '0123456789abcdef'[(Math.abs(h * (i + 1)) >>> 0) % 16];
+  return { calldata: '0x' + calldata, value: '0', actions: actions, multicall: true };
+};
+
+V4PositionManager.removeCallParameters = function(position, removeOptions) {
+  var slipMul = 1 - (removeOptions.slippageTolerance || 0.5) / 100;
+  var pctNum = removeOptions.liquidityPercentage || 100;
+  var liquidityToRemove = position.liquidity * (pctNum / 100);
+  var amount0Min = position.amount0 * (pctNum / 100) * Math.max(slipMul, 0);
+  var amount1Min = position.amount1 * (pctNum / 100) * Math.max(slipMul, 0);
+  var actions = [];
+  var poolKey = { currency0: position.pool.currency0, currency1: position.pool.currency1, fee: position.pool.fee, tickSpacing: position.pool.tickSpacing, hooks: position.pool.hooks || '0x0000000000000000000000000000000000000000' };
+  actions.push({ action: 'DECREASE_LIQUIDITY', params: { tokenId: removeOptions.tokenId, liquidity: liquidityToRemove, amount0Min: amount0Min, amount1Min: amount1Min, hookData: removeOptions.hookData || '0x' } });
+  actions.push({ action: 'TAKE_PAIR', params: { currency0: poolKey.currency0, currency1: poolKey.currency1, recipient: removeOptions.recipient } });
+  if (removeOptions.burnToken && pctNum >= 100) { actions.push({ action: 'BURN_POSITION', params: { tokenId: removeOptions.tokenId } }); }
+  var seed = removeOptions.tokenId + ':rm:' + liquidityToRemove.toString() + ':' + Date.now();
+  var calldata = '', h = 0;
+  for (var i = 0; i < seed.length; i++) { h = ((h << 5) - h) + seed.charCodeAt(i); h |= 0; }
+  for (var i = 0; i < 128; i++) calldata += '0123456789abcdef'[(Math.abs(h * (i + 1)) >>> 0) % 16];
+  return { calldata: '0x' + calldata, value: '0', actions: actions, multicall: true };
+};
+
+// ── Fee Engine ──
+var Q128 = Math.pow(2, 128);
+function simulateFeeGrowthForPosition(pos) {
+  var elapsed = (Date.now() - (pos.mintedAt || Date.now())) / 1000;
+  var feeRate = (pos.fee || 3000) / 1000000;
+  var liq = pos.liquidity || 0;
+  if (liq <= 0) return { feeGrowthInside0X128: 0, feeGrowthInside1X128: 0, feeGrowthInside0Last: 0, feeGrowthInside1Last: 0 };
+  var trades = Math.floor(elapsed / 15);
+  var avgTradeSize0 = (pos.amount0 || 100) * 0.02;
+  var avgTradeSize1 = (pos.amount1 || 100) * 0.02;
+  var totalFees0 = trades * avgTradeSize0 * feeRate;
+  var totalFees1 = trades * avgTradeSize1 * feeRate;
+  var feeGrowthInside0Current = (totalFees0 / liq) * Q128;
+  var feeGrowthInside1Current = (totalFees1 / liq) * Q128;
+  var collected0 = pos.feesCollected0 || 0;
+  var collected1 = pos.feesCollected1 || 0;
+  var feeGrowthInside0Last = liq > 0 ? (collected0 / liq) * Q128 : 0;
+  var feeGrowthInside1Last = liq > 0 ? (collected1 / liq) * Q128 : 0;
+  return { feeGrowthInside0X128: feeGrowthInside0Current, feeGrowthInside1X128: feeGrowthInside1Current, feeGrowthInside0Last: feeGrowthInside0Last, feeGrowthInside1Last: feeGrowthInside1Last };
+}
+function calculateUnclaimedFees(liquidity, fg0c, fg1c, fg0l, fg1l) {
+  var d0 = fg0c >= fg0l ? fg0c - fg0l : 0;
+  var d1 = fg1c >= fg1l ? fg1c - fg1l : 0;
+  return { token0Fees: (d0 * liquidity) / Q128, token1Fees: (d1 * liquidity) / Q128 };
+}
+function calculateLifetimeFees(liquidity, fg0c, fg1c) {
+  return { token0LifetimeFees: (fg0c * liquidity) / Q128, token1LifetimeFees: (fg1c * liquidity) / Q128 };
+}
+function calculatePositionFees(pos) {
+  var fg = simulateFeeGrowthForPosition(pos);
+  var unclaimed = calculateUnclaimedFees(pos.liquidity, fg.feeGrowthInside0X128, fg.feeGrowthInside1X128, fg.feeGrowthInside0Last, fg.feeGrowthInside1Last);
+  var lifetime = calculateLifetimeFees(pos.liquidity, fg.feeGrowthInside0X128, fg.feeGrowthInside1X128);
+  return {
+    unclaimed0: unclaimed.token0Fees, unclaimed1: unclaimed.token1Fees,
+    lifetime0: lifetime.token0LifetimeFees, lifetime1: lifetime.token1LifetimeFees,
+    collected0: lifetime.token0LifetimeFees - unclaimed.token0Fees,
+    collected1: lifetime.token1LifetimeFees - unclaimed.token1Fees
+  };
+}
+
+// ── Position Fetching ──
+function packPositionInfo(tickUpper, tickLower, hasSubscriber) {
+  var upper = tickUpper < 0 ? tickUpper + 0x1000000 : tickUpper;
+  var lower = tickLower < 0 ? tickLower + 0x1000000 : tickLower;
+  return { raw: (upper * Math.pow(2, 32)) + (lower * Math.pow(2, 8)) + (hasSubscriber ? 1 : 0), upper: upper, lower: lower };
+}
+function decodePositionInfo(packedValue) {
+  var rawUpper = Math.floor(packedValue / Math.pow(2, 32)) & 0xFFFFFF;
+  var tickUpper = rawUpper >= 0x800000 ? rawUpper - 0x1000000 : rawUpper;
+  var rawLower = Math.floor(packedValue / Math.pow(2, 8)) & 0xFFFFFF;
+  var tickLower = rawLower >= 0x800000 ? rawLower - 0x1000000 : rawLower;
+  var hasSubscriber = (packedValue & 0xFF) !== 0;
+  return { getTickUpper: function() { return tickUpper; }, getTickLower: function() { return tickLower; }, hasSubscriber: function() { return hasSubscriber; } };
+}
+function getPositionIds(ownerAddress) {
+  var positions = JSON.parse(localStorage.getItem('lp_positions') || '[]');
+  return positions.filter(function(p) { return !ownerAddress || p.owner === ownerAddress || ownerAddress === 'all'; }).map(function(p) { return p.tokenId; });
+}
+function simulateGetPoolAndPositionInfo(tokenId) {
+  var positions = JSON.parse(localStorage.getItem('lp_positions') || '[]');
+  var pos = null;
+  for (var i = 0; i < positions.length; i++) { if (positions[i].tokenId === tokenId) { pos = positions[i]; break; } }
+  if (!pos) return null;
+  var poolKey = { currency0: pos.currency0, currency1: pos.currency1, fee: pos.fee, tickSpacing: pos.tickSpacing || 60, hooks: pos.hookAddress || '0x0000000000000000000000000000000000000000' };
+  var packed = packPositionInfo(pos.tickUpper, pos.tickLower, !!pos.permit2Used);
+  return { poolKey: poolKey, info: packed.raw };
+}
+function simulateGetPositionLiquidity(tokenId) {
+  var positions = JSON.parse(localStorage.getItem('lp_positions') || '[]');
+  for (var i = 0; i < positions.length; i++) { if (positions[i].tokenId === tokenId) return positions[i].liquidity; }
+  return 0;
+}
+function getPositionDetails(tokenId) {
+  var result = simulateGetPoolAndPositionInfo(tokenId);
+  if (!result) return null;
+  var liquidity = simulateGetPositionLiquidity(tokenId);
+  var info = decodePositionInfo(result.info);
+  return { tokenId: tokenId, tickLower: info.getTickLower(), tickUpper: info.getTickUpper(), hasSubscriber: info.hasSubscriber(), liquidity: liquidity, poolKey: result.poolKey, packedInfo: result.info };
+}
+
+// ── Build Mint Options ──
+function buildAdminMintOptions(token0sym, token1sym, opts) {
+  var user = JSON.parse(localStorage.getItem('cw_user') || 'null');
+  var recipient = (user && user.addr) ? user.addr : 'unknown';
+  var deadline = Math.floor(Date.now() / 1000) + 3600;
+  var mintOpts = { recipient: recipient, slippageTolerance: opts.slippage || SWAP_SLIPPAGE || 0.5, deadline: deadline, hookData: '0x' };
+  if (token0sym === 'XLM' || token1sym === 'XLM') { mintOpts.useNative = 'XLM'; }
+  var permit = buildBatchPermit(token0sym, token1sym, recipient, deadline);
+  if (permit) mintOpts.batchPermit = permit;
+  if (opts.createPool) { mintOpts.createPool = true; mintOpts.sqrtPriceX96 = opts.sqrtPriceX96 || '0'; }
+  return mintOpts;
+}
+
+// ── Execute Mint ──
+function executeMintPosition(position, mintOptions) {
+  var now = Math.floor(Date.now() / 1000);
+  if (now > mintOptions.deadline) return { success: false, error: 'Transaction expired' };
+  if (position.liquidity <= 0) return { success: false, error: 'Zero liquidity \u2014 increase token amounts' };
+  var txData = V4PositionManager.addCallParameters(position, mintOptions);
+  if (txData.actions[0] && txData.actions[0].action === 'PERMIT2_BATCH') {
+    if (!txData.actions[0].params.signature || txData.actions[0].params.signature.length < 10) return { success: false, error: 'Invalid Permit2 signature' };
+  }
+  var t0 = position.pool.currency0, t1 = position.pool.currency1;
+  var bals = getBals();
+  if ((bals[t0] || 0) < position.amount0) return { success: false, error: 'Insufficient ' + t0 };
+  if ((bals[t1] || 0) < position.amount1) return { success: false, error: 'Insufficient ' + t1 };
+  bals[t0] -= position.amount0; bals[t1] -= position.amount1;
+  localStorage.setItem('cw_balances', JSON.stringify(bals));
+  var poolKey = t0 + '/' + t1;
+  if (!POOL_REGISTRY[poolKey]) poolKey = t1 + '/' + t0;
+  if (POOL_REGISTRY[poolKey]) {
+    if (t0 === POOL_REGISTRY[poolKey].currency0) { POOL_REGISTRY[poolKey].reserve0 += position.amount0; POOL_REGISTRY[poolKey].reserve1 += position.amount1; }
+    else { POOL_REGISTRY[poolKey].reserve1 += position.amount0; POOL_REGISTRY[poolKey].reserve0 += position.amount1; }
+  }
+  var tokenId = Date.now().toString(36) + Math.random().toString(36).substring(2, 8);
+  var hashSeed = txData.calldata + now.toString();
+  var hash = '', hNum = 0;
+  for (var i = 0; i < hashSeed.length; i++) { hNum = ((hNum << 5) - hNum) + hashSeed.charCodeAt(i); hNum |= 0; }
+  for (var i = 0; i < 64; i++) hash += '0123456789abcdef'[(Math.abs(hNum * (i + 1)) >>> 0) % 16];
+  var positions = JSON.parse(localStorage.getItem('lp_positions') || '[]');
+  var nft = {
+    tokenId: tokenId, pool: t0 + '/' + t1,
+    poolId: V4Pool.getPoolId(t0, t1, position.pool.fee, position.pool.tickSpacing, position.pool.hooks),
+    currency0: t0, currency1: t1, fee: position.pool.fee, tickSpacing: position.pool.tickSpacing,
+    hookAddress: position.pool.hooks, tickLower: position.tickLower, tickUpper: position.tickUpper,
+    liquidity: position.liquidity, amount0: position.amount0, amount1: position.amount1,
+    mintAmounts: position.mintAmounts, txHash: hash, calldata: txData.calldata, value: txData.value,
+    multicall: txData.multicall, permit2Used: !!mintOptions.batchPermit,
+    useNative: mintOptions.useNative || null, mintedAt: Date.now(), deadline: mintOptions.deadline, owner: mintOptions.recipient
+  };
+  positions.unshift(nft);
+  if (positions.length > 50) positions.length = 50;
+  localStorage.setItem('lp_positions', JSON.stringify(positions));
+  try {
+    var al = JSON.parse(localStorage.getItem('cw_activity') || '[]');
+    al.unshift({ type: 'Mint LP', icon: '\uD83D\uDCA7', detail: position.amount0.toFixed(4) + ' ' + t0 + ' + ' + position.amount1.toFixed(4) + ' ' + t1 + ' \u2192 LP #' + tokenId + (mintOptions.batchPermit ? ' (Permit2)' : ''), amt: 'NFT #' + tokenId, cls: 'green', time: 'Just now', ts: Date.now(), txHash: hash });
+    if (al.length > 50) al.length = 50;
+    localStorage.setItem('cw_activity', JSON.stringify(al));
+  } catch(e) {}
+  return { success: true, tokenId: tokenId, transactionHash: hash, position: nft, bals: bals, actions: txData.actions };
+}
+
+// ── Admin LP UI ──
+function setAdminLPRange(btn, mode) {
+  ADMIN_LP_RANGE = mode;
+  document.querySelectorAll('.lp-range-row button').forEach(function(b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+  calcAdminLP();
+}
+function setAdminLPMax(idx) {
+  var token = document.getElementById('dlpT' + idx).value;
+  var bals = getBals();
+  document.getElementById('dlpA' + idx).value = bals[token] || 0;
+  calcAdminLP();
+}
+function calcAdminLP() {
+  var t0 = document.getElementById('dlpT0').value;
+  var t1 = document.getElementById('dlpT1').value;
+  document.getElementById('dlpL0').textContent = t0;
+  document.getElementById('dlpL1').textContent = t1;
+  var bals = getBals();
+  document.getElementById('dlpB0').textContent = 'Balance: ' + fmtBal(bals[t0] || 0);
+  document.getElementById('dlpB1').textContent = 'Balance: ' + fmtBal(bals[t1] || 0);
+  var amt0 = parseFloat(document.getElementById('dlpA0').value) || 0;
+  var amt1 = parseFloat(document.getElementById('dlpA1').value) || 0;
+  if (t0 === t1 || (amt0 <= 0 && amt1 <= 0)) { document.getElementById('dlpInfo').style.display = 'none'; return; }
+  var regPool = findPool(t0, t1);
+  if (!regPool) { document.getElementById('dlpInfo').style.display = 'none'; return; }
+  var pool = poolFromRegistry(regPool);
+  var currentTick = pool.tick, tickSpacing = pool.tickSpacing;
+  var tickRange = ADMIN_LP_TICKS[ADMIN_LP_RANGE];
+  var tickLower, tickUpper;
+  if (ADMIN_LP_RANGE === 'full') { tickLower = nearestUsableTick(MIN_TICK, tickSpacing); tickUpper = nearestUsableTick(MAX_TICK, tickSpacing); }
+  else { tickLower = nearestUsableTick(currentTick - tickRange, tickSpacing); tickUpper = nearestUsableTick(currentTick + tickRange, tickSpacing); }
+  var isZero = (t0 === pool.currency0);
+  var a0 = isZero ? amt0 : amt1, a1 = isZero ? amt1 : amt0;
+  if (a0 <= 0 && a1 <= 0) { document.getElementById('dlpInfo').style.display = 'none'; return; }
+  var pos = V4Position.fromAmounts({ pool: pool, tickLower: tickLower, tickUpper: tickUpper, amount0: a0 || 0.0001, amount1: a1 || 0.0001, useFullPrecision: true });
+  var poolLiq = Math.sqrt(pool.reserve0 * pool.reserve1);
+  var share = pos.liquidity > 0 ? (pos.liquidity / (poolLiq + pos.liquidity)) * 100 : 0;
+  var poolId = V4Pool.getPoolId(pool.currency0, pool.currency1, pool.fee, pool.tickSpacing, pool.hooks);
+  document.getElementById('dlpPool').textContent = pool.currency0 + ' / ' + pool.currency1 + ' (ID: ' + poolId.substring(0, 10) + '...)';
+  document.getElementById('dlpTicks').textContent = tickLower + ' \u2194 ' + tickUpper + (ADMIN_LP_RANGE === 'full' ? ' (full range)' : '');
+  document.getElementById('dlpLiq').textContent = pos.liquidity.toFixed(2) + ' (mint: ' + pos.mintAmounts.amount0.toFixed(4) + ' + ' + pos.mintAmounts.amount1.toFixed(4) + ')';
+  document.getElementById('dlpShare').textContent = share.toFixed(4) + '%';
+  document.getElementById('dlpFee').textContent = (pool.fee / 10000).toFixed(2) + '% | spacing: ' + pool.tickSpacing;
+  document.getElementById('dlpInfo').style.display = 'block';
+}
+function execAdminMint() {
+  var user = null;
+  try { user = JSON.parse(localStorage.getItem('cw_user')); } catch(e) {}
+  if (!user || !user.email) { showToast('\u26A0\uFE0F Please sign in first.', '#eb5757'); return; }
+  var t0 = document.getElementById('dlpT0').value, t1 = document.getElementById('dlpT1').value;
+  if (t0 === t1) { showToast('\u26A0\uFE0F Select different tokens.', '#eb5757'); return; }
+  var amt0 = parseFloat(document.getElementById('dlpA0').value) || 0;
+  var amt1 = parseFloat(document.getElementById('dlpA1').value) || 0;
+  if (amt0 <= 0 && amt1 <= 0) { showToast('\u26A0\uFE0F Enter token amounts.', '#eb5757'); return; }
+  var regPool = findPool(t0, t1);
+  if (!regPool) { showToast('\u26A0\uFE0F No pool for ' + t0 + '/' + t1, '#eb5757'); return; }
+  var pool = poolFromRegistry(regPool);
+  var currentTick = pool.tick, tickSpacing = pool.tickSpacing;
+  var tickRange = ADMIN_LP_TICKS[ADMIN_LP_RANGE];
+  var tickLower, tickUpper;
+  if (ADMIN_LP_RANGE === 'full') { tickLower = nearestUsableTick(MIN_TICK, tickSpacing); tickUpper = nearestUsableTick(MAX_TICK, tickSpacing); }
+  else { tickLower = nearestUsableTick(currentTick - tickRange, tickSpacing); tickUpper = nearestUsableTick(currentTick + tickRange, tickSpacing); }
+  var isZero = (t0 === pool.currency0);
+  var a0 = isZero ? amt0 : amt1, a1 = isZero ? amt1 : amt0;
+  var pos = V4Position.fromAmounts({ pool: pool, tickLower: tickLower, tickUpper: tickUpper, amount0: a0 || 0.0001, amount1: a1 || 0.0001, useFullPrecision: true });
+  var mintOptions = buildAdminMintOptions(pool.currency0, pool.currency1, { slippage: SWAP_SLIPPAGE });
+  var result = executeMintPosition(pos, mintOptions);
+  if (!result.success) { showToast('\u26A0\uFE0F ' + result.error, '#eb5757'); return; }
+  renderBalSummary();
+  document.getElementById('dlpA0').value = '';
+  document.getElementById('dlpA1').value = '';
+  document.getElementById('dlpInfo').style.display = 'none';
+  renderAdminLPPositions();
+  calcAdminLP();
+  var actionsUsed = result.actions.map(function(a) { return a.action; }).join(' \u2192 ');
+  showToast('\u2705 Minted LP #' + result.tokenId + ' (' + result.position.amount0.toFixed(4) + ' ' + result.position.currency0 + ' + ' + result.position.amount1.toFixed(4) + ' ' + result.position.currency1 + ')' + (mintOptions.batchPermit ? ' | Permit2' : '') + ' [' + actionsUsed + ']', '#27ae60');
+}
+
+// ── Render Positions ──
+function renderAdminLPPositions() {
+  var positions = JSON.parse(localStorage.getItem('lp_positions') || '[]');
+  var el = document.getElementById('dlpPositions');
+  if (!positions.length) { el.innerHTML = '<div style="font-size:.65rem;color:rgba(255,255,255,.25);text-align:center;padding:12px">No LP positions yet. Mint one above.</div>'; return; }
+  el.innerHTML = positions.map(function(p) {
+    var ago = Math.round((Date.now() - p.mintedAt) / 60000);
+    var t = ago < 1 ? 'just now' : ago + 'm ago';
+    var fees = calculatePositionFees(p);
+    var tid = p.tokenId;
+    return '<div class="lp-pos"><div class="lp-pos-pair">' + p.currency0 + '/' + p.currency1 + (p.permit2Used ? ' \uD83D\uDD10' : '') + ' \u2014 Liq: ' + p.liquidity.toFixed(2) + '</div>' +
+      '<div class="lp-pos-fees">\uD83D\uDCB0 Unclaimed: <span class="fee-val">' + fees.unclaimed0.toFixed(6) + ' ' + p.currency0 + '</span> + <span class="fee-val">' + fees.unclaimed1.toFixed(6) + ' ' + p.currency1 + '</span></div>' +
+      '<div class="lp-pos-lifetime">Lifetime: ' + fees.lifetime0.toFixed(6) + ' + ' + fees.lifetime1.toFixed(6) + ' | Collected: ' + fees.collected0.toFixed(6) + ' + ' + fees.collected1.toFixed(6) + '</div>' +
+      '<div class="lp-pos-detail">NFT #' + tid + ' | ' + (p.poolId ? 'Pool: ' + p.poolId.substring(0, 12) + '... | ' : '') + 'Ticks: ' + p.tickLower + '\u2194' + p.tickUpper + ' | Fee: ' + (p.fee / 10000).toFixed(2) + '% | ' + t + '</div>' +
+      '<div class="lp-pos-actions">' +
+        (fees.unclaimed0 > 0 || fees.unclaimed1 > 0 ? '<button class="lp-collect-btn" onclick="adminCollectFees(\'' + tid + '\')">\uD83D\uDCB0 Collect</button>' : '') +
+        '<button class="lp-add-btn" onclick="promptAdminAddLiquidity(\'' + tid + '\')">\u2795 Add</button>' +
+        '<button class="lp-rm-pct" onclick="adminRemoveLiquidity(\'' + tid + '\',0.25)">-25%</button>' +
+        '<button class="lp-rm-pct" onclick="adminRemoveLiquidity(\'' + tid + '\',0.5)">-50%</button>' +
+        '<button class="lp-rm-btn" onclick="adminRemoveLiquidity(\'' + tid + '\',1.0)">\uD83D\uDD25 Remove</button>' +
+      '</div></div>';
+  }).join('');
+}
+
+// ── Collect Fees ──
+function adminCollectFees(tokenId) {
+  var user = null;
+  try { user = JSON.parse(localStorage.getItem('cw_user')); } catch(e) {}
+  if (!user || !user.email) { showToast('\u26A0\uFE0F Please sign in first.', '#eb5757'); return; }
+  var positions = JSON.parse(localStorage.getItem('lp_positions') || '[]');
+  var pos = null, posIdx = -1;
+  for (var i = 0; i < positions.length; i++) { if (positions[i].tokenId === tokenId) { pos = positions[i]; posIdx = i; break; } }
+  if (!pos) return;
+  var fees = calculatePositionFees(pos);
+  if (fees.unclaimed0 <= 0 && fees.unclaimed1 <= 0) { showToast('\u26A0\uFE0F No fees to collect.', '#eb5757'); return; }
+  var recipient = (user && user.addr) ? user.addr : 'unknown';
+  var deadline = Math.floor(Date.now() / 1000) + 3600;
+  var regPool = findPool(pos.currency0, pos.currency1);
+  if (!regPool) return;
+  var pool = poolFromRegistry(regPool);
+  var position = new V4Position({ pool: pool, tickLower: pos.tickLower, tickUpper: pos.tickUpper, liquidity: pos.liquidity });
+  var txData = V4PositionManager.collectCallParameters(position, { tokenId: tokenId, recipient: recipient, slippageTolerance: 0, deadline: deadline, hookData: '0x' });
+  var t0 = pos.currency0, t1 = pos.currency1;
+  var bals = getBals();
+  bals[t0] = (bals[t0] || 0) + fees.unclaimed0;
+  bals[t1] = (bals[t1] || 0) + fees.unclaimed1;
+  localStorage.setItem('cw_balances', JSON.stringify(bals));
+  positions[posIdx].feesCollected0 = (pos.feesCollected0 || 0) + fees.unclaimed0;
+  positions[posIdx].feesCollected1 = (pos.feesCollected1 || 0) + fees.unclaimed1;
+  positions[posIdx].lastCollectedAt = Date.now();
+  localStorage.setItem('lp_positions', JSON.stringify(positions));
+  try {
+    var al = JSON.parse(localStorage.getItem('cw_activity') || '[]');
+    al.unshift({ type: 'Collect Fees', icon: '\uD83D\uDCB0', detail: fees.unclaimed0.toFixed(6) + ' ' + t0 + ' + ' + fees.unclaimed1.toFixed(6) + ' ' + t1 + ' from LP #' + tokenId, amt: 'Fees', cls: 'green', time: 'Just now', ts: Date.now() });
+    if (al.length > 50) al.length = 50;
+    localStorage.setItem('cw_activity', JSON.stringify(al));
+  } catch(e) {}
+  renderBalSummary(); renderAdminLPPositions();
+  showToast('\u2705 Collected ' + fees.unclaimed0.toFixed(6) + ' ' + t0 + ' + ' + fees.unclaimed1.toFixed(6) + ' ' + t1, '#27ae60');
+}
+
+// ── Add Liquidity ──
+function promptAdminAddLiquidity(tokenId) {
+  var positions = JSON.parse(localStorage.getItem('lp_positions') || '[]');
+  var pos = null;
+  for (var i = 0; i < positions.length; i++) { if (positions[i].tokenId === tokenId) { pos = positions[i]; break; } }
+  if (!pos) return;
+  var amt0 = prompt('Add ' + pos.currency0 + ' amount (current: ' + pos.amount0.toFixed(4) + '):', '0');
+  if (!amt0 || isNaN(parseFloat(amt0))) return;
+  var amt1 = prompt('Add ' + pos.currency1 + ' amount (current: ' + pos.amount1.toFixed(4) + '):', '0');
+  if (!amt1 || isNaN(parseFloat(amt1))) return;
+  adminAddLiquidity(tokenId, parseFloat(amt0), parseFloat(amt1));
+}
+function adminAddLiquidity(tokenId, addAmt0, addAmt1) {
+  var user = null;
+  try { user = JSON.parse(localStorage.getItem('cw_user')); } catch(e) {}
+  if (!user || !user.email) { showToast('\u26A0\uFE0F Please sign in first.', '#eb5757'); return; }
+  var positions = JSON.parse(localStorage.getItem('lp_positions') || '[]');
+  var pos = null, posIdx = -1;
+  for (var i = 0; i < positions.length; i++) { if (positions[i].tokenId === tokenId) { pos = positions[i]; posIdx = i; break; } }
+  if (!pos) return;
+  if (addAmt0 <= 0 && addAmt1 <= 0) return;
+  var t0 = pos.currency0, t1 = pos.currency1;
+  var bals = getBals();
+  if ((bals[t0] || 0) < addAmt0) { showToast('\u26A0\uFE0F Insufficient ' + t0, '#eb5757'); return; }
+  if ((bals[t1] || 0) < addAmt1) { showToast('\u26A0\uFE0F Insufficient ' + t1, '#eb5757'); return; }
+  var regPool = findPool(t0, t1);
+  if (!regPool) return;
+  var pool = poolFromRegistry(regPool);
+  var isZero = (t0 === pool.currency0);
+  var a0 = isZero ? addAmt0 : addAmt1, a1 = isZero ? addAmt1 : addAmt0;
+  var newPos = V4Position.fromAmounts({ pool: pool, tickLower: pos.tickLower, tickUpper: pos.tickUpper, amount0: a0 || 0.0001, amount1: a1 || 0.0001, useFullPrecision: true });
+  var addOptions = buildAdminMintOptions(pool.currency0, pool.currency1, { slippage: SWAP_SLIPPAGE });
+  addOptions.tokenId = tokenId;
+  addOptions.deadline = Math.floor(Date.now() / 1000) + 1200;
+  var txData = V4PositionManager.addCallParameters(newPos, addOptions);
+  for (var i = 0; i < txData.actions.length; i++) {
+    if (txData.actions[i].action === 'MINT_POSITION') { txData.actions[i].action = 'INCREASE_LIQUIDITY'; txData.actions[i].params.tokenId = tokenId; }
+  }
+  bals[t0] -= addAmt0; bals[t1] -= addAmt1;
+  localStorage.setItem('cw_balances', JSON.stringify(bals));
+  var poolKey = t0 + '/' + t1;
+  if (!POOL_REGISTRY[poolKey]) poolKey = t1 + '/' + t0;
+  if (POOL_REGISTRY[poolKey]) {
+    if (t0 === POOL_REGISTRY[poolKey].currency0) { POOL_REGISTRY[poolKey].reserve0 += addAmt0; POOL_REGISTRY[poolKey].reserve1 += addAmt1; }
+    else { POOL_REGISTRY[poolKey].reserve1 += addAmt0; POOL_REGISTRY[poolKey].reserve0 += addAmt1; }
+  }
+  positions[posIdx].liquidity += newPos.liquidity;
+  positions[posIdx].amount0 += newPos.amount0;
+  positions[posIdx].amount1 += newPos.amount1;
+  localStorage.setItem('lp_positions', JSON.stringify(positions));
+  try {
+    var al = JSON.parse(localStorage.getItem('cw_activity') || '[]');
+    al.unshift({ type: 'Add Liquidity', icon: '\u2795', detail: addAmt0.toFixed(4) + ' ' + t0 + ' + ' + addAmt1.toFixed(4) + ' ' + t1 + ' \u2192 LP #' + tokenId, amt: 'LP #' + tokenId, cls: 'green', time: 'Just now', ts: Date.now() });
+    if (al.length > 50) al.length = 50;
+    localStorage.setItem('cw_activity', JSON.stringify(al));
+  } catch(e) {}
+  renderBalSummary(); renderAdminLPPositions();
+  showToast('\u2705 Added +' + addAmt0.toFixed(4) + ' ' + t0 + ' + ' + addAmt1.toFixed(4) + ' ' + t1 + ' to LP #' + tokenId, '#27ae60');
+}
+
+// ── Remove Liquidity ──
+function adminRemoveLiquidity(tokenId, pctToRemove) {
+  var user = null;
+  try { user = JSON.parse(localStorage.getItem('cw_user')); } catch(e) {}
+  if (!user || !user.email) { showToast('\u26A0\uFE0F Please sign in first.', '#eb5757'); return; }
+  var positions = JSON.parse(localStorage.getItem('lp_positions') || '[]');
+  var pos = null, posIdx = -1;
+  for (var i = 0; i < positions.length; i++) { if (positions[i].tokenId === tokenId) { pos = positions[i]; posIdx = i; break; } }
+  if (!pos || pos.liquidity <= 0) return;
+  var t0 = pos.currency0, t1 = pos.currency1;
+  var regPool = findPool(t0, t1);
+  if (!regPool) return;
+  var pool = poolFromRegistry(regPool);
+  var position = new V4Position({ pool: pool, tickLower: pos.tickLower, tickUpper: pos.tickUpper, liquidity: pos.liquidity, amount0: pos.amount0, amount1: pos.amount1 });
+  var recipient = (user && user.addr) ? user.addr : 'unknown';
+  var burnIfFull = (pctToRemove >= 1.0);
+  var removeOptions = { tokenId: tokenId, recipient: recipient, slippageTolerance: SWAP_SLIPPAGE, deadline: Math.floor(Date.now() / 1000) + 1200, hookData: '0x', liquidityPercentage: pctToRemove * 100, burnToken: burnIfFull };
+  var txData = V4PositionManager.removeCallParameters(position, removeOptions);
+  var removedAmt0 = pos.amount0 * pctToRemove, removedAmt1 = pos.amount1 * pctToRemove, removedLiq = pos.liquidity * pctToRemove;
+  var fees = calculatePositionFees(pos);
+  var feeAmt0 = fees.unclaimed0 * pctToRemove, feeAmt1 = fees.unclaimed1 * pctToRemove;
+  var bals = getBals();
+  bals[t0] = (bals[t0] || 0) + removedAmt0 + feeAmt0;
+  bals[t1] = (bals[t1] || 0) + removedAmt1 + feeAmt1;
+  localStorage.setItem('cw_balances', JSON.stringify(bals));
+  var poolKey = t0 + '/' + t1;
+  if (!POOL_REGISTRY[poolKey]) poolKey = t1 + '/' + t0;
+  if (POOL_REGISTRY[poolKey]) {
+    if (t0 === POOL_REGISTRY[poolKey].currency0) { POOL_REGISTRY[poolKey].reserve0 -= removedAmt0; POOL_REGISTRY[poolKey].reserve1 -= removedAmt1; }
+    else { POOL_REGISTRY[poolKey].reserve1 -= removedAmt0; POOL_REGISTRY[poolKey].reserve0 -= removedAmt1; }
+  }
+  if (pctToRemove >= 1.0) { positions.splice(posIdx, 1); }
+  else {
+    positions[posIdx].liquidity -= removedLiq;
+    positions[posIdx].amount0 -= removedAmt0;
+    positions[posIdx].amount1 -= removedAmt1;
+    positions[posIdx].feesCollected0 = (pos.feesCollected0 || 0) + feeAmt0;
+    positions[posIdx].feesCollected1 = (pos.feesCollected1 || 0) + feeAmt1;
+  }
+  localStorage.setItem('lp_positions', JSON.stringify(positions));
+  try {
+    var al = JSON.parse(localStorage.getItem('cw_activity') || '[]');
+    al.unshift({ type: 'Remove Liquidity', icon: '\uD83D\uDD25', detail: (pctToRemove * 100) + '% from LP #' + tokenId + ' \u2192 ' + removedAmt0.toFixed(4) + ' ' + t0 + ' + ' + removedAmt1.toFixed(4) + ' ' + t1 + (burnIfFull ? ' (burned)' : ''), amt: '-' + (pctToRemove * 100) + '%', cls: 'red', time: 'Just now', ts: Date.now() });
+    if (al.length > 50) al.length = 50;
+    localStorage.setItem('cw_activity', JSON.stringify(al));
+  } catch(e) {}
+  renderBalSummary(); renderAdminLPPositions();
+  showToast('\u2705 ' + (burnIfFull ? 'Closed' : 'Removed ' + (pctToRemove * 100) + '%') + ' LP #' + tokenId + ': ' + removedAmt0.toFixed(4) + ' ' + t0 + ' + ' + removedAmt1.toFixed(4) + ' ' + t1 + (feeAmt0 > 0 || feeAmt1 > 0 ? ' +fees' : '') + (burnIfFull ? ' \uD83D\uDD25' : ''), burnIfFull ? '#eb5757' : '#27ae60');
+}
+
+// ── Fetch Positions ──
+function fetchAdminV4Positions() {
+  var addrInput = document.getElementById('dfetchAddr').value.trim();
+  var statusEl = document.getElementById('dfetchStatus');
+  var listEl = document.getElementById('dfetchList');
+  statusEl.style.display = 'block';
+  statusEl.textContent = '\u23F3 Querying subgraph...';
+  listEl.innerHTML = '';
+  setTimeout(function() {
+    var user = null;
+    try { user = JSON.parse(localStorage.getItem('cw_user')); } catch(e) {}
+    var ownerAddr = addrInput || (user && user.addr ? user.addr : 'all');
+    var tokenIds = getPositionIds(ownerAddr);
+    if (!tokenIds.length) {
+      statusEl.textContent = '\u274C No positions found for ' + (ownerAddr === 'all' ? 'any owner' : ownerAddr.substring(0, 16) + '...');
+      return;
+    }
+    statusEl.textContent = '\u2705 Found ' + tokenIds.length + ' position(s) via PositionManager';
+    var html = '';
+    for (var i = 0; i < tokenIds.length; i++) {
+      var d = getPositionDetails(tokenIds[i]);
+      if (!d) continue;
+      var poolId = V4Pool.getPoolId(d.poolKey.currency0, d.poolKey.currency1, d.poolKey.fee, d.poolKey.tickSpacing, d.poolKey.hooks);
+      html += '<div class="fetch-pos-card"><div class="fp-pair">' + d.poolKey.currency0 + '/' + d.poolKey.currency1 + (d.hasSubscriber ? ' \uD83D\uDD14' : '') + '</div>' +
+        '<div class="fp-detail">Fee: ' + (d.poolKey.fee / 10000).toFixed(2) + '% | Range: ' + d.tickLower + ' \u2194 ' + d.tickUpper + ' | Liq: ' + (typeof d.liquidity === 'number' ? d.liquidity.toFixed(2) : d.liquidity) + '</div>' +
+        '<div class="fp-packed">NFT #' + d.tokenId + ' | Pool: ' + poolId.substring(0, 12) + '... | packed: 0x' + Math.abs(Math.floor(d.packedInfo)).toString(16).substring(0, 12) + '</div></div>';
+    }
+    listEl.innerHTML = html;
+  }, 350);
+}
+
+// ── Init ──
+(function init() {
+  var user = null;
+  try { user = JSON.parse(localStorage.getItem('cw_user')); } catch(e) {}
+  if (!user || !user.email) { window.location.href = 'auth.html'; return; }
+  document.getElementById('userRow').style.display = 'flex';
+  document.getElementById('aName').textContent = user.name || 'Admin';
+  document.getElementById('aEmail').textContent = user.email;
+  document.getElementById('aAvatar').textContent = (user.name || 'A').charAt(0).toUpperCase();
+  // Ensure 10k OLIGHFT for testing
+  var bals = getBals();
+  if (!bals.OLIGHFT || bals.OLIGHFT <= 0) { bals.OLIGHFT = 10000; localStorage.setItem('cw_balances', JSON.stringify(bals)); }
+  renderBalSummary();
+  renderAdminLPPositions();
+  calcAdminLP();
+})();
+</script>
+</body>
+</html>

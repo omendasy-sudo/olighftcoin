@@ -85,6 +85,61 @@ label{display:block;font-size:.72rem;color:rgba(255,255,255,.45);margin-bottom:6
 .addr-type-badge{font-size:.55rem;padding:1px 6px;border-radius:4px;font-weight:700;letter-spacing:.5px}
 .addr-type-badge.stellar{background:rgba(39,174,96,.12);color:#2ecc71}
 .addr-type-badge.contract{background:rgba(242,153,74,.12);color:#f2994a}
+/* ── Add Liquidity ── */
+.lp-card{background:rgba(39,174,96,.04);border:1px solid rgba(39,174,96,.12);border-radius:16px;padding:24px;margin-bottom:16px}
+.lp-card h2{font-size:.85rem;color:rgba(255,255,255,.5);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.lp-pool-select{display:flex;gap:8px;margin-bottom:14px}
+.lp-pool-select select{flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(39,174,96,.12);border-radius:10px;padding:10px 12px;color:#fff;font-size:.82rem;outline:none;cursor:pointer}
+.lp-pool-select select option{background:#1a1a2e;color:#fff}
+.lp-range{margin-bottom:14px}
+.lp-range label{font-size:.72rem;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;display:block}
+.lp-range-opts{display:flex;gap:6px;margin-top:6px}
+.lp-range-opts button{padding:6px 14px;border-radius:8px;font-size:.72rem;font-weight:600;cursor:pointer;transition:.2s;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);color:rgba(255,255,255,.5)}
+.lp-range-opts button:hover{border-color:rgba(39,174,96,.3)}
+.lp-range-opts button.active{background:rgba(39,174,96,.15);border-color:rgba(39,174,96,.4);color:#27ae60}
+.lp-amounts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.lp-amt-box{background:rgba(255,255,255,.03);border:1px solid rgba(39,174,96,.08);border-radius:12px;padding:12px}
+.lp-amt-box label{display:block;font-size:.6rem;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.lp-amt-box input{width:100%;background:none;border:none;color:#fff;font-size:1.1rem;font-weight:700;outline:none;font-family:inherit}
+.lp-amt-box input::placeholder{color:rgba(255,255,255,.15)}
+.lp-amt-box .lp-bal{font-size:.6rem;color:rgba(255,255,255,.3);margin-top:4px;cursor:pointer}
+.lp-amt-box .lp-bal:hover{color:#27ae60}
+.lp-info{background:rgba(39,174,96,.04);border-radius:10px;padding:10px 12px;margin-bottom:14px;font-size:.7rem}
+.lp-info .lpi-row{display:flex;justify-content:space-between;padding:3px 0}
+.lp-info .lpi-lbl{color:rgba(255,255,255,.4)}
+.lp-info .lpi-val{font-weight:600;color:rgba(255,255,255,.7)}
+.lp-mint-btn{width:100%;padding:14px;border:none;border-radius:12px;font-size:.9rem;font-weight:700;cursor:pointer;transition:.2s;background:linear-gradient(135deg,#27ae60,#2ecc71);color:#fff}
+.lp-mint-btn:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(39,174,96,.35)}
+.lp-mint-btn:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
+.lp-positions{margin-top:8px}
+.lp-positions h3{font-size:.78rem;color:rgba(255,255,255,.35);margin-bottom:10px}
+.lp-pos-item{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:10px;margin-bottom:6px}
+.lp-pos-item .lp-pair{font-size:.78rem;font-weight:600;color:rgba(255,255,255,.7)}
+.lp-pos-item .lp-liq{font-size:.68rem;color:#27ae60}
+.lp-pos-item .lp-range-lbl{font-size:.6rem;color:rgba(255,255,255,.3)}
+.lp-pos-item .lp-nft{font-size:.55rem;color:rgba(255,255,255,.25);font-family:'Courier New',monospace}
+.fetch-pos-btn{width:100%;padding:12px;background:linear-gradient(135deg,#8e44ad,#9b59b6);color:#fff;border:none;border-radius:12px;font-size:.82rem;font-weight:700;cursor:pointer;margin-top:10px;transition:all .2s}
+.fetch-pos-btn:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(142,68,173,.35)}
+.fetch-pos-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.fetch-pos-card{padding:10px 14px;background:rgba(142,68,173,.06);border:1px solid rgba(142,68,173,.15);border-radius:10px;margin-bottom:6px}
+.fetch-pos-card .fp-pair{font-size:.78rem;font-weight:600;color:rgba(255,255,255,.7)}
+.fetch-pos-card .fp-detail{font-size:.65rem;color:rgba(255,255,255,.45);margin-top:3px}
+.fetch-pos-card .fp-packed{font-size:.55rem;color:rgba(142,68,173,.6);font-family:'Courier New',monospace;margin-top:3px}
+.fp-status{font-size:.7rem;color:rgba(255,255,255,.4);padding:8px 0;text-align:center}
+.lp-pos-item .lp-fees{font-size:.62rem;color:#f39c12;margin-top:2px}
+.lp-pos-item .lp-fees .fee-val{color:#e67e22;font-weight:600}
+.lp-collect-btn{padding:5px 12px;border:1px solid rgba(243,156,18,.3);background:rgba(243,156,18,.08);color:#f39c12;border-radius:8px;font-size:.62rem;font-weight:700;cursor:pointer;transition:.2s;margin-top:4px}
+.lp-collect-btn:hover{background:rgba(243,156,18,.18);border-color:rgba(243,156,18,.5);transform:translateY(-1px)}
+.lp-collect-btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.lp-pos-item .lp-lifetime{font-size:.55rem;color:rgba(255,255,255,.2);margin-top:1px}
+.lp-pos-actions{display:flex;gap:5px;flex-wrap:wrap;margin-top:5px}
+.lp-add-btn{padding:5px 12px;border:1px solid rgba(39,174,96,.3);background:rgba(39,174,96,.08);color:#27ae60;border-radius:8px;font-size:.62rem;font-weight:700;cursor:pointer;transition:.2s}
+.lp-add-btn:hover{background:rgba(39,174,96,.18);border-color:rgba(39,174,96,.5);transform:translateY(-1px)}
+.lp-rm-btn{padding:5px 12px;border:1px solid rgba(235,87,87,.3);background:rgba(235,87,87,.08);color:#eb5757;border-radius:8px;font-size:.62rem;font-weight:700;cursor:pointer;transition:.2s}
+.lp-rm-btn:hover{background:rgba(235,87,87,.18);border-color:rgba(235,87,87,.5);transform:translateY(-1px)}
+.lp-rm-pct{padding:4px 8px;border:1px solid rgba(235,87,87,.2);background:rgba(235,87,87,.04);color:#c0392b;border-radius:6px;font-size:.56rem;font-weight:600;cursor:pointer;transition:.2s}
+.lp-rm-pct:hover{background:rgba(235,87,87,.14);border-color:rgba(235,87,87,.4)}
+.lp-add-input{width:70px;padding:4px 6px;background:rgba(255,255,255,.04);border:1px solid rgba(39,174,96,.2);border-radius:6px;color:#fff;font-size:.6rem;outline:none}
 </style>
 </head>
 <body>
@@ -98,7 +153,7 @@ label{display:block;font-size:.72rem;color:rgba(255,255,255,.45);margin-bottom:6
 <a href="receive.html">&#x1F4E5; Receive</a>
 <a href="swap.html" class="active">&#x1F504; Swap</a>
 <a href="index.html">&#x1F3E0; Home</a>
-<a href="OLIGHFT SMART COIN backend/backend.html">&#x2699;&#xFE0F; Admin</a>
+<a href="OLIGHFT%20SMART%20COIN%20backend/backend.html">&#x2699;&#xFE0F; Admin</a>
 </div>
 
 <div class="card">
@@ -173,6 +228,83 @@ label{display:block;font-size:.72rem;color:rgba(255,255,255,.45);margin-bottom:6
 <div class="recent" id="recentSection" style="display:none">
 <h3>&#x1F4CB; Recent Swaps</h3>
 <div id="recentList"></div>
+</div>
+
+<!-- ── Add Liquidity Panel ── -->
+<div class="lp-card" id="lpPanel">
+<h2>&#x1F4A7; Add Liquidity &mdash; Mint Position</h2>
+<p style="font-size:.72rem;color:rgba(255,255,255,.45);margin-bottom:14px">Provide liquidity to a pool and receive an NFT position (Uniswap V4 PositionManager).</p>
+
+<div class="lp-pool-select">
+<select id="lpToken0" onchange="calcLP()">
+<option value="XLM">&#x2B50; XLM</option>
+<option value="USDC">&#x1F4B5; USDC</option>
+<option value="wETH">&#x1F48E; wETH</option>
+<option value="wBTC">&#x1F536; wBTC</option>
+<option value="EURC">&#x1F4B6; EURC</option>
+<option value="OLIGHFT" selected>&#x1F4B0; OLIGHFT</option>
+</select>
+<span style="color:rgba(255,255,255,.3);font-size:1.2rem;align-self:center">/</span>
+<select id="lpToken1" onchange="calcLP()">
+<option value="XLM">&#x2B50; XLM</option>
+<option value="USDC" selected>&#x1F4B5; USDC</option>
+<option value="wETH">&#x1F48E; wETH</option>
+<option value="wBTC">&#x1F536; wBTC</option>
+<option value="EURC">&#x1F4B6; EURC</option>
+<option value="OLIGHFT">&#x1F4B0; OLIGHFT</option>
+</select>
+</div>
+
+<div class="lp-range">
+<label>Price Range</label>
+<div class="lp-range-opts">
+<button class="active" onclick="setLPRange(this,'narrow')">Narrow (&plusmn;5%)</button>
+<button onclick="setLPRange(this,'medium')">Medium (&plusmn;25%)</button>
+<button onclick="setLPRange(this,'wide')">Wide (&plusmn;50%)</button>
+<button onclick="setLPRange(this,'full')">Full Range</button>
+</div>
+</div>
+
+<div class="lp-amounts">
+<div class="lp-amt-box">
+<label id="lpLabel0">OLIGHFT Amount</label>
+<input type="number" id="lpAmt0" placeholder="0.0" step="any" min="0" oninput="calcLP()">
+<div class="lp-bal" id="lpBal0" onclick="setMaxLP(0)">Balance: 0</div>
+</div>
+<div class="lp-amt-box">
+<label id="lpLabel1">USDC Amount</label>
+<input type="number" id="lpAmt1" placeholder="0.0" step="any" min="0" oninput="calcLP()">
+<div class="lp-bal" id="lpBal1" onclick="setMaxLP(1)">Balance: 0</div>
+</div>
+</div>
+
+<div class="lp-info" id="lpInfo" style="display:none">
+<div class="lpi-row"><span class="lpi-lbl">Pool</span><span class="lpi-val" id="lpPoolName">-</span></div>
+<div class="lpi-row"><span class="lpi-lbl">Current Price</span><span class="lpi-val" id="lpSpotPrice">-</span></div>
+<div class="lpi-row"><span class="lpi-lbl">Tick Range</span><span class="lpi-val" id="lpTickRange">-</span></div>
+<div class="lpi-row"><span class="lpi-lbl">Liquidity</span><span class="lpi-val" id="lpLiquidity">-</span></div>
+<div class="lpi-row"><span class="lpi-lbl">Share of Pool</span><span class="lpi-val" id="lpShare">-</span></div>
+<div class="lpi-row"><span class="lpi-lbl">Fee Tier</span><span class="lpi-val" id="lpFeeTier">-</span></div>
+</div>
+
+<button class="lp-mint-btn" id="lpMintBtn" onclick="mintPosition()">&#x1F4A7; Mint Position</button>
+
+<div class="lp-positions" id="lpPositions" style="display:none">
+<h3>&#x1F5BC;&#xFE0F; Your LP Positions (NFTs)</h3>
+<div id="lpPosList"></div>
+</div>
+</div>
+
+<!-- ── Fetch Positions Panel ── -->
+<div class="card" style="border-color:rgba(142,68,173,.18);background:rgba(142,68,173,.03)">
+<h2 style="color:#9b59b6">&#x1F50D; Fetch V4 Positions</h2>
+<p style="font-size:.72rem;color:rgba(255,255,255,.45);margin-bottom:12px">Query the V4 PositionManager subgraph for on-chain positions. Decodes packed position info, fetches poolKey &amp; liquidity from contract.</p>
+<div style="display:flex;gap:8px;margin-bottom:10px">
+<input type="text" id="fetchPosAddr" placeholder="Owner address (or leave blank for your wallet)" style="flex:1;padding:10px 12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:10px;color:#fff;font-size:.75rem;outline:none">
+<button class="fetch-pos-btn" style="width:auto;padding:10px 20px" onclick="fetchV4Positions()">&#x1F50E; Fetch</button>
+</div>
+<div id="fetchPosStatus" class="fp-status" style="display:none"></div>
+<div id="fetchPosList"></div>
 </div>
 
 <!-- ── Test Swap Panel ── -->
@@ -325,6 +457,110 @@ label{display:block;font-size:.72rem;color:rgba(255,255,255,.45);margin-bottom:6
 
 <script>
 const prices={XLM:0.12,USDC:1,wETH:3200,wBTC:68000,EURC:1.08,OLIGHFT:0.50};
+
+// ── AMM Quoter Engine (Uniswap V4-style constant-product pools) ──
+var POOL_REGISTRY = {
+  'XLM/USDC':     { currency0: 'XLM',     currency1: 'USDC',    fee: 3000, tickSpacing: 60,  hooks: '0x0000000000000000000000000000000000000000', reserve0: 5000000,  reserve1: 600000 },
+  'XLM/OLIGHFT':  { currency0: 'XLM',     currency1: 'OLIGHFT', fee: 3000, tickSpacing: 60,  hooks: '0x0000000000000000000000000000000000000000', reserve0: 2000000,  reserve1: 480000 },
+  'USDC/OLIGHFT': { currency0: 'USDC',    currency1: 'OLIGHFT', fee: 500,  tickSpacing: 10,  hooks: '0x0000000000000000000000000000000000000000', reserve0: 500000,   reserve1: 1000000 },
+  'USDC/EURC':    { currency0: 'USDC',    currency1: 'EURC',    fee: 100,  tickSpacing: 1,   hooks: '0x0000000000000000000000000000000000000000', reserve0: 2000000,  reserve1: 1851852 },
+  'wETH/USDC':    { currency0: 'wETH',    currency1: 'USDC',    fee: 3000, tickSpacing: 60,  hooks: '0x0000000000000000000000000000000000000000', reserve0: 500,      reserve1: 1600000 },
+  'wBTC/USDC':    { currency0: 'wBTC',    currency1: 'USDC',    fee: 3000, tickSpacing: 60,  hooks: '0x0000000000000000000000000000000000000000', reserve0: 25,       reserve1: 1700000 },
+  'wETH/OLIGHFT': { currency0: 'wETH',    currency1: 'OLIGHFT', fee: 3000, tickSpacing: 60,  hooks: '0x0000000000000000000000000000000000000000', reserve0: 200,      reserve1: 1280000 },
+  'wBTC/OLIGHFT': { currency0: 'wBTC',    currency1: 'OLIGHFT', fee: 3000, tickSpacing: 60,  hooks: '0x0000000000000000000000000000000000000000', reserve0: 10,       reserve1: 1360000 }
+};
+function findPool(a, b) { return POOL_REGISTRY[a+'/'+b] || POOL_REGISTRY[b+'/'+a] || null; }
+function _quoteSinglePool(pool, tokenIn, tokenOut, amountIn) {
+  var zeroForOne = (tokenIn === pool.currency0);
+  var reserveIn  = zeroForOne ? pool.reserve0 : pool.reserve1;
+  var reserveOut = zeroForOne ? pool.reserve1 : pool.reserve0;
+  var feeRate = pool.fee / 1000000;
+  var amountInAfterFee = amountIn * (1 - feeRate);
+  var feeAmount = amountIn * feeRate;
+  var amountOut = (reserveOut * amountInAfterFee) / (reserveIn + amountInAfterFee);
+  var spotPrice = reserveOut / reserveIn;
+  var execPrice = amountOut / amountIn;
+  var priceImpact = Math.max(0, (1 - execPrice / spotPrice) * 100);
+  return { amountOut: amountOut, fee: feeAmount, priceImpact: priceImpact, pool: pool };
+}
+function quoteExactInputSingle(tokenIn, tokenOut, exactAmountIn) {
+  var pool = findPool(tokenIn, tokenOut);
+  if (!pool && tokenIn !== 'USDC' && tokenOut !== 'USDC') {
+    var poolA = findPool(tokenIn, 'USDC');
+    var poolB = findPool('USDC', tokenOut);
+    if (poolA && poolB) {
+      var hop1 = _quoteSinglePool(poolA, tokenIn, 'USDC', exactAmountIn);
+      var hop2 = _quoteSinglePool(poolB, 'USDC', tokenOut, hop1.amountOut);
+      var feeRate1 = hop1.pool.fee / 1000000, feeRate2 = hop2.pool.fee / 1000000;
+      var effectiveFeeRate = 1 - (1 - feeRate1) * (1 - feeRate2);
+      var totalFeeInInput = exactAmountIn * effectiveFeeRate;
+      var combinedImpact = 1 - (1 - hop1.priceImpact / 100) * (1 - hop2.priceImpact / 100);
+      var spotRate = (prices[tokenIn] || 1) / (prices[tokenOut] || 1);
+      return { amountOut: hop2.amountOut, fee: totalFeeInInput, feeToken: totalFeeInInput, feeDisplay: (feeRate1 * 100).toFixed(2) + '% + ' + (feeRate2 * 100).toFixed(2) + '%', priceImpact: combinedImpact * 100, rate: spotRate, minOut: hop2.amountOut * (1 - slippage / 100), route: [tokenIn, 'USDC', tokenOut], hops: 2, pools: [hop1.pool, hop2.pool], hopAmounts: [exactAmountIn, hop1.amountOut, hop2.amountOut] };
+    }
+    return null;
+  }
+  if (!pool) return null;
+  var q = _quoteSinglePool(pool, tokenIn, tokenOut, exactAmountIn);
+  var spotRate = (prices[tokenIn] || 1) / (prices[tokenOut] || 1);
+  return { amountOut: q.amountOut, fee: q.fee, feeToken: exactAmountIn * pool.fee / 1000000, feeDisplay: (pool.fee / 10000).toFixed(2) + '%', priceImpact: q.priceImpact, rate: spotRate, minOut: q.amountOut * (1 - slippage / 100), route: [tokenIn, tokenOut], hops: 1, pools: [pool] };
+}
+
+// ── Universal Router — V4 Swap Execution Engine ──
+var Actions = {
+  SWAP_EXACT_IN_SINGLE: 'SWAP_EXACT_IN_SINGLE',
+  SWAP_EXACT_IN:        'SWAP_EXACT_IN',
+  SETTLE_ALL:           'SETTLE_ALL',
+  TAKE_ALL:             'TAKE_ALL'
+};
+function V4Planner() { this.actions = []; this.params = []; }
+V4Planner.prototype.addAction = function(action, params) { this.actions.push(action); this.params.push(params); };
+V4Planner.prototype.finalize = function() { return { actions: this.actions, params: this.params }; };
+function RoutePlanner() { this.commands = []; }
+RoutePlanner.prototype.addCommand = function(commandType, payload) { this.commands.push({ type: commandType, payload: payload }); };
+var CommandType = { V4_SWAP: 'V4_SWAP' };
+
+function universalRouterExecute(commands, encodedActions, deadline, preComputedQuote) {
+  var now = Math.floor(Date.now() / 1000);
+  if (now > deadline) return { success: false, error: 'Transaction expired' };
+  if (!commands.length || commands[0].type !== CommandType.V4_SWAP) return { success: false, error: 'Invalid command type' };
+  var actions = encodedActions.actions, params = encodedActions.params;
+  var swapResult = null, settled = false, taken = false;
+  for (var i = 0; i < actions.length; i++) {
+    switch (actions[i]) {
+      case Actions.SWAP_EXACT_IN_SINGLE:
+        var cfg = params[i];
+        swapResult = preComputedQuote || quoteExactInputSingle(cfg.tokenIn, cfg.tokenOut, cfg.amountIn);
+        if (!swapResult || swapResult.amountOut <= 0) return { success: false, error: 'No liquidity' };
+        if (cfg.amountOutMinimum > 0 && swapResult.amountOut < cfg.amountOutMinimum) return { success: false, error: 'Output below minimum (' + swapResult.amountOut.toFixed(4) + ' < ' + cfg.amountOutMinimum.toFixed(4) + ')' };
+        var pools = swapResult.pools || [];
+        var hopAmts = swapResult.hopAmounts || [cfg.amountIn, swapResult.amountOut];
+        for (var p = 0; p < pools.length; p++) {
+          var pool = pools[p];
+          var key = pool.currency0 + '/' + pool.currency1;
+          if (!POOL_REGISTRY[key]) key = pool.currency1 + '/' + pool.currency0;
+          if (POOL_REGISTRY[key]) {
+            var hopIn = hopAmts[p];
+            var hopOut = hopAmts[p + 1];
+            var hopTokenIn = swapResult.route[p];
+            var zf1 = (hopTokenIn === pool.currency0);
+            if (zf1) { POOL_REGISTRY[key].reserve0 += hopIn * (1 - pool.fee / 1000000); POOL_REGISTRY[key].reserve1 -= hopOut; }
+            else { POOL_REGISTRY[key].reserve1 += hopIn * (1 - pool.fee / 1000000); POOL_REGISTRY[key].reserve0 -= hopOut; }
+          }
+        }
+        break;
+      case Actions.SETTLE_ALL: settled = true; break;
+      case Actions.TAKE_ALL: taken = true; break;
+    }
+  }
+  if (!swapResult || !settled || !taken) return { success: false, error: 'Incomplete action sequence' };
+  var hashSeed = deadline.toString() + swapResult.amountOut.toString() + Date.now().toString();
+  var hash = '', hashNum = 0;
+  for (var h = 0; h < hashSeed.length; h++) { hashNum = ((hashNum << 5) - hashNum) + hashSeed.charCodeAt(h); hashNum |= 0; }
+  for (var h = 0; h < 64; h++) hash += '0123456789abcdef'[(Math.abs(hashNum * (h + 1)) >>> 0) % 16];
+  return { success: true, transactionHash: hash, amountIn: params[0].amountIn, amountOut: swapResult.amountOut, fee: swapResult.fee, priceImpact: swapResult.priceImpact, route: swapResult.route, deadline: deadline, blockTime: now };
+}
+
 // Auth guard
 (function(){const u=JSON.parse(localStorage.getItem('cw_user')||'null');if(!u){window.location.href='auth.html';return;}})();
 
@@ -390,17 +626,17 @@ function calcSwap(){
   const amt=parseFloat(document.getElementById('fromAmt').value)||0;
   if(f===t){document.getElementById('toAmt').value='';hideDetails();return}
   if(amt<=0){document.getElementById('toAmt').value='';hideDetails();return}
-  const usdIn=amt*prices[f];
-  const fee=usdIn*0.003;
-  const netUsd=usdIn-fee;
-  const impact=Math.min(amt*prices[f]/50000*100,15);
-  const outRaw=netUsd/prices[t];
-  const out=outRaw*(1-impact/100);
+
+  const quote=quoteExactInputSingle(f,t,amt);
+  if(!quote||quote.amountOut<=0){document.getElementById('toAmt').value='';hideDetails();return}
+
+  const out=quote.amountOut;
+  const impact=quote.priceImpact;
   document.getElementById('toAmt').value=out<0.001?out.toFixed(8):out<1?out.toFixed(6):out.toFixed(4);
   document.getElementById('swapDetails').style.display='block';
-  document.getElementById('rateDisplay').textContent='1 '+f+' = '+(prices[f]/prices[t]).toFixed(6)+' '+t;
-  document.getElementById('feeDisplay').textContent=fmt(amt*0.003)+' '+f;
-  document.getElementById('minReceived').textContent=fmt(out*(1-slippage/100))+' '+t;
+  document.getElementById('rateDisplay').textContent='1 '+f+' = '+quote.rate.toFixed(6)+' '+t;
+  document.getElementById('feeDisplay').textContent=quote.feeToken.toFixed(4)+' '+f+' ('+quote.feeDisplay+')';
+  document.getElementById('minReceived').textContent=fmt(quote.minOut)+' '+t;
   const impEl=document.getElementById('impactDisplay');
   impEl.textContent=impact.toFixed(2)+'%';
   impEl.className='dv '+(impact<1?'green':impact<3?'':'');
@@ -408,9 +644,9 @@ function calcSwap(){
   const msg=document.getElementById('impactMsg');
   if(impact<1){msg.textContent='Low price impact';msg.className='price-impact low'}
   else if(impact<3){msg.textContent='Moderate price impact';msg.className='price-impact med'}
-  else{msg.textContent='High price impact — consider smaller trade';msg.className='price-impact high'}
+  else{msg.textContent='High price impact \u2014 consider smaller trade';msg.className='price-impact high'}
   document.getElementById('routeBox').style.display='block';
-  document.getElementById('routeDisplay').innerHTML=f+' <span class="rarrow">&#x2192;</span> '+t;
+  document.getElementById('routeDisplay').innerHTML=quote.route.join(' <span class="rarrow">&#x2192;</span> ');
   document.getElementById('swapBtn').disabled=!(amt>0&&amt<=bals[f]&&f!==t);
 }
 function hideDetails(){
@@ -448,28 +684,103 @@ function executeSwap(){
   const f=document.getElementById('fromToken').value;
   const t=document.getElementById('toToken').value;
   const fAmt=parseFloat(document.getElementById('fromAmt').value);
-  const tAmt=parseFloat(document.getElementById('toAmt').value);
   if(f===t)return;
-  if(!fAmt||fAmt<=0||!tAmt||tAmt<=0)return;
+  if(!fAmt||fAmt<=0)return;
   if(fAmt>(bals[f]||0))return;
-  const hash=genHash();
+
+  // Pre-quote for slippage minimum
+  const preQuote=quoteExactInputSingle(f,t,fAmt);
+  if(!preQuote||preQuote.amountOut<=0)return;
+  const amountOutMinimum=preQuote.minOut;
+
+  // ── Build V4Planner actions (Uniswap V4 Universal Router pattern) ──
+  const planner=new V4Planner();
+
+  // 1. SWAP_EXACT_IN_SINGLE: execute the swap through the pool
+  var firstPool = (preQuote.pools&&preQuote.pools[0]) ? preQuote.pools[0] : null;
+  var zeroForOne = firstPool ? (f === firstPool.currency0) : true;
+  planner.addAction(Actions.SWAP_EXACT_IN_SINGLE, {
+    poolKey: firstPool ? { currency0: firstPool.currency0, currency1: firstPool.currency1, fee: firstPool.fee, tickSpacing: firstPool.tickSpacing, hooks: firstPool.hooks } : { currency0: f, currency1: t, fee: 3000 },
+    zeroForOne: zeroForOne,
+    tokenIn: f,
+    tokenOut: t,
+    amountIn: fAmt,
+    amountOutMinimum: amountOutMinimum,
+    sqrtPriceLimitX96: 0,
+    hookData: '0x'
+  });
+
+  // 2. SETTLE_ALL: settle the input currency
+  planner.addAction(Actions.SETTLE_ALL, { currency: f, maxAmount: fAmt });
+
+  // 3. TAKE_ALL: take the output currency
+  planner.addAction(Actions.TAKE_ALL, { currency: t, minAmount: amountOutMinimum });
+
+  const encodedActions=planner.finalize();
+
+  // ── Build RoutePlanner with V4_SWAP command ──
+  const routePlanner=new RoutePlanner();
+  routePlanner.addCommand(CommandType.V4_SWAP, encodedActions);
+
+  // Deadline: 1 hour from now
+  const deadline=Math.floor(Date.now()/1000)+3600;
+
+  // ── Execute via Universal Router ──
+  const receipt=universalRouterExecute(routePlanner.commands, encodedActions, deadline, preQuote);
+
+  if(!receipt.success){
+    // Show error in UI
+    document.getElementById('swapSummary').textContent='Error: '+receipt.error;
+    document.getElementById('swapRate').textContent='';
+    document.getElementById('txHash').textContent='';
+    document.getElementById('successOverlay').classList.add('show');
+    return;
+  }
+
+  const tAmt=receipt.amountOut;
   const accounts=getAccounts();
   const activeIdx=getActiveIdx();
   const fromAcc=accounts.find(a=>a.index===activeIdx);
   const acctAddr=fromAcc?fromAcc.publicKey:(JSON.parse(localStorage.getItem('cw_user')||'{}').addr||'');
-  bals[f]-=fAmt;bals[t]+=tAmt;
+
+  // Update balances
+  bals[f]=(bals[f]||0)-fAmt;bals[t]=(bals[t]||0)+tAmt;
   saveSharedBalances(bals);
   updateBals();
+
+  // Success overlay with router receipt details
   document.getElementById('swapSummary').textContent=fAmt+' '+f+' \u2192 '+tAmt.toFixed(6)+' '+t;
-  document.getElementById('swapRate').textContent='Rate: 1 '+f+' = '+(prices[f]/prices[t]).toFixed(6)+' '+t;
-  document.getElementById('txHash').textContent=hash;
+  document.getElementById('swapRate').textContent='Rate: 1 '+f+' = '+(tAmt/fAmt).toFixed(6)+' '+t+' | Impact: '+receipt.priceImpact.toFixed(2)+'% | Route: '+receipt.route.join(' \u2192 ');
+  document.getElementById('txHash').textContent=receipt.transactionHash;
   document.getElementById('successOverlay').classList.add('show');
+
+  // Swap TX history with full router receipt
   const txs=JSON.parse(localStorage.getItem('swap_txs')||'[]');
-  txs.unshift({from:f,to:t,fromAmt:fAmt,toAmt:tAmt,hash:hash,time:Date.now(),account:acctAddr,accountIdx:activeIdx});
+  txs.unshift({
+    from:f, to:t, fromAmt:fAmt, toAmt:tAmt,
+    hash:receipt.transactionHash,
+    route:receipt.route,
+    fee:receipt.fee,
+    priceImpact:receipt.priceImpact,
+    deadline:receipt.deadline,
+    blockTime:receipt.blockTime,
+    time:Date.now(),
+    account:acctAddr, accountIdx:activeIdx
+  });
   if(txs.length>20)txs.length=20;
   localStorage.setItem('swap_txs',JSON.stringify(txs));
+
   // Unified activity log
-  try{var al=JSON.parse(localStorage.getItem('cw_activity')||'[]');al.unshift({type:'Swap',icon:'\uD83D\uDD04',detail:fAmt+' '+f+' \u2192 '+tAmt.toFixed(4)+' '+t,amt:'+'+tAmt.toFixed(4)+' '+t,cls:'green',time:'Just now',ts:Date.now()});if(al.length>50)al.length=50;localStorage.setItem('cw_activity',JSON.stringify(al));}catch(e){}
+  try{var al=JSON.parse(localStorage.getItem('cw_activity')||'[]');al.unshift({
+    type:'Swap',icon:'\uD83D\uDD04',
+    detail:fAmt+' '+f+' \u2192 '+tAmt.toFixed(4)+' '+t+' (via Universal Router)',
+    amt:'+'+tAmt.toFixed(4)+' '+t,cls:'green',time:'Just now',ts:Date.now(),
+    txHash:receipt.transactionHash,
+    route:receipt.route.join(' \u2192 '),
+    priceImpact:receipt.priceImpact,
+    deadline:receipt.deadline
+  });if(al.length>50)al.length=50;localStorage.setItem('cw_activity',JSON.stringify(al));}catch(e){}
+
   document.getElementById('fromAmt').value='';
   document.getElementById('toAmt').value='';
   hideDetails();
@@ -494,13 +805,9 @@ renderRecent();updateBals();renderAccountSelector();
 var testPass=0,testFail=0,testTotal=0;
 
 function calcTestSwap(from,to,amt){
-  const usdIn=amt*prices[from];
-  const fee=usdIn*0.003;
-  const netUsd=usdIn-fee;
-  const impact=Math.min(amt*prices[from]/50000*100,15);
-  const outRaw=netUsd/prices[to];
-  const out=outRaw*(1-impact/100);
-  return {usdIn:usdIn,fee:fee,netUsd:netUsd,impact:impact,out:out,rate:prices[from]/prices[to]};
+  const q=quoteExactInputSingle(from,to,amt);
+  if(!q)return{usdIn:0,fee:0,netUsd:0,impact:0,out:0,rate:0};
+  return {usdIn:amt*prices[from],fee:q.fee,netUsd:amt*prices[from]-q.fee*prices[from],impact:q.priceImpact,out:q.amountOut,rate:q.rate};
 }
 
 function logTestLine(name,passed,detail){
@@ -612,10 +919,10 @@ function runAllTests(){
   })();
 
   (function(){
-    var r=calcTestSwap('XLM','USDC',1000);var expectedFee=1000*0.12*0.003;
-    var ok=Math.abs(r.fee-expectedFee)<0.001;
+    var r=calcTestSwap('XLM','USDC',1000);var expectedFee=1000*0.003;
+    var ok=Math.abs(r.fee-expectedFee)<0.01;
     setBadge(intRows,5,ok);
-    logTestLine('Fee Accuracy (0.3%)',ok,'Expected: $'+expectedFee.toFixed(4)+' | Got: $'+r.fee.toFixed(4)+(ok?' \u2714':' \u2716'));
+    logTestLine('Fee Accuracy (0.3%)',ok,'Expected: '+expectedFee.toFixed(4)+' XLM | Got: '+r.fee.toFixed(4)+' XLM'+(ok?' \u2714':' \u2716'));
   })();
 
   (function(){
@@ -651,6 +958,1296 @@ function runAllTests(){
 }
 
 function updateTestSummary(){}
+
+// ══════════════════════════════════════════════════════════════════
+// ── V4 PositionManager — Full SDK-aligned Liquidity Minting ─────
+// Models @uniswap/v4-sdk Pool, Position, V4PositionManager classes
+// with Permit2 batch permits, createPool, multicall, SWEEP
+// ══════════════════════════════════════════════════════════════════
+
+var MIN_TICK = -887272;
+var MAX_TICK = 887272;
+var LP_RANGE_MODE = 'narrow';
+var LP_TICK_RANGES = { narrow: 500, medium: 2500, wide: 5000, full: 0 };
+
+// ── Token class (mirrors @uniswap/sdk-core Token) ──
+function Token(chainId, address, decimals, symbol, name) {
+  this.chainId = chainId;
+  this.address = address;
+  this.decimals = decimals;
+  this.symbol = symbol;
+  this.name = name || symbol;
+  this.isNative = (address === '0x0000000000000000000000000000000000000000');
+}
+
+var TOKENS = {
+  XLM:     new Token(0, 'native', 7, 'XLM', 'Stellar Lumens'),
+  USDC:    new Token(0, 'CUSDC000000000000000000000000000000000000000000000000000', 6, 'USDC', 'USD Coin'),
+  wETH:    new Token(0, 'CWETH000000000000000000000000000000000000000000000000000', 18, 'wETH', 'Wrapped Ether'),
+  wBTC:    new Token(0, 'CWBTC000000000000000000000000000000000000000000000000000', 8, 'wBTC', 'Wrapped Bitcoin'),
+  EURC:    new Token(0, 'CEURC000000000000000000000000000000000000000000000000000', 6, 'EURC', 'Euro Coin'),
+  OLIGHFT: new Token(0, 'COLIGHFT0000000000000000000000000000000000000000000000000', 7, 'OLIGHFT', 'OLIGHFT Smart Coin')
+};
+// XLM is native
+TOKENS.XLM.isNative = true;
+
+// ── Simulated Contract Addresses ──
+var CONTRACTS = {
+  PERMIT2: '0x000000000022D473030F116dDEE9F6B43aC78BA3',
+  POSITION_MANAGER: '0x4529a01c7a0410167c5740c487a8de60232617bf',
+  STATE_VIEW: '0x86e8631a016f9068c3f085faf484ee3f5fdee8f2'
+};
+
+// ── nearestUsableTick (@uniswap/v3-sdk) ──
+function nearestUsableTick(tick, tickSpacing) {
+  if (tickSpacing <= 0) return tick;
+  var rounded = Math.round(tick / tickSpacing) * tickSpacing;
+  if (rounded < MIN_TICK) return MIN_TICK + tickSpacing - (MIN_TICK % tickSpacing);
+  if (rounded > MAX_TICK) return MAX_TICK - (MAX_TICK % tickSpacing);
+  return rounded;
+}
+
+// ── Pool class (mirrors @uniswap/v4-sdk Pool) ──
+// Constructed from on-chain state: token0, token1, fee, tickSpacing,
+// hookAddress, sqrtPriceX96, liquidity, tick
+function V4Pool(token0, token1, fee, tickSpacing, hookAddress, sqrtPriceX96, liquidity, tick) {
+  this.token0 = token0;
+  this.token1 = token1;
+  this.currency0 = (typeof token0 === 'string') ? token0 : token0.symbol;
+  this.currency1 = (typeof token1 === 'string') ? token1 : token1.symbol;
+  this.fee = fee;
+  this.tickSpacing = tickSpacing;
+  this.hooks = hookAddress || '0x0000000000000000000000000000000000000000';
+  this.sqrtPriceX96 = sqrtPriceX96;
+  this.liquidity = liquidity;
+  this.tick = tick;
+  // Derive reserves from sqrtPrice and liquidity for AMM math
+  var sqrtP = Number(sqrtPriceX96) / (2 ** 96);
+  this.reserve0 = Number(liquidity) / sqrtP;
+  this.reserve1 = Number(liquidity) * sqrtP;
+}
+
+// Pool.getPoolId — compute deterministic pool identifier from PoolKey
+V4Pool.getPoolId = function(token0, token1, fee, tickSpacing, hookAddress) {
+  var t0 = (typeof token0 === 'string') ? token0 : token0.symbol;
+  var t1 = (typeof token1 === 'string') ? token1 : token1.symbol;
+  var raw = t0 + ':' + t1 + ':' + fee + ':' + tickSpacing + ':' + (hookAddress || '0x00');
+  var hash = 0;
+  for (var i = 0; i < raw.length; i++) { hash = ((hash << 5) - hash) + raw.charCodeAt(i); hash |= 0; }
+  var hex = '';
+  for (var i = 0; i < 64; i++) hex += '0123456789abcdef'[(Math.abs(hash * (i + 1)) >>> 0) % 16];
+  return '0x' + hex;
+};
+
+// Build V4Pool from POOL_REGISTRY entry
+function poolFromRegistry(regEntry) {
+  var sqrtP = Math.sqrt(regEntry.reserve1 / regEntry.reserve0);
+  var sqrtPriceX96 = sqrtP * (2 ** 96);
+  var liquidity = Math.sqrt(regEntry.reserve0 * regEntry.reserve1);
+  var tick = Math.round(Math.log(regEntry.reserve1 / regEntry.reserve0) / Math.log(1.0001));
+  var p = new V4Pool(
+    regEntry.currency0, regEntry.currency1,
+    regEntry.fee, regEntry.tickSpacing,
+    regEntry.hooks,
+    sqrtPriceX96.toString(),
+    liquidity.toString(),
+    tick
+  );
+  // Keep actual reserves for AMM pool updates
+  p.reserve0 = regEntry.reserve0;
+  p.reserve1 = regEntry.reserve1;
+  p._registryKey = regEntry.currency0 + '/' + regEntry.currency1;
+  return p;
+}
+
+// Simulated sqrtPriceX96 from pool reserves
+function poolSqrtPriceX96(pool) {
+  var price = pool.reserve1 / pool.reserve0;
+  return Math.sqrt(price) * (2 ** 96);
+}
+
+function poolCurrentTick(pool) {
+  var price = pool.reserve1 / pool.reserve0;
+  return Math.round(Math.log(price) / Math.log(1.0001));
+}
+
+// ── Position class (mirrors @uniswap/v4-sdk Position) ──
+function V4Position(params) {
+  this.pool = params.pool;
+  this.tickLower = params.tickLower;
+  this.tickUpper = params.tickUpper;
+  this.liquidity = params.liquidity || 0;
+  this.amount0 = params.amount0 || 0;
+  this.amount1 = params.amount1 || 0;
+}
+
+// Computed property: mintAmounts — actual amounts needed to mint
+Object.defineProperty(V4Position.prototype, 'mintAmounts', {
+  get: function() { return { amount0: this.amount0, amount1: this.amount1 }; }
+});
+
+// Position.fromAmounts — calculate max liquidity from desired token amounts
+V4Position.fromAmounts = function(params) {
+  var pool = params.pool;
+  var tickLower = params.tickLower;
+  var tickUpper = params.tickUpper;
+  var amount0 = Number(params.amount0) || 0;
+  var amount1 = Number(params.amount1) || 0;
+
+  var sqrtCurrent = Math.sqrt(pool.reserve1 / pool.reserve0);
+  var sqrtLower = Math.sqrt(Math.pow(1.0001, tickLower));
+  var sqrtUpper = Math.sqrt(Math.pow(1.0001, tickUpper));
+
+  // Concentrated liquidity: L from amount0 and from amount1
+  var liquidity0 = amount0 * (sqrtCurrent * sqrtUpper) / (sqrtUpper - sqrtCurrent);
+  var liquidity1 = amount1 / (sqrtCurrent - sqrtLower);
+
+  // Use minimum (like the SDK) — the binding constraint
+  var liquidity = Math.min(liquidity0, liquidity1);
+  if (liquidity <= 0) liquidity = Math.max(liquidity0, liquidity1);
+
+  // Actual amounts consumed by this liquidity
+  var actualAmt0 = liquidity * (sqrtUpper - sqrtCurrent) / (sqrtCurrent * sqrtUpper);
+  var actualAmt1 = liquidity * (sqrtCurrent - sqrtLower);
+  if (actualAmt0 < 0) actualAmt0 = 0;
+  if (actualAmt1 < 0) actualAmt1 = 0;
+
+  return new V4Position({
+    pool: pool,
+    tickLower: tickLower,
+    tickUpper: tickUpper,
+    liquidity: Math.abs(liquidity),
+    amount0: Math.min(actualAmt0, amount0),
+    amount1: Math.min(actualAmt1, amount1)
+  });
+};
+
+// ── Permit2 Batch Permit Simulation ──
+// Simulates off-chain signature for gasless ERC20 approvals
+function generatePermit2BatchSignature(permitDetails, spender, sigDeadline, ownerAddress) {
+  // Simulate EIP-712 typed data signing
+  var raw = ownerAddress + ':' + spender + ':' + sigDeadline;
+  for (var i = 0; i < permitDetails.length; i++) {
+    raw += ':' + permitDetails[i].token + ':' + permitDetails[i].amount;
+  }
+  var sig = '';
+  var h = 0;
+  for (var i = 0; i < raw.length; i++) { h = ((h << 5) - h) + raw.charCodeAt(i); h |= 0; }
+  for (var i = 0; i < 130; i++) sig += '0123456789abcdef'[(Math.abs(h * (i + 1)) >>> 0) % 16];
+  return '0x' + sig;
+}
+
+function buildBatchPermit(token0sym, token1sym, ownerAddress, deadline) {
+  var permitDetails = [];
+  var t0 = TOKENS[token0sym];
+  var t1 = TOKENS[token1sym];
+  // Only ERC20 tokens need Permit2 (skip native)
+  if (t0 && !t0.isNative) {
+    permitDetails.push({
+      token: t0.address,
+      amount: '1461501637330902918203684832716283019655932542975', // max uint160
+      expiration: deadline.toString(),
+      nonce: '0'
+    });
+  }
+  if (t1 && !t1.isNative) {
+    permitDetails.push({
+      token: t1.address,
+      amount: '1461501637330902918203684832716283019655932542975',
+      expiration: deadline.toString(),
+      nonce: '0'
+    });
+  }
+  if (permitDetails.length === 0) return null;
+  var permitBatch = {
+    details: permitDetails,
+    spender: CONTRACTS.POSITION_MANAGER,
+    sigDeadline: deadline.toString()
+  };
+  var signature = generatePermit2BatchSignature(permitDetails, CONTRACTS.POSITION_MANAGER, deadline, ownerAddress);
+  return { owner: ownerAddress, permitBatch: permitBatch, signature: signature };
+}
+
+// ── V4PositionManager class (mirrors @uniswap/v4-sdk V4PositionManager) ──
+var V4PositionManager = {};
+
+// addCallParameters — builds calldata + value for the mint transaction
+// Encodes: [batchPermit?] → MINT_POSITION → SETTLE_PAIR → [SWEEP?]
+// Applies slippageTolerance to calculate amount0Max / amount1Max
+V4PositionManager.addCallParameters = function(position, mintOptions) {
+  var slipMul = 1 + (mintOptions.slippageTolerance || 0.5) / 100;
+  var amount0Max = position.amount0 * slipMul;
+  var amount1Max = position.amount1 * slipMul;
+  var actions = [];
+  var poolKey = {
+    currency0: position.pool.currency0,
+    currency1: position.pool.currency1,
+    fee: position.pool.fee,
+    tickSpacing: position.pool.tickSpacing,
+    hooks: position.pool.hooks || '0x0000000000000000000000000000000000000000'
+  };
+
+  // 1. If batchPermit is provided, prepend PERMIT2_BATCH via multicall
+  if (mintOptions.batchPermit) {
+    actions.push({
+      action: 'PERMIT2_BATCH',
+      params: mintOptions.batchPermit
+    });
+  }
+
+  // 2. If createPool, prepend INITIALIZE_POOL
+  if (mintOptions.createPool && mintOptions.sqrtPriceX96) {
+    actions.push({
+      action: 'INITIALIZE_POOL',
+      params: { poolKey: poolKey, sqrtPriceX96: mintOptions.sqrtPriceX96 }
+    });
+  }
+
+  // 3. MINT_POSITION — core action
+  actions.push({
+    action: 'MINT_POSITION',
+    params: {
+      poolKey: poolKey,
+      tickLower: position.tickLower,
+      tickUpper: position.tickUpper,
+      liquidity: position.liquidity,
+      amount0Max: amount0Max,
+      amount1Max: amount1Max,
+      recipient: mintOptions.recipient,
+      hookData: mintOptions.hookData || '0x'
+    }
+  });
+
+  // 4. SETTLE_PAIR — pull tokens from user
+  actions.push({
+    action: 'SETTLE_PAIR',
+    params: { currency0: poolKey.currency0, currency1: poolKey.currency1 }
+  });
+
+  // 5. If useNative, append SWEEP to refund unused native token
+  var value = '0';
+  if (mintOptions.useNative) {
+    actions.push({
+      action: 'SWEEP',
+      params: { currency: mintOptions.useNative, recipient: mintOptions.recipient }
+    });
+    // value = max native amount (amount0 or amount1 whichever is native)
+    var nativeSym = mintOptions.useNative;
+    if (poolKey.currency0 === nativeSym) value = amount0Max.toString();
+    else if (poolKey.currency1 === nativeSym) value = amount1Max.toString();
+  }
+
+  // Generate deterministic calldata for the multicall bundle
+  var seed = position.liquidity.toString() + mintOptions.deadline.toString() + Date.now().toString();
+  var calldata = '', h = 0;
+  for (var i = 0; i < seed.length; i++) { h = ((h << 5) - h) + seed.charCodeAt(i); h |= 0; }
+  for (var i = 0; i < 128; i++) calldata += '0123456789abcdef'[(Math.abs(h * (i + 1)) >>> 0) % 16];
+
+  return {
+    calldata: '0x' + calldata,
+    value: value,
+    actions: actions,
+    multicall: true
+  };
+};
+
+// ── Build full MintOptions from UI state ──
+// Covers all parameters: recipient, slippageTolerance, deadline,
+// hookData, useNative, batchPermit, createPool, sqrtPriceX96
+function buildMintOptions(token0sym, token1sym, opts) {
+  var user = JSON.parse(localStorage.getItem('cw_user') || 'null');
+  var recipient = (user && user.addr) ? user.addr : 'unknown';
+  var deadline = Math.floor(Date.now() / 1000) + 3600; // 1 hour
+
+  var mintOpts = {
+    recipient: recipient,
+    slippageTolerance: opts.slippage || slippage || 0.5,
+    deadline: deadline,
+    hookData: '0x'
+  };
+
+  // useNative: if either token is XLM (native), set it
+  if (token0sym === 'XLM' || token1sym === 'XLM') {
+    mintOpts.useNative = 'XLM';
+  }
+
+  // batchPermit: generate Permit2 for non-native ERC20 tokens
+  var permit = buildBatchPermit(token0sym, token1sym, recipient, deadline);
+  if (permit) mintOpts.batchPermit = permit;
+
+  // createPool: if requested and pool doesn't exist
+  if (opts.createPool) {
+    mintOpts.createPool = true;
+    mintOpts.sqrtPriceX96 = opts.sqrtPriceX96 || '0';
+  }
+
+  return mintOpts;
+}
+
+// ── Execute the full mint flow ──
+// 1. Validate deadline  2. Build calldata via V4PositionManager.addCallParameters
+// 3. Deduct balances  4. Update pool reserves  5. Mint NFT  6. Log activity
+function executeMintPosition(position, mintOptions) {
+  var now = Math.floor(Date.now() / 1000);
+  if (now > mintOptions.deadline) return { success: false, error: 'Transaction expired (deadline ' + mintOptions.deadline + ' < now ' + now + ')' };
+  if (position.liquidity <= 0) return { success: false, error: 'Zero liquidity — increase token amounts' };
+
+  // Build calldata via V4PositionManager.addCallParameters
+  var txData = V4PositionManager.addCallParameters(position, mintOptions);
+
+  // Validate Permit2 signature if present
+  if (txData.actions[0] && txData.actions[0].action === 'PERMIT2_BATCH') {
+    var permit = txData.actions[0].params;
+    if (!permit.signature || permit.signature.length < 10) {
+      return { success: false, error: 'Invalid Permit2 signature' };
+    }
+  }
+
+  // Deduct tokens from user balances
+  var t0 = position.pool.currency0;
+  var t1 = position.pool.currency1;
+  if ((bals[t0] || 0) < position.amount0) return { success: false, error: 'Insufficient ' + t0 + ' balance (' + (bals[t0] || 0).toFixed(4) + ' < ' + position.amount0.toFixed(4) + ')' };
+  if ((bals[t1] || 0) < position.amount1) return { success: false, error: 'Insufficient ' + t1 + ' balance (' + (bals[t1] || 0).toFixed(4) + ' < ' + position.amount1.toFixed(4) + ')' };
+
+  bals[t0] -= position.amount0;
+  bals[t1] -= position.amount1;
+  saveSharedBalances(bals);
+
+  // Add liquidity to pool reserves
+  var poolKey = t0 + '/' + t1;
+  if (!POOL_REGISTRY[poolKey]) poolKey = t1 + '/' + t0;
+  if (POOL_REGISTRY[poolKey]) {
+    if (t0 === POOL_REGISTRY[poolKey].currency0) {
+      POOL_REGISTRY[poolKey].reserve0 += position.amount0;
+      POOL_REGISTRY[poolKey].reserve1 += position.amount1;
+    } else {
+      POOL_REGISTRY[poolKey].reserve1 += position.amount0;
+      POOL_REGISTRY[poolKey].reserve0 += position.amount1;
+    }
+  }
+
+  // Generate NFT token ID (simulated ERC721)
+  var tokenId = Date.now().toString(36) + Math.random().toString(36).substring(2, 8);
+
+  // Generate tx hash from calldata
+  var hashSeed = txData.calldata + now.toString();
+  var hash = '', hNum = 0;
+  for (var i = 0; i < hashSeed.length; i++) { hNum = ((hNum << 5) - hNum) + hashSeed.charCodeAt(i); hNum |= 0; }
+  for (var i = 0; i < 64; i++) hash += '0123456789abcdef'[(Math.abs(hNum * (i + 1)) >>> 0) % 16];
+
+  // Save position NFT to localStorage
+  var positions = JSON.parse(localStorage.getItem('lp_positions') || '[]');
+  var nft = {
+    tokenId: tokenId,
+    pool: t0 + '/' + t1,
+    poolId: V4Pool.getPoolId(t0, t1, position.pool.fee, position.pool.tickSpacing, position.pool.hooks),
+    currency0: t0, currency1: t1,
+    fee: position.pool.fee,
+    tickSpacing: position.pool.tickSpacing,
+    hookAddress: position.pool.hooks,
+    tickLower: position.tickLower,
+    tickUpper: position.tickUpper,
+    liquidity: position.liquidity,
+    amount0: position.amount0,
+    amount1: position.amount1,
+    mintAmounts: position.mintAmounts,
+    txHash: hash,
+    calldata: txData.calldata,
+    value: txData.value,
+    multicall: txData.multicall,
+    permit2Used: !!mintOptions.batchPermit,
+    useNative: mintOptions.useNative || null,
+    mintedAt: Date.now(),
+    deadline: mintOptions.deadline,
+    owner: mintOptions.recipient
+  };
+  positions.unshift(nft);
+  if (positions.length > 50) positions.length = 50;
+  localStorage.setItem('lp_positions', JSON.stringify(positions));
+
+  // Activity log
+  try {
+    var al = JSON.parse(localStorage.getItem('cw_activity') || '[]');
+    al.unshift({
+      type: 'Mint LP', icon: '\uD83D\uDCA7',
+      detail: position.amount0.toFixed(4) + ' ' + t0 + ' + ' + position.amount1.toFixed(4) + ' ' + t1 + ' \u2192 LP #' + tokenId + (mintOptions.batchPermit ? ' (Permit2)' : ''),
+      amt: 'NFT #' + tokenId, cls: 'green', time: 'Just now', ts: Date.now(),
+      txHash: hash
+    });
+    if (al.length > 50) al.length = 50;
+    localStorage.setItem('cw_activity', JSON.stringify(al));
+  } catch(e) {}
+
+  return {
+    success: true,
+    tokenId: tokenId,
+    transactionHash: hash,
+    position: nft,
+    calldata: txData.calldata,
+    value: txData.value,
+    actions: txData.actions
+  };
+}
+
+// ── LP UI Functions ──
+function setLPRange(btn, mode) {
+  LP_RANGE_MODE = mode;
+  document.querySelectorAll('.lp-range-opts button').forEach(function(b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+  calcLP();
+}
+
+function setMaxLP(idx) {
+  var token = document.getElementById('lpToken' + idx).value;
+  document.getElementById('lpAmt' + idx).value = bals[token] || 0;
+  calcLP();
+}
+
+function calcLP() {
+  var t0 = document.getElementById('lpToken0').value;
+  var t1 = document.getElementById('lpToken1').value;
+  document.getElementById('lpLabel0').textContent = t0 + ' Amount';
+  document.getElementById('lpLabel1').textContent = t1 + ' Amount';
+  document.getElementById('lpBal0').textContent = 'Balance: ' + fmt(bals[t0] || 0);
+  document.getElementById('lpBal1').textContent = 'Balance: ' + fmt(bals[t1] || 0);
+
+  var amt0 = parseFloat(document.getElementById('lpAmt0').value) || 0;
+  var amt1 = parseFloat(document.getElementById('lpAmt1').value) || 0;
+
+  if (t0 === t1 || (amt0 <= 0 && amt1 <= 0)) {
+    document.getElementById('lpInfo').style.display = 'none';
+    return;
+  }
+
+  var regPool = findPool(t0, t1);
+  if (!regPool) {
+    document.getElementById('lpInfo').style.display = 'none';
+    return;
+  }
+
+  // Build V4Pool from registry
+  var pool = poolFromRegistry(regPool);
+  var currentTick = pool.tick;
+  var tickSpacing = pool.tickSpacing;
+  var tickRange = LP_TICK_RANGES[LP_RANGE_MODE];
+  var tickLower, tickUpper;
+
+  if (LP_RANGE_MODE === 'full') {
+    tickLower = nearestUsableTick(MIN_TICK, tickSpacing);
+    tickUpper = nearestUsableTick(MAX_TICK, tickSpacing);
+  } else {
+    tickLower = nearestUsableTick(currentTick - tickRange, tickSpacing);
+    tickUpper = nearestUsableTick(currentTick + tickRange, tickSpacing);
+  }
+
+  // Determine correct token order
+  var isZeroForFirst = (t0 === pool.currency0);
+  var a0 = isZeroForFirst ? amt0 : amt1;
+  var a1 = isZeroForFirst ? amt1 : amt0;
+  if (a0 <= 0 && a1 <= 0) { document.getElementById('lpInfo').style.display = 'none'; return; }
+
+  // Use V4Position.fromAmounts (mirrors SDK)
+  var pos = V4Position.fromAmounts({
+    pool: pool,
+    tickLower: tickLower,
+    tickUpper: tickUpper,
+    amount0: a0 || 0.0001,
+    amount1: a1 || 0.0001,
+    useFullPrecision: true
+  });
+
+  var spotPrice = pool.reserve1 / pool.reserve0;
+  var poolLiq = Math.sqrt(pool.reserve0 * pool.reserve1);
+  var shareOfPool = pos.liquidity > 0 ? (pos.liquidity / (poolLiq + pos.liquidity)) * 100 : 0;
+  var poolId = V4Pool.getPoolId(pool.currency0, pool.currency1, pool.fee, pool.tickSpacing, pool.hooks);
+
+  document.getElementById('lpPoolName').textContent = pool.currency0 + ' / ' + pool.currency1 + ' (ID: ' + poolId.substring(0, 10) + '...)';
+  document.getElementById('lpSpotPrice').textContent = '1 ' + pool.currency0 + ' = ' + spotPrice.toFixed(6) + ' ' + pool.currency1;
+  document.getElementById('lpTickRange').textContent = tickLower + ' \u2194 ' + tickUpper + (LP_RANGE_MODE === 'full' ? ' (full range)' : '');
+  document.getElementById('lpLiquidity').textContent = pos.liquidity.toFixed(2) + ' (mintAmounts: ' + pos.mintAmounts.amount0.toFixed(4) + ' + ' + pos.mintAmounts.amount1.toFixed(4) + ')';
+  document.getElementById('lpShare').textContent = shareOfPool.toFixed(4) + '%';
+  document.getElementById('lpFeeTier').textContent = (pool.fee / 10000).toFixed(2) + '% (' + pool.fee + ') | spacing: ' + pool.tickSpacing;
+  document.getElementById('lpInfo').style.display = 'block';
+}
+
+function mintPosition() {
+  var t0 = document.getElementById('lpToken0').value;
+  var t1 = document.getElementById('lpToken1').value;
+  if (t0 === t1) return;
+
+  var amt0 = parseFloat(document.getElementById('lpAmt0').value) || 0;
+  var amt1 = parseFloat(document.getElementById('lpAmt1').value) || 0;
+  if (amt0 <= 0 && amt1 <= 0) return;
+
+  var regPool = findPool(t0, t1);
+  if (!regPool) return;
+
+  var pool = poolFromRegistry(regPool);
+  var currentTick = pool.tick;
+  var tickSpacing = pool.tickSpacing;
+  var tickRange = LP_TICK_RANGES[LP_RANGE_MODE];
+  var tickLower, tickUpper;
+
+  if (LP_RANGE_MODE === 'full') {
+    tickLower = nearestUsableTick(MIN_TICK, tickSpacing);
+    tickUpper = nearestUsableTick(MAX_TICK, tickSpacing);
+  } else {
+    tickLower = nearestUsableTick(currentTick - tickRange, tickSpacing);
+    tickUpper = nearestUsableTick(currentTick + tickRange, tickSpacing);
+  }
+
+  var isZeroForFirst = (t0 === pool.currency0);
+  var a0 = isZeroForFirst ? amt0 : amt1;
+  var a1 = isZeroForFirst ? amt1 : amt0;
+
+  // Build Position via V4Position.fromAmounts
+  var pos = V4Position.fromAmounts({
+    pool: pool,
+    tickLower: tickLower,
+    tickUpper: tickUpper,
+    amount0: a0 || 0.0001,
+    amount1: a1 || 0.0001,
+    useFullPrecision: true
+  });
+
+  // Build full MintOptions (with Permit2, useNative, etc.)
+  var mintOptions = buildMintOptions(pool.currency0, pool.currency1, {
+    slippage: slippage
+  });
+
+  // Execute mint via V4PositionManager
+  var result = executeMintPosition(pos, mintOptions);
+
+  if (!result.success) {
+    document.getElementById('swapSummary').textContent = 'Mint Error: ' + result.error;
+    document.getElementById('swapRate').textContent = '';
+    document.getElementById('txHash').textContent = '';
+    document.getElementById('successOverlay').classList.add('show');
+    return;
+  }
+
+  // Show success with full receipt
+  var actionsUsed = result.actions.map(function(a) { return a.action; }).join(' \u2192 ');
+  document.getElementById('swapSummary').textContent = 'LP Position Minted!';
+  document.getElementById('swapRate').textContent =
+    pos.mintAmounts.amount0.toFixed(4) + ' ' + pool.currency0 + ' + ' +
+    pos.mintAmounts.amount1.toFixed(4) + ' ' + pool.currency1 +
+    ' | NFT #' + result.tokenId +
+    (mintOptions.batchPermit ? ' | Permit2 \u2705' : '') +
+    (mintOptions.useNative ? ' | Native: ' + mintOptions.useNative : '');
+  document.getElementById('txHash').textContent = result.transactionHash + '\nActions: ' + actionsUsed;
+  document.getElementById('successOverlay').classList.add('show');
+
+  updateBals();
+  document.getElementById('lpAmt0').value = '';
+  document.getElementById('lpAmt1').value = '';
+  document.getElementById('lpInfo').style.display = 'none';
+  renderLPPositions();
+}
+
+function renderLPPositions() {
+  var positions = JSON.parse(localStorage.getItem('lp_positions') || '[]');
+  var sec = document.getElementById('lpPositions');
+  var list = document.getElementById('lpPosList');
+  if (!positions.length) { sec.style.display = 'none'; return; }
+  sec.style.display = 'block';
+  list.innerHTML = positions.map(function(p, idx) {
+    var ago = Math.round((Date.now() - p.mintedAt) / 60000);
+    var t = ago < 1 ? 'just now' : ago + 'm ago';
+    var fees = calculatePositionFees(p);
+    var tid = p.tokenId;
+    return '<div class="lp-pos-item"><div>' +
+      '<div class="lp-pair">' + p.currency0 + '/' + p.currency1 + (p.permit2Used ? ' \uD83D\uDD10' : '') + '</div>' +
+      '<div class="lp-liq">Liq: ' + p.liquidity.toFixed(2) + ' | ' + p.amount0.toFixed(4) + ' + ' + p.amount1.toFixed(4) + '</div>' +
+      '<div class="lp-fees">\uD83D\uDCB0 Unclaimed: <span class="fee-val">' + fees.unclaimed0.toFixed(6) + ' ' + p.currency0 + '</span> + <span class="fee-val">' + fees.unclaimed1.toFixed(6) + ' ' + p.currency1 + '</span></div>' +
+      '<div class="lp-lifetime">Lifetime: ' + fees.lifetime0.toFixed(6) + ' ' + p.currency0 + ' + ' + fees.lifetime1.toFixed(6) + ' ' + p.currency1 + ' | Collected: ' + fees.collected0.toFixed(6) + ' + ' + fees.collected1.toFixed(6) + '</div>' +
+      '<div class="lp-range-lbl">Ticks: ' + p.tickLower + ' \u2194 ' + p.tickUpper + ' | Fee: ' + (p.fee / 10000).toFixed(2) + '% | ' + t + '</div>' +
+      '<div class="lp-nft">NFT #' + tid + ' | Pool: ' + (p.poolId ? p.poolId.substring(0, 12) + '...' : p.pool) + ' | tx: ' + p.txHash.substring(0, 16) + '...</div>' +
+      '<div class="lp-pos-actions">' +
+        (fees.unclaimed0 > 0 || fees.unclaimed1 > 0 ? '<button class="lp-collect-btn" onclick="collectFees(\'' + tid + '\')">' + '\uD83D\uDCB0 Collect</button>' : '') +
+        '<button class="lp-add-btn" onclick="promptAddLiquidity(\'' + tid + '\')">' + '\u2795 Add</button>' +
+        '<button class="lp-rm-pct" onclick="removeLiquidityFromPos(\'' + tid + '\',0.25)">-25%</button>' +
+        '<button class="lp-rm-pct" onclick="removeLiquidityFromPos(\'' + tid + '\',0.5)">-50%</button>' +
+        '<button class="lp-rm-btn" onclick="removeLiquidityFromPos(\'' + tid + '\',1.0)">\uD83D\uDD25 Remove All</button>' +
+      '</div>' +
+      '</div></div>';
+  }).join('');
+}
+renderLPPositions();
+calcLP();
+
+// ══════════════════════════════════════════════════════════════════
+// ── V4 Position Fetching Engine ─────────────────────────────────
+// Simulates subgraph queries, packed position decoding, and
+// PositionManager contract reads (getPoolAndPositionInfo,
+// getPositionLiquidity) per the v4-sdk fetching guide
+// ══════════════════════════════════════════════════════════════════
+
+var POSITION_MANAGER_ADDRESS = CONTRACTS.POSITION_MANAGER;
+var UNICHAIN_SUBGRAPH_URL = 'https://gateway.thegraph.com/api/subgraphs/id/EoCvJ5tyMLMJcTnLQwWpjAtPdn74PcrZgzfcT5bYxNBH';
+
+var POSITION_MANAGER_ABI = [
+  { name: 'getPoolAndPositionInfo', type: 'function', inputs: [{ name: 'tokenId', type: 'uint256' }], outputs: [{ name: 'poolKey', type: 'tuple', components: [{ name: 'currency0', type: 'address' }, { name: 'currency1', type: 'address' }, { name: 'fee', type: 'uint24' }, { name: 'tickSpacing', type: 'int24' }, { name: 'hooks', type: 'address' }] }, { name: 'info', type: 'uint256' }] },
+  { name: 'getPositionLiquidity', type: 'function', inputs: [{ name: 'tokenId', type: 'uint256' }], outputs: [{ name: 'liquidity', type: 'uint128' }] }
+];
+
+// ── Pack tick values into uint256 (simulated on-chain format) ──
+function packPositionInfo(tickUpper, tickLower, hasSubscriber) {
+  var upper = tickUpper < 0 ? tickUpper + 0x1000000 : tickUpper;
+  var lower = tickLower < 0 ? tickLower + 0x1000000 : tickLower;
+  // packed = (upper << 32) | (lower << 8) | subscriber
+  // Using safe JS integer math (no real bigint needed for simulation)
+  return { raw: (upper * Math.pow(2, 32)) + (lower * Math.pow(2, 8)) + (hasSubscriber ? 1 : 0), upper: upper, lower: lower };
+}
+
+// ── Decode packed position info (mirrors v4-sdk) ──
+function decodePositionInfo(packedValue) {
+  // Extract tickUpper from bits [32..55] (24-bit signed)
+  var rawUpper = Math.floor(packedValue / Math.pow(2, 32)) & 0xFFFFFF;
+  var tickUpper = rawUpper >= 0x800000 ? rawUpper - 0x1000000 : rawUpper;
+  // Extract tickLower from bits [8..31] (24-bit signed)
+  var rawLower = Math.floor(packedValue / Math.pow(2, 8)) & 0xFFFFFF;
+  var tickLower = rawLower >= 0x800000 ? rawLower - 0x1000000 : rawLower;
+  // hasSubscriber from bit 0
+  var hasSubscriber = (packedValue & 0xFF) !== 0;
+  return {
+    getTickUpper: function() { return tickUpper; },
+    getTickLower: function() { return tickLower; },
+    hasSubscriber: function() { return hasSubscriber; }
+  };
+}
+
+// ── Simulated subgraph query: getPositionIds ──
+// In production this queries The Graph; here it reads localStorage
+function getPositionIds(ownerAddress) {
+  var positions = JSON.parse(localStorage.getItem('lp_positions') || '[]');
+  var owned = positions.filter(function(p) {
+    return !ownerAddress || p.owner === ownerAddress || ownerAddress === 'all';
+  });
+  return owned.map(function(p) { return p.tokenId; });
+}
+
+// ── Simulated contract read: getPoolAndPositionInfo ──
+function simulateGetPoolAndPositionInfo(tokenId) {
+  var positions = JSON.parse(localStorage.getItem('lp_positions') || '[]');
+  var pos = null;
+  for (var i = 0; i < positions.length; i++) {
+    if (positions[i].tokenId === tokenId) { pos = positions[i]; break; }
+  }
+  if (!pos) return null;
+  var poolKey = {
+    currency0: pos.currency0,
+    currency1: pos.currency1,
+    fee: pos.fee,
+    tickSpacing: pos.tickSpacing || 60,
+    hooks: pos.hookAddress || '0x0000000000000000000000000000000000000000'
+  };
+  var packed = packPositionInfo(pos.tickUpper, pos.tickLower, !!pos.permit2Used);
+  return { poolKey: poolKey, info: packed.raw };
+}
+
+// ── Simulated contract read: getPositionLiquidity ──
+function simulateGetPositionLiquidity(tokenId) {
+  var positions = JSON.parse(localStorage.getItem('lp_positions') || '[]');
+  for (var i = 0; i < positions.length; i++) {
+    if (positions[i].tokenId === tokenId) return positions[i].liquidity;
+  }
+  return 0;
+}
+
+// ── Full position detail fetch (mirrors getPositionDetails) ──
+function getPositionDetails(tokenId) {
+  var result = simulateGetPoolAndPositionInfo(tokenId);
+  if (!result) return null;
+  var liquidity = simulateGetPositionLiquidity(tokenId);
+  var info = decodePositionInfo(result.info);
+  return {
+    tokenId: tokenId,
+    tickLower: info.getTickLower(),
+    tickUpper: info.getTickUpper(),
+    hasSubscriber: info.hasSubscriber(),
+    liquidity: liquidity,
+    poolKey: result.poolKey,
+    packedInfo: result.info
+  };
+}
+
+// ── UI: Fetch & display all V4 positions ──
+function fetchV4Positions() {
+  var addrInput = document.getElementById('fetchPosAddr').value.trim();
+  var statusEl = document.getElementById('fetchPosStatus');
+  var listEl = document.getElementById('fetchPosList');
+  statusEl.style.display = 'block';
+  statusEl.textContent = '\u23F3 Querying subgraph at ' + UNICHAIN_SUBGRAPH_URL.substring(0, 40) + '...';
+  listEl.innerHTML = '';
+
+  // Simulate async subgraph + contract calls
+  setTimeout(function() {
+    var user = null;
+    try { user = JSON.parse(localStorage.getItem('cw_user')); } catch(e) {}
+    var ownerAddr = addrInput || (user && user.addr ? user.addr : 'all');
+    var tokenIds = getPositionIds(ownerAddr);
+
+    if (!tokenIds.length) {
+      statusEl.textContent = '\u274C No positions found for ' + (ownerAddr === 'all' ? 'any owner' : ownerAddr.substring(0, 16) + '...');
+      return;
+    }
+
+    statusEl.textContent = '\u2705 Found ' + tokenIds.length + ' position(s) on V4 PositionManager (' + POSITION_MANAGER_ADDRESS.substring(0, 10) + '...)';
+
+    var html = '';
+    for (var i = 0; i < tokenIds.length; i++) {
+      var d = getPositionDetails(tokenIds[i]);
+      if (!d) continue;
+      var poolId = V4Pool.getPoolId(d.poolKey.currency0, d.poolKey.currency1, d.poolKey.fee, d.poolKey.tickSpacing, d.poolKey.hooks);
+      html += '<div class="fetch-pos-card">' +
+        '<div class="fp-pair">' + d.poolKey.currency0 + ' / ' + d.poolKey.currency1 +
+        (d.hasSubscriber ? ' \uD83D\uDD14' : '') + '</div>' +
+        '<div class="fp-detail">' +
+        'Fee: ' + (d.poolKey.fee / 10000).toFixed(2) + '% | ' +
+        'Range: ' + d.tickLower + ' \u2194 ' + d.tickUpper + ' | ' +
+        'Liquidity: ' + (typeof d.liquidity === 'number' ? d.liquidity.toFixed(2) : d.liquidity) + ' | ' +
+        'Hooks: ' + d.poolKey.hooks.substring(0, 10) + '...' +
+        '</div>' +
+        '<div class="fp-packed">' +
+        'NFT #' + d.tokenId + ' | Pool: ' + poolId.substring(0, 14) + '... | ' +
+        'packedInfo: 0x' + Math.abs(Math.floor(d.packedInfo)).toString(16).substring(0, 16) +
+        '</div></div>';
+    }
+    listEl.innerHTML = html;
+  }, 400);
+}
+
+// ══════════════════════════════════════════════════════════════════
+// ── V4 Fee Collection Engine ────────────────────────────────────
+// StateView simulation, feeGrowthInside calculation, unclaimed/
+// lifetime/collected fees, collectCallParameters, fee verification
+// ══════════════════════════════════════════════════════════════════
+
+var STATE_VIEW_ADDRESS = CONTRACTS.STATE_VIEW;
+var Q128 = Math.pow(2, 128);
+
+// ── Simulated fee growth state per position ──
+// In production, feeGrowthInside comes from StateView.getPositionInfo
+// and StateView.getFeeGrowthInside. Here we simulate based on time
+// elapsed and pool fee tier.
+function simulateFeeGrowthForPosition(pos) {
+  var elapsed = (Date.now() - (pos.mintedAt || Date.now())) / 1000;
+  var feeRate = (pos.fee || 3000) / 1000000;
+  var liq = pos.liquidity || 0;
+  if (liq <= 0) return { feeGrowthInside0X128: 0, feeGrowthInside1X128: 0, feeGrowthInside0Last: 0, feeGrowthInside1Last: 0 };
+
+  // Simulate fee accumulation: ~1 trade per 15 seconds in testnet
+  var trades = Math.floor(elapsed / 15);
+  var avgTradeSize0 = (pos.amount0 || 100) * 0.02;
+  var avgTradeSize1 = (pos.amount1 || 100) * 0.02;
+  var totalFees0 = trades * avgTradeSize0 * feeRate;
+  var totalFees1 = trades * avgTradeSize1 * feeRate;
+
+  // feeGrowthInside = total fees per unit liquidity, scaled by Q128
+  var feeGrowthInside0Current = (totalFees0 / liq) * Q128;
+  var feeGrowthInside1Current = (totalFees1 / liq) * Q128;
+
+  // Last snapshot = fees already collected
+  var collected0 = pos.feesCollected0 || 0;
+  var collected1 = pos.feesCollected1 || 0;
+  var feeGrowthInside0Last = liq > 0 ? (collected0 / liq) * Q128 : 0;
+  var feeGrowthInside1Last = liq > 0 ? (collected1 / liq) * Q128 : 0;
+
+  return {
+    feeGrowthInside0X128: feeGrowthInside0Current,
+    feeGrowthInside1X128: feeGrowthInside1Current,
+    feeGrowthInside0Last: feeGrowthInside0Last,
+    feeGrowthInside1Last: feeGrowthInside1Last
+  };
+}
+
+// ── Simulated StateView.getPositionInfo ──
+// Returns (liquidity, feeGrowthInside0LastX128, feeGrowthInside1LastX128)
+function stateViewGetPositionInfo(poolId, positionManager, tickLower, tickUpper, salt) {
+  var positions = JSON.parse(localStorage.getItem('lp_positions') || '[]');
+  var pos = null;
+  for (var i = 0; i < positions.length; i++) {
+    if (positions[i].tokenId === salt) { pos = positions[i]; break; }
+  }
+  if (!pos) return { liquidity: 0, feeGrowthInside0Last: 0, feeGrowthInside1Last: 0 };
+  var fg = simulateFeeGrowthForPosition(pos);
+  return {
+    liquidity: pos.liquidity,
+    feeGrowthInside0Last: fg.feeGrowthInside0Last,
+    feeGrowthInside1Last: fg.feeGrowthInside1Last
+  };
+}
+
+// ── Simulated StateView.getFeeGrowthInside ──
+// Returns current feeGrowthInside0X128, feeGrowthInside1X128
+function stateViewGetFeeGrowthInside(poolId, tickLower, tickUpper) {
+  // Find any position in this pool to derive growth
+  var positions = JSON.parse(localStorage.getItem('lp_positions') || '[]');
+  var totalGrowth0 = 0, totalGrowth1 = 0;
+  for (var i = 0; i < positions.length; i++) {
+    var p = positions[i];
+    var pid = p.poolId || V4Pool.getPoolId(p.currency0, p.currency1, p.fee, p.tickSpacing || 60, p.hookAddress || '0x0000000000000000000000000000000000000000');
+    if (pid === poolId) {
+      var fg = simulateFeeGrowthForPosition(p);
+      totalGrowth0 = Math.max(totalGrowth0, fg.feeGrowthInside0X128);
+      totalGrowth1 = Math.max(totalGrowth1, fg.feeGrowthInside1X128);
+    }
+  }
+  return { feeGrowthInside0X128: totalGrowth0, feeGrowthInside1X128: totalGrowth1 };
+}
+
+// ── Calculate unclaimed fees (v4 formula) ──
+function calculateUnclaimedFees(liquidity, feeGrowthInside0Current, feeGrowthInside1Current, feeGrowthInside0Last, feeGrowthInside1Last) {
+  var delta0 = feeGrowthInside0Current >= feeGrowthInside0Last ? feeGrowthInside0Current - feeGrowthInside0Last : 0;
+  var delta1 = feeGrowthInside1Current >= feeGrowthInside1Last ? feeGrowthInside1Current - feeGrowthInside1Last : 0;
+  return {
+    token0Fees: (delta0 * liquidity) / Q128,
+    token1Fees: (delta1 * liquidity) / Q128
+  };
+}
+
+// ── Calculate lifetime fees ──
+function calculateLifetimeFees(liquidity, feeGrowthInside0Current, feeGrowthInside1Current) {
+  return {
+    token0LifetimeFees: (feeGrowthInside0Current * liquidity) / Q128,
+    token1LifetimeFees: (feeGrowthInside1Current * liquidity) / Q128
+  };
+}
+
+// ── Full fee calculation for a position ──
+function calculatePositionFees(pos) {
+  var fg = simulateFeeGrowthForPosition(pos);
+  var unclaimed = calculateUnclaimedFees(
+    pos.liquidity, fg.feeGrowthInside0X128, fg.feeGrowthInside1X128,
+    fg.feeGrowthInside0Last, fg.feeGrowthInside1Last
+  );
+  var lifetime = calculateLifetimeFees(
+    pos.liquidity, fg.feeGrowthInside0X128, fg.feeGrowthInside1X128
+  );
+  return {
+    unclaimed0: unclaimed.token0Fees,
+    unclaimed1: unclaimed.token1Fees,
+    lifetime0: lifetime.token0LifetimeFees,
+    lifetime1: lifetime.token1LifetimeFees,
+    collected0: lifetime.token0LifetimeFees - unclaimed.token0Fees,
+    collected1: lifetime.token1LifetimeFees - unclaimed.token1Fees
+  };
+}
+
+// ── V4PositionManager.collectCallParameters ──
+// Encodes DECREASE_LIQUIDITY(0) + TAKE_PAIR for fee-only collection
+V4PositionManager.collectCallParameters = function(position, collectOptions) {
+  var actions = [];
+  var poolKey = {
+    currency0: position.pool.currency0,
+    currency1: position.pool.currency1,
+    fee: position.pool.fee,
+    tickSpacing: position.pool.tickSpacing,
+    hooks: position.pool.hooks || '0x0000000000000000000000000000000000000000'
+  };
+
+  // Action 1: DECREASE_LIQUIDITY with liquidity=0 (triggers fee accrual)
+  actions.push({
+    action: 'DECREASE_LIQUIDITY',
+    params: {
+      tokenId: collectOptions.tokenId,
+      liquidity: 0,
+      amount0Min: 0,
+      amount1Min: 0,
+      hookData: collectOptions.hookData || '0x'
+    }
+  });
+
+  // Action 2: TAKE_PAIR to sweep fees to recipient
+  actions.push({
+    action: 'TAKE_PAIR',
+    params: {
+      currency0: poolKey.currency0,
+      currency1: poolKey.currency1,
+      recipient: collectOptions.recipient
+    }
+  });
+
+  // Generate calldata
+  var seed = collectOptions.tokenId + ':' + collectOptions.deadline + ':' + Date.now();
+  var calldata = '', h = 0;
+  for (var i = 0; i < seed.length; i++) { h = ((h << 5) - h) + seed.charCodeAt(i); h |= 0; }
+  for (var i = 0; i < 128; i++) calldata += '0123456789abcdef'[(Math.abs(h * (i + 1)) >>> 0) % 16];
+
+  return { calldata: '0x' + calldata, value: '0', actions: actions, multicall: true };
+};
+
+// ── Execute fee collection for a position ──
+function collectFees(tokenId) {
+  var user = null;
+  try { user = JSON.parse(localStorage.getItem('cw_user')); } catch(e) {}
+  if (!user || !user.email) {
+    document.getElementById('swapSummary').textContent = 'Please sign in first.';
+    document.getElementById('swapRate').textContent = '';
+    document.getElementById('txHash').textContent = '';
+    document.getElementById('successOverlay').classList.add('show');
+    return;
+  }
+
+  var positions = JSON.parse(localStorage.getItem('lp_positions') || '[]');
+  var pos = null, posIdx = -1;
+  for (var i = 0; i < positions.length; i++) {
+    if (positions[i].tokenId === tokenId) { pos = positions[i]; posIdx = i; break; }
+  }
+  if (!pos) return;
+
+  var fees = calculatePositionFees(pos);
+  if (fees.unclaimed0 <= 0 && fees.unclaimed1 <= 0) return;
+
+  // Build collect options
+  var recipient = (user && user.addr) ? user.addr : 'unknown';
+  var deadline = Math.floor(Date.now() / 1000) + 3600;
+
+  // Find pool and build position object for collectCallParameters
+  var regPool = findPool(pos.currency0, pos.currency1);
+  if (!regPool) return;
+  var pool = poolFromRegistry(regPool);
+  var position = new V4Position({
+    pool: pool, tickLower: pos.tickLower, tickUpper: pos.tickUpper, liquidity: pos.liquidity
+  });
+
+  var collectOptions = {
+    tokenId: tokenId,
+    recipient: recipient,
+    slippageTolerance: 0,
+    deadline: deadline,
+    hookData: '0x'
+  };
+
+  // Generate calldata via V4PositionManager.collectCallParameters
+  var txData = V4PositionManager.collectCallParameters(position, collectOptions);
+
+  // Verify deadline
+  var now = Math.floor(Date.now() / 1000);
+  if (now > deadline) return;
+
+  // Credit fees to user balance
+  var t0 = pos.currency0, t1 = pos.currency1;
+  bals[t0] = (bals[t0] || 0) + fees.unclaimed0;
+  bals[t1] = (bals[t1] || 0) + fees.unclaimed1;
+  saveSharedBalances(bals);
+
+  // Update position: record collected fees
+  positions[posIdx].feesCollected0 = (pos.feesCollected0 || 0) + fees.unclaimed0;
+  positions[posIdx].feesCollected1 = (pos.feesCollected1 || 0) + fees.unclaimed1;
+  positions[posIdx].lastCollectedAt = Date.now();
+  localStorage.setItem('lp_positions', JSON.stringify(positions));
+
+  // Generate tx hash
+  var hashSeed = txData.calldata + now.toString();
+  var hash = '', hNum = 0;
+  for (var i = 0; i < hashSeed.length; i++) { hNum = ((hNum << 5) - hNum) + hashSeed.charCodeAt(i); hNum |= 0; }
+  for (var i = 0; i < 64; i++) hash += '0123456789abcdef'[(Math.abs(hNum * (i + 1)) >>> 0) % 16];
+
+  // Activity log
+  try {
+    var al = JSON.parse(localStorage.getItem('cw_activity') || '[]');
+    al.unshift({
+      type: 'Collect Fees', icon: '\uD83D\uDCB0',
+      detail: fees.unclaimed0.toFixed(6) + ' ' + t0 + ' + ' + fees.unclaimed1.toFixed(6) + ' ' + t1 + ' from LP #' + tokenId,
+      amt: 'Fees', cls: 'green', time: 'Just now', ts: Date.now(), txHash: hash
+    });
+    if (al.length > 50) al.length = 50;
+    localStorage.setItem('cw_activity', JSON.stringify(al));
+  } catch(e) {}
+
+  // Verify collection: show receipt
+  var actionsUsed = txData.actions.map(function(a) { return a.action; }).join(' \u2192 ');
+  document.getElementById('swapSummary').textContent = 'Fees Collected!';
+  document.getElementById('swapRate').textContent =
+    fees.unclaimed0.toFixed(6) + ' ' + t0 + ' + ' + fees.unclaimed1.toFixed(6) + ' ' + t1 +
+    ' | LP #' + tokenId;
+  document.getElementById('txHash').textContent = hash + '\nActions: ' + actionsUsed +
+    '\nMethod: modifyLiquidities(DECREASE_LIQUIDITY[0] \u2192 TAKE_PAIR)';
+  document.getElementById('successOverlay').classList.add('show');
+
+  updateBals();
+  renderLPPositions();
+}
+
+// ══════════════════════════════════════════════════════════════════
+// ── V4 Add / Remove Liquidity Engine ───────────────────────────
+// addCallParameters (INCREASE_LIQUIDITY via existing tokenId),
+// removeCallParameters (DECREASE_LIQUIDITY + TAKE_PAIR),
+// with Permit2, useNative, burnToken support
+// ══════════════════════════════════════════════════════════════════
+
+// ── removeCallParameters ──
+// Encodes: [DECREASE_LIQUIDITY] → [TAKE_PAIR] → [BURN_POSITION?]
+V4PositionManager.removeCallParameters = function(position, removeOptions) {
+  var slipMul = 1 - (removeOptions.slippageTolerance || 0.5) / 100;
+  var pctNum = removeOptions.liquidityPercentage || 100;
+  var liquidityToRemove = position.liquidity * (pctNum / 100);
+  var amount0Min = position.amount0 * (pctNum / 100) * Math.max(slipMul, 0);
+  var amount1Min = position.amount1 * (pctNum / 100) * Math.max(slipMul, 0);
+  var actions = [];
+  var poolKey = {
+    currency0: position.pool.currency0, currency1: position.pool.currency1,
+    fee: position.pool.fee, tickSpacing: position.pool.tickSpacing,
+    hooks: position.pool.hooks || '0x0000000000000000000000000000000000000000'
+  };
+
+  // 1. DECREASE_LIQUIDITY
+  actions.push({
+    action: 'DECREASE_LIQUIDITY',
+    params: {
+      tokenId: removeOptions.tokenId,
+      liquidity: liquidityToRemove,
+      amount0Min: amount0Min,
+      amount1Min: amount1Min,
+      hookData: removeOptions.hookData || '0x'
+    }
+  });
+
+  // 2. TAKE_PAIR — sweep withdrawn tokens to recipient
+  actions.push({
+    action: 'TAKE_PAIR',
+    params: { currency0: poolKey.currency0, currency1: poolKey.currency1, recipient: removeOptions.recipient }
+  });
+
+  // 3. If burnToken and 100% removal, burn the NFT
+  if (removeOptions.burnToken && pctNum >= 100) {
+    actions.push({
+      action: 'BURN_POSITION',
+      params: { tokenId: removeOptions.tokenId }
+    });
+  }
+
+  var seed = removeOptions.tokenId + ':rm:' + liquidityToRemove.toString() + ':' + Date.now();
+  var calldata = '', h = 0;
+  for (var i = 0; i < seed.length; i++) { h = ((h << 5) - h) + seed.charCodeAt(i); h |= 0; }
+  for (var i = 0; i < 128; i++) calldata += '0123456789abcdef'[(Math.abs(h * (i + 1)) >>> 0) % 16];
+
+  return { calldata: '0x' + calldata, value: '0', actions: actions, multicall: true };
+};
+
+// ── Prompt: Add liquidity to existing position ──
+function promptAddLiquidity(tokenId) {
+  var positions = JSON.parse(localStorage.getItem('lp_positions') || '[]');
+  var pos = null;
+  for (var i = 0; i < positions.length; i++) {
+    if (positions[i].tokenId === tokenId) { pos = positions[i]; break; }
+  }
+  if (!pos) return;
+  var amt0 = prompt('Add ' + pos.currency0 + ' amount (current: ' + pos.amount0.toFixed(4) + '):', '0');
+  if (!amt0 || isNaN(parseFloat(amt0))) return;
+  var amt1 = prompt('Add ' + pos.currency1 + ' amount (current: ' + pos.amount1.toFixed(4) + '):', '0');
+  if (!amt1 || isNaN(parseFloat(amt1))) return;
+  addLiquidityToPosition(tokenId, parseFloat(amt0), parseFloat(amt1));
+}
+
+// ── Add liquidity to existing position ──
+function addLiquidityToPosition(tokenId, addAmt0, addAmt1) {
+  var user = null;
+  try { user = JSON.parse(localStorage.getItem('cw_user')); } catch(e) {}
+  if (!user || !user.email) {
+    document.getElementById('swapSummary').textContent = 'Please sign in first.';
+    document.getElementById('swapRate').textContent = '';
+    document.getElementById('txHash').textContent = '';
+    document.getElementById('successOverlay').classList.add('show');
+    return;
+  }
+
+  var positions = JSON.parse(localStorage.getItem('lp_positions') || '[]');
+  var pos = null, posIdx = -1;
+  for (var i = 0; i < positions.length; i++) {
+    if (positions[i].tokenId === tokenId) { pos = positions[i]; posIdx = i; break; }
+  }
+  if (!pos) return;
+  if (addAmt0 <= 0 && addAmt1 <= 0) return;
+
+  var t0 = pos.currency0, t1 = pos.currency1;
+  if ((bals[t0] || 0) < addAmt0) {
+    document.getElementById('swapSummary').textContent = 'Insufficient ' + t0;
+    document.getElementById('swapRate').textContent = 'Have: ' + (bals[t0] || 0).toFixed(4) + ', Need: ' + addAmt0.toFixed(4);
+    document.getElementById('txHash').textContent = '';
+    document.getElementById('successOverlay').classList.add('show');
+    return;
+  }
+  if ((bals[t1] || 0) < addAmt1) {
+    document.getElementById('swapSummary').textContent = 'Insufficient ' + t1;
+    document.getElementById('swapRate').textContent = 'Have: ' + (bals[t1] || 0).toFixed(4) + ', Need: ' + addAmt1.toFixed(4);
+    document.getElementById('txHash').textContent = '';
+    document.getElementById('successOverlay').classList.add('show');
+    return;
+  }
+
+  // Build pool and position for addCallParameters
+  var regPool = findPool(t0, t1);
+  if (!regPool) return;
+  var pool = poolFromRegistry(regPool);
+  var isZero = (t0 === pool.currency0);
+  var a0 = isZero ? addAmt0 : addAmt1, a1 = isZero ? addAmt1 : addAmt0;
+
+  var newPos = V4Position.fromAmounts({
+    pool: pool, tickLower: pos.tickLower, tickUpper: pos.tickUpper,
+    amount0: a0 || 0.0001, amount1: a1 || 0.0001, useFullPrecision: true
+  });
+
+  var recipient = (user && user.addr) ? user.addr : 'unknown';
+  var deadline = Math.floor(Date.now() / 1000) + 1200;
+  var addOptions = buildMintOptions(pool.currency0, pool.currency1, { slippage: slippage });
+  addOptions.tokenId = tokenId; // existing position
+  addOptions.deadline = deadline;
+
+  // Use INCREASE_LIQUIDITY action instead of MINT_POSITION
+  var txData = V4PositionManager.addCallParameters(newPos, addOptions);
+  // Override: replace MINT_POSITION with INCREASE_LIQUIDITY
+  for (var i = 0; i < txData.actions.length; i++) {
+    if (txData.actions[i].action === 'MINT_POSITION') {
+      txData.actions[i].action = 'INCREASE_LIQUIDITY';
+      txData.actions[i].params.tokenId = tokenId;
+    }
+  }
+
+  // Deduct balances
+  bals[t0] -= addAmt0;
+  bals[t1] -= addAmt1;
+  saveSharedBalances(bals);
+
+  // Update pool reserves
+  var poolKey = t0 + '/' + t1;
+  if (!POOL_REGISTRY[poolKey]) poolKey = t1 + '/' + t0;
+  if (POOL_REGISTRY[poolKey]) {
+    if (t0 === POOL_REGISTRY[poolKey].currency0) { POOL_REGISTRY[poolKey].reserve0 += addAmt0; POOL_REGISTRY[poolKey].reserve1 += addAmt1; }
+    else { POOL_REGISTRY[poolKey].reserve1 += addAmt0; POOL_REGISTRY[poolKey].reserve0 += addAmt1; }
+  }
+
+  // Update position in localStorage
+  positions[posIdx].liquidity += newPos.liquidity;
+  positions[posIdx].amount0 += newPos.amount0;
+  positions[posIdx].amount1 += newPos.amount1;
+  localStorage.setItem('lp_positions', JSON.stringify(positions));
+
+  // Tx hash
+  var now = Math.floor(Date.now() / 1000);
+  var hashSeed = txData.calldata + now.toString();
+  var hash = '', hNum = 0;
+  for (var i = 0; i < hashSeed.length; i++) { hNum = ((hNum << 5) - hNum) + hashSeed.charCodeAt(i); hNum |= 0; }
+  for (var i = 0; i < 64; i++) hash += '0123456789abcdef'[(Math.abs(hNum * (i + 1)) >>> 0) % 16];
+
+  // Activity log
+  try {
+    var al = JSON.parse(localStorage.getItem('cw_activity') || '[]');
+    al.unshift({ type: 'Add Liquidity', icon: '\u2795', detail: addAmt0.toFixed(4) + ' ' + t0 + ' + ' + addAmt1.toFixed(4) + ' ' + t1 + ' \u2192 LP #' + tokenId, amt: 'LP #' + tokenId, cls: 'green', time: 'Just now', ts: Date.now(), txHash: hash });
+    if (al.length > 50) al.length = 50;
+    localStorage.setItem('cw_activity', JSON.stringify(al));
+  } catch(e) {}
+
+  var actionsUsed = txData.actions.map(function(a) { return a.action; }).join(' \u2192 ');
+  document.getElementById('swapSummary').textContent = 'Liquidity Added!';
+  document.getElementById('swapRate').textContent = '+' + addAmt0.toFixed(4) + ' ' + t0 + ' + ' + addAmt1.toFixed(4) + ' ' + t1 + ' | LP #' + tokenId + (addOptions.batchPermit ? ' | Permit2 \u2705' : '');
+  document.getElementById('txHash').textContent = hash + '\nActions: ' + actionsUsed;
+  document.getElementById('successOverlay').classList.add('show');
+  updateBals();
+  renderLPPositions();
+}
+
+// ── Remove liquidity from position ──
+function removeLiquidityFromPos(tokenId, pctToRemove) {
+  var user = null;
+  try { user = JSON.parse(localStorage.getItem('cw_user')); } catch(e) {}
+  if (!user || !user.email) {
+    document.getElementById('swapSummary').textContent = 'Please sign in first.';
+    document.getElementById('swapRate').textContent = '';
+    document.getElementById('txHash').textContent = '';
+    document.getElementById('successOverlay').classList.add('show');
+    return;
+  }
+
+  var positions = JSON.parse(localStorage.getItem('lp_positions') || '[]');
+  var pos = null, posIdx = -1;
+  for (var i = 0; i < positions.length; i++) {
+    if (positions[i].tokenId === tokenId) { pos = positions[i]; posIdx = i; break; }
+  }
+  if (!pos || pos.liquidity <= 0) return;
+
+  var t0 = pos.currency0, t1 = pos.currency1;
+  var regPool = findPool(t0, t1);
+  if (!regPool) return;
+  var pool = poolFromRegistry(regPool);
+  var position = new V4Position({ pool: pool, tickLower: pos.tickLower, tickUpper: pos.tickUpper, liquidity: pos.liquidity, amount0: pos.amount0, amount1: pos.amount1 });
+
+  var recipient = (user && user.addr) ? user.addr : 'unknown';
+  var deadline = Math.floor(Date.now() / 1000) + 1200;
+  var burnIfFull = (pctToRemove >= 1.0);
+
+  var removeOptions = {
+    tokenId: tokenId,
+    recipient: recipient,
+    slippageTolerance: slippage || 0.5,
+    deadline: deadline,
+    hookData: '0x',
+    liquidityPercentage: pctToRemove * 100,
+    burnToken: burnIfFull
+  };
+
+  var txData = V4PositionManager.removeCallParameters(position, removeOptions);
+
+  // Calculate amounts returned
+  var removedAmt0 = pos.amount0 * pctToRemove;
+  var removedAmt1 = pos.amount1 * pctToRemove;
+  var removedLiq = pos.liquidity * pctToRemove;
+
+  // Also auto-collect unclaimed fees on removal (v4 behavior)
+  var fees = calculatePositionFees(pos);
+  var feeAmt0 = fees.unclaimed0 * pctToRemove;
+  var feeAmt1 = fees.unclaimed1 * pctToRemove;
+
+  // Credit returned tokens + proportional fees to user
+  bals[t0] = (bals[t0] || 0) + removedAmt0 + feeAmt0;
+  bals[t1] = (bals[t1] || 0) + removedAmt1 + feeAmt1;
+  saveSharedBalances(bals);
+
+  // Update pool reserves
+  var poolKey = t0 + '/' + t1;
+  if (!POOL_REGISTRY[poolKey]) poolKey = t1 + '/' + t0;
+  if (POOL_REGISTRY[poolKey]) {
+    if (t0 === POOL_REGISTRY[poolKey].currency0) { POOL_REGISTRY[poolKey].reserve0 -= removedAmt0; POOL_REGISTRY[poolKey].reserve1 -= removedAmt1; }
+    else { POOL_REGISTRY[poolKey].reserve1 -= removedAmt0; POOL_REGISTRY[poolKey].reserve0 -= removedAmt1; }
+  }
+
+  // Update or delete position
+  if (pctToRemove >= 1.0) {
+    positions.splice(posIdx, 1); // burn NFT
+  } else {
+    positions[posIdx].liquidity -= removedLiq;
+    positions[posIdx].amount0 -= removedAmt0;
+    positions[posIdx].amount1 -= removedAmt1;
+    positions[posIdx].feesCollected0 = (pos.feesCollected0 || 0) + feeAmt0;
+    positions[posIdx].feesCollected1 = (pos.feesCollected1 || 0) + feeAmt1;
+  }
+  localStorage.setItem('lp_positions', JSON.stringify(positions));
+
+  // Tx hash
+  var now = Math.floor(Date.now() / 1000);
+  var hashSeed = txData.calldata + now.toString();
+  var hash = '', hNum = 0;
+  for (var i = 0; i < hashSeed.length; i++) { hNum = ((hNum << 5) - hNum) + hashSeed.charCodeAt(i); hNum |= 0; }
+  for (var i = 0; i < 64; i++) hash += '0123456789abcdef'[(Math.abs(hNum * (i + 1)) >>> 0) % 16];
+
+  // Activity log
+  try {
+    var al = JSON.parse(localStorage.getItem('cw_activity') || '[]');
+    al.unshift({ type: 'Remove Liquidity', icon: '\uD83D\uDD25', detail: (pctToRemove * 100) + '% from LP #' + tokenId + ' \u2192 ' + removedAmt0.toFixed(4) + ' ' + t0 + ' + ' + removedAmt1.toFixed(4) + ' ' + t1 + (burnIfFull ? ' (NFT burned)' : ''), amt: '-' + (pctToRemove * 100) + '%', cls: 'red', time: 'Just now', ts: Date.now(), txHash: hash });
+    if (al.length > 50) al.length = 50;
+    localStorage.setItem('cw_activity', JSON.stringify(al));
+  } catch(e) {}
+
+  var actionsUsed = txData.actions.map(function(a) { return a.action; }).join(' \u2192 ');
+  document.getElementById('swapSummary').textContent = burnIfFull ? 'Position Closed & Burned!' : 'Liquidity Removed!';
+  document.getElementById('swapRate').textContent = '-' + removedAmt0.toFixed(4) + ' ' + t0 + ' + ' + removedAmt1.toFixed(4) + ' ' + t1 + (feeAmt0 > 0 || feeAmt1 > 0 ? ' (+ fees: ' + feeAmt0.toFixed(6) + '/' + feeAmt1.toFixed(6) + ')' : '') + (burnIfFull ? ' | NFT burned \uD83D\uDD25' : '');
+  document.getElementById('txHash').textContent = hash + '\nActions: ' + actionsUsed;
+  document.getElementById('successOverlay').classList.add('show');
+  updateBals();
+  renderLPPositions();
+}
 
 function resetTests(){
   testPass=0;testFail=0;testTotal=0;
