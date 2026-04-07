@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard &mdash; OLIGHFT SMART COIN</title>
+<meta name="description" content="OLIGHFT user dashboard — balances, prices, quick actions.">
+<link rel="canonical" href="https://olighftcoin.com/dashboard.html">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135deg,#0a0a1a,#111128,#0a0a1a);color:#fff;min-height:100vh;padding:20px}
+.container{max-width:520px;margin:0 auto}
+
+/* Header */
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}
+.header .logo{display:flex;align-items:center;gap:10px}
+.header .logo-icon{width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#6c5ce7,#a29bfe);display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:700}
+.header .logo-text{font-size:.92rem;font-weight:700;background:linear-gradient(90deg,#6c5ce7,#a29bfe);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.header .net-badge{padding:4px 12px;border-radius:8px;font-size:.58rem;font-weight:700;letter-spacing:.5px;text-transform:uppercase;background:rgba(39,174,96,.1);border:1px solid rgba(39,174,96,.2);color:#27ae60}
+.user-row{display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:12px;margin-bottom:20px}
+.user-row .avatar{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#6c5ce7,#a29bfe);display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:700;flex-shrink:0}
+.user-row .uinfo{flex:1;min-width:0}
+.user-row .uname{font-size:.82rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.user-row .uemail{font-size:.62rem;color:rgba(255,255,255,.35);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.user-row .logout-btn{background:none;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.4);padding:5px 10px;border-radius:8px;font-size:.62rem;cursor:pointer;transition:.2s;flex-shrink:0}
+.user-row .logout-btn:hover{border-color:rgba(235,87,87,.3);color:#eb5757}
+
+/* Balance Card */
+.bal-card{text-align:center;padding:28px 20px;background:linear-gradient(135deg,rgba(108,92,231,.08),rgba(162,155,254,.05));border:1px solid rgba(108,92,231,.12);border-radius:16px;margin-bottom:20px;position:relative;overflow:hidden}
+.bal-card::before{content:'';position:absolute;top:-40%;right:-20%;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(108,92,231,.08),transparent);pointer-events:none}
+.bal-card .bl-label{font-size:.62rem;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:1.5px}
+.bal-card .bl-amount{font-size:2.4rem;font-weight:800;margin:6px 0 4px;background:linear-gradient(90deg,#6c5ce7,#a29bfe);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.bal-card .bl-change{font-size:.75rem;font-weight:600}
+.bal-card .bl-change.up{color:#27ae60}
+.bal-card .bl-change.down{color:#eb5757}
+
+/* Quick Action Buttons */
+.actions{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:22px}
+.act{display:flex;flex-direction:column;align-items:center;gap:6px;padding:16px 8px;background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.06);border-radius:14px;text-decoration:none;color:#fff;cursor:pointer;transition:.25s}
+.act:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(0,0,0,.25)}
+.act .act-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.3rem}
+.act .act-label{font-size:.68rem;font-weight:600;letter-spacing:.3px}
+.act-send .act-icon{background:rgba(108,92,231,.12)}.act-send:hover{border-color:rgba(108,92,231,.35)}
+.act-recv .act-icon{background:rgba(39,174,96,.12)}.act-recv:hover{border-color:rgba(39,174,96,.35)}
+.act-stake .act-icon{background:rgba(242,153,74,.12)}.act-stake:hover{border-color:rgba(242,153,74,.35)}
+.act-wallet .act-icon{background:rgba(45,156,219,.12)}.act-wallet:hover{border-color:rgba(45,156,219,.35)}
+
+/* Coin Price Section */
+.section-label{font-size:.62rem;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;padding-left:2px}
+.price-list{margin-bottom:22px}
+.price-item{display:flex;align-items:center;padding:12px 14px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:12px;margin-bottom:6px;transition:.18s}
+.price-item:hover{border-color:rgba(108,92,231,.18);background:rgba(108,92,231,.03)}
+.price-item .pi-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0}
+.price-item .pi-info{flex:1;margin-left:12px;min-width:0}
+.price-item .pi-sym{font-size:.82rem;font-weight:600}
+.price-item .pi-name{font-size:.6rem;color:rgba(255,255,255,.35)}
+.price-item .pi-right{text-align:right;flex-shrink:0}
+.price-item .pi-price{font-size:.85rem;font-weight:700}
+.price-item .pi-pct{font-size:.62rem;font-weight:600}
+.price-item .pi-pct.up{color:#27ae60}
+.price-item .pi-pct.down{color:#eb5757}
+
+/* Assets / Balance Section */
+.asset-row{display:flex;align-items:center;padding:12px 14px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:12px;margin-bottom:6px;transition:.18s}
+.asset-row:hover{border-color:rgba(108,92,231,.18)}
+.asset-row .ar-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0}
+.asset-row .ar-info{flex:1;margin-left:12px;min-width:0}
+.asset-row .ar-sym{font-size:.82rem;font-weight:600}
+.asset-row .ar-name{font-size:.6rem;color:rgba(255,255,255,.35)}
+.asset-row .ar-right{text-align:right;flex-shrink:0}
+.asset-row .ar-bal{font-size:.85rem;font-weight:700}
+.asset-row .ar-usd{font-size:.62rem;color:rgba(255,255,255,.4)}
+
+/* Staking Summary */
+.stake-summary{padding:16px;background:linear-gradient(135deg,rgba(242,153,74,.06),rgba(245,197,24,.04));border:1px solid rgba(242,153,74,.12);border-radius:14px;margin-bottom:22px}
+.stake-summary .ss-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.stake-summary .ss-title{font-size:.72rem;font-weight:700;color:#f2994a}
+.stake-summary .ss-apy{font-size:.62rem;padding:3px 10px;border-radius:6px;background:rgba(242,153,74,.12);color:#f2994a;font-weight:700}
+.stake-summary .ss-row{display:flex;justify-content:space-between;padding:4px 0;font-size:.72rem}
+.stake-summary .ss-lbl{color:rgba(255,255,255,.4)}
+.stake-summary .ss-val{font-weight:600}
+
+/* Footer */
+.footer{text-align:center;padding:20px 0 8px;margin-top:8px}
+.footer p{font-size:.6rem;color:rgba(255,255,255,.2)}
+.footer .f-links{display:flex;gap:10px;justify-content:center;margin-top:8px;flex-wrap:wrap}
+.footer .f-links a{font-size:.6rem;color:rgba(255,255,255,.3);text-decoration:none;transition:.2s}
+.footer .f-links a:hover{color:#a29bfe}
+
+/* Not logged in */
+.login-prompt{text-align:center;padding:60px 20px}
+.login-prompt h2{font-size:1.2rem;margin-bottom:8px}
+.login-prompt p{color:rgba(255,255,255,.4);font-size:.8rem;margin-bottom:20px}
+.login-prompt .lp-btn{display:inline-block;padding:12px 36px;border-radius:12px;font-size:.88rem;font-weight:700;background:linear-gradient(135deg,#6c5ce7,#a29bfe);color:#fff;text-decoration:none;transition:.2s}
+.login-prompt .lp-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(108,92,231,.3)}
+
+/* Toast */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);padding:12px 24px;border-radius:12px;font-size:.78rem;font-weight:600;color:#fff;z-index:9999;opacity:0;transition:.35s}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+
+/* Responsive */
+@media(max-width:480px){
+  .actions{grid-template-columns:repeat(2,1fr)}
+  .bal-card .bl-amount{font-size:1.8rem}
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- Header -->
+<div class="header">
+  <div class="logo">
+    <div class="logo-icon">&#x2728;</div>
+    <div class="logo-text">OLIGHFT</div>
+  </div>
+  <div class="net-badge">&#x1F7E2; Testnet</div>
+</div>
+
+<!-- User Row (shown when logged in) -->
+<div class="user-row" id="userRow" style="display:none">
+  <div class="avatar" id="dAvatar">O</div>
+  <div class="uinfo">
+    <div class="uname" id="dName">—</div>
+    <div class="uemail" id="dEmail">—</div>
+  </div>
+  <button class="logout-btn" onclick="logout()">Logout</button>
+</div>
+
+<!-- Login Prompt (shown when NOT logged in) -->
+<div class="login-prompt" id="loginPrompt" style="display:none">
+  <h2>&#x1F512; Not Logged In</h2>
+  <p>Sign in to view your balances, stake tokens, and manage your wallet.</p>
+  <a href="auth.html" class="lp-btn">Sign In</a>
+</div>
+
+<!-- Dashboard content (shown when logged in) -->
+<div id="dashContent" style="display:none">
+
+<!-- Balance Card -->
+<div class="bal-card">
+  <div class="bl-label">Total Portfolio Balance</div>
+  <div class="bl-amount" id="totalBal">$0.00</div>
+  <div class="bl-change up" id="totalChange">&#x25B2; +0.00%</div>
+</div>
+
+<!-- Quick Actions -->
+<div class="actions">
+  <a href="send.html" class="act act-send">
+    <div class="act-icon">&#x1F4E4;</div>
+    <div class="act-label">Send</div>
+  </a>
+  <a href="receive.html" class="act act-recv">
+    <div class="act-icon">&#x1F4E5;</div>
+    <div class="act-label">Receive</div>
+  </a>
+  <a href="wallet.html#staking" class="act act-stake">
+    <div class="act-icon">&#x26CF;&#xFE0F;</div>
+    <div class="act-label">Staking</div>
+  </a>
+  <a href="wallet.html" class="act act-wallet">
+    <div class="act-icon">&#x1F4B3;</div>
+    <div class="act-label">Wallet</div>
+  </a>
+</div>
+
+<!-- Coin Prices -->
+<div class="section-label">&#x1F4C8; Current Prices</div>
+<div class="price-list" id="priceList"></div>
+
+<!-- Staking Summary -->
+<div class="stake-summary" id="stakeSummary" style="display:none">
+  <div class="ss-head">
+    <div class="ss-title">&#x26CF;&#xFE0F; Active Stakes</div>
+    <div class="ss-apy" id="ssTopApy">—</div>
+  </div>
+  <div class="ss-row"><span class="ss-lbl">Active Stakes</span><span class="ss-val" id="ssCount">0</span></div>
+  <div class="ss-row"><span class="ss-lbl">Total Staked</span><span class="ss-val" id="ssTotalStaked">0</span></div>
+  <div class="ss-row"><span class="ss-lbl">Pending Rewards</span><span class="ss-val" id="ssPending">0</span></div>
+</div>
+
+<!-- Your Balances -->
+<div class="section-label">&#x1F4B0; Your Balances</div>
+<div id="assetList"></div>
+
+</div><!-- /dashContent -->
+
+<!-- Footer -->
+<div class="footer">
+  <p>&copy; 2025 OLIGHFT SMART COIN &mdash; Stellar Testnet</p>
+  <div class="f-links">
+    <a href="index.html">Home</a>
+    <a href="wallet.html">Wallet</a>
+    <a href="send.html">Send</a>
+    <a href="receive.html">Receive</a>
+    <a href="swap.html">Swap</a>
+    <a href="testnet.html">Testnet</a>
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── Coin Data ──
+var COINS = [
+  { sym: 'OLIGHFT', name: 'OLIGHFT Smart Coin', icon: '\uD83D\uDCB0', price: 0.50, pct: 5.4,  bg: 'background:linear-gradient(135deg,rgba(245,197,24,.15),rgba(242,153,74,.15))' },
+  { sym: 'XLM',     name: 'Stellar Lumens',     icon: '\u2B50',       price: 0.12, pct: 3.2,  bg: 'background:rgba(108,92,231,.12)' },
+  { sym: 'USDC',    name: 'USD Coin',            icon: '\uD83D\uDCB5', price: 1.00, pct: 0.01, bg: 'background:rgba(39,174,96,.12)' },
+  { sym: 'wETH',    name: 'Wrapped Ethereum',    icon: '\uD83D\uDC8E', price: 3200, pct: -1.8, bg: 'background:rgba(98,126,234,.12)' },
+  { sym: 'wBTC',    name: 'Wrapped Bitcoin',     icon: '\uD83D\uDD36', price: 68000,pct: 2.1,  bg: 'background:rgba(247,147,26,.12)' },
+  { sym: 'EURC',    name: 'Euro Coin',           icon: '\uD83D\uDCB6', price: 1.08, pct: 0.05, bg: 'background:rgba(45,156,219,.12)' }
+];
+
+var DEFAULT_BALS = { XLM: 10000, USDC: 2500, wETH: 1.85, wBTC: 0.042, EURC: 1200, OLIGHFT: 0 };
+
+// ── Init ──
+(function init() {
+  var user = null;
+  try { user = JSON.parse(localStorage.getItem('cw_user')); } catch(e) {}
+
+  if (!user || !user.email) {
+    document.getElementById('loginPrompt').style.display = 'block';
+    document.getElementById('userRow').style.display = 'none';
+    document.getElementById('dashContent').style.display = 'none';
+    renderPricesOnly();
+    return;
+  }
+
+  // Logged in
+  document.getElementById('loginPrompt').style.display = 'none';
+  document.getElementById('userRow').style.display = 'flex';
+  document.getElementById('dashContent').style.display = 'block';
+  document.getElementById('dName').textContent = user.name || 'User';
+  document.getElementById('dEmail').textContent = user.email;
+  document.getElementById('dAvatar').textContent = (user.name || 'U').charAt(0).toUpperCase();
+
+  var bals = DEFAULT_BALS;
+  try { var saved = JSON.parse(localStorage.getItem('cw_balances')); if (saved) bals = Object.assign({}, DEFAULT_BALS, saved); } catch(e) {}
+
+  renderPrices();
+  renderBalances(bals);
+  renderStakeSummary();
+  updateTotalBalance(bals);
+})();
+
+function renderPricesOnly() {
+  // Show prices even when not logged in
+  var el = document.getElementById('dashContent');
+  el.style.display = 'block';
+  document.getElementById('assetList').style.display = 'none';
+  document.getElementById('stakeSummary').style.display = 'none';
+  document.querySelector('.bal-card').style.display = 'none';
+  renderPrices();
+}
+
+function renderPrices() {
+  var html = '';
+  for (var i = 0; i < COINS.length; i++) {
+    var c = COINS[i];
+    var pCls = c.pct >= 0 ? 'up' : 'down';
+    var pStr = c.pct >= 0 ? '\u25B2 +' + c.pct + '%' : '\u25BC ' + c.pct + '%';
+    var priceStr = c.price >= 1000 ? '$' + c.price.toLocaleString('en') : '$' + c.price.toFixed(2);
+    html += '<div class="price-item">' +
+      '<div class="pi-icon" style="' + c.bg + '">' + c.icon + '</div>' +
+      '<div class="pi-info"><div class="pi-sym">' + c.sym + '</div><div class="pi-name">' + c.name + '</div></div>' +
+      '<div class="pi-right"><div class="pi-price">' + priceStr + '</div><div class="pi-pct ' + pCls + '">' + pStr + '</div></div>' +
+      '</div>';
+  }
+  document.getElementById('priceList').innerHTML = html;
+}
+
+function renderBalances(bals) {
+  var html = '';
+  for (var i = 0; i < COINS.length; i++) {
+    var c = COINS[i];
+    var bal = bals[c.sym] || 0;
+    var usd = bal * c.price;
+    html += '<div class="asset-row">' +
+      '<div class="ar-icon" style="' + c.bg + '">' + c.icon + '</div>' +
+      '<div class="ar-info"><div class="ar-sym">' + c.sym + '</div><div class="ar-name">' + c.name + '</div></div>' +
+      '<div class="ar-right"><div class="ar-bal">' + fmtBal(bal) + ' ' + c.sym + '</div><div class="ar-usd">$' + usd.toLocaleString('en', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '</div></div>' +
+      '</div>';
+  }
+  document.getElementById('assetList').innerHTML = html;
+}
+
+function updateTotalBalance(bals) {
+  var total = 0;
+  var weightedPct = 0;
+  for (var i = 0; i < COINS.length; i++) {
+    var c = COINS[i];
+    var usd = (bals[c.sym] || 0) * c.price;
+    total += usd;
+    weightedPct += usd * c.pct;
+  }
+  var avgPct = total > 0 ? (weightedPct / total) : 0;
+  document.getElementById('totalBal').textContent = '$' + total.toLocaleString('en', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  var chEl = document.getElementById('totalChange');
+  if (avgPct >= 0) {
+    chEl.className = 'bl-change up';
+    chEl.textContent = '\u25B2 +' + avgPct.toFixed(2) + '%';
+  } else {
+    chEl.className = 'bl-change down';
+    chEl.textContent = '\u25BC ' + avgPct.toFixed(2) + '%';
+  }
+}
+
+function renderStakeSummary() {
+  var stakes = [];
+  try { stakes = JSON.parse(localStorage.getItem('wallet_stakes') || '[]'); } catch(e) {}
+  var active = stakes.filter(function(s) { return !s.withdrawn; });
+  if (active.length === 0) { document.getElementById('stakeSummary').style.display = 'none'; return; }
+
+  document.getElementById('stakeSummary').style.display = 'block';
+  var totalStaked = 0;
+  var totalPending = 0;
+  var maxApy = 0;
+  var now = Date.now();
+  for (var i = 0; i < active.length; i++) {
+    var s = active[i];
+    totalStaked += s.amount || 0;
+    var elapsed = (now - new Date(s.lastCompound || s.startDate).getTime()) / 86400000;
+    totalPending += (s.dailyReward || 0) * elapsed + (s.reward || 0);
+    var apy = s.apy || 0;
+    if (apy > maxApy) maxApy = apy;
+  }
+  document.getElementById('ssCount').textContent = active.length;
+  document.getElementById('ssTotalStaked').textContent = fmtBal(totalStaked) + ' tokens';
+  document.getElementById('ssPending').textContent = fmtBal(totalPending) + ' tokens';
+  document.getElementById('ssTopApy').textContent = maxApy.toFixed(1) + '% APY';
+}
+
+function fmtBal(n) {
+  if (n === 0) return '0';
+  if (n >= 1000) return n.toLocaleString('en', { maximumFractionDigits: 2 });
+  if (n >= 1) return n.toFixed(2);
+  return n.toFixed(4);
+}
+
+function logout() {
+  if (!confirm('Logout? This will end your session.')) return;
+  localStorage.removeItem('cw_user');
+  localStorage.removeItem('cw_seed');
+  localStorage.removeItem('cw_secret');
+  localStorage.removeItem('cw_accounts');
+  localStorage.removeItem('cw_active_idx');
+  localStorage.removeItem('cw_security');
+  localStorage.removeItem('cw_multisig');
+  localStorage.removeItem('cw_balances');
+  localStorage.removeItem('cw_google');
+  window.location.reload();
+}
+
+function showToast(msg, bg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = bg || '#6c5ce7';
+  t.classList.add('show');
+  setTimeout(function() { t.classList.remove('show'); }, 3000);
+}
+</script>
+</body>
+</html>
