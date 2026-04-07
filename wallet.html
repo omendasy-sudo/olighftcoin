@@ -2229,8 +2229,8 @@ function generateInviteLink(){
   const user=JSON.parse(localStorage.getItem('cw_user')||'null');
   if(!user||!user.name)return'';
   const refCode=encodeURIComponent(user.name);
-  // Use relative URL so it works in file:// or any host
-  return 'auth.html?ref='+refCode;
+  const base=window.location.origin||'https://olighftcoin.com';
+  return base+'/auth.html?ref='+refCode;
 }
 
 function copyInviteLink(){

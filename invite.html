@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Invite &amp; Earn &mdash; OLIGHFT SMART COIN</title>
+<meta name="description" content="Invite friends to OLIGHFT SMART COIN and earn 8-generation referral commissions on every card stake.">
+<link rel="canonical" href="https://olighftcoin.com/invite.html">
+<meta property="og:title" content="Join OLIGHFT SMART COIN — Earn Crypto Rewards">
+<meta property="og:description" content="Stake, earn daily rewards, 8-gen referral commissions. Join via invite link.">
+<meta property="og:url" content="https://olighftcoin.com/invite.html">
+<meta property="og:site_name" content="OLIGHFT SMART COIN">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135deg,#0a0a1a,#111128,#0a0a1a);color:#fff;min-height:100vh;padding:20px}
+.container{max-width:540px;margin:0 auto}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.header a{color:rgba(255,255,255,.4);text-decoration:none;font-size:.72rem;transition:.2s}
+.header a:hover{color:#a29bfe}
+
+h1{text-align:center;font-size:1.5rem;font-weight:800;background:linear-gradient(90deg,#6c5ce7,#a29bfe,#f5c518);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:4px}
+.subtitle{text-align:center;color:rgba(255,255,255,.35);font-size:.75rem;margin-bottom:24px}
+
+/* Link Card */
+.link-card{padding:24px 20px;background:linear-gradient(135deg,rgba(108,92,231,.10),rgba(162,155,254,.06));border:1px solid rgba(108,92,231,.18);border-radius:16px;margin-bottom:20px;text-align:center;position:relative;overflow:hidden}
+.link-card::before{content:'';position:absolute;top:-30%;right:-15%;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(108,92,231,.1),transparent);pointer-events:none}
+.link-card .lc-label{font-size:.62rem;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px}
+.link-box{display:flex;gap:8px;align-items:center;padding:10px 14px;background:rgba(0,0,0,.2);border:1px solid rgba(108,92,231,.2);border-radius:10px;margin-bottom:14px}
+.link-box input{flex:1;background:none;border:none;color:#a29bfe;font-size:.78rem;font-family:'Courier New',monospace;outline:none;min-width:0}
+.link-box .copy-btn{padding:8px 16px;border:none;border-radius:8px;background:linear-gradient(135deg,#6c5ce7,#a29bfe);color:#fff;font-size:.72rem;font-weight:700;cursor:pointer;white-space:nowrap;transition:.2s}
+.link-box .copy-btn:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(108,92,231,.3)}
+
+/* QR Code */
+.qr-wrap{display:inline-block;padding:14px;background:#fff;border-radius:12px;margin-bottom:14px}
+.qr-wrap canvas{display:block}
+
+/* Share buttons */
+.share-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:6px}
+.share-btn{padding:8px 18px;border-radius:10px;border:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.03);color:rgba(255,255,255,.6);font-size:.68rem;font-weight:600;cursor:pointer;transition:.2s;text-decoration:none;display:inline-flex;align-items:center;gap:5px}
+.share-btn:hover{transform:translateY(-1px);border-color:rgba(108,92,231,.3);color:#fff}
+
+/* Not logged in */
+.login-prompt{text-align:center;padding:48px 20px}
+.login-prompt h2{font-size:1.1rem;margin-bottom:6px}
+.login-prompt p{color:rgba(255,255,255,.4);font-size:.78rem;margin-bottom:16px}
+.login-prompt .lp-btn{display:inline-block;padding:12px 32px;border-radius:12px;font-size:.85rem;font-weight:700;background:linear-gradient(135deg,#6c5ce7,#a29bfe);color:#fff;text-decoration:none;transition:.2s}
+.login-prompt .lp-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(108,92,231,.3)}
+
+/* Referral Code badge */
+.ref-badge{display:inline-block;padding:6px 20px;border-radius:10px;background:rgba(245,197,24,.1);border:1px solid rgba(245,197,24,.2);font-size:.82rem;font-weight:700;color:#f5c518;letter-spacing:1px;margin-bottom:14px}
+
+/* Commission table */
+.section-label{font-size:.62rem;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;padding-left:2px}
+.comm-table{width:100%;border-collapse:separate;border-spacing:0;margin-bottom:20px;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,.05)}
+.comm-table th{padding:10px 14px;text-align:left;font-size:.62rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.5px;background:rgba(108,92,231,.06);border-bottom:1px solid rgba(255,255,255,.04)}
+.comm-table td{padding:10px 14px;font-size:.75rem;border-bottom:1px solid rgba(255,255,255,.03);background:rgba(255,255,255,.015)}
+.comm-table tr:last-child td{border-bottom:none}
+.comm-table .gen-lbl{color:#a29bfe;font-weight:700}
+.comm-table .gen-pct{color:#f5c518;font-weight:700}
+.comm-table .gen-amt{color:rgba(255,255,255,.5);font-size:.68rem}
+.comm-total{display:flex;justify-content:space-between;padding:12px 16px;background:rgba(108,92,231,.06);border:1px solid rgba(108,92,231,.12);border-radius:10px;margin-bottom:20px;font-size:.78rem;font-weight:600}
+.comm-total .ct-pct{color:#f5c518}
+
+/* Stats */
+.stats-bar{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(108,92,231,.06);border-radius:12px;overflow:hidden;margin-bottom:20px}
+.sb-item{background:rgba(10,10,26,.7);padding:16px 10px;text-align:center}
+.sb-item .sb-val{font-size:1.2rem;font-weight:700;color:#a29bfe}
+.sb-item .sb-lbl{font-size:.55rem;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.5px;margin-top:3px}
+
+/* Invite List */
+.invite-list{margin-bottom:20px}
+.invite-card{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:12px;padding:14px 16px;margin-bottom:8px;transition:.2s}
+.invite-card:hover{border-color:rgba(108,92,231,.2)}
+.inv-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.inv-top .inv-name{font-size:.82rem;font-weight:700}
+.inv-top .inv-date{font-size:.6rem;color:rgba(255,255,255,.3)}
+.inv-top .inv-email{font-size:.62rem;color:rgba(255,255,255,.35)}
+.stage-flow{display:flex;align-items:center;gap:0}
+.stage-node{display:flex;flex-direction:column;align-items:center;flex:1;position:relative;z-index:1}
+.stage-dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;border:2px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);transition:.3s}
+.stage-dot.done{border-color:#27ae60;background:rgba(39,174,96,.15);color:#27ae60}
+.stage-dot.current{border-color:#f5c518;background:rgba(245,197,24,.12);color:#f5c518;box-shadow:0 0 8px rgba(245,197,24,.25)}
+.stage-dot.pending{border-color:rgba(255,255,255,.08);color:rgba(255,255,255,.15)}
+.stage-label{font-size:.52rem;color:rgba(255,255,255,.3);margin-top:3px;text-align:center;white-space:nowrap;letter-spacing:.3px}
+.stage-label.done{color:#27ae60}
+.stage-label.current{color:#f5c518;font-weight:700}
+.stage-connector{flex:1;height:2px;background:rgba(255,255,255,.06);min-width:8px;margin:0 -2px;position:relative;top:-8px;z-index:0}
+.stage-connector.done{background:#27ae60}
+.stage-connector.half{background:linear-gradient(90deg,#27ae60,#f5c518)}
+.empty-msg{text-align:center;padding:30px;color:rgba(255,255,255,.25);font-size:.78rem}
+.empty-msg .em-icon{font-size:2rem;margin-bottom:6px}
+
+/* How it works */
+.how-steps{display:grid;gap:10px;margin-bottom:20px}
+.how-step{display:flex;align-items:flex-start;gap:12px;padding:14px 16px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:12px}
+.how-step .hs-num{width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:.82rem;font-weight:800;background:rgba(108,92,231,.12);color:#a29bfe;flex-shrink:0}
+.how-step .hs-text{font-size:.78rem;color:rgba(255,255,255,.6);line-height:1.5}
+.how-step .hs-text strong{color:#fff}
+
+/* Footer */
+.footer{text-align:center;padding:20px 0 8px;border-top:1px solid rgba(108,92,231,.06);margin-top:8px}
+.footer p{font-size:.6rem;color:rgba(255,255,255,.2)}
+.footer .f-links{display:flex;gap:10px;justify-content:center;margin-top:8px;flex-wrap:wrap}
+.footer .f-links a{font-size:.6rem;color:rgba(255,255,255,.3);text-decoration:none;transition:.2s}
+.footer .f-links a:hover{color:#a29bfe}
+
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);padding:12px 24px;border-radius:12px;font-size:.78rem;font-weight:600;color:#fff;z-index:9999;opacity:0;transition:.35s}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+
+@media(max-width:480px){
+  .stats-bar{grid-template-columns:1fr 1fr 1fr}
+  .stage-dot{width:24px;height:24px;font-size:.6rem}
+  .comm-table td,.comm-table th{padding:8px 10px;font-size:.68rem}
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="header">
+  <a href="index.html">&larr; Home</a>
+  <a href="wallet.html">Wallet</a>
+</div>
+
+<h1>&#x1F91D; Invite &amp; Earn</h1>
+<p class="subtitle">Share your link &mdash; earn 8-generation commissions on every card stake</p>
+
+<!-- Not logged in -->
+<div class="login-prompt" id="loginPrompt" style="display:none">
+  <h2>&#x1F512; Sign In Required</h2>
+  <p>Log in to get your personal invite link and track your referrals.</p>
+  <a href="auth.html" class="lp-btn">Sign In</a>
+</div>
+
+<!-- Logged in content -->
+<div id="mainContent" style="display:none">
+
+<!-- Invite Link Card -->
+<div class="link-card">
+  <div class="lc-label">Your Personal Invite Link</div>
+  <div class="ref-badge" id="refCode">—</div>
+  <div class="link-box">
+    <input type="text" id="inviteLink" readonly placeholder="Loading...">
+    <button class="copy-btn" onclick="copyLink()">&#x1F4CB; Copy</button>
+  </div>
+  <div class="qr-wrap" id="qrWrap"><canvas id="qrCanvas" width="140" height="140"></canvas></div>
+  <div class="share-row">
+    <a class="share-btn" id="shareWhatsApp" target="_blank" rel="noopener">&#x1F4AC; WhatsApp</a>
+    <a class="share-btn" id="shareTelegram" target="_blank" rel="noopener">&#x2708;&#xFE0F; Telegram</a>
+    <a class="share-btn" id="shareTwitter" target="_blank" rel="noopener">&#x1F426; Twitter</a>
+    <button class="share-btn" id="shareNative" onclick="nativeShare()" style="display:none">&#x1F4E4; Share</button>
+  </div>
+</div>
+
+<!-- Referral Stats -->
+<div class="stats-bar">
+  <div class="sb-item"><div class="sb-val" id="stTotal">0</div><div class="sb-lbl">Total Invites</div></div>
+  <div class="sb-item"><div class="sb-val" id="stActive">0</div><div class="sb-lbl">Active Stakers</div></div>
+  <div class="sb-item"><div class="sb-val" id="stEarned">$0</div><div class="sb-lbl">Commissions</div></div>
+</div>
+
+<!-- How It Works -->
+<div class="section-label">&#x1F4A1; How It Works</div>
+<div class="how-steps">
+  <div class="how-step"><div class="hs-num">1</div><div class="hs-text"><strong>Share your link</strong> &mdash; send it to friends via any channel</div></div>
+  <div class="how-step"><div class="hs-num">2</div><div class="hs-text"><strong>They register</strong> &mdash; your ref code auto-fills as their sponsor</div></div>
+  <div class="how-step"><div class="hs-num">3</div><div class="hs-text"><strong>They activate a card stake</strong> &mdash; you earn generation commissions</div></div>
+  <div class="how-step"><div class="hs-num">4</div><div class="hs-text"><strong>8 levels deep</strong> &mdash; earn from your invites' invites' invites...</div></div>
+</div>
+
+<!-- Commission Table -->
+<div class="section-label">&#x1F4B0; Commission Structure (40% Total)</div>
+<table class="comm-table">
+  <tr><th>Generation</th><th>Role</th><th>Rate</th><th>Example ($500 stake)</th></tr>
+  <tr><td class="gen-lbl">Gen 1</td><td>Direct Inviter</td><td class="gen-pct">10%</td><td class="gen-amt">$50.00</td></tr>
+  <tr><td class="gen-lbl">Gen 2</td><td>Inviter's Inviter</td><td class="gen-pct">6%</td><td class="gen-amt">$30.00</td></tr>
+  <tr><td class="gen-lbl">Gen 3</td><td>Upline Level 3</td><td class="gen-pct">4%</td><td class="gen-amt">$20.00</td></tr>
+  <tr><td class="gen-lbl">Gen 4</td><td>Upline Level 4</td><td class="gen-pct">4%</td><td class="gen-amt">$20.00</td></tr>
+  <tr><td class="gen-lbl">Gen 5</td><td>Upline Level 5</td><td class="gen-pct">4%</td><td class="gen-amt">$20.00</td></tr>
+  <tr><td class="gen-lbl">Gen 6</td><td>Upline Level 6</td><td class="gen-pct">4%</td><td class="gen-amt">$20.00</td></tr>
+  <tr><td class="gen-lbl">Gen 7</td><td>Upline Level 7</td><td class="gen-pct">4%</td><td class="gen-amt">$20.00</td></tr>
+  <tr><td class="gen-lbl">Gen 8</td><td>Upline Level 8</td><td class="gen-pct">4%</td><td class="gen-amt">$20.00</td></tr>
+</table>
+<div class="comm-total">
+  <span>Total Referral Commission</span>
+  <span class="ct-pct">40% &mdash; $200.00 per $500 stake</span>
+</div>
+
+<!-- My Invites -->
+<div class="section-label">&#x1F465; My Invites</div>
+<div class="invite-list" id="inviteList"></div>
+
+</div><!-- /mainContent -->
+
+<!-- Footer -->
+<div class="footer">
+  <p>&copy; 2025 OLIGHFT SMART COIN &mdash; Stellar Testnet</p>
+  <div class="f-links">
+    <a href="index.html">Home</a>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="wallet.html">Wallet</a>
+    <a href="activity.html">Activity</a>
+  </div>
+</div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── Stage Constants ──
+var STAGES = ['invited','registered','wallet_created','card_activated','staking_active'];
+var STAGE_ICONS  = {invited:'\uD83D\uDCE8', registered:'\u2705', wallet_created:'\uD83D\uDCB3', card_activated:'\uD83C\uDFC6', staking_active:'\uD83D\uDE80'};
+var STAGE_LABELS = {invited:'Invited', registered:'Registered', wallet_created:'Wallet', card_activated:'Card', staking_active:'Staking'};
+var GEN_RATES = [0.10, 0.06, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04];
+
+// ── Init ──
+(function init() {
+  var user = null;
+  try { user = JSON.parse(localStorage.getItem('cw_user')); } catch(e) {}
+
+  // Check if arriving via ?ref= param — redirect to auth
+  var params = new URLSearchParams(window.location.search);
+  var ref = params.get('ref') || params.get('sponsor');
+  if (ref && (!user || !user.email)) {
+    window.location.href = 'auth.html?ref=' + encodeURIComponent(ref);
+    return;
+  }
+
+  if (!user || !user.email) {
+    document.getElementById('loginPrompt').style.display = 'block';
+    return;
+  }
+
+  document.getElementById('mainContent').style.display = 'block';
+
+  var refCode = user.name || 'USER';
+  var baseUrl = window.location.origin || 'https://olighftcoin.com';
+  var fullLink = baseUrl + '/auth.html?ref=' + encodeURIComponent(refCode);
+
+  document.getElementById('refCode').textContent = refCode;
+  document.getElementById('inviteLink').value = fullLink;
+
+  // Social share links
+  var msg = 'Join OLIGHFT SMART COIN and earn daily crypto rewards! Use my invite link: ' + fullLink;
+  document.getElementById('shareWhatsApp').href = 'https://wa.me/?text=' + encodeURIComponent(msg);
+  document.getElementById('shareTelegram').href = 'https://t.me/share/url?url=' + encodeURIComponent(fullLink) + '&text=' + encodeURIComponent('Join OLIGHFT SMART COIN and earn daily crypto rewards!');
+  document.getElementById('shareTwitter').href = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(msg);
+
+  // Native share API
+  if (navigator.share) {
+    document.getElementById('shareNative').style.display = 'inline-flex';
+  }
+
+  // QR Code
+  generateQR(fullLink);
+
+  // Load invites
+  renderStats();
+  renderInvites();
+})();
+
+// ── Copy Link ──
+function copyLink() {
+  var inp = document.getElementById('inviteLink');
+  var link = inp.value;
+  if (!link) return;
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(link).then(function() { showToast('\u2705 Invite link copied!', '#27ae60'); }).catch(function() { fallbackCopy(link); });
+  } else {
+    fallbackCopy(link);
+  }
+}
+
+function fallbackCopy(text) {
+  var ta = document.createElement('textarea');
+  ta.value = text; ta.style.position = 'fixed'; ta.style.left = '-9999px';
+  document.body.appendChild(ta); ta.select();
+  try { document.execCommand('copy'); showToast('\u2705 Invite link copied!', '#27ae60'); } catch(e) { showToast('Copy failed', '#eb5757'); }
+  document.body.removeChild(ta);
+}
+
+// ── Native Share ──
+function nativeShare() {
+  var link = document.getElementById('inviteLink').value;
+  if (navigator.share) {
+    navigator.share({ title: 'Join OLIGHFT SMART COIN', text: 'Earn daily crypto rewards with card staking!', url: link }).catch(function() {});
+  }
+}
+
+// ── QR Code Generator (Canvas) ──
+function generateQR(text) {
+  // Lightweight QR: encode data into a visual grid on canvas
+  var canvas = document.getElementById('qrCanvas');
+  var ctx = canvas.getContext('2d');
+  var size = 140;
+  canvas.width = size; canvas.height = size;
+
+  // Simple visual placeholder with text encoding pattern
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, size, size);
+
+  // Generate deterministic dot pattern from link hash
+  var hash = 0;
+  for (var i = 0; i < text.length; i++) { hash = ((hash << 5) - hash) + text.charCodeAt(i); hash |= 0; }
+
+  var cellSize = 5;
+  var grid = Math.floor(size / cellSize);
+  var seed = Math.abs(hash);
+
+  // QR-like corner markers
+  function drawMarker(x, y, s) {
+    ctx.fillStyle = '#111128';
+    ctx.fillRect(x, y, s * 7, s * 7);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(x + s, y + s, s * 5, s * 5);
+    ctx.fillStyle = '#111128';
+    ctx.fillRect(x + s * 2, y + s * 2, s * 3, s * 3);
+  }
+  drawMarker(2, 2, cellSize);
+  drawMarker(size - 37, 2, cellSize);
+  drawMarker(2, size - 37, cellSize);
+
+  // Data area
+  ctx.fillStyle = '#111128';
+  for (var gy = 0; gy < grid; gy++) {
+    for (var gx = 0; gx < grid; gx++) {
+      // Skip marker areas
+      if ((gx < 8 && gy < 8) || (gx >= grid - 8 && gy < 8) || (gx < 8 && gy >= grid - 8)) continue;
+      seed = (seed * 16807 + 0) % 2147483647;
+      if (seed % 3 === 0) {
+        ctx.fillRect(gx * cellSize, gy * cellSize, cellSize, cellSize);
+      }
+    }
+  }
+
+  // Center logo circle
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath();
+  ctx.arc(size / 2, size / 2, 14, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#6c5ce7';
+  ctx.beginPath();
+  ctx.arc(size / 2, size / 2, 11, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 10px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('O', size / 2, size / 2 + 1);
+}
+
+// ── Stats ──
+function renderStats() {
+  var user = null;
+  try { user = JSON.parse(localStorage.getItem('cw_user')); } catch(e) {}
+  if (!user) return;
+
+  var invites = [];
+  try { invites = JSON.parse(localStorage.getItem('cw_invites') || '[]'); } catch(e) {}
+  var mine = invites.filter(function(inv) { return inv.inviterName && inv.inviterName.toLowerCase() === user.name.toLowerCase(); });
+
+  document.getElementById('stTotal').textContent = mine.length;
+  var active = mine.filter(function(inv) { return inv.stage === 'staking_active' || inv.stage === 'card_activated'; });
+  document.getElementById('stActive').textContent = active.length;
+
+  // Estimate commissions from card_stakes where sponsor matches user
+  var stakes = [];
+  try { stakes = JSON.parse(localStorage.getItem('card_stakes') || '[]'); } catch(e) {}
+  var earned = 0;
+  for (var i = 0; i < stakes.length; i++) {
+    var s = stakes[i];
+    if (s.sponsor && s.sponsor.toLowerCase() === user.name.toLowerCase()) {
+      earned += (s.stake || 0) * GEN_RATES[0]; // Gen 1 commission
+    }
+  }
+  document.getElementById('stEarned').textContent = '$' + earned.toFixed(0);
+}
+
+// ── Invite List ──
+function renderInvites() {
+  var user = null;
+  try { user = JSON.parse(localStorage.getItem('cw_user')); } catch(e) {}
+  if (!user) return;
+
+  var invites = [];
+  try { invites = JSON.parse(localStorage.getItem('cw_invites') || '[]'); } catch(e) {}
+  var mine = invites.filter(function(inv) { return inv.inviterName && inv.inviterName.toLowerCase() === user.name.toLowerCase(); });
+
+  var listEl = document.getElementById('inviteList');
+  if (mine.length === 0) {
+    listEl.innerHTML = '<div class="empty-msg"><div class="em-icon">\uD83D\uDCE8</div>No invites yet. Share your link to start earning commissions!</div>';
+    return;
+  }
+
+  mine.sort(function(a, b) { return b.createdAt - a.createdAt; });
+
+  var html = '';
+  for (var i = 0; i < mine.length; i++) {
+    var inv = mine[i];
+    var curIdx = STAGES.indexOf(inv.stage);
+    var invName = inv.invitee ? inv.invitee.name : 'Pending...';
+    var invEmail = inv.invitee ? inv.invitee.email : '';
+    var dateStr = inv.createdAt ? new Date(inv.createdAt).toLocaleDateString() : '—';
+
+    var flow = '';
+    for (var si = 0; si < STAGES.length; si++) {
+      var s = STAGES[si];
+      if (si > 0) {
+        var connCls = 'stage-connector';
+        if (si <= curIdx) connCls += ' done';
+        else if (si === curIdx + 1) connCls += ' half';
+        flow += '<div class="' + connCls + '"></div>';
+      }
+      var dotCls = 'stage-dot';
+      var lblCls = 'stage-label';
+      if (si < curIdx) { dotCls += ' done'; lblCls += ' done'; }
+      else if (si === curIdx) { dotCls += ' current'; lblCls += ' current'; }
+      else { dotCls += ' pending'; }
+      flow += '<div class="stage-node"><div class="' + dotCls + '">' + STAGE_ICONS[s] + '</div><div class="' + lblCls + '">' + STAGE_LABELS[s] + '</div></div>';
+    }
+
+    html += '<div class="invite-card">' +
+      '<div class="inv-top"><div><div class="inv-name">' + escHtml(invName) + '</div>' + (invEmail ? '<div class="inv-email">' + escHtml(invEmail) + '</div>' : '') + '</div><div class="inv-date">' + dateStr + '</div></div>' +
+      '<div class="stage-flow">' + flow + '</div></div>';
+  }
+  listEl.innerHTML = html;
+}
+
+function escHtml(s) {
+  var d = document.createElement('div');
+  d.appendChild(document.createTextNode(s));
+  return d.innerHTML;
+}
+
+function showToast(msg, bg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = bg || '#6c5ce7';
+  t.classList.add('show');
+  setTimeout(function() { t.classList.remove('show'); }, 3000);
+}
+</script>
+</body>
+</html>
