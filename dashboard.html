@@ -1667,9 +1667,9 @@ function doStake() {
   sfReset();
   stakeBtn.disabled = true;
 
-  try {
-
   sfActivate(1, 'Step 1/5 \u2014 Authenticating sender\u2026');
+
+  setTimeout(function() { try {
 
   var user = null;
   try { user = JSON.parse(localStorage.getItem('cw_user')); } catch(e) {}
@@ -1683,11 +1683,9 @@ function doStake() {
     return;
   }
   sfDone(1);
-
-  // ══════════════════════════════════════════
-  // STEP 2: VALIDATE — check balance
-  // ══════════════════════════════════════════
   sfActivate(2, 'Step 2/5 \u2014 Validating balance & parameters\u2026');
+
+  setTimeout(function() { try {
 
   var asset = 'OLIGHFT';
   var cardConfig = CARD_TIERS[selectedCard] || {};
@@ -1716,11 +1714,9 @@ function doStake() {
   cardConfig = CARD_TIERS[cardTierName] || {};
   var cardDailyUSD = cardConfig.daily || 0;
   sfDone(2);
-
-  // ══════════════════════════════════════════
-  // STEP 3: CONVERT — oracle rate
-  // ══════════════════════════════════════════
   sfActivate(3, 'Step 3/5 \u2014 Converting via oracle rate ($' + OLIGHFT_PRICE + '/OLIGHFT)\u2026');
+
+  setTimeout(function() { try {
 
   var effectiveDays = days > 0 ? days : 365;
   var cardDailyOLIGHFT = cardDailyUSD / OLIGHFT_PRICE;
@@ -1731,20 +1727,9 @@ function doStake() {
   var adminShare = amt * ADMIN_WALLET_SPLIT;
   var refShare   = amt * (1 - ADMIN_WALLET_SPLIT);
   sfDone(3);
-
-  } catch(outerErr) {
-    console.error('Stake steps 1-3 error:', outerErr);
-    sfFail(1, 'Error: ' + outerErr.message);
-    return;
-  }
-
-  // Use setTimeout to let the UI paint each step
-  setTimeout(function() { try {
-
-  // ══════════════════════════════════════════
-  // STEP 4: SETTLE — atomic swap
-  // ══════════════════════════════════════════
   sfActivate(4, 'Step 4/5 \u2014 Settling atomic swap (debit + admin + referral)\u2026');
+
+  setTimeout(function() { try {
 
   // Deduct from user balance
   bals[asset] = (bals[asset] || 0) - amt;
@@ -1814,13 +1799,9 @@ function doStake() {
   }
 
   sfDone(4);
+  sfActivate(5, 'Step 5/5 \u2014 Generating receipt\u2026');
 
   setTimeout(function() { try {
-
-  // ══════════════════════════════════════════
-  // STEP 5: RECEIPT — confirmation
-  // ══════════════════════════════════════════
-  sfActivate(5, 'Step 5/5 \u2014 Generating receipt\u2026');
 
   // Refresh UI
   var newBals = {};
@@ -1861,8 +1842,11 @@ function doStake() {
   // Hide flow box after delay
   setTimeout(function() { flowBox.style.display = 'none'; }, 4000);
 
-  } catch(e) { console.error('Step 5 error:', e); sfFail(5, 'Receipt error: ' + e.message); } }, 600); // delay before receipt step
-  } catch(e) { console.error('Step 4 error:', e); sfFail(4, 'Settle error: ' + e.message); } }, 500); // delay before settle step
+  } catch(e) { console.error('Step 5 error:', e); sfFail(5, 'Receipt error: ' + e.message); } }, 500);
+  } catch(e) { console.error('Step 4 error:', e); sfFail(4, 'Settle error: ' + e.message); } }, 600);
+  } catch(e) { console.error('Step 3 error:', e); sfFail(3, 'Convert error: ' + e.message); } }, 500);
+  } catch(e) { console.error('Step 2 error:', e); sfFail(2, 'Validate error: ' + e.message); } }, 500);
+  } catch(e) { console.error('Step 1 error:', e); sfFail(1, 'Auth error: ' + e.message); } }, 500);
 }
 
 function saveReceipt() {
