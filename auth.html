@@ -428,9 +428,9 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 //  2. Create a Template with variables: {{to_email}}, {{to_name}}, {{otp_code}}, {{expire_minutes}}
 //  3. Paste your IDs below
 // ══════════════════════════════════════════════════════════
-const EMAILJS_PUBLIC_KEY  = '';  // ← your EmailJS public key
-const EMAILJS_SERVICE_ID  = '';  // ← your EmailJS service ID
-const EMAILJS_TEMPLATE_ID = '';  // ← your EmailJS template ID
+const EMAILJS_PUBLIC_KEY  = 'syUL9uWD4g0DddO-B';  // ← your EmailJS public key
+const EMAILJS_SERVICE_ID  = 'service_j53q79r';  // ← your EmailJS service ID
+const EMAILJS_TEMPLATE_ID = 'syUL9uWD4g0DddO-B';  // ← your EmailJS template ID
 const OTP_EXPIRE_MINUTES  = 5;
 const OTP_LENGTH          = 6;
 const RESEND_COOLDOWN_SEC = 60;
@@ -786,8 +786,7 @@ async function handleLogin(e) {
     if (result.sent) {
         showAlert('success', 'Verification code sent to ' + email + '. Check your inbox.');
     } else {
-        autoFillOtp(result.autoCode);
-        showAlert('success', 'Verification code ready — tap Verify & Login to continue.');
+        showAlert('error', 'Could not send code. Please try again or contact support.');
     }
 }
 
@@ -915,8 +914,7 @@ async function handleRegister(e) {
     if (result.sent) {
         showAlert('success', 'Verification code sent to ' + email + '. Check your inbox!');
     } else {
-        autoFillOtp(result.autoCode);
-        showAlert('success', 'Verification code ready — tap Verify & Login to continue.');
+        showAlert('error', 'Could not send code. Please try again or contact support.');
     }
 }
 
@@ -946,8 +944,7 @@ async function handleForgot(e) {
         if (result.sent) {
             showAlert('success', 'Reset code sent to ' + email + '. Check your inbox.');
         } else {
-            autoFillOtp(result.autoCode);
-            showAlert('success', 'Reset code ready — tap Verify & Login to continue.');
+            showAlert('error', 'Could not send code. Please try again or contact support.');
         }
     } else {
         setLoading('forgot-btn', false);
@@ -1035,8 +1032,7 @@ async function resendOtp() {
     if (result.sent) {
         showAlert('success', 'New code sent to ' + pending.email + '!');
     } else {
-        autoFillOtp(result.autoCode);
-        showAlert('success', 'New code ready \u2014 tap Verify & Login to continue.');
+        showAlert('error', 'Could not send code. Please try again or contact support.');
     }
 }
 
