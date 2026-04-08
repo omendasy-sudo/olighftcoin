@@ -1279,13 +1279,15 @@ document.querySelectorAll('.nav a[href^="#"]').forEach(a => {
   });
 });
 
-// Progress step tracking via IntersectionObserver
+// Progress step tracking — persists visited sections
+const _visited = new Set();
 function updateProgress(){
   const stepIds = ['create','structure','cargo','source','tests','build','optimize'];
   const stepEls = document.querySelectorAll('.steps .step');
   stepIds.forEach((id, i) => {
     const sect = document.getElementById(id);
-    if(sect && sect.classList.contains('open')){
+    if(sect && sect.classList.contains('open')) _visited.add(id);
+    if(_visited.has(id)){
       stepEls[i].classList.add('done');
       stepEls[i].classList.remove('active');
     }
