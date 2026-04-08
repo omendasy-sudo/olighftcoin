@@ -453,10 +453,8 @@ function generateOtp() {
 }
 
 // ── Send OTP Email ──
-// Uses local Python backend (email_server.py) first, then EmailJS, then fallback
-const OTP_API_URL = window.location.hostname === 'localhost'
-    ? '/api/send-otp'                            // local dev
-    : 'https://olighftcoin.com/api/send-otp';    // production
+// Uses EmailJS on production, Python backend only on localhost
+const IS_LOCAL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
 
 async function sendOtpEmail(email, name) {
     const code = generateOtp();
@@ -467,29 +465,7 @@ async function sendOtpEmail(email, name) {
         attempts: 0
     };
 
-    // Method 1: Local Python backend (email_server.py)
-    try {
-        const resp = await fetch(OTP_API_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                email: email,
-                name: name || email.split('@')[0],
-                code: code,
-                expire_minutes: OTP_EXPIRE_MINUTES
-            })
-        });
-        const data = await resp.json();
-        if (data.success) {
-            console.log('[OTP] Email sent via backend to', email);
-            return { sent: true, method: 'backend' };
-        }
-        console.warn('[OTP] Backend error:', data.error);
-    } catch (err) {
-        console.warn('[OTP] Backend not available:', err.message);
-    }
-
-    // Method 2: EmailJS (client-side fallback)
+    // Method 1: EmailJS (primary for production)
     if (EMAILJS_PUBLIC_KEY && EMAILJS_SERVICE_ID && EMAILJS_TEMPLATE_ID) {
         try {
             await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
@@ -505,9 +481,32 @@ async function sendOtpEmail(email, name) {
         }
     }
 
-    // Method 3: Auto-verify fallback — fill OTP automatically
-    console.warn('[OTP] No email service configured. Auto-filling verification code.');
-    return { sent: false, method: 'fallback', autoCode: code };
+    // Method 2: Local Python backend (localhost only)
+    if (IS_LOCAL) {
+        try {
+            const resp = await fetch('/api/send-otp', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: email,
+                    name: name || email.split('@')[0],
+                    code: code,
+                    expire_minutes: OTP_EXPIRE_MINUTES
+                })
+            });
+            const data = await resp.json();
+            if (data.success) {
+                console.log('[OTP] Email sent via backend to', email);
+                return { sent: true, method: 'backend' };
+            }
+        } catch (err) {
+            console.warn('[OTP] Backend not available:', err.message);
+        }
+    }
+
+    // Fallback — no method worked
+    console.error('[OTP] All email methods failed for', email);
+    return { sent: false, method: 'fallback' };
 }
 
 // ── Verify OTP ──
