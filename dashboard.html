@@ -650,6 +650,12 @@ var DEFAULT_BALS = { XLM: 10000, USDC: 2500, wETH: 1.85, wBTC: 0.042, EURC: 1200
   var bals = DEFAULT_BALS;
   try { var saved = JSON.parse(localStorage.getItem('cw_balances')); if (saved) bals = Object.assign({}, DEFAULT_BALS, saved); } catch(e) {}
 
+  // Testnet auto-refill: if total portfolio value is near $0, reset to defaults
+  var _totalCheck = 0;
+  for (var _i = 0; _i < COINS.length; _i++) { _totalCheck += (bals[COINS[_i].sym] || 0) * COINS[_i].price; }
+  if (_totalCheck < 1) {
+    bals = Object.assign({}, DEFAULT_BALS);
+  }
   // Ensure every user gets 10,000 OLIGHFT for testing
   if (!bals.OLIGHFT || bals.OLIGHFT <= 0) { bals.OLIGHFT = 10000; }
   localStorage.setItem('cw_balances', JSON.stringify(bals));
