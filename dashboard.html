@@ -36,10 +36,10 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 
 /* Quick Action Buttons */
 .actions{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:22px}
-.act{display:flex;flex-direction:column;align-items:center;gap:6px;padding:16px 8px;background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.06);border-radius:14px;text-decoration:none;color:#fff;cursor:pointer;transition:.25s}
+.act{display:flex;flex-direction:column;align-items:center;gap:6px;padding:16px 4px;background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.06);border-radius:14px;text-decoration:none;color:#fff;cursor:pointer;transition:.25s;overflow:visible;min-width:0}
 .act:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(0,0,0,.25)}
 .act .act-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.3rem}
-.act .act-label{font-size:.68rem;font-weight:600;letter-spacing:.3px}
+.act .act-label{font-size:.68rem;font-weight:600;letter-spacing:.3px;white-space:nowrap}
 .act-send .act-icon{background:rgba(108,92,231,.12)}.act-send:hover{border-color:rgba(108,92,231,.35)}
 .act-recv .act-icon{background:rgba(39,174,96,.12)}.act-recv:hover{border-color:rgba(39,174,96,.35)}
 .act-stake .act-icon{background:rgba(242,153,74,.12)}.act-stake:hover{border-color:rgba(242,153,74,.35)}
