@@ -569,6 +569,15 @@ function startResendCooldown() {
 
 // ── Panel Switching ──
 function showPanel(id) {
+    // Block login panel if no account registered
+    if (id === 'login') {
+        var u = null;
+        try { u = JSON.parse(localStorage.getItem('cw_user') || 'null'); } catch(e) {}
+        if (!u || !u.email) {
+            showAlert('error', 'No account found. Please register first.');
+            return;
+        }
+    }
     document.querySelectorAll('.form-panel').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     document.getElementById('panel-' + id).classList.add('active');
@@ -1644,6 +1653,18 @@ async function autoFillFromCredManager() {
         window.location.href = 'dashboard.html';
         return;
     }
+
+    // No account registered — force Register panel, disable Login tab
+    if (!user) {
+        showPanel('register');
+        var loginTab = document.getElementById('tab-login');
+        loginTab.style.opacity = '0.35';
+        loginTab.style.pointerEvents = 'none';
+        loginTab.title = 'Register first to unlock login';
+        showAlert('success', '\uD83D\uDCDD Create your account to get started.');
+        return;
+    }
+
     // Auto-fill from Remember Me (localStorage)
     try {
         var saved = JSON.parse(localStorage.getItem('cw_remember') || 'null');
