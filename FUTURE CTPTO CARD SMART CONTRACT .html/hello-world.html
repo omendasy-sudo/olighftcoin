@@ -102,12 +102,16 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 
 /* Progress Steps */
 .steps{display:flex;gap:0;margin:20px 0;overflow-x:auto;padding:4px 0}
-.step{flex:1;min-width:100px;text-align:center;position:relative}
-.step .s-num{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;margin:0 auto 6px;border:2px solid var(--border);color:var(--muted);transition:.2s}
+.step{flex:1;min-width:80px;text-align:center;position:relative;cursor:pointer}
+.step .s-num{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;margin:0 auto 6px;border:2px solid var(--border);color:var(--muted);transition:.3s;background:var(--surface)}
+.step:hover .s-num{border-color:var(--accent);color:var(--accent)}
 .step.done .s-num{border-color:var(--green);background:var(--green);color:#fff}
-.step.active .s-num{border-color:var(--accent);color:var(--accent);box-shadow:0 0 12px rgba(99,102,241,.3)}
-.step .s-label{font-size:.68rem;color:var(--muted)}
-.step .s-line{position:absolute;top:18px;left:calc(50% + 20px);width:calc(100% - 40px);height:2px;background:var(--border)}
+.step.active .s-num{border-color:var(--accent);color:var(--accent);box-shadow:0 0 12px rgba(99,102,241,.4);animation:stepPulse 2s ease-in-out infinite}
+@keyframes stepPulse{0%,100%{box-shadow:0 0 12px rgba(99,102,241,.4)}50%{box-shadow:0 0 20px rgba(99,102,241,.6)}}
+.step .s-label{font-size:.68rem;color:var(--muted);transition:.2s}
+.step.done .s-label{color:var(--green)}
+.step.active .s-label{color:var(--accent);font-weight:600}
+.step .s-line{position:absolute;top:18px;left:calc(50% + 22px);right:calc(-50% + 22px);height:2px;background:var(--border);transition:.3s}
 .step:last-child .s-line{display:none}
 .step.done .s-line{background:var(--green)}
 
@@ -149,13 +153,13 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 
   <!-- Progress Steps -->
   <div class="steps" id="progressSteps">
-    <div class="step active" data-step="create"><div class="s-num">1</div><div class="s-label">Create</div><div class="s-line"></div></div>
-    <div class="step" data-step="structure"><div class="s-num">2</div><div class="s-label">Structure</div><div class="s-line"></div></div>
-    <div class="step" data-step="cargo"><div class="s-num">3</div><div class="s-label">Config</div><div class="s-line"></div></div>
-    <div class="step" data-step="source"><div class="s-num">4</div><div class="s-label">Code</div><div class="s-line"></div></div>
-    <div class="step" data-step="tests"><div class="s-num">5</div><div class="s-label">Test</div><div class="s-line"></div></div>
-    <div class="step" data-step="build"><div class="s-num">6</div><div class="s-label">Build</div><div class="s-line"></div></div>
-    <div class="step" data-step="optimize"><div class="s-num">7</div><div class="s-label">Optimize</div></div>
+    <div class="step active" data-step="create" onclick="goStep('create')"><div class="s-num">1</div><div class="s-label">Create</div><div class="s-line"></div></div>
+    <div class="step" data-step="structure" onclick="goStep('structure')"><div class="s-num">2</div><div class="s-label">Structure</div><div class="s-line"></div></div>
+    <div class="step" data-step="cargo" onclick="goStep('cargo')"><div class="s-num">3</div><div class="s-label">Config</div><div class="s-line"></div></div>
+    <div class="step" data-step="source" onclick="goStep('source')"><div class="s-num">4</div><div class="s-label">Code</div><div class="s-line"></div></div>
+    <div class="step" data-step="tests" onclick="goStep('tests')"><div class="s-num">5</div><div class="s-label">Test</div><div class="s-line"></div></div>
+    <div class="step" data-step="build" onclick="goStep('build')"><div class="s-num">6</div><div class="s-label">Build</div><div class="s-line"></div></div>
+    <div class="step" data-step="optimize" onclick="goStep('optimize')"><div class="s-num">7</div><div class="s-label">Optimize</div></div>
   </div>
 
   <!-- ===== 1. CREATE PROJECT ===== -->
@@ -1276,6 +1280,19 @@ ls -lh <span class="str">"$WASM_DIR"</span>/*.optimized.wasm</pre>
 </div>
 
 <script>
+// Navigate to step on click
+function goStep(id){
+  const el = document.getElementById(id);
+  if(!el) return;
+  if(!el.classList.contains('open')) el.classList.add('open');
+  el.scrollIntoView({behavior:'smooth', block:'start'});
+  // Update nav highlight
+  document.querySelectorAll('.nav a').forEach(n => n.classList.remove('active'));
+  const navLink = document.querySelector('.nav a[href="#'+id+'"]');
+  if(navLink) navLink.classList.add('active');
+  updateProgress();
+}
+
 // Section toggle
 function toggleSection(header){
   const sect = header.closest('.section');
