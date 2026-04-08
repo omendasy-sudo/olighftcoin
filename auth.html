@@ -762,7 +762,18 @@ async function handleLogin(e) {
     }
 
     // Store pending login context
-    window._pendingAuth = { type: 'login', email: email };
+    window._pendingAuth = { type: 'login', email: email, pw: pw };
+
+    // Save credentials if Remember Me checked
+    if (document.getElementById('remember-me').checked) {
+        localStorage.setItem('cw_remember', JSON.stringify({
+            email: email,
+            pw: btoa(pw),
+            at: Date.now()
+        }));
+    } else {
+        localStorage.removeItem('cw_remember');
+    }
 
     // If Google Auth enabled, skip email OTP
     if (isGauthEnabled()) {
@@ -1633,6 +1644,21 @@ async function autoFillFromCredManager() {
         window.location.href = 'dashboard.html';
         return;
     }
+    // Auto-fill from Remember Me (localStorage)
+    try {
+        var saved = JSON.parse(localStorage.getItem('cw_remember') || 'null');
+        if (saved && saved.email && saved.pw) {
+            var age = Date.now() - (saved.at || 0);
+            if (age < 30 * 24 * 60 * 60 * 1000) { // 30 days
+                document.getElementById('login-email').value = saved.email;
+                document.getElementById('login-pw').value = atob(saved.pw);
+                document.getElementById('remember-me').checked = true;
+                showAlert('success', '\uD83D\uDD11 Welcome back! Tap Sign In to continue.');
+            } else {
+                localStorage.removeItem('cw_remember');
+            }
+        }
+    } catch(e) {}
     // Try auto-fill from Credential Manager
     if (isCredManagerSupported()) {
         autoFillFromCredManager();
