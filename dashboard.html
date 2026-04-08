@@ -1557,7 +1557,7 @@ function getWalletStakes() {
   for (var j = 0; j < cs.length; j++) {
     var c = cs[j];
     if (!c._normalized) {
-      var OLIGHFT_P = 0.50;
+      var OLIGHFT_P = OLIGHFT_PRICE || 0.50;
       var stakeAmt = (c.paidOLIGHFT || (c.stake || 0) / OLIGHFT_P);
       var startD = c.date || new Date().toISOString();
       var endD = c.period > 0 ? new Date(new Date(startD).getTime() + c.period * 86400000).toISOString() : null;
@@ -1709,7 +1709,7 @@ function doStake() {
   sfDone(3);
 
   // Use setTimeout to let the UI paint each step
-  setTimeout(function() {
+  setTimeout(function() { try {
 
   // ══════════════════════════════════════════
   // STEP 4: SETTLE — atomic swap
@@ -1757,9 +1757,11 @@ function doStake() {
     }
   };
 
-  var stakes = getWalletStakes();
-  stakes.push(stake);
-  localStorage.setItem('wallet_stakes', JSON.stringify(stakes));
+  // Save only to wallet_stakes (not merged with card_stakes) to avoid duplication
+  var wsOnly = [];
+  try { wsOnly = JSON.parse(localStorage.getItem('wallet_stakes') || '[]'); } catch(e) { wsOnly = []; }
+  wsOnly.push(stake);
+  localStorage.setItem('wallet_stakes', JSON.stringify(wsOnly));
 
   // Activity log
   var genSummary = genCommissions.length > 0 ? ' \u00B7 ' + genCommissions.length + '-gen referral' : '';
@@ -1773,7 +1775,9 @@ function doStake() {
         if (res && res.success) {
           stake.onChainIndex = res.stakeIndex;
           stake.txHash = res.txHash || '';
-          localStorage.setItem('wallet_stakes', JSON.stringify(getWalletStakes().map(function(s) { return s.id === stakeId ? stake : s; })));
+          var wsUpdate = [];
+          try { wsUpdate = JSON.parse(localStorage.getItem('wallet_stakes') || '[]'); } catch(ex) { wsUpdate = []; }
+          localStorage.setItem('wallet_stakes', JSON.stringify(wsUpdate.map(function(s) { return s.id === stakeId ? stake : s; })));
         }
       } catch(e) { console.warn('On-chain stake failed:', e.message); }
     })();
@@ -1781,7 +1785,7 @@ function doStake() {
 
   sfDone(4);
 
-  setTimeout(function() {
+  setTimeout(function() { try {
 
   // ══════════════════════════════════════════
   // STEP 5: RECEIPT — confirmation
@@ -1827,8 +1831,8 @@ function doStake() {
   // Hide flow box after delay
   setTimeout(function() { flowBox.style.display = 'none'; }, 4000);
 
-  }, 600); // delay before receipt step
-  }, 500); // delay before settle step
+  } catch(e) { console.error('Step 5 error:', e); sfFail(5, 'Receipt error: ' + e.message); } }, 600); // delay before receipt step
+  } catch(e) { console.error('Step 4 error:', e); sfFail(4, 'Settle error: ' + e.message); } }, 500); // delay before settle step
 }
 
 function saveReceipt() {
