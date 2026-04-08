@@ -1372,8 +1372,19 @@ function doStake() {
       '<div style="display:flex;justify-content:space-between;padding:4px 0"><span>Daily Reward</span><b style="color:#27ae60">$' + data.dailyUSD + '/day</b></div>' +
       '<div style="display:flex;justify-content:space-between;padding:4px 0"><span>Est. Total Reward</span><b style="color:#27ae60">' + data.estReward.toFixed(2) + ' OLIGHFT</b></div>' +
       '<div style="display:flex;justify-content:space-between;padding:4px 0"><span>Admin (60%)</span><b>' + data.adminShare.toFixed(2) + ' OLIGHFT</b></div>' +
-      '<div style="display:flex;justify-content:space-between;padding:4px 0"><span>Referral (40%)</span><b>' + data.refShare.toFixed(2) + ' OLIGHFT (' + data.genCount + '-gen)</b></div>' +
-      '<div style="display:flex;justify-content:space-between;padding:4px 0"><span>Supply Reserved</span><b style="color:#27ae60">' + data.reserved.toFixed(2) + ' OLIGHFT</b></div>';
+      '<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.06);margin-bottom:4px"><span>Referral (40%)</span><b>' + data.refShare.toFixed(2) + ' OLIGHFT</b></div>';
+    // 8-gen breakdown
+    var genRates = [0.10, 0.06, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04];
+    var genLabels = ['Gen 1 (10%)', 'Gen 2 (6%)', 'Gen 3 (4%)', 'Gen 4 (4%)', 'Gen 5 (4%)', 'Gen 6 (4%)', 'Gen 7 (4%)', 'Gen 8 (4%)'];
+    var baseAmt = data.stakeAmount || data.amount;
+    for (var g = 0; g < 8; g++) {
+      var gc = data.genCommissions && data.genCommissions[g];
+      var genAmt = (data.refShare * genRates[g]).toFixed(2);
+      var sponsor = gc ? gc.sponsor : 'Admin pool';
+      var color = gc ? '#27ae60' : 'rgba(255,255,255,.25)';
+      body.innerHTML += '<div style="display:flex;justify-content:space-between;padding:2px 0 2px 12px;font-size:.72rem"><span style="color:' + color + '">' + genLabels[g] + '</span><span style="color:' + color + '">' + genAmt + ' OLIGHFT → ' + sponsor + '</span></div>';
+    }
+    body.innerHTML += '<div style="display:flex;justify-content:space-between;padding:4px 0;margin-top:4px"><span>Supply Reserved</span><b style="color:#27ae60">' + data.reserved.toFixed(2) + ' OLIGHFT</b></div>';
     tx.textContent = 'TX: ' + data.stakeId + (data.txHash ? ' \u00B7 On-chain: ' + data.txHash : '');
     document.getElementById('receiptModal').style.display = 'block';
   }
@@ -1557,6 +1568,8 @@ function doStake() {
     adminShare: adminShare,
     refShare: refShare,
     genCount: genCommissions.length,
+    genCommissions: genCommissions,
+    stakeAmount: amt,
     reserved: actualReserved,
     stakeId: stakeId,
     txHash: stake.txHash || '',
@@ -1590,7 +1603,20 @@ function saveReceipt() {
     '',
     '── Split ──',
     'Admin (60%):     ' + d.adminShare.toFixed(2) + ' OLIGHFT',
-    'Referral (40%):  ' + d.refShare.toFixed(2) + ' OLIGHFT (' + d.genCount + '-gen)',
+    'Referral (40%):  ' + d.refShare.toFixed(2) + ' OLIGHFT'
+  ];
+  // 8-gen breakdown for text receipt
+  var tGenRates = [0.10, 0.06, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04];
+  var tLabels = ['Gen 1 (10%)', 'Gen 2 (6%) ', 'Gen 3 (4%) ', 'Gen 4 (4%) ', 'Gen 5 (4%) ', 'Gen 6 (4%) ', 'Gen 7 (4%) ', 'Gen 8 (4%) '];
+  var tBase = d.stakeAmount || d.amount;
+  for (var tg = 0; tg < 8; tg++) {
+    var tgc = d.genCommissions && d.genCommissions[tg];
+    var tAmt = (d.refShare * tGenRates[tg]).toFixed(2);
+    var tSponsor = tgc ? tgc.sponsor : 'Admin pool';
+    lines.push('  ' + tLabels[tg] + ': ' + tAmt + ' OLIGHFT → ' + tSponsor);
+  }
+  lines.push(
+    '',
     'Supply Reserved: ' + d.reserved.toFixed(2) + ' OLIGHFT',
     '',
     '── Transaction ──',
