@@ -430,7 +430,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 // ══════════════════════════════════════════════════════════
 const EMAILJS_PUBLIC_KEY  = 'syUL9uWD4g0DddO-B';  // ← your EmailJS public key
 const EMAILJS_SERVICE_ID  = 'service_j53q79r';  // ← your EmailJS service ID
-const EMAILJS_TEMPLATE_ID = 'syUL9uWD4g0DddO-B';  // ← your EmailJS template ID
+const EMAILJS_TEMPLATE_ID = 'template_5ekq5vi';  // ← your EmailJS template ID
 const OTP_EXPIRE_MINUTES  = 5;
 const OTP_LENGTH          = 6;
 const RESEND_COOLDOWN_SEC = 60;
@@ -493,10 +493,10 @@ async function sendOtpEmail(email, name) {
     if (EMAILJS_PUBLIC_KEY && EMAILJS_SERVICE_ID && EMAILJS_TEMPLATE_ID) {
         try {
             await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
-                to_email: email,
-                to_name: name || email.split('@')[0],
-                otp_code: code,
-                expire_minutes: OTP_EXPIRE_MINUTES
+                name: name || email.split('@')[0],
+                message: 'Your OLIGHFT verification code is: ' + code + '. It expires in ' + OTP_EXPIRE_MINUTES + ' minutes.',
+                title: code,
+                email: email
             });
             console.log('[OTP] Email sent via EmailJS to', email);
             return { sent: true, method: 'emailjs' };
