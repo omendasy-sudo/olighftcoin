@@ -399,22 +399,24 @@ soroban-sdk = { workspace = <span class="kw">true</span>, features = [<span clas
 <pre>[workspace]
 resolver = <span class="str">"2"</span>
 members = [
-  <span class="str">"contracts/*"</span>,           <span class="cm"># All contracts auto-discovered</span>
+  <span class="str">"sdk"</span>,
+  <span class="str">"cli"</span>,
+  <span class="str">"token"</span>,
+  <span class="str">"staking"</span>,
+  <span class="str">"card_staking"</span>,
+  <span class="str">"swap_amm"</span>,
+  <span class="str">"payment"</span>,
+  <span class="str">"invite"</span>,
 ]
 
 [workspace.dependencies]
-soroban-sdk  = <span class="str">"22"</span>
-soroban-auth = <span class="str">"22"</span>         <span class="cm"># Multisig &amp; auth helpers</span>
-
-[workspace.metadata.olighft]
-network  = <span class="str">"testnet"</span>
-horizon  = <span class="str">"https://horizon-testnet.stellar.org"</span>
-tokens   = [<span class="str">"XLM"</span>, <span class="str">"USDC"</span>, <span class="str">"wETH"</span>, <span class="str">"wBTC"</span>, <span class="str">"EURC"</span>]</pre>
+soroban-sdk       = <span class="str">"21.7.4"</span>
+soroban-token-sdk = <span class="str">"21.7.4"</span></pre>
         </div>
       </div>
 
       <h3><span class="h-icon">&#x1F4B3;</span> Staking Contract Config</h3>
-      <p>The <span class="hl-purple">card-staking</span> contract manages the 6 staking tiers (Visa &rarr; Black). It imports the shared workspace SDK plus token helpers:</p>
+      <p>The <span class="hl-purple">card-staking</span> contract manages the 6 staking tiers (Visa &rarr; Black). It imports the shared workspace SDK:</p>
 
       <div class="code-block">
         <div class="code-head">
@@ -424,45 +426,41 @@ tokens   = [<span class="str">"XLM"</span>, <span class="str">"USDC"</span>, <sp
         <div class="code-body">
 <pre>[package]
 name    = <span class="str">"olighft-card-staking"</span>
-version = <span class="str">"0.1.0"</span>
+version = <span class="str">"1.0.0"</span>
 edition = <span class="str">"2021"</span>
 publish = <span class="kw">false</span>
 
 [lib]
 crate-type = [<span class="str">"cdylib"</span>]
-doctest    = <span class="kw">false</span>
 
 [dependencies]
-soroban-sdk  = { workspace = <span class="kw">true</span> }
-soroban-auth = { workspace = <span class="kw">true</span> }
+soroban-sdk = { workspace = <span class="kw">true</span> }
 
 [dev-dependencies]
 soroban-sdk = { workspace = <span class="kw">true</span>, features = [<span class="str">"testutils"</span>] }</pre>
         </div>
       </div>
 
-      <h3><span class="h-icon">&#x1F504;</span> Swap Contract Config</h3>
-      <p>The <span class="hl-cyan">token-swap</span> contract handles atomic swaps between the 5 supported tokens. It cross-imports the staking contract for balance checks:</p>
+      <h3><span class="h-icon">&#x1F504;</span> Swap AMM Contract Config</h3>
+      <p>The <span class="hl-cyan">swap-amm</span> contract handles AMM-style swaps between the supported tokens:</p>
 
       <div class="code-block">
         <div class="code-head">
-          <span class="lang">TOML</span><span class="file">contracts/token_swap/Cargo.toml</span>
+          <span class="lang">TOML</span><span class="file">contracts/swap_amm/Cargo.toml</span>
           <button class="copy-btn" onclick="copyCode(this)">Copy</button>
         </div>
         <div class="code-body">
 <pre>[package]
-name    = <span class="str">"olighft-token-swap"</span>
-version = <span class="str">"0.1.0"</span>
+name    = <span class="str">"olighft-swap-amm"</span>
+version = <span class="str">"1.0.0"</span>
 edition = <span class="str">"2021"</span>
 publish = <span class="kw">false</span>
 
 [lib]
 crate-type = [<span class="str">"cdylib"</span>]
-doctest    = <span class="kw">false</span>
 
 [dependencies]
-soroban-sdk  = { workspace = <span class="kw">true</span> }
-soroban-auth = { workspace = <span class="kw">true</span> }
+soroban-sdk = { workspace = <span class="kw">true</span> }
 
 [dev-dependencies]
 soroban-sdk = { workspace = <span class="kw">true</span>, features = [<span class="str">"testutils"</span>] }</pre>
@@ -471,41 +469,53 @@ soroban-sdk = { workspace = <span class="kw">true</span>, features = [<span clas
 
       <div class="callout callout-tip">
         <span class="callout-icon">&#x1F4A1;</span>
-        <div class="callout-text"><strong>Why a workspace?</strong> The OLIGHFT platform deploys <strong>3+ contracts</strong> (hello-world, card-staking, token-swap). Workspaces let them share one <code>Cargo.lock</code>, one SDK version, and one release profile &mdash; so every contract builds with identical settings.</div>
+        <div class="callout-text"><strong>Why a workspace?</strong> The OLIGHFT platform deploys <strong>8 crates</strong> (sdk, cli, token, staking, card_staking, swap_amm, payment, invite). Workspaces let them share one <code>Cargo.lock</code>, one SDK version, and one release profile &mdash; so every contract builds with identical settings.</div>
       </div>
 
       <h3><span class="h-icon">&#x1F5C2;&#xFE0F;</span> OLIGHFT Contracts Tree</h3>
       <div class="file-tree">
 <span class="ft-dir">contracts/</span>
-&#x251C;&#x2500;&#x2500; <span class="ft-dir">hello_world/</span>         <span class="ft-note">&#x2605; This tutorial (Step 4 code)</span>
+&#x251C;&#x2500;&#x2500; <span class="ft-dir">sdk/</span>                 <span class="ft-note">&larr; Shared SDK helpers (auth, crypto, storage)</span>
 &#x2502;   &#x251C;&#x2500;&#x2500; <span class="ft-file">Cargo.toml</span>
-&#x2502;   &#x2514;&#x2500;&#x2500; <span class="ft-dir">src/</span> lib.rs, test.rs
-&#x251C;&#x2500;&#x2500; <span class="ft-dir">card_staking/</span>        <span class="ft-note">&larr; 6-tier staking (Visa&ndash;Black)</span>
+&#x2502;   &#x2514;&#x2500;&#x2500; <span class="ft-dir">src/</span> lib.rs, auth.rs, crypto.rs, types.rs&hellip;
+&#x251C;&#x2500;&#x2500; <span class="ft-dir">cli/</span>                 <span class="ft-note">&larr; CLI tools (build, deploy, inspect)</span>
 &#x2502;   &#x251C;&#x2500;&#x2500; <span class="ft-file">Cargo.toml</span>
-&#x2502;   &#x2514;&#x2500;&#x2500; <span class="ft-dir">src/</span> lib.rs, tiers.rs, test.rs
-&#x251C;&#x2500;&#x2500; <span class="ft-dir">token_swap/</span>          <span class="ft-note">&larr; Atomic token swaps</span>
+&#x2502;   &#x2514;&#x2500;&#x2500; <span class="ft-dir">src/</span> main.rs, build.rs, deploy.rs, test.rs&hellip;
+&#x251C;&#x2500;&#x2500; <span class="ft-dir">token/</span>               <span class="ft-note">&larr; OLIGHFT token contract</span>
 &#x2502;   &#x251C;&#x2500;&#x2500; <span class="ft-file">Cargo.toml</span>
-&#x2502;   &#x2514;&#x2500;&#x2500; <span class="ft-dir">src/</span> lib.rs, pool.rs, test.rs
-&#x2514;&#x2500;&#x2500; <span class="ft-dir">multisig_custody/</span>    <span class="ft-note">&larr; Native Stellar multisig</span>
+&#x2502;   &#x2514;&#x2500;&#x2500; <span class="ft-dir">src/</span> lib.rs
+&#x251C;&#x2500;&#x2500; <span class="ft-dir">staking/</span>             <span class="ft-note">&larr; Core staking logic</span>
+&#x2502;   &#x251C;&#x2500;&#x2500; <span class="ft-file">Cargo.toml</span>
+&#x2502;   &#x2514;&#x2500;&#x2500; <span class="ft-dir">src/</span> lib.rs
+&#x251C;&#x2500;&#x2500; <span class="ft-dir">card_staking/</span>        <span class="ft-note">&larr; 6-tier card staking (Visa&ndash;Black)</span>
+&#x2502;   &#x251C;&#x2500;&#x2500; <span class="ft-file">Cargo.toml</span>
+&#x2502;   &#x2514;&#x2500;&#x2500; <span class="ft-dir">src/</span> lib.rs
+&#x251C;&#x2500;&#x2500; <span class="ft-dir">swap_amm/</span>            <span class="ft-note">&larr; AMM-style token swaps</span>
+&#x2502;   &#x251C;&#x2500;&#x2500; <span class="ft-file">Cargo.toml</span>
+&#x2502;   &#x2514;&#x2500;&#x2500; <span class="ft-dir">src/</span> lib.rs
+&#x251C;&#x2500;&#x2500; <span class="ft-dir">payment/</span>             <span class="ft-note">&larr; Payment processing</span>
+&#x2502;   &#x251C;&#x2500;&#x2500; <span class="ft-file">Cargo.toml</span>
+&#x2502;   &#x2514;&#x2500;&#x2500; <span class="ft-dir">src/</span> lib.rs
+&#x2514;&#x2500;&#x2500; <span class="ft-dir">invite/</span>              <span class="ft-note">&larr; Referral &amp; invite system</span>
     &#x251C;&#x2500;&#x2500; <span class="ft-file">Cargo.toml</span>
-    &#x2514;&#x2500;&#x2500; <span class="ft-dir">src/</span> lib.rs, signers.rs, test.rs
+    &#x2514;&#x2500;&#x2500; <span class="ft-dir">src/</span> lib.rs
       </div>
 
       <div class="concept-grid">
         <div class="concept-card" style="border-color:rgba(168,85,247,.3)">
           <div class="cc-icon">&#x1F4B3;</div>
           <div class="cc-title">card_staking</div>
-          <div class="cc-desc">Manages lock periods, APY tiers, compound rewards. Reads token balances from <code>soroban-auth</code> for the 6 card levels on <a href="../card-gold.html" style="color:var(--accent2)">card pages</a>.</div>
+          <div class="cc-desc">Manages lock periods, APY tiers, compound rewards for the 6 card levels on <a href="../card-gold.html" style="color:var(--accent2)">card pages</a>.</div>
         </div>
         <div class="concept-card" style="border-color:rgba(6,182,212,.3)">
           <div class="cc-icon">&#x1F504;</div>
-          <div class="cc-title">token_swap</div>
-          <div class="cc-desc">Atomic swaps between XLM, USDC, wETH, wBTC, EURC. Powers the <a href="../swap.html" style="color:var(--accent2)">swap page</a> with on-chain settlement.</div>
+          <div class="cc-title">swap_amm</div>
+          <div class="cc-desc">AMM swaps between XLM, USDC, wETH, wBTC, EURC. Powers the <a href="../swap.html" style="color:var(--accent2)">swap page</a> with on-chain settlement.</div>
         </div>
         <div class="concept-card" style="border-color:rgba(245,158,11,.3)">
-          <div class="cc-icon">&#x1F512;</div>
-          <div class="cc-title">multisig_custody</div>
-          <div class="cc-desc">Stellar-native multisig for the self-custody <a href="../wallet.html" style="color:var(--accent2)">wallet</a>. Configures signer weights &amp; thresholds per HD account.</div>
+          <div class="cc-icon">&#x1F4B0;</div>
+          <div class="cc-title">token</div>
+          <div class="cc-desc">OLIGHFT token contract using <code>soroban-token-sdk</code>. Manages minting, transfers, and balances for the <a href="../wallet.html" style="color:var(--accent2)">wallet</a>.</div>
         </div>
       </div>
     </div>
@@ -881,7 +891,7 @@ test test::test_all_tiers_apy  ... <span class="attr">ok</span>
         <div class="concept-card" style="border-color:rgba(34,197,94,.3)">
           <div class="cc-icon">&#x1F9EA;</div>
           <div class="cc-title">--workspace Flag</div>
-          <div class="cc-desc"><code>cargo test --workspace</code> runs tests for <strong>all</strong> OLIGHFT contracts simultaneously &mdash; hello_world, card_staking, token_swap, and multisig_custody.</div>
+          <div class="cc-desc"><code>cargo test --workspace</code> runs tests for <strong>all</strong> 8 OLIGHFT crates simultaneously &mdash; sdk, cli, token, staking, card_staking, swap_amm, payment, and invite.</div>
         </div>
       </div>
 
@@ -945,18 +955,21 @@ test test::test_all_tiers_apy  ... <span class="attr">ok</span>
       </div>
 
       <h3 style="margin-top:24px"><span class="h-icon">&#x1F310;</span> OLIGHFT &mdash; Building All Contracts</h3>
-      <p>The OLIGHFT platform builds <span class="hl">4 contracts</span> in one command using the workspace. Each produces its own <code>.wasm</code> artifact:</p>
+      <p>The OLIGHFT platform builds <span class="hl">8 crates</span> in one command using the workspace. Each contract produces its own <code>.wasm</code> artifact:</p>
 
       <div class="cmd"><span class="prompt">$</span> stellar contract build</div>
 
-      <p>Since all contracts are workspace members, this single command builds every one. The output tree looks like:</p>
+      <p>Since all crates are workspace members, this single command builds every one. The output tree looks like:</p>
 
       <div class="file-tree">
 <span class="ft-dir">target/wasm32v1-none/release/</span>
-&#x251C;&#x2500;&#x2500; <span class="ft-file">hello_world.wasm</span>         <span class="ft-note">&#x2605; This tutorial</span>
-&#x251C;&#x2500;&#x2500; <span class="ft-file" style="color:var(--purple)">olighft_card_staking.wasm</span> <span class="ft-note">&larr; 6-tier staking logic</span>
-&#x251C;&#x2500;&#x2500; <span class="ft-file" style="color:var(--cyan)">olighft_token_swap.wasm</span>   <span class="ft-note">&larr; Atomic swap engine</span>
-&#x2514;&#x2500;&#x2500; <span class="ft-file" style="color:var(--orange)">multisig_custody.wasm</span>     <span class="ft-note">&larr; Multisig manager</span>
+&#x251C;&#x2500;&#x2500; <span class="ft-file">hello_world.wasm</span>              <span class="ft-note">&#x2605; This tutorial</span>
+&#x251C;&#x2500;&#x2500; <span class="ft-file" style="color:var(--purple)">olighft_card_staking.wasm</span>    <span class="ft-note">&larr; 6-tier staking logic</span>
+&#x251C;&#x2500;&#x2500; <span class="ft-file" style="color:var(--cyan)">olighft_swap_amm.wasm</span>        <span class="ft-note">&larr; AMM swap engine</span>
+&#x251C;&#x2500;&#x2500; <span class="ft-file" style="color:var(--green)">olighft_token.wasm</span>           <span class="ft-note">&larr; Token contract</span>
+&#x251C;&#x2500;&#x2500; <span class="ft-file">olighft_staking.wasm</span>         <span class="ft-note">&larr; Core staking</span>
+&#x251C;&#x2500;&#x2500; <span class="ft-file">olighft_payment.wasm</span>         <span class="ft-note">&larr; Payment processing</span>
+&#x2514;&#x2500;&#x2500; <span class="ft-file" style="color:var(--orange)">olighft_invite.wasm</span>          <span class="ft-note">&larr; Referral system</span>
       </div>
 
       <h3><span class="h-icon">&#x1F680;</span> Deploy to Stellar Testnet</h3>
@@ -988,8 +1001,8 @@ test test::test_all_tiers_apy  ... <span class="attr">ok</span>
         </div>
         <div class="concept-card" style="border-color:rgba(236,72,153,.3)">
           <div class="cc-icon">&#x1F4B0;</div>
-          <div class="cc-title">Token Contracts</div>
-          <div class="cc-desc">XLM, USDC, wETH, wBTC, EURC &mdash; the 5 tokens on the <a href="../swap.html" style="color:var(--accent2)">swap</a> and <a href="../wallet.html" style="color:var(--accent2)">wallet</a> pages are Stellar assets that the staking contract interacts with.</div>
+          <div class="cc-title">Token Contract</div>
+          <div class="cc-desc">The <code>olighft-token</code> contract manages OLIGHFT supply. XLM, USDC, wETH, wBTC, EURC on the <a href="../swap.html" style="color:var(--accent2)">swap</a> and <a href="../wallet.html" style="color:var(--accent2)">wallet</a> pages are Stellar assets the contracts interact with.</div>
         </div>
         <div class="concept-card" style="border-color:rgba(236,72,153,.3)">
           <div class="cc-icon">&#x1F6E1;&#xFE0F;</div>
@@ -1088,10 +1101,13 @@ ls -lh <span class="str">"$WASM_DIR"</span>/*.optimized.wasm</pre>
 
       <div class="file-tree">
 <span class="ft-dir">target/wasm32v1-none/release/</span>
-&#x251C;&#x2500;&#x2500; <span class="ft-file">hello_world.optimized.wasm</span>          <span class="ft-note">~8 KB</span>
-&#x251C;&#x2500;&#x2500; <span class="ft-file" style="color:var(--purple)">olighft_card_staking.optimized.wasm</span>  <span class="ft-note">~18 KB</span>
-&#x251C;&#x2500;&#x2500; <span class="ft-file" style="color:var(--cyan)">olighft_token_swap.optimized.wasm</span>    <span class="ft-note">~22 KB</span>
-&#x2514;&#x2500;&#x2500; <span class="ft-file" style="color:var(--orange)">multisig_custody.optimized.wasm</span>      <span class="ft-note">~15 KB</span>
+&#x251C;&#x2500;&#x2500; <span class="ft-file">hello_world.optimized.wasm</span>                <span class="ft-note">~8 KB</span>
+&#x251C;&#x2500;&#x2500; <span class="ft-file" style="color:var(--purple)">olighft_card_staking.optimized.wasm</span>      <span class="ft-note">~18 KB</span>
+&#x251C;&#x2500;&#x2500; <span class="ft-file" style="color:var(--cyan)">olighft_swap_amm.optimized.wasm</span>          <span class="ft-note">~22 KB</span>
+&#x251C;&#x2500;&#x2500; <span class="ft-file" style="color:var(--green)">olighft_token.optimized.wasm</span>             <span class="ft-note">~12 KB</span>
+&#x251C;&#x2500;&#x2500; <span class="ft-file">olighft_staking.optimized.wasm</span>            <span class="ft-note">~14 KB</span>
+&#x251C;&#x2500;&#x2500; <span class="ft-file">olighft_payment.optimized.wasm</span>            <span class="ft-note">~10 KB</span>
+&#x2514;&#x2500;&#x2500; <span class="ft-file" style="color:var(--orange)">olighft_invite.optimized.wasm</span>            <span class="ft-note">~9 KB</span>
       </div>
 
       <h3><span class="h-icon">&#x1F4CA;</span> OLIGHFT Contract Sizes</h3>
@@ -1118,16 +1134,28 @@ ls -lh <span class="str">"$WASM_DIR"</span>/*.optimized.wasm</pre>
             <td style="padding:8px;font-size:.82rem"><a href="../card-gold.html" style="color:var(--accent2);font-size:.82rem">6 Card Tiers</a></td>
           </tr>
           <tr style="border-bottom:1px solid var(--border)">
-            <td style="padding:8px;font-size:.82rem">token_swap</td>
+            <td style="padding:8px;font-size:.82rem">swap_amm</td>
             <td style="padding:8px;font-size:.82rem;text-align:right;color:var(--orange)">45 KB</td>
             <td style="padding:8px;font-size:.82rem;text-align:right;color:var(--green)">22 KB</td>
             <td style="padding:8px;font-size:.82rem"><a href="../swap.html" style="color:var(--accent2);font-size:.82rem">Swap Page</a></td>
           </tr>
+          <tr style="border-bottom:1px solid var(--border)">
+            <td style="padding:8px;font-size:.82rem">token</td>
+            <td style="padding:8px;font-size:.82rem;text-align:right;color:var(--orange)">28 KB</td>
+            <td style="padding:8px;font-size:.82rem;text-align:right;color:var(--green)">12 KB</td>
+            <td style="padding:8px;font-size:.82rem"><a href="../wallet.html" style="color:var(--accent2);font-size:.82rem">Token Supply</a></td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border)">
+            <td style="padding:8px;font-size:.82rem">payment</td>
+            <td style="padding:8px;font-size:.82rem;text-align:right;color:var(--orange)">22 KB</td>
+            <td style="padding:8px;font-size:.82rem;text-align:right;color:var(--green)">10 KB</td>
+            <td style="padding:8px;font-size:.82rem"><a href="../send.html" style="color:var(--accent2);font-size:.82rem">Send / Receive</a></td>
+          </tr>
           <tr>
-            <td style="padding:8px;font-size:.82rem">multisig_custody</td>
-            <td style="padding:8px;font-size:.82rem;text-align:right;color:var(--orange)">32 KB</td>
-            <td style="padding:8px;font-size:.82rem;text-align:right;color:var(--green)">15 KB</td>
-            <td style="padding:8px;font-size:.82rem"><a href="../wallet.html" style="color:var(--accent2);font-size:.82rem">Wallet Multisig</a></td>
+            <td style="padding:8px;font-size:.82rem">invite</td>
+            <td style="padding:8px;font-size:.82rem;text-align:right;color:var(--orange)">20 KB</td>
+            <td style="padding:8px;font-size:.82rem;text-align:right;color:var(--green)">9 KB</td>
+            <td style="padding:8px;font-size:.82rem"><a href="../invite.html" style="color:var(--accent2);font-size:.82rem">Referral System</a></td>
           </tr>
         </tbody>
       </table>
@@ -1183,7 +1211,7 @@ ls -lh <span class="str">"$WASM_DIR"</span>/*.optimized.wasm</pre>
         <div class="concept-card" style="border-color:rgba(34,197,94,.3);cursor:pointer">
           <div class="cc-icon">&#x2699;&#xFE0F;</div>
           <div class="cc-title">Step 3 &mdash; Configured Cargo</div>
-          <div class="cc-desc">Workspace manifests, release profiles, and per-contract configs for <span style="color:var(--purple)">card_staking</span>, <span style="color:var(--cyan)">token_swap</span> &amp; <span style="color:var(--orange)">multisig_custody</span></div>
+          <div class="cc-desc">Workspace manifests, release profiles, and per-contract configs for <span style="color:var(--purple)">card_staking</span>, <span style="color:var(--cyan)">swap_amm</span>, <span style="color:var(--green)">token</span>, <span style="color:var(--orange)">invite</span> &amp; more</div>
         </div></a>
         <a href="#source" onclick="document.getElementById('source').classList.add('open')" style="text-decoration:none">
         <div class="concept-card" style="border-color:rgba(34,197,94,.3);cursor:pointer">
@@ -1195,19 +1223,19 @@ ls -lh <span class="str">"$WASM_DIR"</span>/*.optimized.wasm</pre>
         <div class="concept-card" style="border-color:rgba(34,197,94,.3);cursor:pointer">
           <div class="cc-icon">&#x1F9EA;</div>
           <div class="cc-title">Step 5 &mdash; Tested Everything</div>
-          <div class="cc-desc"><code>mock_all_auths()</code>, per-tier APY verification, <code>cargo test --workspace</code> for all 4 contracts</div>
+          <div class="cc-desc"><code>mock_all_auths()</code>, per-tier APY verification, <code>cargo test --workspace</code> for all 8 crates</div>
         </div></a>
         <a href="#build" onclick="document.getElementById('build').classList.add('open')" style="text-decoration:none">
         <div class="concept-card" style="border-color:rgba(34,197,94,.3);cursor:pointer">
           <div class="cc-icon">&#x1F528;</div>
           <div class="cc-title">Step 6 &mdash; Built &amp; Deployed</div>
-          <div class="cc-desc">4 contracts to WASM, deployed to <span style="color:var(--cyan)">Stellar Testnet</span>, invoked via CLI and connected to the platform frontend</div>
+          <div class="cc-desc">8 crates to WASM, deployed to <span style="color:var(--cyan)">Stellar Testnet</span>, invoked via CLI and connected to the platform frontend</div>
         </div></a>
         <a href="#optimize" onclick="document.getElementById('optimize').classList.add('open')" style="text-decoration:none">
         <div class="concept-card" style="border-color:rgba(34,197,94,.3);cursor:pointer">
           <div class="cc-icon">&#x26A1;</div>
           <div class="cc-title">Step 7 &mdash; Optimized</div>
-          <div class="cc-desc">Batch-optimized under 64KB: <span style="color:var(--purple)">staking 18KB</span>, <span style="color:var(--cyan)">swap 22KB</span>, <span style="color:var(--orange)">multisig 15KB</span></div>
+          <div class="cc-desc">Batch-optimized under 64KB: <span style="color:var(--purple)">staking 18KB</span>, <span style="color:var(--cyan)">swap 22KB</span>, <span style="color:var(--green)">token 12KB</span>, <span style="color:var(--orange)">invite 9KB</span></div>
         </div></a>
       </div>
 
