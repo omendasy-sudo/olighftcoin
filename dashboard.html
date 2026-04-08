@@ -733,16 +733,21 @@ function renderStakeSummary() {
   for (var i = 0; i < active.length; i++) {
     var s = active[i];
     totalStaked += s.amount || 0;
-    var elapsed = (now - new Date(s.lastCompound || s.startDate).getTime()) / 86400000;
+    var startTs = new Date(s.lastCompound || s.startDate || s.date || 0).getTime();
+    var elapsed = isNaN(startTs) ? 0 : (now - startTs) / 86400000;
+    if (elapsed < 0) elapsed = 0;
     // Use card daily compound for pending reward calculation
-    var tier = s.cardTier && CARD_TIERS[s.cardTier] ? CARD_TIERS[s.cardTier] : null;
+    var tierName = s.cardTier || s.card || '';
+    var tier = tierName && CARD_TIERS[tierName] ? CARD_TIERS[tierName] : null;
     if (tier) {
       var cardDailyOLIGHFT = tier.daily / OLIGHFT_PRICE;
       totalPending += calcCardDailyCompound(cardDailyOLIGHFT, elapsed, s.compound || 'none') + (s.reward || 0);
+    } else if (s.dailyReward && s.dailyReward > 0) {
+      totalPending += (s.dailyReward) * elapsed + (s.reward || 0);
     } else if (s.compound && s.compound !== 'none' && s.apy) {
       totalPending += calcCompoundReward(s.amount, s.apy, elapsed, s.compound) + (s.reward || 0);
     } else {
-      totalPending += (s.dailyReward || 0) * elapsed + (s.reward || 0);
+      totalPending += (s.reward || 0);
     }
     totalReserved += s.reservedFromSupply || 0;
     var apy = s.apy || 0;
@@ -1326,10 +1331,36 @@ function getWalletStakes() {
   try { ws = JSON.parse(localStorage.getItem('wallet_stakes') || '[]'); } catch(e) {}
   var cs = [];
   try { cs = JSON.parse(localStorage.getItem('card_stakes') || '[]'); } catch(e) {}
+  // Normalize card_stakes to wallet_stakes format
+  for (var j = 0; j < cs.length; j++) {
+    var c = cs[j];
+    if (!c._normalized) {
+      var OLIGHFT_P = 0.50;
+      var stakeAmt = (c.paidOLIGHFT || (c.stake || 0) / OLIGHFT_P);
+      var startD = c.date || new Date().toISOString();
+      var endD = c.period > 0 ? new Date(new Date(startD).getTime() + c.period * 86400000).toISOString() : null;
+      c.id = c.id || ('cs_' + j + '_' + new Date(startD).getTime());
+      c.asset = 'OLIGHFT';
+      c.amount = stakeAmt;
+      c.cardTier = c.card || '';
+      c.startDate = startD;
+      c.endDate = endD;
+      c.lastCompound = startD;
+      c.lockDays = c.period || 0;
+      c.dailyReward = (c.daily || 0) / OLIGHFT_P;
+      c.apy = 0;
+      c.reward = 0;
+      c.withdrawn = c.withdrawn || false;
+      c.compound = c.compound || 'none';
+      c.reservedFromSupply = c.reservedFromSupply || 0;
+      c.split = c.split || (c.referral ? { adminWallet: c.referral.mainWallet || 0, referralPool: c.referral.genTotal || 0 } : null);
+      c._normalized = true;
+    }
+  }
   var ids = {};
   for (var i = 0; i < ws.length; i++) { ids[ws[i].id] = true; }
-  for (var j = 0; j < cs.length; j++) {
-    if (!ids[cs[j].id]) { ws.push(cs[j]); }
+  for (var k = 0; k < cs.length; k++) {
+    if (!ids[cs[k].id]) { ws.push(cs[k]); }
   }
   return ws;
 }
@@ -2119,11 +2150,14 @@ function renderStakeList() {
   var html = '';
   for (var i = 0; i < stakes.length; i++) {
     var s = stakes[i];
-    var asset = s.asset || 'XLM';
+    var asset = s.asset || 'OLIGHFT';
     // Use card daily compound for pending reward
-    var elapsedDays = (now - new Date(s.lastCompound || s.startDate).getTime()) / 86400000;
+    var stTs = new Date(s.lastCompound || s.startDate || s.date || 0).getTime();
+    var elapsedDays = isNaN(stTs) ? 0 : (now - stTs) / 86400000;
+    if (elapsedDays < 0) elapsedDays = 0;
     var pending;
-    var tier = s.cardTier && CARD_TIERS[s.cardTier] ? CARD_TIERS[s.cardTier] : null;
+    var tierName = s.cardTier || s.card || '';
+    var tier = tierName && CARD_TIERS[tierName] ? CARD_TIERS[tierName] : null;
     if (tier) {
       var cardDailyOLIGHFT = tier.daily / OLIGHFT_PRICE;
       pending = calcCardDailyCompound(cardDailyOLIGHFT, elapsedDays, s.compound || 'none') + (s.reward || 0);
@@ -2132,8 +2166,9 @@ function renderStakeList() {
     } else {
       pending = (s.dailyReward || 0) * elapsedDays + (s.reward || 0);
     }
+    if (isNaN(pending)) pending = 0;
     var lockLabel = s.endDate ? Math.max(0, Math.ceil((new Date(s.endDate).getTime() - now) / 86400000)) + 'd left' : 'Flex';
-    var cardTag = s.cardTier ? ' \u00B7 ' + s.cardTier : '';
+    var cardTag = tierName ? ' \u00B7 ' + tierName : '';
     var compTag = s.compound && s.compound !== 'none' ? ' \u00B7 ' + s.compound : '';
     var cardDailyUSD = tier ? '$' + tier.daily + '/day' : (s.apy || 0).toFixed(1) + '% APY';
     var splitInfo = s.split ? ' \u00B7 \uD83C\uDFE6' + s.split.adminWallet.toFixed(0) + '/' + s.split.referralPool.toFixed(0) : '';
