@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -99,17 +99,54 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 .toast.show{transform:translateX(-50%) translateY(0);opacity:1}
 
 /* Staking Panel */
-.stake-panel{padding:20px;background:linear-gradient(135deg,rgba(242,153,74,.06),rgba(245,197,24,.04));border:1px solid rgba(242,153,74,.15);border-radius:16px;margin-bottom:22px}
-.stake-panel .sp-title{font-size:.82rem;font-weight:700;color:#f2994a;margin-bottom:14px;display:flex;align-items:center;gap:6px}
-.sp-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
-.sp-field label{display:block;font-size:.6rem;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
-.sp-field select,.sp-field input{width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(242,153,74,.12);border-radius:8px;padding:10px 12px;color:#fff;font-size:.8rem;outline:none;transition:.2s}
-.sp-field select:focus,.sp-field input:focus{border-color:rgba(242,153,74,.4);box-shadow:0 0 0 3px rgba(242,153,74,.08)}
+.stake-panel{padding:24px 22px 22px;background:linear-gradient(160deg,rgba(242,153,74,.08) 0%,rgba(245,197,24,.04) 50%,rgba(242,153,74,.06) 100%);border:1px solid rgba(242,153,74,.18);border-radius:18px;margin-bottom:22px;position:relative;overflow:hidden}
+.stake-panel::before{content:'';position:absolute;top:-60px;right:-60px;width:140px;height:140px;background:radial-gradient(circle,rgba(245,197,24,.08),transparent 70%);border-radius:50%;pointer-events:none}
+.stake-panel .sp-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.stake-panel .sp-title{font-size:.88rem;font-weight:700;color:#f2994a;display:flex;align-items:center;gap:8px;margin:0}
+.stake-panel .sp-title .sp-icon{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,rgba(242,153,74,.18),rgba(245,197,24,.12));display:flex;align-items:center;justify-content:center;font-size:.95rem}
+.sp-acts-link{font-size:.62rem;color:rgba(242,153,74,.6);cursor:pointer;transition:.2s;text-decoration:none;display:flex;align-items:center;gap:4px}
+.sp-acts-link:hover{color:#f2994a}
+.sp-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px;margin-bottom:14px}
+.sp-field{position:relative}
+.sp-field label{display:block;font-size:.6rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.6px;margin-bottom:5px;font-weight:600}
+.sp-field select,.sp-field input{width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(242,153,74,.12);border-radius:10px;padding:11px 13px;color:#fff;font-size:.8rem;outline:none;transition:.25s;-webkit-appearance:none;box-sizing:border-box}
+.sp-field select:focus,.sp-field input:focus{border-color:rgba(242,153,74,.45);box-shadow:0 0 0 3px rgba(242,153,74,.1);background:rgba(255,255,255,.06)}
+.sp-field select:hover,.sp-field input:hover{border-color:rgba(242,153,74,.25)}
 .sp-field select option{background:#111128;color:#fff}
-.sp-apy{text-align:center;padding:8px;background:rgba(242,153,74,.08);border-radius:8px;margin-bottom:12px;font-size:.78rem;font-weight:700;color:#f5c518}
-.sp-btn{width:100%;padding:12px;border:none;border-radius:12px;font-size:.85rem;font-weight:700;cursor:pointer;background:linear-gradient(135deg,#f2994a,#f5c518);color:#111;transition:.2s}
-.sp-btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(242,153,74,.3)}
+.sp-apy{text-align:center;padding:12px 14px;background:linear-gradient(135deg,rgba(242,153,74,.1),rgba(245,197,24,.06));border:1px solid rgba(245,197,24,.1);border-radius:12px;margin-bottom:14px;font-size:.8rem;font-weight:700;color:#f5c518;display:flex;align-items:center;justify-content:center;gap:6px}
+.sp-apy::before{content:'✨';font-size:.7rem}
+.sp-btn{width:100%;padding:13px 16px;border:none;border-radius:13px;font-size:.86rem;font-weight:700;cursor:pointer;background:linear-gradient(135deg,#f2994a,#f5c518);color:#111;transition:.25s;letter-spacing:.2px;position:relative;overflow:hidden}
+.sp-btn::after{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.15),transparent);transition:.5s}
+.sp-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(242,153,74,.35)}
+.sp-btn:hover::after{left:100%}
+.sp-btn:active{transform:translateY(0);box-shadow:0 2px 8px rgba(242,153,74,.2)}
 .sp-btn:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
+.sp-btn:disabled::after{display:none}
+.sf-step{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:48px;padding:8px 4px;border-radius:10px;border:2px solid rgba(255,255,255,.06);background:rgba(255,255,255,.02);transition:.4s}
+.sf-step .sf-icon{font-size:1.1rem;transition:.3s}
+.sf-step .sf-lbl{font-size:.55rem;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.5px;font-weight:600;transition:.3s}
+.sf-arrow{color:rgba(255,255,255,.15);font-size:.9rem;font-weight:700;transition:.3s}
+.sf-step.sf-active{border-color:rgba(245,197,24,.5);background:rgba(245,197,24,.1);box-shadow:0 0 16px rgba(245,197,24,.15);animation:sfPulse 1.2s infinite}
+.sf-step.sf-active .sf-lbl{color:#f5c518}
+.sf-step.sf-done{border-color:rgba(39,174,96,.4);background:rgba(39,174,96,.08)}
+.sf-step.sf-done .sf-lbl{color:#27ae60}
+.sf-step.sf-fail{border-color:rgba(235,87,87,.5);background:rgba(235,87,87,.08)}
+.sf-step.sf-fail .sf-lbl{color:#eb5757}
+.sf-arrow.sf-lit{color:rgba(39,174,96,.7)}
+@keyframes sfPulse{0%,100%{box-shadow:0 0 8px rgba(245,197,24,.1)}50%{box-shadow:0 0 20px rgba(245,197,24,.3)}}
+/* Card Shortcut Tiles */
+.csc-tile{display:block;text-decoration:none;padding:10px 8px;border-radius:10px;border:1px solid rgba(255,255,255,.06);transition:.25s;cursor:pointer}
+.csc-tile:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,0,0,.3);filter:brightness(1.15)}
+.csc-name{font-size:.65rem;font-weight:700;color:#f5c518;margin-bottom:5px;text-align:center}
+.csc-row{display:flex;justify-content:space-between;font-size:.55rem;color:rgba(255,255,255,.45);padding:1px 0}
+.csc-row b{color:rgba(255,255,255,.75);font-size:.55rem}
+.csc-boost{text-align:center;font-size:.5rem;color:#f39c12;margin-top:4px;font-weight:600;letter-spacing:.3px}
+.csc-tile .csc-active{display:none;text-align:center;font-size:.48rem;color:#27ae60;font-weight:700;margin-top:3px}
+.csc-tile.has-active .csc-active{display:block}
+.csc-tile .csc-sel{display:none;text-align:center;font-size:.5rem;color:#f5c518;font-weight:700;margin-top:4px}
+.csc-tile.csc-selected{border-color:rgba(245,197,24,.6)!important;box-shadow:0 0 16px rgba(245,197,24,.2);transform:scale(1.03)}
+.csc-tile.csc-selected .csc-sel{display:block}
+.csc-tile:not(.has-active):not(.csc-selected)::after{content:'Select \2192';display:block;text-align:center;font-size:.48rem;color:rgba(242,153,74,.7);margin-top:4px;font-weight:600}
 
 /* Active Stakes List */
 .stake-list{margin-bottom:22px}
@@ -124,13 +161,28 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 .stk-item .si-reward{font-size:.6rem;color:#27ae60;margin-top:2px}
 .withdraw-btn{padding:5px 12px;border-radius:6px;border:1px solid rgba(235,87,87,.2);background:none;color:rgba(235,87,87,.7);font-size:.6rem;font-weight:600;cursor:pointer;transition:.2s;margin-top:4px}
 .withdraw-btn:hover{border-color:#eb5757;color:#eb5757}
+/* Recent Staking Feed */
+.rsf-item{display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:10px;margin-bottom:5px;transition:.2s;animation:rsfSlide .4s ease}
+.rsf-item:hover{border-color:rgba(245,197,24,.15)}
+.rsf-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0}
+.rsf-icon.staked{background:rgba(245,197,24,.12)}
+.rsf-icon.unstaked{background:rgba(39,174,96,.12)}
+.rsf-body{flex:1;min-width:0}
+.rsf-title{font-size:.7rem;font-weight:600;color:rgba(255,255,255,.85)}
+.rsf-detail{font-size:.55rem;color:rgba(255,255,255,.35);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rsf-right{text-align:right;flex-shrink:0}
+.rsf-amt{font-size:.72rem;font-weight:700}
+.rsf-amt.red{color:#eb5757}
+.rsf-amt.green{color:#27ae60}
+.rsf-time{font-size:.48rem;color:rgba(255,255,255,.25);margin-top:2px}
+@keyframes rsfSlide{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
 
 /* Card Badge */
-.card-badge{display:flex;align-items:center;gap:6px;padding:8px 12px;border-radius:10px;font-size:.7rem;font-weight:600;margin-bottom:12px}
-.card-badge.active{background:rgba(39,174,96,.08);border:1px solid rgba(39,174,96,.15);color:#27ae60}
-.card-badge.none{background:rgba(243,156,18,.06);border:1px solid rgba(243,156,18,.12);color:#f39c12}
-.card-badge .cb-icon{font-size:1rem}
-.card-badge .cb-tier{padding:2px 8px;border-radius:5px;font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px}
+.card-badge{display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:12px;font-size:.72rem;font-weight:600;margin-bottom:14px;transition:.25s}
+.card-badge.active{background:linear-gradient(135deg,rgba(39,174,96,.08),rgba(39,174,96,.04));border:1px solid rgba(39,174,96,.18);color:#27ae60}
+.card-badge.none{background:linear-gradient(135deg,rgba(243,156,18,.06),rgba(243,156,18,.03));border:1px dashed rgba(243,156,18,.2);color:#f39c12}
+.card-badge .cb-icon{font-size:1.1rem;flex-shrink:0}
+.card-badge .cb-tier{padding:3px 10px;border-radius:6px;font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
 .card-badge.active .cb-tier{background:rgba(39,174,96,.15);color:#27ae60}
 .card-badge .cb-daily{margin-left:auto;font-size:.65rem;color:rgba(255,255,255,.5)}
 .card-badge .cb-daily b{color:#f5c518}
@@ -167,6 +219,8 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
   .actions{grid-template-columns:repeat(2,1fr)}
   .bal-card .bl-amount{font-size:1.8rem}
   .sp-grid{grid-template-columns:1fr}
+  .stake-panel{padding:18px 16px 16px}
+  .sp-apy{font-size:.72rem;padding:10px 12px}
 }
 /* ── Add Liquidity (Dashboard) ── */
 .lp-panel{padding:20px;background:linear-gradient(135deg,rgba(39,174,96,.06),rgba(46,204,113,.04));border:1px solid rgba(39,174,96,.15);border-radius:16px;margin-bottom:22px}
@@ -281,10 +335,13 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 <!-- Staking Panel -->
 <div class="section-label">&#x26CF;&#xFE0F; OLIGHFT Staking</div>
 <div class="stake-panel">
-  <div class="sp-title">&#x1F4C8; Stake OLIGHFT &amp; Earn</div>
+  <div class="sp-header">
+    <div class="sp-title"><span class="sp-icon">&#x1F4C8;</span> Stake OLIGHFT &amp; Earn</div>
+    <a class="sp-acts-link" onclick="document.getElementById('stakeSummary').style.display=document.getElementById('stakeSummary').style.display==='none'?'block':'none';document.getElementById('stakeList').style.display=document.getElementById('stakeList').style.display==='none'?'block':'none';this.querySelector('.sp-acts-arrow').textContent=document.getElementById('stakeSummary').style.display==='none'?'&#x25BC;':'&#x25B2;'">&#x26CF;&#xFE0F; Stake Activities <span class="sp-acts-arrow">&#x25BC;</span></a>
+  </div>
   <div class="card-badge none" id="cardBadge">
     <span class="cb-icon">&#x1F4B3;</span>
-    <span id="cbText">No active card &mdash; activate one to start staking</span>
+    <span id="cbText">Select a card below to start staking</span>
     <span class="cb-tier" id="cbTier" style="display:none"></span>
     <span class="cb-daily" id="cbDaily"></span>
   </div>
@@ -292,34 +349,146 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
     <div class="sp-field">
       <label>Amount (OLIGHFT)</label>
       <input type="number" id="skAmount" placeholder="0.00" min="0" step="any" oninput="updateApy()">
-      <div style="font-size:.55rem;color:rgba(255,255,255,.3);margin-top:3px;cursor:pointer" id="skBalLabel" onclick="setStakeMax()">Balance: 0 OLIGHFT</div>
+      <div style="font-size:.52rem;color:rgba(245,197,24,.5);margin-top:3px;display:none" id="skFixedNote">&#x1F512; Fixed stake for this card tier</div>
+      <div style="font-size:.58rem;color:rgba(255,255,255,.35);margin-top:4px;cursor:pointer;display:flex;align-items:center;gap:4px" id="skBalLabel" onclick="setStakeMax()">&#x1F4B0; Balance: <b style="color:#f5c518;margin-left:2px">0 OLIGHFT</b></div>
     </div>
     <div class="sp-field">
       <label>Lock Period</label>
       <select id="skPeriod" onchange="updateApy()">
-        <option value="0">Flexible</option>
-        <option value="30">30 Days (+1.5%)</option>
-        <option value="90">90 Days (+3.5%)</option>
-        <option value="180">180 Days (+6%)</option>
-        <option value="365">365 Days (+10%)</option>
+        <option value="0">&#x1F513; Flexible</option>
+        <option value="30">&#x1F512; 30 Days (+1.5%)</option>
+        <option value="90">&#x1F512; 90 Days (+3.5%)</option>
+        <option value="180">&#x1F512; 180 Days (+6%)</option>
+        <option value="365">&#x1F512; 365 Days (+10%)</option>
       </select>
     </div>
     <div class="sp-field">
       <label>Compound</label>
       <select id="skCompound" onchange="updateApy()">
-        <option value="none">None</option>
-        <option value="daily">Daily (+2.4%)</option>
-        <option value="weekly">Weekly (+1.2%)</option>
-        <option value="monthly">Monthly (+0.5%)</option>
+        <option value="none">&#x274C; None</option>
+        <option value="daily">&#x1F504; Daily (+2.4%)</option>
+        <option value="weekly">&#x1F504; Weekly (+1.2%)</option>
+        <option value="monthly">&#x1F504; Monthly (+0.5%)</option>
       </select>
     </div>
     <div class="sp-field">
       <label>Staking Via</label>
-      <div id="skCardLabel" style="padding:10px 12px;background:rgba(255,255,255,.04);border:1px solid rgba(242,153,74,.12);border-radius:8px;font-size:.8rem;color:rgba(255,255,255,.4)">No card active</div>
+      <select id="dashCardSelect" onchange="onCardDropdownChange()" style="width:100%;padding:11px 13px;border-radius:10px;border:1px solid rgba(242,153,74,.12);background:rgba(0,0,0,.2);color:#fff;font-size:.8rem;outline:none">
+        <option value="">&#x1F4B3; Select a card below</option>
+      </select>
+      <div style="font-size:.58rem;color:rgba(255,255,255,.3);margin-top:4px" id="dashCardHint">Tap a card to select it for staking</div>
+      <!-- Card Shortcut Tiles -->
+      <div id="cardShortcuts" style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:10px">
+        <div class="csc-tile" data-card="Mastercard" data-href="card-mastercard.html" onclick="selectCardTile(this)" style="background:linear-gradient(135deg,rgba(235,87,87,.08),rgba(235,87,87,.02));border-color:rgba(235,87,87,.2)">
+          <div class="csc-name">&#x1F4B3; Mastercard</div>
+          <div class="csc-row"><span>Stake</span><b>$50</b></div>
+          <div class="csc-row"><span>Daily</span><b style="color:#27ae60">$4</b></div>
+          <div class="csc-row"><span>Fee</span><b>$20</b></div>
+          <div class="csc-boost">+0.5% boost</div>
+          <div class="csc-active"></div>
+          <div class="csc-sel">&#x2714; Selected</div>
+        </div>
+        <div class="csc-tile" data-card="Visa" data-href="card-visa.html" onclick="selectCardTile(this)" style="background:linear-gradient(135deg,rgba(99,102,241,.08),rgba(99,102,241,.02));border-color:rgba(99,102,241,.2)">
+          <div class="csc-name">&#x1F4B3; Visa</div>
+          <div class="csc-row"><span>Stake</span><b>$100</b></div>
+          <div class="csc-row"><span>Daily</span><b style="color:#27ae60">$6</b></div>
+          <div class="csc-row"><span>Fee</span><b>$40</b></div>
+          <div class="csc-boost">+1.0% boost</div>
+          <div class="csc-active"></div>
+          <div class="csc-sel">&#x2714; Selected</div>
+        </div>
+        <div class="csc-tile" data-card="Amex" data-href="card-amex.html" onclick="selectCardTile(this)" style="background:linear-gradient(135deg,rgba(45,156,219,.08),rgba(45,156,219,.02));border-color:rgba(45,156,219,.2)">
+          <div class="csc-name">&#x1F4B3; Amex</div>
+          <div class="csc-row"><span>Stake</span><b>$200</b></div>
+          <div class="csc-row"><span>Daily</span><b style="color:#27ae60">$12</b></div>
+          <div class="csc-row"><span>Fee</span><b>$80</b></div>
+          <div class="csc-boost">+1.2% boost</div>
+          <div class="csc-active"></div>
+          <div class="csc-sel">&#x2714; Selected</div>
+        </div>
+        <div class="csc-tile" data-card="Platinum" data-href="card-platinum.html" onclick="selectCardTile(this)" style="background:linear-gradient(135deg,rgba(189,195,199,.08),rgba(189,195,199,.02));border-color:rgba(189,195,199,.2)">
+          <div class="csc-name">&#x1F4B3; Platinum</div>
+          <div class="csc-row"><span>Stake</span><b>$300</b></div>
+          <div class="csc-row"><span>Daily</span><b style="color:#27ae60">$18</b></div>
+          <div class="csc-row"><span>Fee</span><b>$120</b></div>
+          <div class="csc-boost">+1.5% boost</div>
+          <div class="csc-active"></div>
+          <div class="csc-sel">&#x2714; Selected</div>
+        </div>
+        <div class="csc-tile" data-card="Gold" data-href="card-gold.html" onclick="selectCardTile(this)" style="background:linear-gradient(135deg,rgba(245,197,24,.08),rgba(245,197,24,.02));border-color:rgba(245,197,24,.2)">
+          <div class="csc-name">&#x1F4B3; Gold</div>
+          <div class="csc-row"><span>Stake</span><b>$400</b></div>
+          <div class="csc-row"><span>Daily</span><b style="color:#27ae60">$24</b></div>
+          <div class="csc-row"><span>Fee</span><b>$160</b></div>
+          <div class="csc-boost">+2.0% boost</div>
+          <div class="csc-active"></div>
+          <div class="csc-sel">&#x2714; Selected</div>
+        </div>
+        <div class="csc-tile" data-card="Black" data-href="card-black.html" onclick="selectCardTile(this)" style="background:linear-gradient(135deg,rgba(255,255,255,.06),rgba(255,255,255,.01));border-color:rgba(255,255,255,.15)">
+          <div class="csc-name">&#x1F4B3; Black</div>
+          <div class="csc-row"><span>Stake</span><b>$500</b></div>
+          <div class="csc-row"><span>Daily</span><b style="color:#27ae60">$30</b></div>
+          <div class="csc-row"><span>Fee</span><b>$200</b></div>
+          <div class="csc-boost">+3.0% boost</div>
+          <div class="csc-active"></div>
+          <div class="csc-sel">&#x2714; Selected</div>
+        </div>
+      </div>
     </div>
   </div>
   <div class="sp-apy" id="spApy">12.0% APY &mdash; Est. reward: 0.00 OLIGHFT</div>
-  <button class="sp-btn" id="stakeBtn" onclick="handleStakeBtn()">&#x26CF;&#xFE0F; Activate a Card to Stake</button>
+  <div class="sp-supply" style="text-align:center;padding:6px 10px;background:rgba(39,174,96,.06);border:1px solid rgba(39,174,96,.1);border-radius:8px;margin-bottom:12px;font-size:.65rem;color:rgba(255,255,255,.5);display:flex;align-items:center;justify-content:center;gap:8px">
+    <span>&#x1F4E6; Supply Pool:</span>
+    <span id="supplyRemaining" style="font-weight:700;color:#27ae60">Loading...</span>
+    <div style="flex:1;max-width:80px;height:4px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden"><div id="supplyBar" style="height:100%;background:linear-gradient(90deg,#27ae60,#f5c518);border-radius:2px;width:100%;transition:.4s"></div></div>
+  </div>
+  <button class="sp-btn" id="stakeBtn" onclick="handleStakeBtn()">&#x26CF;&#xFE0F; Start Staking</button>
+
+  <!-- Staking Flow Progress -->
+  <div id="stakeFlowBox" style="display:none;margin-top:14px;background:rgba(0,0,0,.35);border:1px solid rgba(245,197,24,.15);border-radius:14px;padding:18px 16px;position:relative;overflow:hidden">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:4px" id="stakeFlowSteps">
+      <div class="sf-step" id="sf-1" data-label="Sender">
+        <div class="sf-icon">&#x1F464;</div>
+        <div class="sf-lbl">Auth</div>
+      </div>
+      <div class="sf-arrow">&#x2192;</div>
+      <div class="sf-step" id="sf-2" data-label="Validate">
+        <div class="sf-icon">&#x1F4DD;</div>
+        <div class="sf-lbl">Validate</div>
+      </div>
+      <div class="sf-arrow">&#x2192;</div>
+      <div class="sf-step" id="sf-3" data-label="Convert">
+        <div class="sf-icon">&#x1F4B1;</div>
+        <div class="sf-lbl">Convert</div>
+      </div>
+      <div class="sf-arrow">&#x2192;</div>
+      <div class="sf-step" id="sf-4" data-label="Settle">
+        <div class="sf-icon">&#x1F4E8;</div>
+        <div class="sf-lbl">Settle</div>
+      </div>
+      <div class="sf-arrow">&#x2192;</div>
+      <div class="sf-step" id="sf-5" data-label="Receipt">
+        <div class="sf-icon">&#x2705;</div>
+        <div class="sf-lbl">Receipt</div>
+      </div>
+    </div>
+    <div id="sfStatus" style="text-align:center;font-size:.68rem;color:rgba(255,255,255,.5);margin-top:10px">Initializing&hellip;</div>
+  </div>
+
+  <!-- Receipt Modal -->
+  <div id="receiptModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.75);z-index:9999;align-items:center;justify-content:center">
+    <div style="background:#1a1a2e;border:2px solid rgba(245,197,24,.3);border-radius:18px;padding:28px 22px;max-width:400px;width:90%;margin:auto;position:relative;top:50%;transform:translateY(-50%)">
+      <div style="text-align:center;font-size:1.8rem;margin-bottom:6px">&#x2705;</div>
+      <div style="text-align:center;font-size:.95rem;font-weight:700;color:#f5c518;margin-bottom:14px">Stake Confirmed</div>
+      <div id="receiptBody" style="font-size:.72rem;color:rgba(255,255,255,.7);line-height:1.7"></div>
+      <div style="border-top:1px solid rgba(255,255,255,.08);margin:14px 0"></div>
+      <div id="receiptTx" style="font-size:.6rem;color:rgba(255,255,255,.3);word-break:break-all;margin-bottom:14px"></div>
+      <div style="display:flex;gap:8px">
+        <button onclick="saveReceipt()" style="flex:1;padding:12px;border:none;border-radius:10px;background:linear-gradient(135deg,#27ae60,#2ecc71);color:#fff;font-weight:700;font-size:.82rem;cursor:pointer">&#x1F4BE; Save Receipt</button>
+        <button onclick="document.getElementById('receiptModal').style.display='none'" style="flex:1;padding:12px;border:none;border-radius:10px;background:linear-gradient(135deg,#f5c518,#f39c12);color:#000;font-weight:700;font-size:.82rem;cursor:pointer">Close Receipt</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- Active Stakes -->
@@ -330,9 +499,14 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
   </div>
   <div class="ss-row"><span class="ss-lbl">Active Stakes</span><span class="ss-val" id="ssCount">0</span></div>
   <div class="ss-row"><span class="ss-lbl">Total Staked</span><span class="ss-val" id="ssTotalStaked">0</span></div>
-  <div class="ss-row"><span class="ss-lbl">Pending Rewards</span><span class="ss-val" id="ssPending">0</span></div>
+  <div class="ss-row"><span class="ss-lbl">Pending Rewards (compound)</span><span class="ss-val" id="ssPending" style="color:#f5c518">0</span></div>
+  <div class="ss-row"><span class="ss-lbl">Reserved from Supply</span><span class="ss-val" id="ssSupplyReserved" style="color:#27ae60">0</span></div>
 </div>
 <div class="stake-list" id="stakeList"></div>
+
+<!-- Recent Staking Activity -->
+<div class="section-label">&#x1F55C; Recent Staking</div>
+<div id="recentStakeFeed" style="margin-bottom:18px"></div>
 
 <!-- Quick Swap -->
 <div class="section-label">&#x1F504; Quick Swap</div>
@@ -448,7 +622,10 @@ var DEFAULT_BALS = { XLM: 10000, USDC: 2500, wETH: 1.85, wBTC: 0.042, EURC: 1200
   updateTotalBalance(bals);
   try { renderStakeSummary(); } catch(e) { console.warn('stakeSummary:', e); }
   try { renderStakeList(); } catch(e) { console.warn('stakeList:', e); }
+  try { renderRecentStakes(); } catch(e) { console.warn('recentStakes:', e); }
+  try { populateCardSelect(); } catch(e) { console.warn('populateCardSelect:', e); }
   try { updateApy(); } catch(e) { console.warn('updateApy:', e); }
+  try { updateSupplyDisplay(); } catch(e) { console.warn('supplyDisplay:', e); }
 })();
 
 function renderPricesOnly() {
@@ -513,6 +690,41 @@ function updateTotalBalance(bals) {
   }
 }
 
+function renderRecentStakes() {
+  var feed = document.getElementById('recentStakeFeed');
+  if (!feed) return;
+  var al = [];
+  try { al = JSON.parse(localStorage.getItem('cw_activity') || '[]'); } catch(e) {}
+  // Filter only staking-related entries, show up to 8
+  var stakeItems = al.filter(function(a) {
+    return a.type === 'Staked' || a.type === 'Unstaked';
+  }).slice(0, 8);
+  if (stakeItems.length === 0) {
+    feed.innerHTML = '<div style="text-align:center;padding:16px;font-size:.65rem;color:rgba(255,255,255,.25)">No staking activity yet — select a card above to start</div>';
+    return;
+  }
+  var html = '';
+  for (var i = 0; i < stakeItems.length; i++) {
+    var a = stakeItems[i];
+    var isStake = a.type === 'Staked';
+    var elapsed = Date.now() - (a.ts || 0);
+    var timeAgo = elapsed < 60000 ? 'Just now' : elapsed < 3600000 ? Math.floor(elapsed / 60000) + 'm ago' : elapsed < 86400000 ? Math.floor(elapsed / 3600000) + 'h ago' : Math.floor(elapsed / 86400000) + 'd ago';
+    html +=
+      '<div class="rsf-item">' +
+        '<div class="rsf-icon ' + (isStake ? 'staked' : 'unstaked') + '">' + (a.icon || (isStake ? '\uD83D\uDCC8' : '\uD83D\uDCB0')) + '</div>' +
+        '<div class="rsf-body">' +
+          '<div class="rsf-title">' + a.type + '</div>' +
+          '<div class="rsf-detail">' + (a.detail || '') + '</div>' +
+        '</div>' +
+        '<div class="rsf-right">' +
+          '<div class="rsf-amt ' + (a.cls || '') + '">' + (a.amt || '') + '</div>' +
+          '<div class="rsf-time">' + timeAgo + '</div>' +
+        '</div>' +
+      '</div>';
+  }
+  feed.innerHTML = html;
+}
+
 function renderStakeSummary() {
   var stakes = [];
   try { stakes = JSON.parse(localStorage.getItem('wallet_stakes') || '[]'); } catch(e) {}
@@ -522,20 +734,48 @@ function renderStakeSummary() {
   document.getElementById('stakeSummary').style.display = 'block';
   var totalStaked = 0;
   var totalPending = 0;
+  var totalReserved = 0;
   var maxApy = 0;
   var now = Date.now();
   for (var i = 0; i < active.length; i++) {
     var s = active[i];
     totalStaked += s.amount || 0;
     var elapsed = (now - new Date(s.lastCompound || s.startDate).getTime()) / 86400000;
-    totalPending += (s.dailyReward || 0) * elapsed + (s.reward || 0);
+    // Use card daily compound for pending reward calculation
+    var tier = s.cardTier && CARD_TIERS[s.cardTier] ? CARD_TIERS[s.cardTier] : null;
+    if (tier) {
+      var cardDailyOLIGHFT = tier.daily / OLIGHFT_PRICE;
+      totalPending += calcCardDailyCompound(cardDailyOLIGHFT, elapsed, s.compound || 'none') + (s.reward || 0);
+    } else if (s.compound && s.compound !== 'none' && s.apy) {
+      totalPending += calcCompoundReward(s.amount, s.apy, elapsed, s.compound) + (s.reward || 0);
+    } else {
+      totalPending += (s.dailyReward || 0) * elapsed + (s.reward || 0);
+    }
+    totalReserved += s.reservedFromSupply || 0;
     var apy = s.apy || 0;
     if (apy > maxApy) maxApy = apy;
   }
   document.getElementById('ssCount').textContent = active.length;
-  document.getElementById('ssTotalStaked').textContent = fmtBal(totalStaked) + ' tokens';
-  document.getElementById('ssPending').textContent = fmtBal(totalPending) + ' tokens';
+  document.getElementById('ssTotalStaked').textContent = fmtBal(totalStaked) + ' OLIGHFT';
+  document.getElementById('ssPending').textContent = fmtBal(totalPending) + ' OLIGHFT';
   document.getElementById('ssTopApy').textContent = maxApy.toFixed(1) + '% APY';
+  // Show supply reserved info if element exists
+  var ssSupply = document.getElementById('ssSupplyReserved');
+  if (ssSupply) ssSupply.textContent = fmtBal(totalReserved) + ' OLIGHFT';
+  updateSupplyDisplay();
+}
+
+function updateSupplyDisplay() {
+  var remaining = getSupplyPool();
+  var pct = ((remaining / OLIGHFT_TOTAL_SUPPLY) * 100);
+  var el = document.getElementById('supplyRemaining');
+  if (el) {
+    el.textContent = fmtBal(remaining) + ' OLIGHFT (' + pct.toFixed(4) + '%)';
+  }
+  var bar = document.getElementById('supplyBar');
+  if (bar) {
+    bar.style.width = pct.toFixed(2) + '%';
+  }
 }
 
 function fmtBal(n) {
@@ -574,7 +814,7 @@ var CARD_TIERS = {
   Platinum:   { min: 300, daily: 18, fee: 120, boost: 1.5 },
   Black:      { min: 500, daily: 30, fee: 200, boost: 3.0 },
   Amex:       { min: 200, daily: 12, fee: 80,  boost: 1.2 },
-  Mastercard: { min: 50,  daily: 3,  fee: 20,  boost: 0.5 }
+  Mastercard: { min: 50,  daily: 4,  fee: 20,  boost: 0.5 }
 };
 
 function getActiveCards() {
@@ -611,26 +851,416 @@ function getBestCard() {
 var OLIGHFT_BASE_APY = 12.0;
 var LOCK_BOOSTS = { 0: 0, 30: 1.5, 90: 3.5, 180: 6, 365: 10 };
 var COMPOUND_BOOSTS = { none: 0, daily: 2.4, weekly: 1.2, monthly: 0.5 };
+var OLIGHFT_PRICE = 0.50;
+
+// ── Total Supply Reward Pool ──
+// All staking rewards are minted from this fixed total supply.
+// When a user stakes with compound, the estimated reward is reserved from supply.
+// On withdrawal, the actual accrued reward is deducted from the remaining supply.
+var OLIGHFT_TOTAL_SUPPLY = 100000000000000; // 100 trillion OLIGHFT
+
+function getSupplyPool() {
+  var remaining = parseFloat(localStorage.getItem('olighft_remaining_supply') || '');
+  if (isNaN(remaining) || remaining <= 0) remaining = OLIGHFT_TOTAL_SUPPLY;
+  return remaining;
+}
+
+function deductFromSupply(amount, reason, stakeId) {
+  var remaining = getSupplyPool();
+  if (amount > remaining) amount = remaining; // cap at available supply
+  remaining -= amount;
+  localStorage.setItem('olighft_remaining_supply', remaining.toString());
+  // Log supply deduction
+  var log = [];
+  try { log = JSON.parse(localStorage.getItem('cw_supply_log') || '[]'); } catch(e) { log = []; }
+  log.push({ amount: amount, reason: reason, stakeId: stakeId || '', remaining: remaining, ts: Date.now() });
+  if (log.length > 300) log = log.slice(-300);
+  localStorage.setItem('cw_supply_log', JSON.stringify(log));
+  return { deducted: amount, remaining: remaining };
+}
+
+function reserveRewardFromSupply(estimatedReward, stakeId) {
+  return deductFromSupply(estimatedReward, 'reward_reserve', stakeId);
+}
+
+function returnUnusedToSupply(amount, stakeId) {
+  var remaining = getSupplyPool();
+  remaining += amount;
+  localStorage.setItem('olighft_remaining_supply', remaining.toString());
+  var log = [];
+  try { log = JSON.parse(localStorage.getItem('cw_supply_log') || '[]'); } catch(e) { log = []; }
+  log.push({ amount: -amount, reason: 'return_unused', stakeId: stakeId || '', remaining: remaining, ts: Date.now() });
+  if (log.length > 300) log = log.slice(-300);
+  localStorage.setItem('cw_supply_log', JSON.stringify(log));
+}
+
+// ── 8-Generation Referral Commission Rates (40% total of staked amount) ──
+// Gen1: 10%, Gen2: 6%, Gen3-8: 4% each
+var GEN_RATES = [0.10, 0.06, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04];
+var ADMIN_WALLET_SPLIT = 0.60; // 60% of stake goes to admin wallet
+
+// ── Admin Wallet Deposit ──
+function depositToAdminWallet(amountOLIGHFT, source, stakeId) {
+  var deposits = [];
+  try { deposits = JSON.parse(localStorage.getItem('cw_admin_deposits') || '[]'); } catch(e) { deposits = []; }
+  var usdValue = amountOLIGHFT * OLIGHFT_PRICE;
+  deposits.push({
+    id: 'adm_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+    amount: amountOLIGHFT,
+    usd: usdValue,
+    source: source,
+    stakeId: stakeId,
+    ts: Date.now(),
+    date: new Date().toISOString()
+  });
+  localStorage.setItem('cw_admin_deposits', JSON.stringify(deposits));
+  // Update admin running total
+  var total = parseFloat(localStorage.getItem('cw_admin_total') || '0');
+  total += amountOLIGHFT;
+  localStorage.setItem('cw_admin_total', total.toString());
+  return { amount: amountOLIGHFT, usd: usdValue };
+}
+
+// ── 8-Generation Commission Distribution ──
+// Walks the sponsor chain via cw_invites and credits each upline
+function distribute8GenCommissions(stakerEmail, stakeAmountOLIGHFT, stakeId, cardTier) {
+  var invites = [];
+  try { invites = JSON.parse(localStorage.getItem('cw_invites') || '[]'); } catch(e) { return []; }
+  var commissions = [];
+  var currentEmail = stakerEmail;
+  var genDistributed = 0;
+
+  for (var gen = 0; gen < 8; gen++) {
+    // Find the invite record where the current person was invited
+    var invRecord = null;
+    for (var j = 0; j < invites.length; j++) {
+      if (invites[j].invitee && invites[j].invitee.email &&
+          invites[j].invitee.email.toLowerCase() === currentEmail.toLowerCase()) {
+        invRecord = invites[j];
+        break;
+      }
+    }
+    if (!invRecord || !invRecord.inviterName) break; // no more upline
+
+    var sponsorName = invRecord.inviterName;
+    var rate = GEN_RATES[gen];
+    var commissionOLIGHFT = stakeAmountOLIGHFT * rate;
+    var commissionUSD = commissionOLIGHFT * OLIGHFT_PRICE;
+
+    // Credit sponsor balance
+    var sponsorKey = 'cw_gen_earnings_' + sponsorName.toLowerCase();
+    var earnings = [];
+    try { earnings = JSON.parse(localStorage.getItem(sponsorKey) || '[]'); } catch(e) { earnings = []; }
+    earnings.push({
+      gen: gen + 1,
+      from: currentEmail,
+      amount: commissionOLIGHFT,
+      usd: commissionUSD,
+      stakeId: stakeId,
+      cardTier: cardTier,
+      ts: Date.now()
+    });
+    localStorage.setItem(sponsorKey, JSON.stringify(earnings));
+
+    // Also credit the sponsor's OLIGHFT balance directly
+    creditSponsorBalance(sponsorName, commissionOLIGHFT);
+
+    commissions.push({
+      gen: gen + 1,
+      sponsor: sponsorName,
+      rate: rate,
+      amount: commissionOLIGHFT,
+      usd: commissionUSD
+    });
+    genDistributed++;
+
+    // Walk up: find the sponsor's email to continue the chain
+    var sponsorInv = null;
+    for (var k = 0; k < invites.length; k++) {
+      if (invites[k].invitee && invites[k].invitee.name &&
+          invites[k].invitee.name.toLowerCase() === sponsorName.toLowerCase()) {
+        sponsorInv = invites[k];
+        break;
+      }
+    }
+    if (!sponsorInv || !sponsorInv.invitee || !sponsorInv.invitee.email) break;
+    currentEmail = sponsorInv.invitee.email;
+  }
+
+  // Any undistributed generation commissions go to admin wallet
+  var undistributedTotal = 0;
+  for (var g = genDistributed; g < 8; g++) {
+    undistributedTotal += stakeAmountOLIGHFT * GEN_RATES[g];
+  }
+  if (undistributedTotal > 0) {
+    depositToAdminWallet(undistributedTotal, 'unclaimed_gen_' + (genDistributed + 1) + '_to_8', stakeId);
+  }
+
+  // Store commission log for this stake
+  var allLogs = [];
+  try { allLogs = JSON.parse(localStorage.getItem('cw_gen_commission_log') || '[]'); } catch(e) { allLogs = []; }
+  allLogs.push({
+    stakeId: stakeId,
+    stakerEmail: stakerEmail,
+    cardTier: cardTier,
+    totalStaked: stakeAmountOLIGHFT,
+    commissions: commissions,
+    undistributed: undistributedTotal,
+    ts: Date.now()
+  });
+  if (allLogs.length > 200) allLogs = allLogs.slice(-200);
+  localStorage.setItem('cw_gen_commission_log', JSON.stringify(allLogs));
+
+  return commissions;
+}
+
+// Credit OLIGHFT to a sponsor's balance
+function creditSponsorBalance(sponsorName, amountOLIGHFT) {
+  // Look up all users to find matching name (localStorage-based users)
+  var allUsers = [];
+  try { allUsers = JSON.parse(localStorage.getItem('cw_all_users') || '[]'); } catch(e) {}
+  var sponsorUser = null;
+  for (var i = 0; i < allUsers.length; i++) {
+    if (allUsers[i].name && allUsers[i].name.toLowerCase() === sponsorName.toLowerCase()) {
+      sponsorUser = allUsers[i]; break;
+    }
+  }
+  // Credit via sponsor-specific balance key
+  var balKey = 'cw_sponsor_bal_' + sponsorName.toLowerCase();
+  var bal = parseFloat(localStorage.getItem(balKey) || '0');
+  bal += amountOLIGHFT;
+  localStorage.setItem(balKey, bal.toString());
+}
+
+// ── Compound Interest Calculator (uses card + compound selection) ──
+// Applies true compound interest based on the chosen compound frequency
+function calcCompoundReward(principal, apyTotal, days, compoundType) {
+  if (days <= 0) days = 365;
+  var r = apyTotal / 100; // annual rate as decimal
+
+  if (compoundType === 'none') {
+    // Simple interest
+    return principal * r * (days / 365);
+  }
+
+  // Compound periods per year
+  var n;
+  switch (compoundType) {
+    case 'daily':   n = 365; break;
+    case 'weekly':  n = 52;  break;
+    case 'monthly': n = 12;  break;
+    default:        n = 1;   break;
+  }
+
+  // A = P * (1 + r/n)^(n*t) - P
+  var t = days / 365;
+  var compounded = principal * Math.pow(1 + r / n, n * t);
+  return compounded - principal;
+}
+
+// ── Card Daily Reward with Compound ──
+// Uses the card's fixed daily payout (e.g. $4/day for Mastercard $50)
+// With compound, daily rewards are reinvested at the compound frequency
+function calcCardDailyCompound(cardDaily, days, compoundType) {
+  if (days <= 0) days = 365;
+  if (compoundType === 'none') {
+    // Simple: just daily * days
+    return cardDaily * days;
+  }
+  // Compound: reinvest accumulated reward at chosen frequency
+  // Each compound period, the reward earned so far is added to principal
+  // and future rewards include interest on previous rewards
+  var periodsPerDay;
+  switch (compoundType) {
+    case 'daily':   periodsPerDay = 1; break;       // compound every day
+    case 'weekly':  periodsPerDay = 1/7; break;     // compound every 7 days
+    case 'monthly': periodsPerDay = 1/30; break;    // compound every 30 days
+    default:        periodsPerDay = 0; break;
+  }
+  if (periodsPerDay <= 0) return cardDaily * days;
+
+  var compoundInterval = Math.round(1 / periodsPerDay); // days between compounds
+  var totalReward = 0;
+  var accumulated = 0;
+
+  for (var d = 1; d <= days; d++) {
+    accumulated += cardDaily;
+    // On compound day, add bonus: % of accumulated based on compound boost
+    if (d % compoundInterval === 0 && d < days) {
+      var compBoostRate = compoundType === 'daily' ? 0.024 : (compoundType === 'weekly' ? 0.012 : 0.005);
+      var bonus = accumulated * compBoostRate;
+      accumulated += bonus;
+    }
+  }
+  totalReward = accumulated;
+  return totalReward;
+}
+
+function populateCardSelect() {
+  var sel = document.getElementById('dashCardSelect');
+  var hint = document.getElementById('dashCardHint');
+  var active = getActiveCards();
+  // Deduplicate by card tier name, count stakes per tier
+  var seen = {};
+  var cards = [];
+  var countByTier = {};
+  for (var i = 0; i < active.length; i++) {
+    var cn = active[i].card;
+    countByTier[cn] = (countByTier[cn] || 0) + 1;
+    if (!seen[cn]) { seen[cn] = true; cards.push(cn); }
+  }
+  sel.innerHTML = '';
+  if (cards.length === 0) {
+    sel.innerHTML = '<option value="">\uD83D\uDCB3 Select a card below</option>';
+    hint.innerHTML = 'Tap a card to select it for staking';
+  } else {
+    for (var j = 0; j < cards.length; j++) {
+      var t = CARD_TIERS[cards[j]];
+      var opt = document.createElement('option');
+      opt.value = cards[j];
+      opt.textContent = '\uD83D\uDCB3 ' + cards[j] + ' \u2014 $' + t.daily + '/day \u00B7 +' + t.boost.toFixed(1) + '% boost';
+      sel.appendChild(opt);
+    }
+    var best = getBestCard();
+    if (best) sel.value = best.card;
+    hint.textContent = cards.length + ' active card' + (cards.length > 1 ? 's' : '') + ' available';
+  }
+  // Update shortcut tiles with active badge + selection highlight
+  var tiles = document.querySelectorAll('#cardShortcuts .csc-tile');
+  var selCard = (document.getElementById('dashCardSelect').value || '');
+  for (var k = 0; k < tiles.length; k++) {
+    var tierName = tiles[k].getAttribute('data-card') || '';
+    var badge = tiles[k].querySelector('.csc-active');
+    if (countByTier[tierName]) {
+      tiles[k].classList.add('has-active');
+      if (badge) badge.textContent = '\u2705 ' + countByTier[tierName] + ' active';
+    } else {
+      tiles[k].classList.remove('has-active');
+    }
+    // Highlight selected tile
+    if (tierName === selCard) {
+      tiles[k].classList.add('csc-selected');
+    } else {
+      tiles[k].classList.remove('csc-selected');
+    }
+  }
+  // Lock amount to selected card's fixed value
+  var finalCard = sel.value;
+  if (finalCard && CARD_TIERS[finalCard]) {
+    document.getElementById('skAmount').value = (CARD_TIERS[finalCard].min / OLIGHFT_PRICE).toFixed(2);
+    lockStakeAmount(true, finalCard);
+  } else {
+    lockStakeAmount(false);
+  }
+}
+
+function selectCardTile(el) {
+  var card = el.getAttribute('data-card');
+  var sel = document.getElementById('dashCardSelect');
+  // If this card is in the dropdown (active), select it
+  var found = false;
+  for (var i = 0; i < sel.options.length; i++) {
+    if (sel.options[i].value === card) { sel.value = card; found = true; break; }
+  }
+  if (!found) {
+    // Card not active — add as standby ready selection
+    var t = CARD_TIERS[card];
+    // Remove any previous standby option
+    for (var r = sel.options.length - 1; r >= 0; r--) {
+      if (sel.options[r].getAttribute('data-standby')) sel.remove(r);
+    }
+    var opt = document.createElement('option');
+    opt.value = card;
+    opt.textContent = '\uD83D\uDCB3 ' + card + ' \u2014 Ready (standby)';
+    opt.setAttribute('data-standby', '1');
+    sel.appendChild(opt);
+    sel.value = card;
+    document.getElementById('dashCardHint').innerHTML = '\uD83D\uDCB3 <b style="color:#f5c518">' + card + '</b> selected \u2014 waiting for Start Staking';
+  }
+  // Update selection highlight on all tiles
+  var tiles = document.querySelectorAll('#cardShortcuts .csc-tile');
+  for (var j = 0; j < tiles.length; j++) {
+    tiles[j].classList.toggle('csc-selected', tiles[j].getAttribute('data-card') === card);
+  }
+  // Set fixed stake amount for this card tier
+  var amtInput = document.getElementById('skAmount');
+  var cardCfg = CARD_TIERS[card];
+  if (cardCfg) {
+    amtInput.value = (cardCfg.min / OLIGHFT_PRICE).toFixed(2);
+    lockStakeAmount(true, card);
+  }
+  updateApy();
+  // Scroll to stake button — ready to stake
+  document.getElementById('stakeBtn').scrollIntoView({behavior:'smooth', block:'center'});
+  showToast('\uD83D\uDCB3 ' + card + ' selected \u2014 tap Start Staking when ready', '#6366f1');
+}
+
+function getSelectedCard() {
+  var sel = document.getElementById('dashCardSelect');
+  var name = sel ? sel.value : '';
+  if (name && CARD_TIERS[name]) return name;
+  return null;
+}
 
 function getApy() {
   var days = parseInt(document.getElementById('skPeriod').value);
   var comp = document.getElementById('skCompound').value;
   var base = OLIGHFT_BASE_APY;
   var cardBoost = 0;
-  var bestCard = getBestCard();
-  if (bestCard && CARD_TIERS[bestCard.card]) cardBoost = CARD_TIERS[bestCard.card].boost;
+  var selectedCard = getSelectedCard();
+  if (selectedCard && CARD_TIERS[selectedCard]) cardBoost = CARD_TIERS[selectedCard].boost;
   return {
     base: base, lock: LOCK_BOOSTS[days] || 0, comp: COMPOUND_BOOSTS[comp] || 0,
-    card: cardBoost, cardName: bestCard ? bestCard.card : null,
-    cardDaily: bestCard && CARD_TIERS[bestCard.card] ? CARD_TIERS[bestCard.card].daily : 0,
+    card: cardBoost, cardName: selectedCard,
+    cardDaily: selectedCard && CARD_TIERS[selectedCard] ? CARD_TIERS[selectedCard].daily : 0,
     total: base + (LOCK_BOOSTS[days] || 0) + (COMPOUND_BOOSTS[comp] || 0) + cardBoost
   };
 }
 
+function onCardDropdownChange() {
+  var card = getSelectedCard();
+  if (card && CARD_TIERS[card]) {
+    document.getElementById('skAmount').value = (CARD_TIERS[card].min / OLIGHFT_PRICE).toFixed(2);
+    lockStakeAmount(true, card);
+  } else {
+    lockStakeAmount(false);
+    document.getElementById('skAmount').value = '';
+  }
+  // Sync tile highlight
+  var tiles = document.querySelectorAll('#cardShortcuts .csc-tile');
+  for (var j = 0; j < tiles.length; j++) {
+    tiles[j].classList.toggle('csc-selected', tiles[j].getAttribute('data-card') === card);
+  }
+  updateApy();
+}
+
+function lockStakeAmount(locked, cardName) {
+  var inp = document.getElementById('skAmount');
+  var note = document.getElementById('skFixedNote');
+  if (locked && cardName && CARD_TIERS[cardName]) {
+    inp.readOnly = true;
+    inp.style.opacity = '0.7';
+    inp.style.cursor = 'not-allowed';
+    var fixedOLIGHFT = (CARD_TIERS[cardName].min / OLIGHFT_PRICE).toFixed(2);
+    note.innerHTML = '\uD83D\uDD12 Fixed: ' + fixedOLIGHFT + ' OLIGHFT ($' + CARD_TIERS[cardName].min + ') for ' + cardName;
+    note.style.display = 'block';
+  } else {
+    inp.readOnly = false;
+    inp.style.opacity = '1';
+    inp.style.cursor = '';
+    note.style.display = 'none';
+  }
+}
+
 function setStakeMax() {
-  var bals = {};
-  try { bals = Object.assign({}, DEFAULT_BALS, JSON.parse(localStorage.getItem('cw_balances'))); } catch(e) { bals = Object.assign({}, DEFAULT_BALS); }
-  document.getElementById('skAmount').value = bals['OLIGHFT'] || 0;
+  var sel = getSelectedCard();
+  if (sel && CARD_TIERS[sel]) {
+    document.getElementById('skAmount').value = (CARD_TIERS[sel].min / OLIGHFT_PRICE).toFixed(2);
+  } else {
+    var bals = {};
+    try { bals = Object.assign({}, DEFAULT_BALS, JSON.parse(localStorage.getItem('cw_balances'))); } catch(e) { bals = Object.assign({}, DEFAULT_BALS); }
+    document.getElementById('skAmount').value = bals['OLIGHFT'] || 0;
+  }
   updateApy();
 }
 
@@ -638,22 +1268,30 @@ function updateApy() {
   var apy = getApy();
   var amt = parseFloat(document.getElementById('skAmount').value) || 0;
   var days = parseInt(document.getElementById('skPeriod').value);
+  var comp = document.getElementById('skCompound').value;
   var period = days > 0 ? days : 365;
-  var reward = amt * (apy.total / 100) * (period / 365);
-  var cardTag = apy.cardName ? ' \uD83D\uDCB3 +' + apy.card.toFixed(1) + '%' : '';
-  document.getElementById('spApy').textContent = apy.total.toFixed(1) + '% APY' + cardTag + ' \u2014 Est. reward: ' + reward.toFixed(2) + ' OLIGHFT';
+  // Card daily reward with compound from card logic
+  var cardDailyUSD = apy.cardDaily || 0;
+  var cardDailyOLIGHFT = cardDailyUSD / OLIGHFT_PRICE;
+  var reward = cardDailyUSD > 0 ? calcCardDailyCompound(cardDailyOLIGHFT, period, comp) : 0;
+  var rewardUSD = reward * OLIGHFT_PRICE;
+  var cardTag = apy.cardName ? ' \uD83D\uDCB3 $' + cardDailyUSD + '/day' : '';
+  var compTag = comp !== 'none' ? ' \u00B7 ' + comp + ' compound' : '';
+  var supplyTag = cardDailyUSD > 0 ? ' \u00B7 from supply' : '';
+  document.getElementById('spApy').textContent = (apy.cardName || 'No card') + cardTag + compTag + ' \u2014 Est. reward: $' + rewardUSD.toFixed(2) + ' (' + reward.toFixed(2) + ' OLIGHFT)' + supplyTag;
+  // Update supply display
+  updateSupplyDisplay();
 
   // Update balance label
   var bals = {};
   try { bals = Object.assign({}, DEFAULT_BALS, JSON.parse(localStorage.getItem('cw_balances'))); } catch(e) { bals = Object.assign({}, DEFAULT_BALS); }
-  document.getElementById('skBalLabel').textContent = 'Balance: ' + fmtBal(bals['OLIGHFT'] || 0) + ' OLIGHFT';
+  document.getElementById('skBalLabel').innerHTML = '&#x1F4B0; Balance: <b style="color:#f5c518;margin-left:2px">' + fmtBal(bals['OLIGHFT'] || 0) + ' OLIGHFT</b>';
 
-  // Update card badge + staking via label + button state
+  // Update card badge + button state
   var badge = document.getElementById('cardBadge');
   var cbText = document.getElementById('cbText');
   var cbTier = document.getElementById('cbTier');
   var cbDaily = document.getElementById('cbDaily');
-  var skCardLabel = document.getElementById('skCardLabel');
   var stakeBtn = document.getElementById('stakeBtn');
   if (apy.cardName) {
     badge.className = 'card-badge active';
@@ -661,25 +1299,33 @@ function updateApy() {
     cbTier.style.display = 'inline-block';
     cbTier.textContent = '+' + apy.card.toFixed(1) + '% BOOST';
     cbDaily.innerHTML = '$<b>' + apy.cardDaily + '</b>/day';
-    skCardLabel.textContent = '\uD83D\uDCB3 ' + apy.cardName + ' Card';
-    skCardLabel.style.color = '#27ae60';
     stakeBtn.dataset.hasCard = 'true';
     stakeBtn.textContent = '\u26CF\uFE0F Stake OLIGHFT via ' + apy.cardName + ' Card';
   } else {
-    badge.className = 'card-badge none';
-    cbText.textContent = 'No active card \u2014 activate one to start staking';
-    cbTier.style.display = 'none';
-    cbDaily.innerHTML = '<a href="card-visa.html" style="color:#f39c12;text-decoration:underline;font-size:.6rem">Activate Card</a>';
-    skCardLabel.textContent = 'No card active';
-    skCardLabel.style.color = 'rgba(255,255,255,.4)';
-    stakeBtn.dataset.hasCard = 'false';
-    stakeBtn.textContent = '\u26CF\uFE0F Activate a Card to Stake';
+    // Check if a card is selected in standby
+    var standbyCard = document.getElementById('dashCardSelect').value;
+    if (standbyCard && CARD_TIERS[standbyCard]) {
+      var sc = CARD_TIERS[standbyCard];
+      badge.className = 'card-badge none';
+      cbText.innerHTML = '\uD83D\uDCB3 <b style="color:#f5c518">' + standbyCard + '</b> selected \u2014 ready to stake';
+      cbTier.style.display = 'inline-block';
+      cbTier.textContent = '+' + sc.boost.toFixed(1) + '% BOOST';
+      cbDaily.innerHTML = '$<b>' + sc.daily + '</b>/day';
+      stakeBtn.dataset.hasCard = 'true';
+      stakeBtn.textContent = '\u26CF\uFE0F Stake OLIGHFT via ' + standbyCard + ' Card';
+    } else {
+      badge.className = 'card-badge none';
+      cbText.textContent = 'Select a card below to stake';
+      cbTier.style.display = 'none';
+      cbDaily.innerHTML = '';
+      stakeBtn.dataset.hasCard = 'false';
+      stakeBtn.textContent = '\u26CF\uFE0F Start Staking';
+    }
   }
 }
 
 function handleStakeBtn() {
-  var btn = document.getElementById('stakeBtn');
-  if (btn.dataset.hasCard === 'true') { doStake(); } else { window.location.href = 'card-visa.html'; }
+  doStake();
 }
 
 function getWalletStakes() {
@@ -687,56 +1333,188 @@ function getWalletStakes() {
 }
 
 function doStake() {
+  // ── Step helper: animate the flow progress bar ──
+  var flowBox = document.getElementById('stakeFlowBox');
+  var sfStatus = document.getElementById('sfStatus');
+  var stakeBtn = document.getElementById('stakeBtn');
+
+  function sfReset() {
+    for (var i = 1; i <= 5; i++) {
+      var el = document.getElementById('sf-' + i);
+      el.className = 'sf-step';
+    }
+    var arrows = flowBox.querySelectorAll('.sf-arrow');
+    for (var a = 0; a < arrows.length; a++) arrows[a].className = 'sf-arrow';
+  }
+  function sfActivate(step, msg) {
+    var el = document.getElementById('sf-' + step);
+    el.className = 'sf-step sf-active';
+    sfStatus.textContent = msg;
+  }
+  function sfDone(step) {
+    var el = document.getElementById('sf-' + step);
+    el.className = 'sf-step sf-done';
+    // Light up the arrow after this step
+    var arrows = flowBox.querySelectorAll('.sf-arrow');
+    if (step - 1 < arrows.length) arrows[step - 1].className = 'sf-arrow sf-lit';
+  }
+  function sfFail(step, msg) {
+    var el = document.getElementById('sf-' + step);
+    el.className = 'sf-step sf-fail';
+    sfStatus.textContent = '\u274C ' + msg;
+    stakeBtn.disabled = false;
+  }
+  function showReceipt(data) {
+    window._lastReceipt = data;
+    var body = document.getElementById('receiptBody');
+    var tx = document.getElementById('receiptTx');
+    body.innerHTML =
+      '<div style="display:flex;justify-content:space-between;padding:4px 0"><span>Card</span><b>' + data.card + '</b></div>' +
+      '<div style="display:flex;justify-content:space-between;padding:4px 0"><span>Staked</span><b>' + data.amount.toFixed(2) + ' OLIGHFT</b></div>' +
+      '<div style="display:flex;justify-content:space-between;padding:4px 0"><span>USD Value</span><b>$' + data.usd.toFixed(2) + '</b></div>' +
+      '<div style="display:flex;justify-content:space-between;padding:4px 0"><span>Lock</span><b>' + (data.lockDays > 0 ? data.lockDays + ' days' : 'Flexible') + '</b></div>' +
+      '<div style="display:flex;justify-content:space-between;padding:4px 0"><span>Compound</span><b>' + data.compound + '</b></div>' +
+      '<div style="display:flex;justify-content:space-between;padding:4px 0"><span>APY</span><b style="color:#f5c518">' + data.apy.toFixed(1) + '%</b></div>' +
+      '<div style="display:flex;justify-content:space-between;padding:4px 0"><span>Daily Reward</span><b style="color:#27ae60">$' + data.dailyUSD + '/day</b></div>' +
+      '<div style="display:flex;justify-content:space-between;padding:4px 0"><span>Est. Total Reward</span><b style="color:#27ae60">' + data.estReward.toFixed(2) + ' OLIGHFT</b></div>' +
+      '<div style="display:flex;justify-content:space-between;padding:4px 0"><span>Admin (60%)</span><b>' + data.adminShare.toFixed(2) + ' OLIGHFT</b></div>' +
+      '<div style="display:flex;justify-content:space-between;padding:4px 0"><span>Referral (40%)</span><b>' + data.refShare.toFixed(2) + ' OLIGHFT (' + data.genCount + '-gen)</b></div>' +
+      '<div style="display:flex;justify-content:space-between;padding:4px 0"><span>Supply Reserved</span><b style="color:#27ae60">' + data.reserved.toFixed(2) + ' OLIGHFT</b></div>';
+    tx.textContent = 'TX: ' + data.stakeId + (data.txHash ? ' \u00B7 On-chain: ' + data.txHash : '');
+    document.getElementById('receiptModal').style.display = 'block';
+  }
+
+  // ══════════════════════════════════════════
+  // STEP 1: SENDER — require_auth()
+  // ══════════════════════════════════════════
+  flowBox.style.display = 'block';
+  sfReset();
+  stakeBtn.disabled = true;
+  sfActivate(1, 'Step 1/5 \u2014 Authenticating sender\u2026');
+
   var user = null;
   try { user = JSON.parse(localStorage.getItem('cw_user')); } catch(e) {}
-  if (!user || !user.email) { showToast('Please sign in first.', '#eb5757'); return; }
+  if (!user || !user.email) {
+    sfFail(1, 'Auth failed \u2014 please sign in first');
+    return;
+  }
+  var selectedCard = getSelectedCard();
+  if (!selectedCard) {
+    sfFail(1, 'No card selected \u2014 choose a card tier');
+    return;
+  }
+  sfDone(1);
 
-  // Require active card
-  var bestCard = getBestCard();
-  if (!bestCard) { showToast('\u26A0\uFE0F Activate a card first to stake OLIGHFT!', '#eb5757'); return; }
+  // ══════════════════════════════════════════
+  // STEP 2: VALIDATE — check balance
+  // ══════════════════════════════════════════
+  sfActivate(2, 'Step 2/5 \u2014 Validating balance & parameters\u2026');
 
   var asset = 'OLIGHFT';
+  var cardConfig = CARD_TIERS[selectedCard] || {};
+  var fixedAmt = cardConfig.min ? (cardConfig.min / OLIGHFT_PRICE) : 0;
+  // Force the fixed amount for the selected card
+  if (fixedAmt > 0) document.getElementById('skAmount').value = fixedAmt.toFixed(2);
   var amt = parseFloat(document.getElementById('skAmount').value);
-  if (!amt || amt <= 0) { showToast('Enter a valid amount.', '#eb5757'); return; }
-
-  // Check balance
+  if (!amt || amt <= 0) {
+    sfFail(2, 'Invalid amount \u2014 enter a positive number');
+    return;
+  }
+  if (fixedAmt > 0 && Math.abs(amt - fixedAmt) > 0.01) {
+    sfFail(2, selectedCard + ' requires exactly ' + fixedAmt.toFixed(2) + ' OLIGHFT ($' + cardConfig.min + ')');
+    return;
+  }
   var bals = {};
   try { bals = Object.assign({}, DEFAULT_BALS, JSON.parse(localStorage.getItem('cw_balances'))); } catch(e) { bals = Object.assign({}, DEFAULT_BALS); }
-  if ((bals[asset] || 0) < amt) { showToast('Insufficient OLIGHFT balance!', '#eb5757'); return; }
-
+  if ((bals[asset] || 0) < amt) {
+    sfFail(2, 'Insufficient balance \u2014 have ' + (bals[asset] || 0).toFixed(2) + ' OLIGHFT');
+    return;
+  }
   var days = parseInt(document.getElementById('skPeriod').value);
   var comp = document.getElementById('skCompound').value;
   var apy = getApy();
-  var dailyReward = amt * (apy.total / 100) / 365;
+  var cardTierName = selectedCard;
+  var cardConfig = CARD_TIERS[cardTierName] || {};
+  var cardDailyUSD = cardConfig.daily || 0;
+  sfDone(2);
 
-  // Deduct balance
+  // ══════════════════════════════════════════
+  // STEP 3: CONVERT — oracle rate
+  // ══════════════════════════════════════════
+  sfActivate(3, 'Step 3/5 \u2014 Converting via oracle rate ($' + OLIGHFT_PRICE + '/OLIGHFT)\u2026');
+
+  var effectiveDays = days > 0 ? days : 365;
+  var cardDailyOLIGHFT = cardDailyUSD / OLIGHFT_PRICE;
+  var estimatedReward = calcCardDailyCompound(cardDailyOLIGHFT, effectiveDays, comp);
+  var dailyReward = cardDailyOLIGHFT;
+  var amtUSD = amt * OLIGHFT_PRICE;
+
+  var adminShare = amt * ADMIN_WALLET_SPLIT;
+  var refShare   = amt * (1 - ADMIN_WALLET_SPLIT);
+  sfDone(3);
+
+  // Use setTimeout to let the UI paint each step
+  setTimeout(function() {
+
+  // ══════════════════════════════════════════
+  // STEP 4: SETTLE — atomic swap
+  // ══════════════════════════════════════════
+  sfActivate(4, 'Step 4/5 \u2014 Settling atomic swap (debit + admin + referral)\u2026');
+
+  // Deduct from user balance
   bals[asset] = (bals[asset] || 0) - amt;
   localStorage.setItem('cw_balances', JSON.stringify(bals));
 
-  // Create stake record
   var stakeId = 'dsk_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
   var now = new Date();
   var endDate = days > 0 ? new Date(now.getTime() + days * 86400000).toISOString() : null;
+
+  // 60% admin deposit
+  var adminDeposit = depositToAdminWallet(adminShare, 'stake_' + cardTierName, stakeId);
+  // 40% referral tree
+  var genCommissions = distribute8GenCommissions(user.email, refShare, stakeId, cardTierName);
+
+  var compoundIntervalMs = 0;
+  if (comp === 'daily')   compoundIntervalMs = 86400000;
+  if (comp === 'weekly')  compoundIntervalMs = 604800000;
+  if (comp === 'monthly') compoundIntervalMs = 2592000000;
+
+  // Reserve from supply
+  var supplyBefore = getSupplyPool();
+  var supplyResult = reserveRewardFromSupply(estimatedReward, stakeId);
+  var actualReserved = supplyResult.deducted;
+
   var stake = {
     id: stakeId, asset: asset, amount: amt, apy: apy.total, dailyReward: dailyReward,
     startDate: now.toISOString(), endDate: endDate, lastCompound: now.toISOString(),
     reward: 0, status: 'active', withdrawn: false, compound: comp, lockDays: days,
-    cardTier: apy.cardName || null, cardBoost: apy.card || 0
+    cardTier: cardTierName, cardBoost: apy.card || 0,
+    compoundInterval: compoundIntervalMs,
+    estimatedTotalReward: estimatedReward,
+    reservedFromSupply: actualReserved,
+    supplyAtStake: supplyBefore,
+    split: {
+      adminWallet: adminShare,
+      adminUSD: adminDeposit.usd,
+      referralPool: refShare,
+      genDistributed: genCommissions.length,
+      genCommissions: genCommissions
+    }
   };
 
   var stakes = getWalletStakes();
   stakes.push(stake);
   localStorage.setItem('wallet_stakes', JSON.stringify(stakes));
 
-  // Unified activity log
-  try { var al = JSON.parse(localStorage.getItem('cw_activity') || '[]'); al.unshift({ type: 'Staked', icon: '\uD83D\uDCC8', detail: amt + ' ' + asset + ' \u00B7 ' + (days > 0 ? days + 'd' : 'Flex') + ' \u00B7 ' + apy.total.toFixed(1) + '% APY', amt: '-' + amt + ' ' + asset, cls: 'red', time: 'Just now', ts: Date.now() }); if (al.length > 50) al.length = 50; localStorage.setItem('cw_activity', JSON.stringify(al)); } catch(e) {}
+  // Activity log
+  var genSummary = genCommissions.length > 0 ? ' \u00B7 ' + genCommissions.length + '-gen referral' : '';
+  try { var al = JSON.parse(localStorage.getItem('cw_activity') || '[]'); al.unshift({ type: 'Staked', icon: '\uD83D\uDCC8', detail: amt + ' ' + asset + ' \u00B7 ' + (days > 0 ? days + 'd' : 'Flex') + ' \u00B7 ' + apy.total.toFixed(1) + '% APY \u00B7 ' + comp + ' compound' + genSummary, amt: '-' + amt + ' ' + asset, cls: 'red', time: 'Just now', ts: Date.now() }); if (al.length > 50) al.length = 50; localStorage.setItem('cw_activity', JSON.stringify(al)); } catch(e) {}
 
   // On-chain Soroban stake (async, non-blocking)
-  var tierName = bestCard.card;
   if (typeof STAKING_BACKEND !== 'undefined' && STAKING_BACKEND.isWalletConnected()) {
     (async function() {
       try {
-        var res = await STAKING_BACKEND.activateStake(tierName, amt);
+        var res = await STAKING_BACKEND.activateStake(cardTierName, amt);
         if (res && res.success) {
           stake.onChainIndex = res.stakeIndex;
           stake.txHash = res.txHash || '';
@@ -746,16 +1524,97 @@ function doStake() {
     })();
   }
 
-  // Refresh
+  sfDone(4);
+
+  setTimeout(function() {
+
+  // ══════════════════════════════════════════
+  // STEP 5: RECEIPT — confirmation
+  // ══════════════════════════════════════════
+  sfActivate(5, 'Step 5/5 \u2014 Generating receipt\u2026');
+
+  // Refresh UI
   var newBals = {};
   try { newBals = Object.assign({}, DEFAULT_BALS, JSON.parse(localStorage.getItem('cw_balances'))); } catch(e) { newBals = Object.assign({}, DEFAULT_BALS); }
   renderBalances(newBals);
   updateTotalBalance(newBals);
+  populateCardSelect();
   renderStakeSummary();
   renderStakeList();
+  renderRecentStakes();
   document.getElementById('skAmount').value = '';
   updateApy();
-  showToast('\u2705 Staked ' + amt + ' OLIGHFT via ' + bestCard.card + ' Card at ' + apy.total.toFixed(1) + '% APY!', '#27ae60');
+  updateSupplyDisplay();
+
+  sfDone(5);
+  sfStatus.textContent = '\u2705 Stake settled successfully!';
+  stakeBtn.disabled = false;
+
+  // Show receipt modal
+  showReceipt({
+    card: cardTierName,
+    amount: amt,
+    usd: amtUSD,
+    lockDays: days,
+    compound: comp,
+    apy: apy.total,
+    dailyUSD: cardDailyUSD,
+    estReward: estimatedReward,
+    adminShare: adminShare,
+    refShare: refShare,
+    genCount: genCommissions.length,
+    reserved: actualReserved,
+    stakeId: stakeId,
+    txHash: stake.txHash || '',
+    timestamp: Date.now()
+  });
+
+  // Hide flow box after delay
+  setTimeout(function() { flowBox.style.display = 'none'; }, 4000);
+
+  }, 600); // delay before receipt step
+  }, 500); // delay before settle step
+}
+
+function saveReceipt() {
+  var d = window._lastReceipt;
+  if (!d) { showToast('No receipt to save', '#eb5757'); return; }
+  var lines = [
+    '════════════════════════════════════════',
+    '       OLIGHFT SMART COIN — STAKE RECEIPT',
+    '════════════════════════════════════════',
+    '',
+    'Date:            ' + new Date(d.timestamp || Date.now()).toLocaleString(),
+    'Card:            ' + d.card,
+    'Staked:          ' + d.amount.toFixed(2) + ' OLIGHFT',
+    'USD Value:       $' + d.usd.toFixed(2),
+    'Lock:            ' + (d.lockDays > 0 ? d.lockDays + ' days' : 'Flexible'),
+    'Compound:        ' + d.compound,
+    'APY:             ' + d.apy.toFixed(1) + '%',
+    'Daily Reward:    $' + d.dailyUSD + '/day',
+    'Est. Reward:     ' + d.estReward.toFixed(2) + ' OLIGHFT',
+    '',
+    '── Split ──',
+    'Admin (60%):     ' + d.adminShare.toFixed(2) + ' OLIGHFT',
+    'Referral (40%):  ' + d.refShare.toFixed(2) + ' OLIGHFT (' + d.genCount + '-gen)',
+    'Supply Reserved: ' + d.reserved.toFixed(2) + ' OLIGHFT',
+    '',
+    '── Transaction ──',
+    'TX: ' + d.stakeId + (d.txHash ? '  On-chain: ' + d.txHash : ''),
+    '',
+    '════════════════════════════════════════'
+  ];
+  var text = lines.join('\r\n');
+  var blob = new Blob([text], {type: 'text/plain;charset=utf-8'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'stake-receipt-' + d.stakeId + '.txt';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('\u2705 Receipt saved!', '#27ae60');
 }
 
 function withdrawStake(stakeId) {
@@ -776,11 +1635,32 @@ function withdrawStake(stakeId) {
   if (s.withdrawn) { showToast('Already withdrawn.', '#eb5757'); return; }
 
   var elapsed = (now - new Date(s.lastCompound || s.startDate).getTime()) / 86400000;
-  var accrued = (s.dailyReward || 0) * elapsed;
+  var accrued;
+  var tier = s.cardTier && CARD_TIERS[s.cardTier] ? CARD_TIERS[s.cardTier] : null;
+  if (tier) {
+    var cardDailyOLIGHFT = tier.daily / OLIGHFT_PRICE;
+    accrued = calcCardDailyCompound(cardDailyOLIGHFT, elapsed, s.compound || 'none');
+  } else if (s.compound && s.compound !== 'none' && s.apy) {
+    accrued = calcCompoundReward(s.amount, s.apy, elapsed, s.compound);
+  } else {
+    accrued = (s.dailyReward || 0) * elapsed;
+  }
   var totalReturn = s.amount + (s.reward || 0) + accrued;
   var asset = s.asset || 'OLIGHFT';
 
-  if (!confirm('Withdraw ' + totalReturn.toFixed(2) + ' ' + asset + ' (principal + reward)?')) return;
+  // Reward portion comes from total supply (principal returns to user, reward is minted from supply)
+  var rewardPortion = (s.reward || 0) + accrued;
+  var reservedAmt = s.reservedFromSupply || 0;
+
+  // If actual reward exceeds what was reserved, deduct the extra from supply
+  if (rewardPortion > reservedAmt) {
+    deductFromSupply(rewardPortion - reservedAmt, 'extra_reward', stakeId);
+  } else if (rewardPortion < reservedAmt) {
+    // Return unused reserved supply
+    returnUnusedToSupply(reservedAmt - rewardPortion, stakeId);
+  }
+
+  if (!confirm('Withdraw ' + totalReturn.toFixed(2) + ' ' + asset + ' (principal: ' + s.amount.toFixed(2) + ' + reward from supply: ' + rewardPortion.toFixed(2) + ')?')) return;
 
   // On-chain withdraw
   var bestCard = getBestCard();
@@ -802,16 +1682,20 @@ function withdrawStake(stakeId) {
 
   stakes[idx].status = 'withdrawn';
   stakes[idx].withdrawn = true;
+  stakes[idx].actualReward = rewardPortion;
+  stakes[idx].withdrawnAt = Date.now();
   localStorage.setItem('wallet_stakes', JSON.stringify(stakes));
 
   // Activity log
-  try { var al = JSON.parse(localStorage.getItem('cw_activity') || '[]'); al.unshift({ type: 'Unstaked', icon: '\uD83D\uDCB0', detail: 'Withdrew ' + totalReturn.toFixed(2) + ' ' + asset, amt: '+' + totalReturn.toFixed(2) + ' ' + asset, cls: 'green', time: 'Just now', ts: Date.now() }); if (al.length > 50) al.length = 50; localStorage.setItem('cw_activity', JSON.stringify(al)); } catch(e) {}
+  try { var al = JSON.parse(localStorage.getItem('cw_activity') || '[]'); al.unshift({ type: 'Unstaked', icon: '\uD83D\uDCB0', detail: 'Withdrew ' + totalReturn.toFixed(2) + ' ' + asset + ' (reward: ' + rewardPortion.toFixed(2) + ' from supply' + (s.compound && s.compound !== 'none' ? ' \u00B7 ' + s.compound + ' compound' : '') + ')', amt: '+' + totalReturn.toFixed(2) + ' ' + asset, cls: 'green', time: 'Just now', ts: Date.now() }); if (al.length > 50) al.length = 50; localStorage.setItem('cw_activity', JSON.stringify(al)); } catch(e) {}
 
   renderBalances(bals);
   updateTotalBalance(bals);
   renderStakeSummary();
   renderStakeList();
-  showToast('\u2705 Withdrew ' + totalReturn.toFixed(2) + ' ' + asset + '!', '#27ae60');
+  renderRecentStakes();
+  updateSupplyDisplay();
+  showToast('\u2705 Withdrew ' + totalReturn.toFixed(2) + ' ' + asset + ' (reward: ' + rewardPortion.toFixed(2) + ' from total supply)!', '#27ae60');
 }
 
 // ── AMM Quoter Engine (Uniswap V4-style constant-product pools) ──
@@ -1234,13 +2118,26 @@ function renderStakeList() {
   for (var i = 0; i < stakes.length; i++) {
     var s = stakes[i];
     var asset = s.asset || 'XLM';
-    var elapsed = (now - new Date(s.lastCompound || s.startDate).getTime()) / 86400000;
-    var pending = (s.dailyReward || 0) * elapsed + (s.reward || 0);
+    // Use card daily compound for pending reward
+    var elapsedDays = (now - new Date(s.lastCompound || s.startDate).getTime()) / 86400000;
+    var pending;
+    var tier = s.cardTier && CARD_TIERS[s.cardTier] ? CARD_TIERS[s.cardTier] : null;
+    if (tier) {
+      var cardDailyOLIGHFT = tier.daily / OLIGHFT_PRICE;
+      pending = calcCardDailyCompound(cardDailyOLIGHFT, elapsedDays, s.compound || 'none') + (s.reward || 0);
+    } else if (s.compound && s.compound !== 'none' && s.apy) {
+      pending = calcCompoundReward(s.amount, s.apy, elapsedDays, s.compound) + (s.reward || 0);
+    } else {
+      pending = (s.dailyReward || 0) * elapsedDays + (s.reward || 0);
+    }
     var lockLabel = s.endDate ? Math.max(0, Math.ceil((new Date(s.endDate).getTime() - now) / 86400000)) + 'd left' : 'Flex';
     var cardTag = s.cardTier ? ' \u00B7 ' + s.cardTier : '';
+    var compTag = s.compound && s.compound !== 'none' ? ' \u00B7 ' + s.compound : '';
+    var cardDailyUSD = tier ? '$' + tier.daily + '/day' : (s.apy || 0).toFixed(1) + '% APY';
+    var splitInfo = s.split ? ' \u00B7 \uD83C\uDFE6' + s.split.adminWallet.toFixed(0) + '/' + s.split.referralPool.toFixed(0) : '';
     html += '<div class="stk-item">' +
       '<div class="si-icon">\u26CF\uFE0F</div>' +
-      '<div class="si-info"><div class="si-top">' + fmtBal(s.amount) + ' ' + asset + '</div><div class="si-sub">' + (s.apy || 0).toFixed(1) + '% APY \u00B7 ' + lockLabel + cardTag + '</div></div>' +
+      '<div class="si-info"><div class="si-top">' + fmtBal(s.amount) + ' ' + asset + '</div><div class="si-sub">' + cardDailyUSD + ' \u00B7 ' + lockLabel + cardTag + compTag + splitInfo + '</div></div>' +
       '<div class="si-right"><div class="si-amt">+' + pending.toFixed(4) + '</div><div class="si-reward">pending reward</div>' +
       '<button class="withdraw-btn" onclick="withdrawStake(\'' + s.id + '\')">Withdraw</button></div></div>';
   }

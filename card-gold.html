@@ -192,14 +192,27 @@ h1{text-align:center;font-size:1.8rem;margin-bottom:6px;background:linear-gradie
 
 <!-- ⚡ ACTIVATE STAKING -->
 <div style="background:linear-gradient(135deg,rgba(218,165,32,.08),rgba(99,102,241,.06));border:2px solid rgba(218,165,32,.2);border-radius:16px;padding:24px;margin:20px 0">
-<h3 style="font-size:.92rem;color:#daa520;margin-bottom:14px;display:flex;align-items:center;gap:8px">&#x26A1; Activate Gold Staking</h3>
+<h3 id="activateHeading" style="font-size:.92rem;color:#daa520;margin-bottom:14px;display:flex;align-items:center;gap:8px">&#x26A1; Activate Gold Staking</h3>
+
+<div style="margin-bottom:14px">
+<label style="font-size:.68rem;text-transform:uppercase;letter-spacing:.5px;color:rgba(255,255,255,.35);display:block;margin-bottom:6px">&#x1F4B3; Choose Card Tier</label>
+<select id="cardTierSelect" onchange="onCardChange()" style="width:100%;padding:10px 14px;border-radius:10px;border:1px solid rgba(99,102,241,.2);background:rgba(0,0,0,.2);color:#fff;font-size:.8rem;outline:none">
+<option value="Mastercard">&#x1F4B3; Mastercard — $50 stake · $4/day</option>
+<option value="Visa">&#x1F4B3; Visa — $100 stake · $6/day</option>
+<option value="Amex">&#x1F4B3; Amex — $200 stake · $12/day</option>
+<option value="Platinum">&#x1F4B3; Platinum — $300 stake · $18/day</option>
+<option value="Gold" selected>&#x1F4B3; Gold — $400 stake · $24/day</option>
+<option value="Black">&#x1F4B3; Black — $500 stake · $30/day</option>
+</select>
+<div style="font-size:.58rem;color:rgba(255,255,255,.3);margin-top:4px">Each card allows up to 5 active stakes</div>
+</div>
 
 <div style="font-size:.72rem;color:rgba(255,255,255,.45);margin-bottom:14px">Select your contract period and enter your sponsor code to activate:</div>
 
 <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap" id="periodSelect">
-<label style="flex:1;min-width:90px;cursor:pointer"><input type="radio" name="stakePeriod" value="90" style="display:none" onchange="updatePeriodUI()"><div class="period-opt" data-days="90" style="text-align:center;padding:12px 8px;border-radius:10px;border:2px solid rgba(218,165,32,.15);background:rgba(218,165,32,.04);transition:.2s"><div style="font-size:.95rem;font-weight:800;color:#daa520">3 Mo</div><div style="font-size:.6rem;color:rgba(255,255,255,.35);margin-top:2px">90 days &bull; $2,160</div></div></label>
-<label style="flex:1;min-width:90px;cursor:pointer"><input type="radio" name="stakePeriod" value="180" checked style="display:none" onchange="updatePeriodUI()"><div class="period-opt selected" data-days="180" style="text-align:center;padding:12px 8px;border-radius:10px;border:2px solid rgba(99,102,241,.4);background:rgba(99,102,241,.08);transition:.2s;box-shadow:0 0 15px rgba(99,102,241,.15)"><div style="font-size:.95rem;font-weight:800;color:#daa520">6 Mo</div><div style="font-size:.6rem;color:rgba(255,255,255,.35);margin-top:2px">180 days &bull; $4,320</div></div></label>
-<label style="flex:1;min-width:90px;cursor:pointer"><input type="radio" name="stakePeriod" value="365" style="display:none" onchange="updatePeriodUI()"><div class="period-opt" data-days="365" style="text-align:center;padding:12px 8px;border-radius:10px;border:2px solid rgba(39,174,96,.15);background:rgba(39,174,96,.04);transition:.2s"><div style="font-size:.95rem;font-weight:800;color:#daa520">1 Year</div><div style="font-size:.6rem;color:rgba(255,255,255,.35);margin-top:2px">365 days &bull; $8,760</div></div></label>
+<label style="flex:1;min-width:90px;cursor:pointer"><input type="radio" name="stakePeriod" value="90" style="display:none" onchange="updatePeriodUI()"><div class="period-opt" data-days="90" style="text-align:center;padding:12px 8px;border-radius:10px;border:2px solid rgba(218,165,32,.15);background:rgba(218,165,32,.04);transition:.2s"><div style="font-size:.95rem;font-weight:800;color:#daa520">3 Mo</div><div style="font-size:.6rem;color:rgba(255,255,255,.35);margin-top:2px"><span class="period-payout">90 days &bull; $2,160</span></div></div></label>
+<label style="flex:1;min-width:90px;cursor:pointer"><input type="radio" name="stakePeriod" value="180" checked style="display:none" onchange="updatePeriodUI()"><div class="period-opt selected" data-days="180" style="text-align:center;padding:12px 8px;border-radius:10px;border:2px solid rgba(99,102,241,.4);background:rgba(99,102,241,.08);transition:.2s;box-shadow:0 0 15px rgba(99,102,241,.15)"><div style="font-size:.95rem;font-weight:800;color:#daa520">6 Mo</div><div style="font-size:.6rem;color:rgba(255,255,255,.35);margin-top:2px"><span class="period-payout">180 days &bull; $4,320</span></div></div></label>
+<label style="flex:1;min-width:90px;cursor:pointer"><input type="radio" name="stakePeriod" value="365" style="display:none" onchange="updatePeriodUI()"><div class="period-opt" data-days="365" style="text-align:center;padding:12px 8px;border-radius:10px;border:2px solid rgba(39,174,96,.15);background:rgba(39,174,96,.04);transition:.2s"><div style="font-size:.95rem;font-weight:800;color:#daa520">1 Year</div><div style="font-size:.6rem;color:rgba(255,255,255,.35);margin-top:2px"><span class="period-payout">365 days &bull; $8,760</span></div></div></label>
 </div>
 
 <div style="margin-bottom:12px">
@@ -208,11 +221,22 @@ h1{text-align:center;font-size:1.8rem;margin-bottom:6px;background:linear-gradie
 <div style="font-size:.58rem;color:rgba(255,255,255,.3);margin-top:4px">Required — commissions flow through 8-generation binary tree</div>
 </div>
 
+<div style="margin-bottom:12px">
+<label style="font-size:.68rem;text-transform:uppercase;letter-spacing:.5px;color:rgba(255,255,255,.35);display:block;margin-bottom:6px">&#x1F504; Compound Frequency</label>
+<select id="stakeCompound" onchange="updatePeriodUI()" style="width:100%;padding:10px 14px;border-radius:10px;border:1px solid rgba(99,102,241,.15);background:rgba(0,0,0,.2);color:#fff;font-size:.8rem;outline:none">
+<option value="none">No Compound (Base Payout)</option>
+<option value="daily">Daily Compound (+2.4% bonus)</option>
+<option value="weekly" selected>Weekly Compound (+1.2% bonus)</option>
+<option value="monthly">Monthly Compound (+0.5% bonus)</option>
+</select>
+<div style="font-size:.58rem;color:rgba(255,255,255,.3);margin-top:4px">Compound reinvests earned rewards for bonus yield</div>
+</div>
+
 <div style="display:flex;gap:10px;align-items:center;background:rgba(0,0,0,.15);border-radius:10px;padding:12px;margin-bottom:14px">
 <div style="flex:1">
 <div style="font-size:.6rem;color:rgba(255,255,255,.35);text-transform:uppercase">You Pay</div>
 <div style="font-size:1rem;font-weight:800;color:#daa520" id="totalPay">$560</div>
-<div style="font-size:.58rem;color:rgba(255,255,255,.3)">$400 stake + $160 fee</div>
+<div id="totalPaySub" style="font-size:.58rem;color:rgba(255,255,255,.3)">$400 stake + $160 fee</div>
 </div>
 <div style="flex:1;text-align:center">
 <div style="font-size:.6rem;color:rgba(255,255,255,.35);text-transform:uppercase">Period</div>
@@ -292,7 +316,7 @@ h1{text-align:center;font-size:1.8rem;margin-bottom:6px;background:linear-gradie
 <a href="OLIGHFT%20SMART%20COIN%20backend/backend.html">&#x2699;&#xFE0F; Admin</a>
 <a href="auth.html">&#x1F512; Login</a>
 <a href="card-gold.html" class="active">&#x1F3C6; Gold Token</a>
-<a href="card-visa.html">&#x1F4B3; Visa Payment</a>
+<a href="card-visa.html">&#x1F4B3; Visa Staking</a>
 <a href="card-mastercard.html">&#x1F504; MC DEX</a>
 <a href="card-amex.html">&#x1F3DB;&#xFE0F; Amex DAO</a>
 <a href="card-platinum.html">&#x26CF;&#xFE0F; Plat Staking</a>
@@ -304,26 +328,74 @@ h1{text-align:center;font-size:1.8rem;margin-bottom:6px;background:linear-gradie
 </div>
 <script>
 
-const CARD={name:'Gold',stake:400,daily:24,fee:160,color:'#daa520'};
-const PERIODS={90:{payout:2160},180:{payout:4320},365:{payout:8760}};
+const ALL_CARDS={
+  Mastercard:{name:'Mastercard',stake:50,daily:4,fee:20,color:'#f2994a',periods:{90:360,180:720,365:1460}},
+  Visa:{name:'Visa',stake:100,daily:6,fee:40,color:'#f5c518',periods:{90:540,180:1080,365:2190}},
+  Amex:{name:'Amex',stake:200,daily:12,fee:80,color:'#2d9cdb',periods:{90:1080,180:2160,365:4380}},
+  Platinum:{name:'Platinum',stake:300,daily:18,fee:120,color:'#a0aec0',periods:{90:1620,180:3240,365:6570}},
+  Gold:{name:'Gold',stake:400,daily:24,fee:160,color:'#daa520',periods:{90:2160,180:4320,365:8760}},
+  Black:{name:'Black',stake:500,daily:30,fee:200,color:'#e2e8f0',periods:{90:2700,180:5400,365:10950}}
+};
+let CARD={name:'Gold',stake:400,daily:24,fee:160,color:'#daa520'};
+let PERIODS={90:{payout:2160},180:{payout:4320},365:{payout:8760}};
 const GEN_RATES=[0.10,0.06,0.04,0.04,0.04,0.04,0.04,0.04];
+
+function calcCardDailyCompound(cardDaily,days,compoundType){
+  if(days<=0)return 0;
+  if(!compoundType||compoundType==='none')return cardDaily*days;
+  var interval;
+  switch(compoundType){case 'daily':interval=1;break;case 'weekly':interval=7;break;case 'monthly':interval=30;break;default:return cardDaily*days;}
+  var compBoostRate=compoundType==='daily'?0.024:(compoundType==='weekly'?0.012:0.005);
+  var accumulated=0;
+  for(var d=1;d<=Math.floor(days);d++){accumulated+=cardDaily;if(d%interval===0&&d<days){accumulated+=accumulated*compBoostRate;}}
+  return accumulated;
+}
 
 function updatePeriodUI(){
   const r=document.querySelector('input[name=stakePeriod]:checked');
   if(!r)return;
   const d=parseInt(r.value),p=PERIODS[d];
+  const cSel=document.getElementById('stakeCompound');
+  const cmp=cSel?cSel.value:'none';
+  const compPay=Math.round(calcCardDailyCompound(CARD.daily,d,cmp));
   document.querySelectorAll('.period-opt').forEach(el=>{
     el.style.border='2px solid rgba(255,255,255,.06)';el.style.background='rgba(255,255,255,.02)';el.style.boxShadow='';
   });
   const sel=r.parentElement.querySelector('.period-opt');
   sel.style.border='2px solid rgba(99,102,241,.4)';sel.style.background='rgba(99,102,241,.08)';sel.style.boxShadow='0 0 15px rgba(99,102,241,.15)';
   document.getElementById('selPeriod').textContent=d+' days';
-  document.getElementById('netProfit').textContent='$'+(p.payout-CARD.stake-CARD.fee).toLocaleString();
+  document.getElementById('netProfit').textContent='$'+(compPay-CARD.stake-CARD.fee).toLocaleString();
+}
+
+function onCardChange(){
+  var sel=document.getElementById('cardTierSelect');
+  if(!sel)return;
+  var c=ALL_CARDS[sel.value];
+  if(!c)return;
+  CARD={name:c.name,stake:c.stake,daily:c.daily,fee:c.fee,color:c.color};
+  PERIODS={90:{payout:c.periods[90]},180:{payout:c.periods[180]},365:{payout:c.periods[365]}};
+  var h=document.getElementById('activateHeading');
+  if(h)h.innerHTML='&#x26A1; Activate '+CARD.name+' Staking';
+  var tp=document.getElementById('totalPay');
+  if(tp)tp.textContent='$'+(CARD.stake+CARD.fee);
+  var tpSub=document.getElementById('totalPaySub');
+  if(tpSub)tpSub.textContent='$'+CARD.stake+' stake + $'+CARD.fee+' fee';
+  var btn=document.getElementById('activateBtn');
+  if(btn&&!btn.disabled)btn.innerHTML='&#x26A1; Activate $'+CARD.stake+' '+CARD.name+' Stake';
+  document.querySelectorAll('.period-opt').forEach(function(el){
+    var d=el.getAttribute('data-days');
+    if(d&&PERIODS[d]){
+      var sub=el.querySelector('.period-payout');
+      if(sub)sub.textContent=d+' days \u2022 $'+PERIODS[d].payout.toLocaleString();
+    }
+  });
+  updatePeriodUI();
+  renderStakeStatus();
 }
 
 function getUser(){try{return JSON.parse(localStorage.getItem('cw_user')||'null');}catch(e){return null;}}
 
-const MAX_STAKES=3;
+const MAX_STAKES=5;
 
 function getMyStakes(){
   const all=JSON.parse(localStorage.getItem('card_stakes')||'[]');
@@ -437,6 +509,8 @@ async function activateStake(){
   const sponsor=document.getElementById('stakeSponsor').value.trim();
   if(!sponsor){alert('\u26A0\uFE0F Sponsor username is required');document.getElementById('stakeSponsor').focus();return;}
   const d=parseInt(r.value),p=PERIODS[d];
+  const comp=(document.getElementById('stakeCompound')||{}).value||'none';
+  const compPayout=Math.round(calcCardDailyCompound(CARD.daily,d,comp));
   const OLIGHFT_PRICE=0.50;
   const totalCostUSD=CARD.stake+CARD.fee;
   const requiredOLIGHFT=totalCostUSD/OLIGHFT_PRICE;
@@ -448,13 +522,13 @@ async function activateStake(){
     return;
   }
   const slotNum=activeCount+1;
-  if(!confirm('Confirm '+CARD.name+' Stake #'+slotNum+' Activation?\n\n\uD83D\uDCB0 Cost: '+requiredOLIGHFT.toLocaleString()+' OLIGHFT ($'+totalCostUSD+')\n\u23F1 Period: '+d+' days\n\uD83D\uDCC8 Daily: $'+CARD.daily+'\n\uD83D\uDCB5 Total: $'+p.payout+'\n\uD83C\uDF33 Sponsor: '+sponsor+'\n\uD83D\uDCE6 Slot: '+slotNum+' of '+MAX_STAKES+'\n\n\uD83D\uDCB0 Your OLIGHFT Balance: '+myOLIGHFT.toLocaleString()))return;
+  if(!confirm('Confirm '+CARD.name+' Stake #'+slotNum+' Activation?\n\n\uD83D\uDCB0 Cost: '+requiredOLIGHFT.toLocaleString()+' OLIGHFT ($'+totalCostUSD+')\n\u23F1 Period: '+d+' days\n\uD83D\uDCC8 Daily: $'+CARD.daily+'\n\uD83D\uDCB5 Total: $'+compPayout+' ('+comp+')\n\uD83C\uDF33 Sponsor: '+sponsor+'\n\uD83D\uDCE6 Slot: '+slotNum+' of '+MAX_STAKES+'\n\n\uD83D\uDCB0 Your OLIGHFT Balance: '+myOLIGHFT.toLocaleString()))return;
   cwBals.OLIGHFT=myOLIGHFT-requiredOLIGHFT;
   localStorage.setItem('cw_balances',JSON.stringify(cwBals));
   const mainWallet=(CARD.stake*0.60).toFixed(2);
   const refTotal=(CARD.stake*0.40).toFixed(2);
   const stakes=JSON.parse(localStorage.getItem('card_stakes')||'[]');
-  stakes.push({card:CARD.name,stake:CARD.stake,fee:CARD.fee,daily:CARD.daily,period:d,payout:p.payout,sponsor:sponsor,activatedBy:user.name,date:new Date().toISOString(),paidOLIGHFT:requiredOLIGHFT,referral:{mainWallet:parseFloat(mainWallet),genTotal:parseFloat(refTotal),gens:GEN_RATES.map((rt,i)=>({gen:i+1,amt:CARD.stake*rt}))}});
+  stakes.push({card:CARD.name,stake:CARD.stake,fee:CARD.fee,daily:CARD.daily,period:d,payout:compPayout,compound:comp,sponsor:sponsor,activatedBy:user.name,date:new Date().toISOString(),paidOLIGHFT:requiredOLIGHFT,referral:{mainWallet:parseFloat(mainWallet),genTotal:parseFloat(refTotal),gens:GEN_RATES.map((rt,i)=>({gen:i+1,amt:CARD.stake*rt}))}});
   localStorage.setItem('card_stakes',JSON.stringify(stakes));
   // Unified activity log
   try{var al=JSON.parse(localStorage.getItem('cw_activity')||'[]');al.unshift({type:CARD.name+' Card Stake',icon:'\uD83C\uDF1F',detail:'$'+CARD.stake+' staked \u00B7 '+d+'d \u00B7 $'+CARD.daily+'/day \u00B7 Sponsor: '+sponsor,amt:'-'+requiredOLIGHFT.toFixed(0)+' OLIGHFT',cls:'red',time:'Just now',ts:Date.now()});if(al.length>50)al.length=50;localStorage.setItem('cw_activity',JSON.stringify(al));}catch(e){}
@@ -478,7 +552,7 @@ async function activateStake(){
   localStorage.setItem('olighft_remaining_supply',remaining.toString());
   // ── Advance invite stage: card_activated ──
   (function(){try{var ISTAGES=['invited','registered','wallet_created','card_activated','staking_active'];var u=JSON.parse(localStorage.getItem('cw_user')||'null');if(!u||!u.email)return;var invs=JSON.parse(localStorage.getItem('cw_invites')||'[]');for(var inv of invs){if(inv.invitee&&inv.invitee.email&&inv.invitee.email.toLowerCase()===u.email.toLowerCase()){var ci=ISTAGES.indexOf(inv.stage),ni=ISTAGES.indexOf('card_activated');if(ni>ci){inv.stage='card_activated';inv.stageHistory.push({stage:'card_activated',at:Date.now()});}break;}}localStorage.setItem('cw_invites',JSON.stringify(invs));}catch(e){}})();
-  alert('\u2705 '+CARD.name+' Stake #'+slotNum+' Activated!\n\n\uD83D\uDCB0 Paid: '+requiredOLIGHFT.toLocaleString()+' OLIGHFT ($'+totalCostUSD+')\n\u23F1 Period: '+d+' days\n\uD83D\uDCC8 Daily: $'+CARD.daily+' \u2192 Total: $'+p.payout+'\n\uD83D\uDCB5 Net Profit: $'+(p.payout-CARD.stake-CARD.fee)+'\n\uD83C\uDF33 Sponsor: '+sponsor+'\n\uD83D\uDCE6 Slots used: '+slotNum+'/'+MAX_STAKES+'\n\uD83D\uDCB0 Remaining OLIGHFT: '+cwBals.OLIGHFT.toLocaleString());
+  alert('\u2705 '+CARD.name+' Stake #'+slotNum+' Activated!\n\n\uD83D\uDCB0 Paid: '+requiredOLIGHFT.toLocaleString()+' OLIGHFT ($'+totalCostUSD+')\n\u23F1 Period: '+d+' days\n\uD83D\uDCC8 Daily: $'+CARD.daily+' \u2192 Total: $'+compPayout+' ('+comp+')\n\uD83D\uDCB5 Net Profit: $'+(compPayout-CARD.stake-CARD.fee)+'\n\uD83C\uDF33 Sponsor: '+sponsor+'\n\uD83D\uDCE6 Slots used: '+slotNum+'/'+MAX_STAKES+'\n\uD83D\uDCB0 Remaining OLIGHFT: '+cwBals.OLIGHFT.toLocaleString());
   renderStakeStatus();
 }
 
@@ -530,7 +604,7 @@ function renderStakeStatus(){
     const start=new Date(s.date).getTime();
     const elapsed=Math.min(s.period,Math.floor((now-start)/86400000));
     const left=s.period-elapsed;
-    const earned=elapsed*CARD.daily;
+    const earned=calcCardDailyCompound(CARD.daily,elapsed,s.compound||'none');
     const pct=Math.round((elapsed/s.period)*100);
     const sd=new Date(s.date).toLocaleDateString();
     html+='<div style="background:rgba(39,174,96,.08);border:2px solid rgba(39,174,96,.2);border-radius:12px;padding:14px;transition:.2s">'+
