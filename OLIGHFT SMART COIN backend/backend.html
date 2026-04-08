@@ -6,6 +6,17 @@
 <title>OLIGHFT SMART COIN &mdash; Admin Backend</title>
 <meta name="robots" content="noindex, nofollow">
 <link rel="canonical" href="https://olighftcoin.com/backend.html">
+<script>
+(function(){
+  var ADMIN_EMAILS=['tzzminerals@gmail.com'];
+  try{
+    var u=JSON.parse(localStorage.getItem('cw_user')||'null');
+    if(!u||ADMIN_EMAILS.indexOf((u.email||'').toLowerCase())===-1){
+      window.location.replace('../dashboard.html');
+    }
+  }catch(e){window.location.replace('../dashboard.html');}
+})();
+</script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135deg,#0a0a1a,#111128,#0a0a1a);color:#fff;min-height:100vh}
