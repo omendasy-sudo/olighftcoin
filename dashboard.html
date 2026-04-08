@@ -670,13 +670,12 @@ var DEFAULT_BALS = { XLM: 10000, USDC: 2500, wETH: 1.85, wBTC: 0.042, EURC: 1200
   var _sb = document.getElementById('stakeBtn');
   if (_sb) _sb.disabled = false;
   // Clean up any duplicated card_stakes that leaked into wallet_stakes
+  // wallet_stakes created by doStake() always start with 'dsk_'
+  // card_stakes normalized by getWalletStakes() start with 'cs_' or have _normalized flag
   try {
     var _ws = JSON.parse(localStorage.getItem('wallet_stakes') || '[]');
-    var _cs = JSON.parse(localStorage.getItem('card_stakes') || '[]');
-    var _csIds = {};
-    for (var _i = 0; _i < _cs.length; _i++) { if (_cs[_i].id) _csIds[_cs[_i].id] = true; }
-    var _clean = _ws.filter(function(s) { return !_csIds[s.id] && !s._normalized; });
-    if (_clean.length !== _ws.length) localStorage.setItem('wallet_stakes', JSON.stringify(_clean));
+    var _cleanWs = _ws.filter(function(s) { return !s._normalized; });
+    if (_cleanWs.length !== _ws.length) localStorage.setItem('wallet_stakes', JSON.stringify(_cleanWs));
   } catch(e) { console.warn('cleanup:', e); }
 })();
 
@@ -879,7 +878,9 @@ function renderLiquidityPanel() {
 }
 
 function fmtBal(n) {
+  if (typeof n !== 'number' || isNaN(n)) return '0';
   if (n === 0) return '0';
+  if (n < 0) return '-' + fmtBal(-n);
   if (n >= 1000) return n.toLocaleString('en', { maximumFractionDigits: 2 });
   if (n >= 1) return n.toFixed(2);
   return n.toFixed(4);
@@ -1596,6 +1597,8 @@ function getWalletStakes() {
   for (var k = 0; k < cs.length; k++) {
     if (!ids[cs[k].id]) { ws.push(cs[k]); }
   }
+  // Persist generated IDs back to card_stakes so withdraw can find them
+  try { localStorage.setItem('card_stakes', JSON.stringify(cs)); } catch(e) {}
   return ws;
 }
 
@@ -1898,15 +1901,34 @@ function saveReceipt() {
 }
 
 function withdrawStake(stakeId) {
-  var stakes = getWalletStakes();
-  var idx = stakes.findIndex(function(s) { return s.id === stakeId; });
+  // Read wallet_stakes directly (not merged) to avoid duplication on save
+  var wsOnly = [];
+  try { wsOnly = JSON.parse(localStorage.getItem('wallet_stakes') || '[]'); } catch(e) { wsOnly = []; }
+  var idx = wsOnly.findIndex(function(s) { return s.id === stakeId; });
+  // Also check card_stakes if not found in wallet_stakes
+  var isCardStake = false;
+  var csAll = [];
+  if (idx < 0) {
+    try { csAll = JSON.parse(localStorage.getItem('card_stakes') || '[]'); } catch(e) { csAll = []; }
+    idx = csAll.findIndex(function(s) { return s.id === stakeId; });
+    if (idx >= 0) isCardStake = true;
+  }
   if (idx < 0) { showToast('Stake not found.', '#eb5757'); return; }
+  var stakes = isCardStake ? csAll : wsOnly;
   var s = stakes[idx];
   var now = Date.now();
 
-  if (s.endDate) {
-    var end = new Date(s.endDate).getTime();
-    if (now < end) {
+  // Normalize card_stakes fields for withdrawal
+  var sStartDate = s.startDate || s.date || null;
+  var sEndDate = s.endDate || (sStartDate && (s.lockDays || s.period) > 0 ? new Date(new Date(sStartDate).getTime() + (s.lockDays || s.period) * 86400000).toISOString() : null);
+  var sAmount = parseFloat(s.amount || s.paidOLIGHFT || ((s.stake || 0) / (OLIGHFT_PRICE || 0.50))) || 0;
+  var sCardTier = s.cardTier || s.card || '';
+  var sCompound = s.compound || 'none';
+  var sLastCompound = s.lastCompound || sStartDate;
+
+  if (sEndDate) {
+    var end = new Date(sEndDate).getTime();
+    if (!isNaN(end) && now < end) {
       var daysLeft = Math.ceil((end - now) / 86400000);
       showToast('Stake locked! ' + daysLeft + ' days remaining.', '#eb5757');
       return;
@@ -1914,18 +1936,20 @@ function withdrawStake(stakeId) {
   }
   if (s.withdrawn) { showToast('Already withdrawn.', '#eb5757'); return; }
 
-  var elapsed = (now - new Date(s.lastCompound || s.startDate).getTime()) / 86400000;
+  var elStartTs = new Date(sLastCompound || 0).getTime();
+  var elapsed = isNaN(elStartTs) ? 0 : (now - elStartTs) / 86400000;
+  if (elapsed < 0) elapsed = 0;
   var accrued;
-  var tier = s.cardTier && CARD_TIERS[s.cardTier] ? CARD_TIERS[s.cardTier] : null;
+  var tier = sCardTier && CARD_TIERS[sCardTier] ? CARD_TIERS[sCardTier] : null;
   if (tier) {
     var cardDailyOLIGHFT = tier.daily / OLIGHFT_PRICE;
-    accrued = calcCardDailyCompound(cardDailyOLIGHFT, elapsed, s.compound || 'none');
-  } else if (s.compound && s.compound !== 'none' && s.apy) {
-    accrued = calcCompoundReward(s.amount, s.apy, elapsed, s.compound);
+    accrued = calcCardDailyCompound(cardDailyOLIGHFT, elapsed, sCompound);
+  } else if (sCompound && sCompound !== 'none' && s.apy) {
+    accrued = calcCompoundReward(sAmount, s.apy, elapsed, sCompound);
   } else {
     accrued = (s.dailyReward || 0) * elapsed;
   }
-  var totalReturn = s.amount + (s.reward || 0) + accrued;
+  var totalReturn = sAmount + (s.reward || 0) + accrued;
   var asset = s.asset || 'OLIGHFT';
 
   // Reward portion comes from total supply (principal returns to user, reward is minted from supply)
@@ -1940,11 +1964,11 @@ function withdrawStake(stakeId) {
     returnUnusedToSupply(reservedAmt - rewardPortion, stakeId);
   }
 
-  if (!confirm('Withdraw ' + totalReturn.toFixed(2) + ' ' + asset + ' (principal: ' + s.amount.toFixed(2) + ' + reward from supply: ' + rewardPortion.toFixed(2) + ')?')) return;
+  if (!confirm('Withdraw ' + totalReturn.toFixed(2) + ' ' + asset + ' (principal: ' + sAmount.toFixed(2) + ' + reward from supply: ' + rewardPortion.toFixed(2) + ')?')) return;
 
   // On-chain withdraw
   var bestCard = getBestCard();
-  var tierName = bestCard ? bestCard.card : (s.cardTier || 'Visa');
+  var tierName = bestCard ? bestCard.card : (sCardTier || 'Visa');
   if (typeof STAKING_BACKEND !== 'undefined' && STAKING_BACKEND.isWalletConnected()) {
     (async function() {
       try {
@@ -1964,7 +1988,7 @@ function withdrawStake(stakeId) {
   stakes[idx].withdrawn = true;
   stakes[idx].actualReward = rewardPortion;
   stakes[idx].withdrawnAt = Date.now();
-  localStorage.setItem('wallet_stakes', JSON.stringify(stakes));
+  localStorage.setItem(isCardStake ? 'card_stakes' : 'wallet_stakes', JSON.stringify(stakes));
 
   // Activity log
   try { var al = JSON.parse(localStorage.getItem('cw_activity') || '[]'); al.unshift({ type: 'Unstaked', icon: '\uD83D\uDCB0', detail: 'Withdrew ' + totalReturn.toFixed(2) + ' ' + asset + ' (reward: ' + rewardPortion.toFixed(2) + ' from supply' + (s.compound && s.compound !== 'none' ? ' \u00B7 ' + s.compound + ' compound' : '') + ')', amt: '+' + totalReturn.toFixed(2) + ' ' + asset, cls: 'green', time: 'Just now', ts: Date.now() }); if (al.length > 50) al.length = 50; localStorage.setItem('cw_activity', JSON.stringify(al)); } catch(e) {}
