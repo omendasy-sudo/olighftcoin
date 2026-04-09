@@ -2325,6 +2325,7 @@ function restoreSecToggles(){
 
 function showToast(msg,color){
   const t=document.getElementById('toast');
+  if(!t)return;
   t.textContent=msg;t.style.background=color||'#27ae60';
   t.classList.add('show');
   setTimeout(()=>t.classList.remove('show'),2000);
@@ -2968,12 +2969,13 @@ async function runAllSecurityTests(){
     var _tkp=await deriveKeypair(_tm,0);
     localStorage.setItem('cw_user',JSON.stringify({name:'MSTest',email:'ms@test.com',addr:_tkp.publicKey,sponsor:'X',created:Date.now()}));
     localStorage.setItem('cw_accounts',btoa(JSON.stringify([{index:0,label:'Primary',publicKey:_tkp.publicKey,secret:_tkp.secret}])));
+    localStorage.setItem('cw_active_idx','0');
   }
   var txsBefore=JSON.parse(localStorage.getItem('cw_single_txs')||'[]').length;
-  msCreateTx();
+  try { msCreateTx(); } catch(e) { /* ignore DOM errors during test */ }
   var txsAfter=JSON.parse(localStorage.getItem('cw_single_txs')||'[]');
   var t10=txsAfter.length===txsBefore+1;
-  sBadge(msRows,2,t10);sLog('msCreateTx Signs Instantly',t10,t10?'TX created: '+txsAfter[0].id+' (weight 255/1)':'TX count unchanged');
+  sBadge(msRows,2,t10);sLog('msCreateTx Signs Instantly',t10,t10?'TX created: '+txsAfter[0].id+' (weight 255/1)':'TX count unchanged. Accounts: '+getAccounts().length);
 
   // T11: No additional signers (single-signer mode)
   var addSignerSel=document.getElementById('msAddSignerSel');
