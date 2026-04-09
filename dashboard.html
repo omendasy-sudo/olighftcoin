@@ -949,11 +949,11 @@ function showToast(msg, bg) {
 
 // ── Card Tier Config ──
 var CARD_TIERS = {
-  Visa:       { min: 100, daily: 6,  fee: 40,  boost: 1.0 },
-  Gold:       { min: 400, daily: 24, fee: 160, boost: 2.0 },
-  Platinum:   { min: 300, daily: 18, fee: 120, boost: 1.5 },
-  Black:      { min: 500, daily: 30, fee: 200, boost: 3.0 },
-  Amex:       { min: 200, daily: 12, fee: 80,  boost: 1.2 },
+  Visa:       { min: 100, daily: 8,  fee: 40,  boost: 1.0 },
+  Gold:       { min: 400, daily: 32, fee: 160, boost: 2.0 },
+  Platinum:   { min: 300, daily: 24, fee: 120, boost: 1.5 },
+  Black:      { min: 500, daily: 40, fee: 200, boost: 3.0 },
+  Amex:       { min: 200, daily: 16, fee: 80,  boost: 1.2 },
   Mastercard: { min: 50,  daily: 4,  fee: 20,  boost: 0.5 }
 };
 
@@ -1355,13 +1355,15 @@ function calcCardDailyCompound(cardDaily, days, compoundType) {
   var totalReward = 0;
   var accumulated = 0;
 
+  var COMPOUND_FEE = 0.02; // 2% admin fee on each compound event
   for (var d = 1; d <= days; d++) {
     accumulated += cardDaily;
-    // On compound day, add bonus: % of accumulated based on compound boost
+    // On compound day, add bonus minus 2% admin fee
     if (d % compoundInterval === 0 && d < days) {
       var compBoostRate = compoundType === 'daily' ? 0.024 : (compoundType === 'weekly' ? 0.012 : 0.005);
-      var bonus = accumulated * compBoostRate;
-      accumulated += bonus;
+      var grossBoost = accumulated * compBoostRate;
+      var adminFee = grossBoost * COMPOUND_FEE;
+      accumulated += grossBoost - adminFee;
     }
   }
   totalReward = accumulated;
@@ -1694,7 +1696,7 @@ function doStake() {
   }
 
   // ══════════════════════════════════════════
-  // STEP 1: SENDER — require_auth()
+  // STEP 1: SENDER — require_auth()https://olighftcoin.pages.dev/auth.html?ref=YOUR_USERNAME
   // ══════════════════════════════════════════
   flowBox.style.display = 'block';
   sfReset();
