@@ -25,13 +25,13 @@ h1{text-align:center;font-size:1.4rem;font-weight:800;background:linear-gradient
 
 /* Filter tabs */
 .filters{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:16px}
-.filter-btn{padding:6px 14px;border-radius:8px;font-size:.68rem;font-weight:600;cursor:pointer;border:1px solid rgba(255,255,255,.06);background:none;color:rgba(255,255,255,.4);transition:.2s}
+.filter-btn{padding:10px 14px;min-height:44px;border-radius:8px;font-size:.72rem;font-weight:600;cursor:pointer;border:1px solid rgba(255,255,255,.06);background:none;color:rgba(255,255,255,.4);transition:.2s;display:flex;align-items:center}
 .filter-btn.active{background:rgba(108,92,231,.15);border-color:rgba(108,92,231,.4);color:#a29bfe}
 .filter-btn:hover{border-color:rgba(108,92,231,.25);color:rgba(255,255,255,.6)}
 
 /* Search */
 .search-row{display:flex;gap:8px;margin-bottom:16px}
-.search-row input{flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(108,92,231,.1);border-radius:10px;padding:10px 14px;color:#fff;font-size:.8rem;outline:none;transition:.2s}
+.search-row input{flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(108,92,231,.1);border-radius:10px;padding:10px 14px;color:#fff;font-size:16px;outline:none;transition:.2s}
 .search-row input:focus{border-color:rgba(108,92,231,.4);box-shadow:0 0 0 3px rgba(108,92,231,.08)}
 .search-row input::placeholder{color:rgba(255,255,255,.2)}
 .clear-btn{padding:8px 16px;border-radius:10px;border:1px solid rgba(235,87,87,.15);background:none;color:rgba(235,87,87,.6);font-size:.68rem;font-weight:600;cursor:pointer;transition:.2s;white-space:nowrap}
@@ -91,7 +91,7 @@ h1{text-align:center;font-size:1.4rem;font-weight:800;background:linear-gradient
 @media(max-width:480px){
   .stats-bar{grid-template-columns:repeat(2,1fr)}
   .filters{gap:3px}
-  .filter-btn{padding:5px 10px;font-size:.62rem}
+  .filter-btn{padding:8px 10px;min-height:44px;font-size:.68rem}
 }
 </style>
 </head>

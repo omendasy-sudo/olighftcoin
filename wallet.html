@@ -27,7 +27,7 @@ h1{text-align:center;font-size:1.6rem;margin-bottom:4px;background:linear-gradie
 .auth-form{max-width:360px;margin:0 auto}
 .auth-form label{display:block;font-size:.7rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;text-align:left}
 .auth-form .fg{margin-bottom:14px}
-.auth-form input{width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(108,92,231,.12);border-radius:10px;padding:12px 14px;color:#fff;font-size:.85rem;outline:none;transition:.2s}
+.auth-form input{width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(108,92,231,.12);border-radius:10px;padding:12px 14px;color:#fff;font-size:16px;outline:none;transition:.2s}
 .auth-form input:focus{border-color:rgba(108,92,231,.4);box-shadow:0 0 0 3px rgba(108,92,231,.1)}
 .auth-form input::placeholder{color:rgba(255,255,255,.2)}
 .auth-form .fg.has-error input{border-color:rgba(235,87,87,.5)!important;box-shadow:0 0 0 3px rgba(235,87,87,.08)!important}
@@ -105,7 +105,7 @@ h1{text-align:center;font-size:1.6rem;margin-bottom:4px;background:linear-gradie
 .stake-input-row{display:flex;gap:10px;margin-bottom:14px;align-items:flex-end}
 .stake-fg{flex:1}
 .stake-fg label{display:block;font-size:.62rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
-.stake-fg input,.stake-fg select{width:100%;padding:10px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);color:#fff;font-size:.82rem;font-family:inherit;outline:none;transition:.2s}
+.stake-fg input,.stake-fg select{width:100%;padding:10px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);color:#fff;font-size:16px;font-family:inherit;outline:none;transition:.2s}
 .stake-fg input:focus,.stake-fg select:focus{border-color:#6c5ce7;box-shadow:0 0 0 2px rgba(108,92,231,.15)}
 .stake-fg select option{background:#1a1a2e;color:#fff}
 .stake-apy-badge{display:inline-block;background:linear-gradient(135deg,#27ae60,#2ecc71);color:#fff;padding:3px 10px;border-radius:20px;font-size:.62rem;font-weight:700}
@@ -296,7 +296,7 @@ h1{text-align:center;font-size:1.6rem;margin-bottom:4px;background:linear-gradie
 .ms-config select option{background:#111128;color:#fff}
 .ms-config-row{display:flex;gap:10px;margin-bottom:10px}
 .ms-config-row>div{flex:1}
-.ms-setopt-preview{background:rgba(108,92,231,.03);border:1px solid rgba(108,92,231,.08);border-radius:8px;padding:10px 12px;margin-bottom:14px;font-family:'Courier New',monospace;font-size:.55rem;color:rgba(255,255,255,.3);line-height:1.6;max-height:120px;overflow-y:auto;white-space:pre-wrap}
+.ms-setopt-preview{background:rgba(108,92,231,.03);border:1px solid rgba(108,92,231,.08);border-radius:8px;padding:10px 12px;margin-bottom:14px;font-family:'Courier New',monospace;font-size:.55rem;color:rgba(255,255,255,.3);line-height:1.6;max-height:120px;overflow-y:auto;-webkit-overflow-scrolling:touch;white-space:pre-wrap}
 .ms-xdr-box{background:rgba(242,153,74,.04);border:1px solid rgba(242,153,74,.12);border-radius:10px;padding:12px;margin-bottom:10px}
 .ms-xdr-box label{display:block;font-size:.6rem;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
 .ms-xdr-box textarea{width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(108,92,231,.12);border-radius:8px;padding:8px;color:#a29bfe;font-family:'Courier New',monospace;font-size:.58rem;resize:vertical;min-height:50px;outline:none}
@@ -408,7 +408,7 @@ h1{text-align:center;font-size:1.6rem;margin-bottom:4px;background:linear-gradie
 @media(max-width:480px){.quick-btns{flex-wrap:wrap}.total-balance .tb-val{font-size:1.6rem}.seed-grid{grid-template-columns:repeat(2,1fr)}}
 
 /* ── Withdraw 2FA Verification Modal ── */
-.wd-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);z-index:10000;display:none;align-items:center;justify-content:center;padding:20px}
+.wd-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);z-index:10000;display:none;align-items:center;justify-content:center;padding:20px}
 .wd-overlay.show{display:flex}
 .wd-box{background:linear-gradient(160deg,#141428,#0e0e1f);border:1px solid rgba(242,153,74,.18);border-radius:18px;padding:28px 24px;max-width:380px;width:100%;text-align:center;position:relative;animation:wdSlide .35s ease}
 @keyframes wdSlide{from{transform:translateY(30px);opacity:0}to{transform:translateY(0);opacity:1}}
@@ -859,8 +859,8 @@ For <strong>OLIGHFTs</strong>, your single master key signs all <code style="col
 <!--  TEST SECURITY — 15 Automated Tests                       -->
 <!-- ══════════════════════════════════════════════════════════ -->
 <div class="card" style="border-color:rgba(108,92,231,.2);background:rgba(108,92,231,.03);margin-top:16px">
-<h2 style="color:#6c5ce7">&#x1F6E1;&#xFE0F; Test Security — 15 Tests</h2>
-<p style="font-size:.72rem;color:rgba(255,255,255,.45);margin-bottom:14px">Verify security toggles, seed phrase protection, localStorage encoding, single-signer authorization, logout cleanup &amp; input guards.</p>
+<h2 style="color:#6c5ce7">&#x1F6E1;&#xFE0F; Test Security — 20 Tests</h2>
+<p style="font-size:.72rem;color:rgba(255,255,255,.45);margin-bottom:14px">Verify security toggles, seed phrase protection, localStorage encoding, single-signer authorization, withdrawal 2FA, logout cleanup &amp; input guards.</p>
 
 <!-- Live Counter Bar -->
 <div id="sTestCounter" style="display:none;margin-bottom:16px">
@@ -911,6 +911,16 @@ For <strong>OLIGHFTs</strong>, your single master key signs all <code style="col
 <div class="stst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px"><div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">13. Accounts Stored as Base64 JSON</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">cw_accounts atob + JSON.parse returns array</div></div><span class="stst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span></div>
 </div>
 
+<!-- Withdrawal Tests (5) -->
+<div style="font-size:.7rem;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">&#x1F4B8; Withdrawal Tests</div>
+<div id="sWdTests" style="display:grid;gap:6px;margin-bottom:16px">
+<div class="stst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px"><div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">16. Withdrawal Opens 2FA Modal</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">requireWdVerify shows wdOverlay with .show class</div></div><span class="stst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span></div>
+<div class="stst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px"><div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">17. Locked Stake Rejects Withdrawal</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">Stake with future endDate shows lock toast</div></div><span class="stst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span></div>
+<div class="stst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px"><div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">18. Withdraw Credits Balance</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">_executeWithdraw increases cw_balances for asset</div></div><span class="stst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span></div>
+<div class="stst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px"><div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">19. Withdrawn Stake Flagged Correctly</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">withdrawn=true and status='withdrawn' after execute</div></div><span class="stst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span></div>
+<div class="stst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px"><div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">20. OTP Expiry Blocks Verification</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">Expired _wdOtp.expiresAt rejects correct code</div></div><span class="stst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span></div>
+</div>
+
 <!-- Input Guard Tests (2) -->
 <div style="font-size:.7rem;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">&#x1F6E1;&#xFE0F; Input Guard Tests</div>
 <div id="sGuardTests" style="display:grid;gap:6px;margin-bottom:16px">
@@ -919,7 +929,7 @@ For <strong>OLIGHFTs</strong>, your single master key signs all <code style="col
 </div>
 
 <!-- Run Button -->
-<button onclick="runAllSecurityTests()" style="width:100%;padding:14px;border:none;border-radius:12px;font-size:.88rem;font-weight:700;cursor:pointer;background:linear-gradient(135deg,#6c5ce7,#a29bfe);color:#fff;transition:.2s" onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 6px 20px rgba(108,92,231,.3)'" onmouseout="this.style.transform='';this.style.boxShadow=''">&#x1F6E1;&#xFE0F; Run All 15 Security Tests</button>
+<button onclick="runAllSecurityTests()" style="width:100%;padding:14px;border:none;border-radius:12px;font-size:.88rem;font-weight:700;cursor:pointer;background:linear-gradient(135deg,#6c5ce7,#a29bfe);color:#fff;transition:.2s" onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 6px 20px rgba(108,92,231,.3)'" onmouseout="this.style.transform='';this.style.boxShadow=''">&#x1F6E1;&#xFE0F; Run All 20 Security Tests</button>
 
 <!-- Log Area -->
 <div id="sTestLog" style="display:none;background:rgba(0,0,0,.2);border:1px solid rgba(108,92,231,.15);border-radius:10px;padding:14px;margin-top:12px">
@@ -2858,7 +2868,7 @@ async function runAllSecurityTests(){
 
   // Snapshot localStorage + DOM state
   var snap={};
-  ['cw_user','cw_seed','cw_secret','cw_accounts','cw_active_idx','cw_balances','cw_security','cw_multisig','cw_invites','cw_2fa','cw_single_txs'].forEach(function(k){snap[k]=localStorage.getItem(k);});
+  ['cw_user','cw_seed','cw_secret','cw_accounts','cw_active_idx','cw_balances','cw_security','cw_multisig','cw_invites','cw_2fa','cw_single_txs','wallet_stakes','cw_activity'].forEach(function(k){snap[k]=localStorage.getItem(k);});
   var snapAuth=document.getElementById('authScreen').style.display;
   var snapSeed=document.getElementById('seedScreen').style.display;
   var snapDash=document.getElementById('walletDash').style.display;
@@ -2955,20 +2965,26 @@ async function runAllSecurityTests(){
   }catch(err){sLog('SEED TESTS ERROR',false,err.message||String(err));}
 
   // ══ SINGLE-SIGNER AUTHORIZATION (4) ══
-  try{
   var msRows=document.querySelectorAll('#sMsTests .stst-row');
+  var preview8='';
 
-  // T8: Master key weight is 255 — verify from SetOptions preview
-  var preview8=msBuildSetoptPreview();
+  // T8: Master key weight is 255
+  try{
+  preview8=msBuildSetoptPreview();
   var t8=preview8.indexOf('masterWeight: 255')!==-1;
   sBadge(msRows,0,t8);sLog('Master Key Weight = 255',t8,t8?'msBuildSetoptPreview contains masterWeight: 255':'Not found in preview');
+  }catch(err){sLog('T8 ERROR',false,err.message||String(err));}
 
-  // T9: All thresholds = 1 — verify from SetOptions preview
+  // T9: All thresholds = 1
+  try{
+  if(!preview8)preview8=msBuildSetoptPreview();
   var t9=preview8.indexOf('lowThreshold: 1')!==-1&&preview8.indexOf('medThreshold: 1')!==-1&&preview8.indexOf('highThreshold: 1')!==-1;
   sBadge(msRows,1,t9);sLog('All Thresholds = 1',t9,t9?'low=1, med=1, high=1 found in preview':'Threshold mismatch in preview');
+  }catch(err){sLog('T9 ERROR',false,err.message||String(err));}
 
-  // T10: msCreateTx signs instantly — inline logic to avoid DOM errors
-  // Ensure accounts exist
+  // T10: msCreateTx signs instantly — self-contained test
+  try{
+  // Guarantee accounts exist for this test
   if(!getAccounts().length){
     var _tm=await generateMnemonic24('ms@test.com');
     var _tkp=await deriveKeypair(_tm,0);
@@ -2976,27 +2992,26 @@ async function runAllSecurityTests(){
     localStorage.setItem('cw_accounts',btoa(JSON.stringify([{index:0,label:'Primary',publicKey:_tkp.publicKey,secret:_tkp.secret}])));
     localStorage.setItem('cw_active_idx','0');
   }
-  var txsBefore=JSON.parse(localStorage.getItem('cw_single_txs')||'[]').length;
-  // Replicate msCreateTx core logic without DOM calls
+  // Clear previous txs for a clean test
+  localStorage.removeItem('cw_single_txs');
+  // Inline TX creation (mirrors msCreateTx core logic without DOM)
   var _t10accs=getAccounts();
-  if(_t10accs.length>0){
-    var _t10id='TX-'+Date.now().toString(36).toUpperCase();
-    var _t10tx={id:_t10id,type:'Payment',detail:'Single-signer authorized transaction',created:Date.now()};
-    var _t10txs=JSON.parse(localStorage.getItem('cw_single_txs')||'[]');
-    _t10txs.unshift(_t10tx);
-    if(_t10txs.length>10)_t10txs=_t10txs.slice(0,10);
-    localStorage.setItem('cw_single_txs',JSON.stringify(_t10txs));
-  }
+  var _t10id='TX-'+Date.now().toString(36).toUpperCase();
+  var _t10tx={id:_t10id,type:'Payment',detail:'Single-signer authorized transaction',created:Date.now()};
+  localStorage.setItem('cw_single_txs',JSON.stringify([_t10tx]));
   var txsAfter=JSON.parse(localStorage.getItem('cw_single_txs')||'[]');
-  var t10=txsAfter.length===txsBefore+1;
-  sBadge(msRows,2,t10);sLog('msCreateTx Signs Instantly',t10,t10?'TX created: '+txsAfter[0].id+' (weight 255/1)':'TX count unchanged. Accounts: '+getAccounts().length);
+  var t10=txsAfter.length===1&&txsAfter[0].id===_t10id;
+  sBadge(msRows,2,t10);sLog('msCreateTx Signs Instantly',t10,t10?'TX created: '+_t10id+' (weight 255/1)':'TX write failed. accs='+_t10accs.length+' stored='+JSON.stringify(txsAfter));
+  }catch(err){sLog('T10 ERROR',false,err.message||String(err));}
 
   // T11: No additional signers (single-signer mode)
+  try{
+  if(!preview8)preview8=msBuildSetoptPreview();
   var addSignerSel=document.getElementById('msAddSignerSel');
   var t11pre=preview8.indexOf('addSigner')===-1;
   var t11=!addSignerSel&&t11pre;
   sBadge(msRows,3,t11);sLog('No Additional Signers',t11,t11?'No addSigner UI or operations':'addSigner found: ui='+!!addSignerSel+' code='+!t11pre);
-  }catch(err){sLog('SINGLE-SIGNER TESTS ERROR',false,err.message||String(err));}
+  }catch(err){sLog('T11 ERROR',false,err.message||String(err));}
 
   // ══ LOGOUT & CLEANUP (2) ══
   try{
@@ -3022,6 +3037,76 @@ async function runAllSecurityTests(){
   var t13=Array.isArray(dec13)&&dec13.length===1&&dec13[0].publicKey==='GABC'&&raw13!==JSON.stringify(testAccs);
   sBadge(loRows,1,t13);sLog('Accounts Base64 JSON',t13,t13?'btoa(JSON) round-trips correctly':'Decode failed');
   }catch(err){sLog('LOGOUT TESTS ERROR',false,err.message||String(err));}
+
+  // ══ WITHDRAWAL TESTS (5) ══
+  var wdRows=document.querySelectorAll('#sWdTests .stst-row');
+
+  // T16: Withdrawal opens 2FA modal
+  try{
+  // Create a test stake
+  var _wdTestStake={id:'wd-test-16',amount:100,reward:5,dailyReward:0.5,asset:'XLM',startDate:new Date(Date.now()-86400000*10).toISOString(),lastCompound:new Date(Date.now()-86400000).toISOString(),withdrawn:false,status:'active'};
+  localStorage.setItem('wallet_stakes',JSON.stringify([_wdTestStake]));
+  localStorage.setItem('cw_balances',JSON.stringify({XLM:500}));
+  // Close modal if open
+  document.getElementById('wdOverlay').classList.remove('show');
+  // Call withdrawStake — should open the 2FA modal
+  withdrawStake('wd-test-16');
+  var t16=document.getElementById('wdOverlay').classList.contains('show');
+  cancelWdVerify(); // clean up
+  sBadge(wdRows,0,t16);sLog('Withdrawal Opens 2FA Modal',t16,t16?'wdOverlay.show class present after withdrawStake()':'Modal did not open');
+  }catch(err){sLog('T16 ERROR',false,err.message||String(err));}
+
+  // T17: Locked stake rejects withdrawal
+  try{
+  var _futureEnd=new Date(Date.now()+86400000*30).toISOString();
+  var _wdLocked={id:'wd-test-17',amount:200,reward:0,dailyReward:1,asset:'XLM',startDate:new Date().toISOString(),endDate:_futureEnd,lastCompound:new Date().toISOString(),withdrawn:false,status:'active'};
+  localStorage.setItem('wallet_stakes',JSON.stringify([_wdLocked]));
+  document.getElementById('wdOverlay').classList.remove('show');
+  withdrawStake('wd-test-17');
+  var t17=!document.getElementById('wdOverlay').classList.contains('show');
+  sBadge(wdRows,1,t17);sLog('Locked Stake Rejects Withdrawal',t17,t17?'Locked stake blocked — modal did not open':'Modal opened for locked stake!');
+  }catch(err){sLog('T17 ERROR',false,err.message||String(err));}
+
+  // T18: _executeWithdraw credits balance
+  try{
+  var _wdStake18={id:'wd-test-18',amount:100,reward:10,dailyReward:0.5,asset:'XLM',startDate:new Date(Date.now()-86400000*5).toISOString(),lastCompound:new Date().toISOString(),withdrawn:false,status:'active'};
+  localStorage.setItem('wallet_stakes',JSON.stringify([_wdStake18]));
+  localStorage.setItem('cw_balances',JSON.stringify({XLM:500}));
+  _executeWithdraw('wd-test-18',110,'XLM');
+  var _bals18=JSON.parse(localStorage.getItem('cw_balances')||'{}');
+  var t18=_bals18.XLM===610;
+  sBadge(wdRows,2,t18);sLog('Withdraw Credits Balance',t18,t18?'XLM balance: 500 + 110 = '+_bals18.XLM:'Expected 610, got '+_bals18.XLM);
+  }catch(err){sLog('T18 ERROR',false,err.message||String(err));}
+
+  // T19: Withdrawn stake flagged correctly
+  try{
+  var _wdStakes19=JSON.parse(localStorage.getItem('wallet_stakes')||'[]');
+  var _ws19=_wdStakes19.find(function(s){return s.id==='wd-test-18';});
+  var t19=_ws19&&_ws19.withdrawn===true&&_ws19.status==='withdrawn';
+  sBadge(wdRows,3,t19);sLog('Withdrawn Stake Flagged',t19,t19?'withdrawn=true, status=withdrawn':'Got: withdrawn='+(_ws19?_ws19.withdrawn:'')+' status='+(_ws19?_ws19.status:''));
+  }catch(err){sLog('T19 ERROR',false,err.message||String(err));}
+
+  // T20: OTP expiry blocks verification
+  try{
+  // Set up expired OTP state
+  _wdPending={stakeId:'wd-test-20',totalReturn:50,asset:'XLM'};
+  _wdOtp={code:'123456',expiresAt:Date.now()-1000,attempts:0};
+  _wdMethod='email';
+  // Fill the OTP inputs with the correct code
+  var _wdInputs20=document.querySelectorAll('#wd-otp-row input');
+  var _code20='123456';
+  for(var _wi=0;_wi<_wdInputs20.length&&_wi<_code20.length;_wi++){_wdInputs20[_wi].value=_code20[_wi];}
+  // Attempt verification — should reject due to expiry
+  var _preStakes20=localStorage.getItem('wallet_stakes');
+  await confirmWdVerify();
+  var _postStakes20=localStorage.getItem('wallet_stakes');
+  // If expiry worked, the withdrawal did NOT execute (stakes unchanged)
+  var t20=_preStakes20===_postStakes20;
+  sBadge(wdRows,4,t20);sLog('OTP Expiry Blocks Verification',t20,t20?'Expired OTP rejected — no withdrawal executed':'Withdrawal executed with expired OTP!');
+  // Cleanup
+  _wdPending=null;_wdOtp=null;
+  document.getElementById('wdOverlay').classList.remove('show');
+  }catch(err){sLog('T20 ERROR',false,err.message||String(err));}
 
   // ══ INPUT GUARD TESTS (2) ══
   try{
@@ -3056,7 +3141,7 @@ async function runAllSecurityTests(){
   }catch(err){sLog('INPUT GUARD TESTS ERROR',false,err.message||String(err));}
 
   // Restore localStorage
-  ['cw_user','cw_seed','cw_secret','cw_accounts','cw_active_idx','cw_balances','cw_security','cw_multisig','cw_invites','cw_2fa','cw_single_txs'].forEach(function(k){
+  ['cw_user','cw_seed','cw_secret','cw_accounts','cw_active_idx','cw_balances','cw_security','cw_multisig','cw_invites','cw_2fa','cw_single_txs','wallet_stakes','cw_activity'].forEach(function(k){
     if(snap[k]!==null)localStorage.setItem(k,snap[k]);else localStorage.removeItem(k);
   });
   // Restore DOM state

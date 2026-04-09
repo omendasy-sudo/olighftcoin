@@ -23,10 +23,10 @@ h1{text-align:center;font-size:1.6rem;margin-bottom:4px;background:linear-gradie
 .card h2{font-size:.85rem;color:rgba(255,255,255,.5);margin-bottom:16px;display:flex;align-items:center;gap:8px}
 label{display:block;font-size:.72rem;color:rgba(255,255,255,.45);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
 .input-group{margin-bottom:16px}
-select,input{width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(39,174,96,.12);border-radius:10px;padding:12px 14px;color:#fff;font-size:.85rem;outline:none;transition:.2s;font-family:inherit}
+select,input{width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(39,174,96,.12);border-radius:10px;padding:12px 14px;color:#fff;font-size:16px;outline:none;transition:.2s;font-family:inherit}
 select:focus,input:focus{border-color:rgba(39,174,96,.4);box-shadow:0 0 0 3px rgba(39,174,96,.1)}
 input::placeholder{color:rgba(255,255,255,.2)}
-select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='rgba(255,255,255,0.4)' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
+select{cursor:pointer;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='rgba(255,255,255,0.4)' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
 select option{background:#1a1a2e;color:#fff}
 .qr-area{text-align:center;padding:20px;margin:16px 0}
 .qr-box{display:inline-block;background:#fff;border-radius:16px;padding:16px;box-shadow:0 8px 32px rgba(39,174,96,.15)}
@@ -60,7 +60,7 @@ select option{background:#1a1a2e;color:#fff}
 /* ── Account Selector ── */
 .acct-select{margin-bottom:16px}
 .acct-select label{font-size:.72rem;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
-.acct-list{display:flex;flex-direction:column;gap:6px;max-height:200px;overflow-y:auto}
+.acct-list{display:flex;flex-direction:column;gap:6px;max-height:200px;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .acct-opt{display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:10px;cursor:pointer;transition:.2s}
 .acct-opt:hover{border-color:rgba(39,174,96,.25);background:rgba(39,174,96,.04)}
 .acct-opt.active{border-color:rgba(39,174,96,.4);background:rgba(39,174,96,.08)}
@@ -72,6 +72,20 @@ select option{background:#1a1a2e;color:#fff}
 .addr-type-badge{font-size:.55rem;padding:1px 6px;border-radius:4px;font-weight:700;letter-spacing:.5px}
 .addr-type-badge.stellar{background:rgba(39,174,96,.12);color:#2ecc71}
 .addr-type-badge.contract{background:rgba(242,153,74,.12);color:#f2994a}
+
+@media(max-width:600px){
+  body{padding:12px}
+  .container{max-width:100%}
+  h1{font-size:1.3rem}
+  .nav-tabs{gap:3px;flex-wrap:wrap}
+  .nav-tabs a{padding:6px 12px;font-size:.68rem}
+  .btn-row{flex-direction:column}
+  .btn-row button{font-size:.72rem}
+  .qr-box{padding:12px}
+  .qr-box canvas{width:160px;height:160px}
+  .address-box .addr-val{font-size:.68rem}
+  .info-grid{gap:6px}
+}
 </style>
 </head>
 <body>
