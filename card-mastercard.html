@@ -461,15 +461,16 @@ h1{text-align:center;font-size:1.8rem;margin-bottom:6px;background:linear-gradie
 
 const ALL_CARDS={
   Mastercard:{name:'Mastercard',stake:50,daily:4,fee:20,color:'#f2994a',periods:{90:360,180:720,365:1460}},
-  Visa:{name:'Visa',stake:100,daily:6,fee:40,color:'#f5c518',periods:{90:540,180:1080,365:2190}},
-  Amex:{name:'Amex',stake:200,daily:12,fee:80,color:'#2d9cdb',periods:{90:1080,180:2160,365:4380}},
-  Platinum:{name:'Platinum',stake:300,daily:18,fee:120,color:'#a0aec0',periods:{90:1620,180:3240,365:6570}},
-  Gold:{name:'Gold',stake:400,daily:24,fee:160,color:'#daa520',periods:{90:2160,180:4320,365:8760}},
-  Black:{name:'Black',stake:500,daily:30,fee:200,color:'#e2e8f0',periods:{90:2700,180:5400,365:10950}}
+  Visa:{name:'Visa',stake:100,daily:8,fee:40,color:'#f5c518',periods:{90:720,180:1440,365:2920}},
+  Amex:{name:'Amex',stake:200,daily:16,fee:80,color:'#2d9cdb',periods:{90:1440,180:2880,365:5840}},
+  Platinum:{name:'Platinum',stake:300,daily:24,fee:120,color:'#a0aec0',periods:{90:2160,180:4320,365:8760}},
+  Gold:{name:'Gold',stake:400,daily:32,fee:160,color:'#daa520',periods:{90:2880,180:5760,365:11680}},
+  Black:{name:'Black',stake:500,daily:40,fee:200,color:'#e2e8f0',periods:{90:3600,180:7200,365:14600}}
 };
 let CARD={name:'Mastercard',stake:50,daily:4,fee:20,color:'#f2994a'};
 let PERIODS={90:{payout:360},180:{payout:720},365:{payout:1460}};
 const GEN_RATES=[0.10,0.06,0.04,0.04,0.04,0.04,0.04,0.04];
+const COMPOUND_FEE=0.02;
 
 function calcCardDailyCompound(cardDaily,days,compoundType){
   if(days<=0)return 0;
@@ -477,8 +478,8 @@ function calcCardDailyCompound(cardDaily,days,compoundType){
   var interval;
   switch(compoundType){case 'daily':interval=1;break;case 'weekly':interval=7;break;case 'monthly':interval=30;break;default:return cardDaily*days;}
   var compBoostRate=compoundType==='daily'?0.024:(compoundType==='weekly'?0.012:0.005);
-  var accumulated=0;
-  for(var d=1;d<=Math.floor(days);d++){accumulated+=cardDaily;if(d%interval===0&&d<days){accumulated+=accumulated*compBoostRate;}}
+  var accumulated=0,adminFees=0;
+  for(var d=1;d<=Math.floor(days);d++){accumulated+=cardDaily;if(d%interval===0&&d<days){var grossBoost=accumulated*compBoostRate;var fee=grossBoost*COMPOUND_FEE;adminFees+=fee;accumulated+=grossBoost-fee;}}
   return accumulated;
 }
 
@@ -527,6 +528,26 @@ function onCardChange(){
 function getUser(){try{return JSON.parse(localStorage.getItem('cw_user')||'null');}catch(e){return null;}}
 
 const MAX_STAKES=5;
+
+// ── 8-Generation Sponsor Chain Resolver ──
+function resolveGenChain(startSponsor,maxGens){
+  var chain=[],current=startSponsor;
+  var registry=[];try{registry=JSON.parse(localStorage.getItem('cw_user_registry')||'[]');}catch(e){}
+  for(var g=0;g<maxGens;g++){
+    if(!current){chain.push(null);continue;}
+    chain.push(current);
+    var entry=registry.find(function(u){return u.name===current;});
+    current=(entry&&entry.sponsor)?entry.sponsor:null;
+  }
+  return chain;
+}
+function registerToChain(userName,sponsorName){
+  var registry=[];try{registry=JSON.parse(localStorage.getItem('cw_user_registry')||'[]');}catch(e){}
+  if(!registry.find(function(u){return u.name===userName;})){
+    registry.push({name:userName,sponsor:sponsorName,ts:Date.now()});
+    localStorage.setItem('cw_user_registry',JSON.stringify(registry));
+  }
+}
 
 function getMyStakes(){
   const all=JSON.parse(localStorage.getItem('card_stakes')||'[]');
@@ -656,10 +677,24 @@ async function activateStake(){
   if(!confirm('Confirm '+CARD.name+' Stake #'+slotNum+' Activation?\n\n\uD83D\uDCB0 Cost: '+requiredOLIGHFT.toLocaleString()+' OLIGHFT ($'+totalCostUSD+')\n\u23F1 Period: '+d+' days\n\uD83D\uDCC8 Daily: $'+CARD.daily+'\n\uD83D\uDCB5 Total: $'+compPayout+' ('+comp+')\n\uD83C\uDF33 Sponsor: '+sponsor+'\n\uD83D\uDCE6 Slot: '+slotNum+' of '+MAX_STAKES+'\n\n\uD83D\uDCB0 Your OLIGHFT Balance: '+myOLIGHFT.toLocaleString()))return;
   cwBals.OLIGHFT=myOLIGHFT-requiredOLIGHFT;
   localStorage.setItem('cw_balances',JSON.stringify(cwBals));
-  const mainWallet=(CARD.stake*0.60).toFixed(2);
-  const refTotal=(CARD.stake*0.40).toFixed(2);
+  // ── 8-Generation Referral Distribution ──
+  registerToChain(user.name,sponsor);
+  var genChain=resolveGenChain(sponsor,8);
+  var adminShare=CARD.stake*0.60;
+  var refGens=[],refPaid=0;
+  for(var g=0;g<GEN_RATES.length;g++){
+    var genAmt=parseFloat((CARD.stake*GEN_RATES[g]).toFixed(2));
+    if(genChain[g]){
+      refGens.push({gen:g+1,sponsor:genChain[g],amt:genAmt,credited:true});
+      refPaid+=genAmt;
+      try{var reg=JSON.parse(localStorage.getItem('cw_user_registry')||'[]');var sp=reg.find(function(u){return u.name===genChain[g];});if(sp){sp.earnings=(sp.earnings||0)+genAmt;sp.lastEarning=Date.now();localStorage.setItem('cw_user_registry',JSON.stringify(reg));}}catch(e){}
+    } else {
+      adminShare+=genAmt;
+      refGens.push({gen:g+1,sponsor:null,amt:genAmt,credited:false});
+    }
+  }
   const stakes=JSON.parse(localStorage.getItem('card_stakes')||'[]');
-  stakes.push({card:CARD.name,stake:CARD.stake,fee:CARD.fee,daily:CARD.daily,period:d,payout:compPayout,compound:comp,sponsor:sponsor,activatedBy:user.name,date:new Date().toISOString(),paidOLIGHFT:requiredOLIGHFT,referral:{mainWallet:parseFloat(mainWallet),genTotal:parseFloat(refTotal),gens:GEN_RATES.map((rt,i)=>({gen:i+1,amt:CARD.stake*rt}))}});
+  stakes.push({card:CARD.name,stake:CARD.stake,fee:CARD.fee,daily:CARD.daily,period:d,payout:compPayout,compound:comp,sponsor:sponsor,activatedBy:user.name,date:new Date().toISOString(),paidOLIGHFT:requiredOLIGHFT,referral:{adminWallet:parseFloat(adminShare.toFixed(2)),genTotal:parseFloat(refPaid.toFixed(2)),gens:refGens}});
   localStorage.setItem('card_stakes',JSON.stringify(stakes));
   // Unified activity log
   try{var al=JSON.parse(localStorage.getItem('cw_activity')||'[]');al.unshift({type:CARD.name+' Card Stake',icon:'\uD83C\uDF1F',detail:'$'+CARD.stake+' staked \u00B7 '+d+'d \u00B7 $'+CARD.daily+'/day \u00B7 Sponsor: '+sponsor,amt:'-'+requiredOLIGHFT.toFixed(0)+' OLIGHFT',cls:'red',time:'Just now',ts:Date.now()});if(al.length>50)al.length=50;localStorage.setItem('cw_activity',JSON.stringify(al));}catch(e){}
