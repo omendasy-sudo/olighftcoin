@@ -2940,7 +2940,12 @@ async function runAllSecurityTests(){
   var seedScr=document.getElementById('seedScreen');
   var prevSeedDisplay=seedScr.style.display;
   seedScr.style.display='block';
-  seedContinue();
+  // Temporarily replace loadDashboard to prevent full render during test
+  var _origLoadDashboard=window.loadDashboard||loadDashboard;
+  var _ldCalled=false;
+  window.loadDashboard=function(){_ldCalled=true;};
+  try{seedContinue();}catch(e){}
+  window.loadDashboard=_origLoadDashboard;
   var t7=_currentMnemonic==='';
   // Restore seed screen state
   seedScr.style.display=prevSeedDisplay;
