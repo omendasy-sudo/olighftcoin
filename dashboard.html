@@ -644,6 +644,27 @@ var COINS = [
 
 var DEFAULT_BALS = { XLM: 10000, USDC: 2500, wETH: 1.85, wBTC: 0.042, EURC: 1200, OLIGHFT: 10000 };
 
+// ── Card Tier Config (must be before init) ──
+var CARD_TIERS = {
+  Visa:       { min: 100, daily: 8,  fee: 40,  boost: 1.0 },
+  Gold:       { min: 400, daily: 32, fee: 160, boost: 2.0 },
+  Platinum:   { min: 300, daily: 24, fee: 120, boost: 1.5 },
+  Black:      { min: 500, daily: 40, fee: 200, boost: 3.0 },
+  Amex:       { min: 200, daily: 16, fee: 80,  boost: 1.2 },
+  Mastercard: { min: 50,  daily: 4,  fee: 20,  boost: 0.5 }
+};
+
+// ── Staking Engine Constants (must be before init) ──
+var OLIGHFT_BASE_APY = 12.0;
+var LOCK_BOOSTS = { 0: 0, 30: 1.5, 90: 3.5, 180: 6, 365: 10 };
+var COMPOUND_BOOSTS = { none: 0, daily: 2.4, weekly: 1.2, monthly: 0.5 };
+var OLIGHFT_TOTAL_SUPPLY = 100000000000000;
+var OLIGHFT_BASE_PRICE_FLOOR = 0.50;
+var PRICE_ELASTICITY = 0.35;
+var LOCK_PRICE_WEIGHTS = { 0: 0.5, 30: 1.0, 90: 1.3, 180: 1.6, 365: 2.0 };
+var OLIGHFT_PRICE = 0.50;
+var ADMIN_WALLET_SPLIT = 0.60;
+
 // ── Init ──
 (function init() {
   var user = null;
@@ -764,11 +785,15 @@ function updateTotalBalance(bals) {
   var weightedPct = 0;
   for (var i = 0; i < COINS.length; i++) {
     var c = COINS[i];
-    var usd = (bals[c.sym] || 0) * c.price;
+    var price = c.price || (c.sym === 'OLIGHFT' ? 0.50 : 0);
+    var pct = isNaN(c.pct) ? 0 : c.pct;
+    var usd = (bals[c.sym] || 0) * price;
     total += usd;
-    weightedPct += usd * c.pct;
+    weightedPct += usd * pct;
   }
+  if (isNaN(total)) total = 0;
   var avgPct = total > 0 ? (weightedPct / total) : 0;
+  if (isNaN(avgPct)) avgPct = 0;
   document.getElementById('totalBal').textContent = '$' + total.toLocaleString('en', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   var chEl = document.getElementById('totalChange');
   if (avgPct >= 0) {
@@ -947,16 +972,6 @@ function showToast(msg, bg) {
   setTimeout(function() { t.classList.remove('show'); }, 3000);
 }
 
-// ── Card Tier Config ──
-var CARD_TIERS = {
-  Visa:       { min: 100, daily: 8,  fee: 40,  boost: 1.0 },
-  Gold:       { min: 400, daily: 32, fee: 160, boost: 2.0 },
-  Platinum:   { min: 300, daily: 24, fee: 120, boost: 1.5 },
-  Black:      { min: 500, daily: 40, fee: 200, boost: 3.0 },
-  Amex:       { min: 200, daily: 16, fee: 80,  boost: 1.2 },
-  Mastercard: { min: 50,  daily: 4,  fee: 20,  boost: 0.5 }
-};
-
 function getActiveCards() {
   var cs = [];
   try { cs = JSON.parse(localStorage.getItem('card_stakes') || '[]'); } catch(e) { return []; }
@@ -986,26 +1001,6 @@ function getBestCard() {
   }
   return best;
 }
-
-// ── Staking Engine (OLIGHFT only, requires active card) ──
-var OLIGHFT_BASE_APY = 12.0;
-var LOCK_BOOSTS = { 0: 0, 30: 1.5, 90: 3.5, 180: 6, 365: 10 };
-var COMPOUND_BOOSTS = { none: 0, daily: 2.4, weekly: 1.2, monthly: 0.5 };
-
-// ── Total Supply Reward Pool ──
-// All staking rewards are minted from this fixed total supply.
-// When a user stakes with compound, the estimated reward is reserved from supply.
-// On withdrawal, the actual accrued reward is deducted from the remaining supply.
-var OLIGHFT_TOTAL_SUPPLY = 100000000000000; // 100 trillion OLIGHFT
-
-// ── Dynamic Liquidity-Based Pricing ──
-// Price depends on: total supply, staked (held) coins, and lock period cycle.
-// More staking = less circulating supply = higher price.
-// Longer lock periods remove more liquidity, pushing price higher.
-var OLIGHFT_BASE_PRICE_FLOOR = 0.50; // floor price when nothing is staked
-var PRICE_ELASTICITY = 0.35;         // how sensitive price is to staking ratio
-var LOCK_PRICE_WEIGHTS = { 0: 0.5, 30: 1.0, 90: 1.3, 180: 1.6, 365: 2.0 };
-var OLIGHFT_PRICE = 0.50; // updated dynamically by refreshOLIGHFTPrice()
 
 function getLockPriceWeight(lockDays) {
   if (lockDays >= 365) return LOCK_PRICE_WEIGHTS[365];
@@ -1169,7 +1164,6 @@ function returnUnusedToSupply(amount, stakeId) {
 // ── 8-Generation Referral Commission Rates (40% total of staked amount) ──
 // Gen1: 10%, Gen2: 6%, Gen3-8: 4% each
 var GEN_RATES = [0.10, 0.06, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04];
-var ADMIN_WALLET_SPLIT = 0.60; // 60% of stake goes to admin wallet
 
 // ── Admin Wallet Deposit ──
 function depositToAdminWallet(amountOLIGHFT, source, stakeId) {
