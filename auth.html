@@ -51,6 +51,16 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 .referral-box .ref-text{font-size:.72rem;color:rgba(255,255,255,.5);line-height:1.4}
 .referral-box .ref-text strong{color:#27ae60}
 
+/* ── Phone field ── */
+.phone-wrap{display:flex;gap:6px}
+.phone-wrap .phone-code{width:80px;flex-shrink:0;padding:12px 8px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;color:#fff;font-size:.78rem;outline:none;text-align:center;font-family:inherit;transition:.2s}
+.phone-wrap .phone-code:focus{border-color:rgba(99,102,241,.5);box-shadow:0 0 0 3px rgba(99,102,241,.1)}
+.phone-wrap input[type=tel]{flex:1}
+.ussd-hint{font-size:.55rem;color:rgba(245,197,24,.5);margin-top:4px;display:flex;align-items:center;gap:4px}
+.login-toggle{display:flex;gap:2px;background:rgba(255,255,255,.03);border-radius:8px;padding:2px;margin-bottom:14px}
+.login-toggle button{flex:1;padding:8px;font-size:.68rem;font-weight:600;border:none;border-radius:6px;cursor:pointer;color:rgba(255,255,255,.35);background:none;transition:.2s}
+.login-toggle button.active{background:rgba(99,102,241,.15);color:#818cf8}
+
 /* ── Checkbox ── */
 .check-row{display:flex;align-items:flex-start;gap:8px;margin-bottom:18px}
 .check-row input[type=checkbox]{margin-top:2px;accent-color:#6366f1;width:16px;height:16px;cursor:pointer}
@@ -184,10 +194,29 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 <div class="form-panel active" id="panel-login">
 <form id="login-form" onsubmit="handleLogin(event)" novalidate>
 
+<div class="login-toggle" id="loginToggle">
+<button type="button" class="active" onclick="setLoginMode('email')">&#x1F4E7; Email</button>
+<button type="button" onclick="setLoginMode('phone')">&#x1F4F1; Phone / USSD</button>
+</div>
+
+<div id="loginEmailFields">
 <div class="field" id="field-login-email">
 <label for="login-email">Email Address</label>
 <input type="email" id="login-email" placeholder="you@example.com" required autocomplete="email" oninput="validateEmail('login-email','field-login-email')">
 <div class="field-err">Enter a valid email (e.g. name@domain.com)</div>
+</div>
+</div>
+
+<div id="loginPhoneFields" style="display:none">
+<div class="field" id="field-login-phone">
+<label for="login-phone">Phone Number</label>
+<div class="phone-wrap">
+<input type="text" class="phone-code" id="login-phone-code" value="+254" placeholder="+254" maxlength="5">
+<input type="tel" id="login-phone" placeholder="712 345 678" required autocomplete="tel">
+</div>
+<div class="ussd-hint">&#x1F4F2; USSD: Dial *384*OLIGHFT# to sign in without internet</div>
+<div class="field-err">Enter a valid phone number.</div>
+</div>
 </div>
 
 <div class="field" id="field-login-pw">
@@ -253,6 +282,16 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 <label for="reg-email">Email Address</label>
 <input type="email" id="reg-email" placeholder="you@example.com" required autocomplete="email" oninput="validateEmail('reg-email','field-reg-email')">
 <div class="field-err">Enter a valid email (e.g. name@domain.com)</div>
+</div>
+
+<div class="field" id="field-reg-phone">
+<label for="reg-phone">Phone Number <span style="color:rgba(245,197,24,.6);font-size:.55rem">(USSD sign-in)</span></label>
+<div class="phone-wrap">
+<input type="text" class="phone-code" id="reg-phone-code" value="+254" placeholder="+254" maxlength="5">
+<input type="tel" id="reg-phone" placeholder="712 345 678" required autocomplete="tel">
+</div>
+<div class="ussd-hint">&#x1F4F2; Required for USSD access &mdash; dial *384*OLIGHFT# from any phone</div>
+<div class="field-err">Enter a valid phone number.</div>
 </div>
 
 <div class="field" id="field-reg-pw">
@@ -709,6 +748,30 @@ document.querySelectorAll('#otp-group input').forEach((inp, i, arr) => {
     }
 })();
 
+// ── Login Mode Toggle (Email / Phone) ──
+var _loginMode = 'email';
+function setLoginMode(mode) {
+    _loginMode = mode;
+    var btns = document.querySelectorAll('#loginToggle button');
+    btns.forEach(function(b){ b.classList.remove('active'); });
+    if (mode === 'phone') {
+        btns[1].classList.add('active');
+        document.getElementById('loginEmailFields').style.display = 'none';
+        document.getElementById('loginPhoneFields').style.display = 'block';
+    } else {
+        btns[0].classList.add('active');
+        document.getElementById('loginEmailFields').style.display = 'block';
+        document.getElementById('loginPhoneFields').style.display = 'none';
+    }
+}
+
+function normalizePhone(code, num) {
+    code = (code || '').replace(/[^+\d]/g, '');
+    num = (num || '').replace(/[\s\-().]/g, '');
+    if (num.startsWith('0')) num = num.substring(1);
+    return code + num;
+}
+
 // ── Set Loading State ──
 function setLoading(btnId, loading) {
     const btn = document.getElementById(btnId);
@@ -726,17 +789,33 @@ function setLoading(btnId, loading) {
 async function handleLogin(e) {
     e.preventDefault();
     hideAlert();
-    const email = document.getElementById('login-email').value.trim();
+    var email = '';
+    var phone = '';
     const pw    = document.getElementById('login-pw').value;
     let valid = true;
 
-    // Email
-    if (!email || !isValidEmail(email)) {
-        document.getElementById('field-login-email').classList.add('has-error');
-        valid = false;
+    if (_loginMode === 'phone') {
+        // Phone login
+        var phoneCode = document.getElementById('login-phone-code').value.trim();
+        var phoneNum  = document.getElementById('login-phone').value.trim();
+        phone = normalizePhone(phoneCode, phoneNum);
+        if (!phoneNum || phone.length < 8) {
+            document.getElementById('field-login-phone').classList.add('has-error');
+            valid = false;
+        } else {
+            document.getElementById('field-login-phone').classList.remove('has-error');
+            document.getElementById('field-login-phone').classList.add('is-valid');
+        }
     } else {
-        document.getElementById('field-login-email').classList.remove('has-error');
-        document.getElementById('field-login-email').classList.add('is-valid');
+        // Email login
+        email = document.getElementById('login-email').value.trim();
+        if (!email || !isValidEmail(email)) {
+            document.getElementById('field-login-email').classList.add('has-error');
+            valid = false;
+        } else {
+            document.getElementById('field-login-email').classList.remove('has-error');
+            document.getElementById('field-login-email').classList.add('is-valid');
+        }
     }
 
     // Password
@@ -759,11 +838,16 @@ async function handleLogin(e) {
         showAlert('error', 'No account found. Please register first.');
         return;
     }
-    if (existingUser.email !== email) {
+    // Match by email or phone
+    var matchEmail = email && existingUser.email === email;
+    var matchPhone = phone && existingUser.phone === phone;
+    if (!matchEmail && !matchPhone) {
         setLoading('login-btn', false);
-        showAlert('error', 'Email not found. Please check or register.');
+        showAlert('error', (_loginMode === 'phone' ? 'Phone number' : 'Email') + ' not found. Please check or register.');
         return;
     }
+    // Resolve email for OTP sending
+    if (!email && existingUser.email) email = existingUser.email;
 
     // Store pending login context
     window._pendingAuth = { type: 'login', email: email, pw: pw };
@@ -810,13 +894,24 @@ async function handleRegister(e) {
     hideAlert();
     const name    = document.getElementById('reg-name').value.trim();
     const email   = document.getElementById('reg-email').value.trim();
+    const phoneCode = document.getElementById('reg-phone-code').value.trim();
+    const phoneNum  = document.getElementById('reg-phone').value.trim();
+    const phone   = normalizePhone(phoneCode, phoneNum);
     const pw      = document.getElementById('reg-pw').value;
     const pw2     = document.getElementById('reg-pw2').value;
     const tier    = document.getElementById('reg-tier').value;
     const sponsor = document.getElementById('reg-sponsor').value.trim();
     const agreed  = document.getElementById('agree-terms').checked;
 
-    if (!name || !email || !pw || !pw2 || !sponsor) { showAlert('error', 'Please fill in all required fields.'); return; }
+    if (!name || !email || !pw || !pw2 || !sponsor || !phoneNum) { showAlert('error', 'Please fill in all required fields.'); return; }
+
+    // Phone validation
+    if (!phoneNum || phone.length < 8) {
+        showAlert('error', 'Enter a valid phone number for USSD access.');
+        document.getElementById('field-reg-phone').classList.add('has-error');
+        return;
+    }
+    document.getElementById('field-reg-phone').classList.remove('has-error');
 
     // Sponsor
     if (!sponsor) {
@@ -860,6 +955,7 @@ async function handleRegister(e) {
     const user = {
         name: name,
         email: email,
+        phone: phone,
         sponsor: sponsor,
         tier: tier || 'visa',
         addr: '',
