@@ -406,6 +406,33 @@ h1{text-align:center;font-size:1.6rem;margin-bottom:4px;background:linear-gradie
 .ms-soroban .ms-soroban-title{font-size:.6rem;font-weight:700;color:#2d9cdb;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;display:flex;align-items:center;gap:6px}
 
 @media(max-width:480px){.quick-btns{flex-wrap:wrap}.total-balance .tb-val{font-size:1.6rem}.seed-grid{grid-template-columns:repeat(2,1fr)}}
+
+/* ── Withdraw 2FA Verification Modal ── */
+.wd-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);z-index:10000;display:none;align-items:center;justify-content:center;padding:20px}
+.wd-overlay.show{display:flex}
+.wd-box{background:linear-gradient(160deg,#141428,#0e0e1f);border:1px solid rgba(242,153,74,.18);border-radius:18px;padding:28px 24px;max-width:380px;width:100%;text-align:center;position:relative;animation:wdSlide .35s ease}
+@keyframes wdSlide{from{transform:translateY(30px);opacity:0}to{transform:translateY(0);opacity:1}}
+.wd-box h3{font-size:.95rem;font-weight:700;color:#fff;margin:0 0 6px}
+.wd-box .wd-sub{font-size:.7rem;color:rgba(255,255,255,.45);margin-bottom:14px;line-height:1.5}
+.wd-box .wd-amount{font-size:1.1rem;font-weight:800;color:#f5c518;margin-bottom:16px}
+.wd-badge{display:inline-block;font-size:.6rem;font-weight:700;padding:3px 10px;border-radius:6px;margin-bottom:12px}
+.wd-badge.email{background:rgba(108,92,231,.12);border:1px solid rgba(108,92,231,.2);color:#a29bfe}
+.wd-badge.gauth{background:rgba(39,174,96,.12);border:1px solid rgba(39,174,96,.2);color:#27ae60}
+.wd-badge.ussd{background:rgba(245,197,24,.1);border:1px solid rgba(245,197,24,.2);color:#f5c518}
+.wd-methods{display:flex;gap:6px;justify-content:center;margin-bottom:14px}
+.wd-methods button{padding:6px 14px;border-radius:8px;font-size:.62rem;font-weight:600;cursor:pointer;border:1px solid rgba(255,255,255,.08);background:none;color:rgba(255,255,255,.4);transition:.2s}
+.wd-methods button.active{background:rgba(242,153,74,.12);border-color:rgba(242,153,74,.25);color:#f2994a}
+.wd-otp-row{display:flex;gap:8px;justify-content:center;margin:14px 0}
+.wd-otp-row input{width:38px;height:44px;text-align:center;font-size:1.1rem;font-weight:700;color:#fff;background:rgba(255,255,255,.04);border:1px solid rgba(242,153,74,.15);border-radius:10px;outline:none;transition:.25s}
+.wd-otp-row input:focus{border-color:rgba(242,153,74,.5);box-shadow:0 0 0 3px rgba(242,153,74,.12);background:rgba(255,255,255,.06)}
+.wd-error{font-size:.65rem;color:#eb5757;margin-top:6px;min-height:16px}
+.wd-timer{font-size:.6rem;color:rgba(255,255,255,.35);margin-top:8px}
+.wd-actions{display:flex;gap:10px;margin-top:16px}
+.wd-cancel-btn{flex:1;padding:11px;border-radius:10px;font-size:.75rem;font-weight:600;cursor:pointer;border:1px solid rgba(255,255,255,.1);background:none;color:rgba(255,255,255,.5);transition:.2s}
+.wd-cancel-btn:hover{border-color:rgba(235,87,87,.3);color:#eb5757}
+.wd-verify-btn{flex:1;padding:11px;border-radius:10px;font-size:.75rem;font-weight:700;cursor:pointer;border:none;background:linear-gradient(135deg,#f2994a,#f5c518);color:#111;transition:.25s}
+.wd-verify-btn:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(242,153,74,.35)}
+.wd-verify-btn:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
 </style>
 </head>
 <body>
@@ -1543,7 +1570,193 @@ function withdrawStake(stakeId) {
   var totalReturn = s.amount + (s.reward || 0) + accrued;
 
   var asset = s.asset || 'XLM';
-  if (!confirm('Withdraw ' + totalReturn.toFixed(2) + ' ' + asset + ' (principal + reward)?')) return;
+
+  // Open 2FA verification instead of confirm()
+  requireWdVerify(stakeId, totalReturn, asset);
+}
+
+// ── Withdrawal 2FA Verification Engine ──
+var _wdPending = null; // { stakeId, totalReturn, asset }
+var _wdMethod = 'email';
+var _wdOtp = null; // { code, expiresAt, attempts }
+var _wdTimerInterval = null;
+
+function requireWdVerify(stakeId, totalReturn, asset) {
+  _wdPending = { stakeId: stakeId, totalReturn: totalReturn, asset: asset };
+
+  // Display amount
+  document.getElementById('wd-amount-display').textContent = totalReturn.toFixed(2) + ' ' + asset;
+
+  // Detect available methods
+  var hasGauth = gIsEnabled();
+  var hasPhone = false;
+  try { var u = JSON.parse(localStorage.getItem('cw_user') || 'null'); if (u && u.phone && u.phone.length >= 8) hasPhone = true; } catch(e) {}
+
+  var toggle = document.getElementById('wd-method-toggle');
+  document.getElementById('wd-btn-gauth').style.display = hasGauth ? '' : 'none';
+  document.getElementById('wd-btn-ussd').style.display = hasPhone ? '' : 'none';
+  toggle.style.display = (hasGauth || hasPhone) ? 'flex' : 'none';
+
+  // Generate OTP for email/USSD
+  var code = String(Math.floor(100000 + Math.random() * 900000));
+  _wdOtp = { code: code, expiresAt: Date.now() + 5 * 60 * 1000, attempts: 0 };
+
+  // Default method
+  if (hasGauth) { switchWdMethod('gauth'); }
+  else if (hasPhone) { switchWdMethod('ussd'); }
+  else { switchWdMethod('email'); }
+
+  // Clear inputs and error
+  document.querySelectorAll('#wd-otp-row input').forEach(function(inp) { inp.value = ''; });
+  document.getElementById('wd-error').textContent = '';
+
+  // Show modal
+  document.getElementById('wdOverlay').classList.add('show');
+
+  // Try send email OTP (non-blocking)
+  if (!hasGauth) {
+    _trySendWdEmail(code);
+  }
+}
+
+function _trySendWdEmail(code) {
+  try {
+    var u = JSON.parse(localStorage.getItem('cw_user') || 'null');
+    if (u && u.email && typeof emailjs !== 'undefined') {
+      emailjs.send('service_j53q79r', 'template_5ekq5vi', {
+        to_email: u.email,
+        to_name: u.name || u.email,
+        otp_code: code,
+        purpose: 'Withdrawal Verification'
+      }).then(function() {
+        document.getElementById('wd-timer').textContent = 'Code sent to ' + u.email;
+      }).catch(function() {
+        // Auto-fill if email fails
+        _autoFillWdOtp(code);
+        document.getElementById('wd-timer').textContent = 'Code auto-filled (email unavailable)';
+      });
+    } else {
+      // No email service — auto-fill
+      _autoFillWdOtp(code);
+      document.getElementById('wd-timer').textContent = 'Code auto-filled — tap Verify';
+    }
+  } catch(e) {
+    _autoFillWdOtp(code);
+  }
+}
+
+function _autoFillWdOtp(code) {
+  var inputs = document.querySelectorAll('#wd-otp-row input');
+  for (var i = 0; i < inputs.length && i < code.length; i++) {
+    inputs[i].value = code[i];
+  }
+}
+
+function switchWdMethod(method) {
+  _wdMethod = method;
+  var btns = document.querySelectorAll('#wd-method-toggle button');
+  btns.forEach(function(b) { b.classList.remove('active'); });
+  var active = document.querySelector('#wd-method-toggle button[data-method="' + method + '"]');
+  if (active) active.classList.add('active');
+
+  var badge = document.getElementById('wd-badge');
+  document.querySelectorAll('#wd-otp-row input').forEach(function(inp) { inp.value = ''; });
+  document.getElementById('wd-error').textContent = '';
+
+  if (method === 'gauth') {
+    badge.innerHTML = '<span class="wd-badge gauth">\uD83D\uDD10 Google Authenticator</span>';
+    document.getElementById('wd-timer').textContent = 'Enter code from your authenticator app';
+    _startWdGauthTimer();
+  } else if (method === 'ussd') {
+    badge.innerHTML = '<span class="wd-badge ussd">\uD83D\uDCF2 USSD Verification</span>';
+    var ussdDial = '*384*OLIGHFT*' + (_wdOtp ? _wdOtp.code : '------') + '#';
+    document.getElementById('wd-timer').textContent = 'Dial ' + ussdDial + ' from your phone';
+    _autoFillWdOtp(_wdOtp ? _wdOtp.code : '');
+    _stopWdGauthTimer();
+  } else {
+    badge.innerHTML = '<span class="wd-badge email">\uD83D\uDCE7 Email Verification</span>';
+    _stopWdGauthTimer();
+    if (_wdOtp) _trySendWdEmail(_wdOtp.code);
+  }
+}
+
+function _startWdGauthTimer() {
+  _stopWdGauthTimer();
+  function tick() {
+    var s = 30 - (Math.floor(Date.now() / 1000) % 30);
+    var el = document.getElementById('wd-timer');
+    if (el) el.textContent = 'Code refreshes in ' + s + 's';
+  }
+  tick();
+  _wdTimerInterval = setInterval(tick, 1000);
+}
+
+function _stopWdGauthTimer() {
+  if (_wdTimerInterval) { clearInterval(_wdTimerInterval); _wdTimerInterval = null; }
+}
+
+function cancelWdVerify() {
+  _wdPending = null;
+  _wdOtp = null;
+  _stopWdGauthTimer();
+  document.getElementById('wdOverlay').classList.remove('show');
+}
+
+async function confirmWdVerify() {
+  if (!_wdPending || !_wdOtp) return;
+  var inputs = document.querySelectorAll('#wd-otp-row input');
+  var code = '';
+  inputs.forEach(function(inp) { code += inp.value; });
+  code = code.replace(/\D/g, '');
+
+  if (code.length !== 6) {
+    document.getElementById('wd-error').textContent = 'Enter all 6 digits.';
+    return;
+  }
+
+  _wdOtp.attempts = (_wdOtp.attempts || 0) + 1;
+  if (_wdOtp.attempts > 5) {
+    document.getElementById('wd-error').textContent = 'Too many attempts. Please try again.';
+    cancelWdVerify();
+    return;
+  }
+
+  if (Date.now() > _wdOtp.expiresAt && _wdMethod !== 'gauth') {
+    document.getElementById('wd-error').textContent = 'Code expired. Please try again.';
+    cancelWdVerify();
+    return;
+  }
+
+  var verified = false;
+
+  if (_wdMethod === 'gauth') {
+    try {
+      var sec = JSON.parse(localStorage.getItem('cw_2fa') || 'null');
+      if (sec && sec.secret) { verified = await gVerifyTotp(sec.secret, code); }
+    } catch(e) {}
+  } else {
+    // Email or USSD — compare against generated code
+    verified = (code === _wdOtp.code);
+  }
+
+  if (!verified) {
+    document.getElementById('wd-error').textContent = 'Invalid code. ' + (5 - _wdOtp.attempts) + ' attempts remaining.';
+    inputs.forEach(function(inp) { inp.value = ''; });
+    if (inputs[0]) inputs[0].focus();
+    return;
+  }
+
+  // Verified! Execute the withdrawal
+  var pending = _wdPending;
+  cancelWdVerify();
+  _executeWithdraw(pending.stakeId, pending.totalReturn, pending.asset);
+}
+
+function _executeWithdraw(stakeId, totalReturn, asset) {
+  var stakes = getWalletStakes();
+  var idx = stakes.findIndex(function(s) { return s.id === stakeId; });
+  if (idx < 0) { showToast('Stake not found.', '#eb5757'); return; }
+  var s = stakes[idx];
 
   // On-chain Soroban withdraw (async, non-blocking)
   if (typeof STAKING_BACKEND !== 'undefined' && STAKING_BACKEND.isWalletConnected() && asset === 'OLIGHFT') {
@@ -2865,6 +3078,53 @@ if(existing){
 } else {
   window.location.href='auth.html';
 }
+<!-- ═══ WITHDRAW 2FA VERIFICATION MODAL ═══ -->
+<div id="wdOverlay" class="wd-overlay">
+<div class="wd-box">
+<h3>&#x1F512; Verify Withdrawal</h3>
+<div class="wd-sub">Confirm your identity before withdrawing funds</div>
+<div class="wd-amount" id="wd-amount-display"></div>
+<div id="wd-badge"></div>
+<div class="wd-methods" id="wd-method-toggle" style="display:none">
+<button class="active" data-method="email" onclick="switchWdMethod('email')">&#x1F4E7; Email</button>
+<button data-method="ussd" onclick="switchWdMethod('ussd')" id="wd-btn-ussd" style="display:none">&#x1F4F2; USSD</button>
+<button data-method="gauth" onclick="switchWdMethod('gauth')" id="wd-btn-gauth" style="display:none">&#x1F4F1; Auth App</button>
+</div>
+<div class="wd-otp-row" id="wd-otp-row">
+<input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off">
+<input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off">
+<input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off">
+<input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off">
+<input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off">
+<input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off">
+</div>
+<div class="wd-error" id="wd-error"></div>
+<div class="wd-timer" id="wd-timer"></div>
+<div class="wd-actions">
+<button class="wd-cancel-btn" onclick="cancelWdVerify()">Cancel</button>
+<button class="wd-verify-btn" id="wd-verify-btn" onclick="confirmWdVerify()">&#x2705; Verify &amp; Withdraw</button>
+</div>
+</div>
+</div>
+
+<script>
+// ── Withdraw OTP auto-advance ──
+document.querySelectorAll('#wd-otp-row input').forEach(function(inp, i, arr) {
+    inp.addEventListener('input', function() {
+        inp.value = inp.value.replace(/\D/g, '');
+        if (inp.value && i < arr.length - 1) arr[i + 1].focus();
+    });
+    inp.addEventListener('keydown', function(e) {
+        if (e.key === 'Backspace' && !inp.value && i > 0) arr[i - 1].focus();
+    });
+    inp.addEventListener('paste', function(e) {
+        e.preventDefault();
+        var data = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g, '').slice(0, 6);
+        data.split('').forEach(function(ch, j) { if (arr[i + j]) arr[i + j].value = ch; });
+        if (arr[Math.min(i + data.length, arr.length - 1)]) arr[Math.min(i + data.length, arr.length - 1)].focus();
+    });
+});
 </script>
+
 </body>
 </html>

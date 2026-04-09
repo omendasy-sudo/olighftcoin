@@ -157,6 +157,15 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 .otp-timer strong{color:#818cf8}
 .otp-expired{color:#eb5757!important}
 .resend-disabled{pointer-events:none;opacity:.35}
+
+/* ── USSD Verification ── */
+.ussd-verify-box{background:rgba(245,197,24,.04);border:1px solid rgba(245,197,24,.12);border-radius:12px;padding:16px;margin:12px 0;text-align:center}
+.ussd-dial-code{font-size:1.3rem;font-weight:800;color:#f5c518;letter-spacing:1px;margin:10px 0 6px;font-family:'Courier New',monospace;background:rgba(0,0,0,.3);display:inline-block;padding:8px 20px;border-radius:10px;border:1px solid rgba(245,197,24,.2)}
+.ussd-dial-code:hover{border-color:rgba(245,197,24,.5)}
+.ussd-step{display:flex;align-items:flex-start;gap:8px;text-align:left;margin:6px 0;font-size:.68rem;color:rgba(255,255,255,.45)}
+.ussd-step .ussd-num{width:20px;height:20px;border-radius:50%;background:rgba(245,197,24,.12);color:#f5c518;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.58rem;flex-shrink:0}
+.ussd-or{display:flex;align-items:center;gap:8px;margin:10px 0;font-size:.6rem;color:rgba(255,255,255,.2)}
+.ussd-or::before,.ussd-or::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.06)}
 </style>
 
 <!-- EmailJS SDK -->
@@ -322,19 +331,6 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 <div class="field-err" id="pw2-err">Passwords do not match.</div>
 </div>
 
-<div class="field">
-<label for="reg-tier">Select Card Tier</label>
-<select id="reg-tier">
-<option value="">Choose your tier...</option>
-<option value="mastercard">&#x1F4B3; Mastercard &mdash; $50</option>
-<option value="visa">&#x1F4B3; Visa &mdash; $100</option>
-<option value="amex">&#x1F3DB;&#xFE0F; Amex &mdash; $200</option>
-<option value="platinum">&#x26CF;&#xFE0F; Platinum &mdash; $300</option>
-<option value="gold">&#x1F3C6; Gold &mdash; $400</option>
-<option value="black">&#x1F5C4;&#xFE0F; Black &mdash; $500</option>
-</select>
-</div>
-
 <div class="check-row">
 <input type="checkbox" id="agree-terms" required>
 <label for="agree-terms">I agree to the <a href="FUTURE%20CTPTO%20CARD%20SMART%20CONTRACT%20.html/terms.html" target="_blank">Terms &amp; Conditions</a> and Privacy Policy</label>
@@ -395,8 +391,9 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 
 <!-- Method Toggle (shown when Google Auth is enabled) -->
 <div class="gauth-method-toggle" id="2fa-method-toggle" style="display:none">
-<button class="active" onclick="switch2faMethod('email')" id="btn-method-email">&#x1F4E7; Email Code</button>
-<button onclick="switch2faMethod('gauth')" id="btn-method-gauth">&#x1F4F1; Google Auth</button>
+<button class="active" onclick="switch2faMethod('email')" id="btn-method-email">&#x1F4E7; Email</button>
+<button onclick="switch2faMethod('ussd')" id="btn-method-ussd">&#x1F4F2; USSD</button>
+<button onclick="switch2faMethod('gauth')" id="btn-method-gauth">&#x1F4F1; Auth App</button>
 </div>
 
 <!-- Email OTP Group -->
@@ -429,6 +426,34 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 <div id="gauth-countdown" style="font-size:.65rem;color:rgba(255,255,255,.3)"></div>
 <div style="height:3px;background:rgba(255,255,255,.06);border-radius:2px;margin-top:4px;overflow:hidden"><div id="gauth-timer-bar" style="height:100%;background:#6366f1;border-radius:2px;transition:width 1s linear;width:100%"></div></div>
 </div>
+</div>
+
+<!-- USSD Verification Group -->
+<div id="2fa-ussd-group" style="display:none">
+<div class="ussd-verify-box">
+<div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.6);margin-bottom:4px">&#x1F4F2; Verify via USSD</div>
+<div style="font-size:.62rem;color:rgba(255,255,255,.35);margin-bottom:10px">Dial this code from your registered phone</div>
+<div class="ussd-dial-code" id="ussd-dial-display">*384*OLIGHFT*000000#</div>
+<div style="margin-top:12px">
+<div class="ussd-step"><div class="ussd-num">1</div><div>Dial the code above from your phone (<span id="ussd-phone-hint" style="color:#f5c518">+254...</span>)</div></div>
+<div class="ussd-step"><div class="ussd-num">2</div><div>Follow the USSD menu &mdash; select <b style="color:#f5c518">Verify Account</b></div></div>
+<div class="ussd-step"><div class="ussd-num">3</div><div>Enter the 6-digit PIN shown below when prompted</div></div>
+<div class="ussd-step"><div class="ussd-num">4</div><div>Return here and tap <b style="color:#818cf8">Verify &amp; Login</b></div></div>
+</div>
+</div>
+<div style="text-align:center;margin:8px 0">
+<div style="font-size:.6rem;color:rgba(255,255,255,.3);margin-bottom:4px">Your USSD verification PIN:</div>
+<div class="otp-group" id="ussd-otp-group">
+<input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="one-time-code">
+<input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]">
+<input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]">
+<input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]">
+<input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]">
+<input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]">
+</div>
+<div class="otp-timer" id="ussd-timer-display"></div>
+</div>
+<div class="ussd-or">or enter the code manually above</div>
 </div>
 
 <button type="button" class="btn-primary login-btn" id="verify-btn" onclick="handleVerify()">Verify &amp; Login</button>
@@ -603,18 +628,21 @@ function startResendCooldown() {
 
 // ── Panel Switching ──
 function showPanel(id) {
-    // Block login panel if no account registered
+    // If no account exists and trying to go to login, redirect to register
     if (id === 'login') {
         var u = null;
         try { u = JSON.parse(localStorage.getItem('cw_user') || 'null'); } catch(e) {}
         if (!u || !u.email) {
-            showAlert('error', 'No account found. Please register first.');
-            return;
+            id = 'register';
+            setTimeout(function() {
+                showAlert('success', '\uD83D\uDCDD No account found — create one to get started.');
+            }, 50);
         }
     }
     document.querySelectorAll('.form-panel').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    document.getElementById('panel-' + id).classList.add('active');
+    var panel = document.getElementById('panel-' + id);
+    if (panel) panel.classList.add('active');
     hideAlert();
 
     if (id === 'login')    document.getElementById('tab-login').classList.add('active');
@@ -850,7 +878,7 @@ async function handleLogin(e) {
     if (!email && existingUser.email) email = existingUser.email;
 
     // Store pending login context
-    window._pendingAuth = { type: 'login', email: email, pw: pw };
+    window._pendingAuth = { type: 'login', email: email, phone: phone, pw: pw };
 
     // Save credentials if Remember Me checked
     if (document.getElementById('remember-me').checked) {
@@ -869,6 +897,15 @@ async function handleLogin(e) {
         showPanel('2fa');
         init2faPanel();
         showAlert('success', 'Enter your Google Authenticator code.');
+        return;
+    }
+
+    // If phone login mode with valid phone, use USSD verification (no email OTP needed)
+    if (_loginMode === 'phone' && phone && phone.length >= 8) {
+        setLoading('login-btn', false);
+        showPanel('2fa');
+        init2faPanel();
+        showAlert('success', 'Dial the USSD code shown to verify your phone.');
         return;
     }
 
@@ -899,7 +936,7 @@ async function handleRegister(e) {
     const phone   = normalizePhone(phoneCode, phoneNum);
     const pw      = document.getElementById('reg-pw').value;
     const pw2     = document.getElementById('reg-pw2').value;
-    const tier    = document.getElementById('reg-tier').value;
+    const tier    = 'visa';
     const sponsor = document.getElementById('reg-sponsor').value.trim();
     const agreed  = document.getElementById('agree-terms').checked;
 
@@ -1002,7 +1039,7 @@ async function handleRegister(e) {
     }
 
     // Store pending context for OTP verification
-    window._pendingAuth = { type: 'register', name: name, email: email, sponsor: sponsor, tier: tier };
+    window._pendingAuth = { type: 'register', name: name, email: email, phone: phone, sponsor: sponsor, tier: tier };
 
     // If Google Auth enabled, skip email OTP
     if (isGauthEnabled()) {
@@ -1010,6 +1047,15 @@ async function handleRegister(e) {
         showPanel('2fa');
         init2faPanel();
         showAlert('success', 'Account created! Enter your Google Authenticator code.');
+        return;
+    }
+
+    // If valid phone, offer USSD verification (no email OTP needed)
+    if (phone && phone.length >= 8) {
+        setLoading('register-btn', false);
+        showPanel('2fa');
+        init2faPanel();
+        showAlert('success', 'Account created! Verify via USSD or switch to email.');
         return;
     }
 
@@ -1070,6 +1116,9 @@ async function handleVerify() {
     if (window._active2faMethod === 'gauth') {
         const gauthInputs = document.querySelectorAll('#gauth-otp-group input');
         code = Array.from(gauthInputs).map(i => i.value).join('');
+    } else if (window._active2faMethod === 'ussd') {
+        const ussdInputs = document.querySelectorAll('#ussd-otp-group input');
+        code = Array.from(ussdInputs).map(i => i.value).join('');
     } else {
         const inputs = document.querySelectorAll('#otp-group input');
         code = Array.from(inputs).map(i => i.value).join('');
@@ -1238,25 +1287,57 @@ function getGauthSecret() {
 function switch2faMethod(method) {
     const emailGrp = document.getElementById('2fa-email-group');
     const gauthGrp = document.getElementById('2fa-gauth-group');
+    const ussdGrp  = document.getElementById('2fa-ussd-group');
     const btnEmail = document.getElementById('btn-method-email');
     const btnGauth = document.getElementById('btn-method-gauth');
+    const btnUssd  = document.getElementById('btn-method-ussd');
     const resendLink = document.getElementById('resend-link');
+
+    // Hide all groups
+    emailGrp.style.display = 'none';
+    gauthGrp.style.display = 'none';
+    ussdGrp.style.display = 'none';
+    btnEmail.classList.remove('active');
+    btnGauth.classList.remove('active');
+    btnUssd.classList.remove('active');
+
     if (method === 'gauth') {
-        emailGrp.style.display = 'none';
         gauthGrp.style.display = 'block';
-        btnEmail.classList.remove('active');
         btnGauth.classList.add('active');
         resendLink.style.display = 'none';
         window._active2faMethod = 'gauth';
         startGauthTimer();
+    } else if (method === 'ussd') {
+        ussdGrp.style.display = 'block';
+        btnUssd.classList.add('active');
+        resendLink.style.display = 'none';
+        window._active2faMethod = 'ussd';
+        stopGauthTimer();
+        initUssdDisplay();
     } else {
         emailGrp.style.display = 'block';
-        gauthGrp.style.display = 'none';
         btnEmail.classList.add('active');
-        btnGauth.classList.remove('active');
         resendLink.style.display = '';
         window._active2faMethod = 'email';
         stopGauthTimer();
+        // If switching to email and no email OTP was sent yet, send one now
+        if (_currentOtp && !_currentOtp.email && window._pendingAuth) {
+            var pending = window._pendingAuth;
+            var em = pending.email;
+            var nm = pending.name || em;
+            if (em) {
+                sendOtpEmail(em, nm).then(function(result) {
+                    startOtpCountdown();
+                    startResendCooldown();
+                    if (result.sent) {
+                        showAlert('success', 'Verification code sent to ' + em + '.');
+                    } else {
+                        autoFillOtp(result.autoCode);
+                        showAlert('success', 'Verification code ready — tap Verify.');
+                    }
+                });
+            }
+        }
     }
 }
 
@@ -1284,24 +1365,134 @@ function init2faPanel() {
     var toggle = document.getElementById('2fa-method-toggle');
     var desc = document.getElementById('2fa-desc');
     var icon2fa = document.getElementById('2fa-icon');
-    if (isGauthEnabled()) {
+
+    // Determine available methods
+    var hasGauth = isGauthEnabled();
+    var hasPhone = false;
+    try {
+        var u = JSON.parse(localStorage.getItem('cw_user') || 'null');
+        if (u && u.phone && u.phone.length >= 8) hasPhone = true;
+    } catch(e) {}
+    // Also check pending auth phone
+    var pending = window._pendingAuth;
+    if (pending) {
+        if (pending.phone && pending.phone.length >= 8) hasPhone = true;
+        var regPhone = document.getElementById('reg-phone');
+        if (regPhone && regPhone.value.trim().length >= 6) hasPhone = true;
+    }
+
+    // Show toggle when phone or gauth available
+    var showToggle = hasGauth || hasPhone;
+    toggle.style.display = showToggle ? 'flex' : 'none';
+
+    // Show/hide method buttons
+    document.getElementById('btn-method-gauth').style.display = hasGauth ? '' : 'none';
+    document.getElementById('btn-method-ussd').style.display = hasPhone ? '' : 'none';
+
+    if (hasGauth) {
         badge.innerHTML = '<span class="gauth-badge active">\uD83D\uDD12 Google Authenticator Enabled</span>';
-        toggle.style.display = 'flex';
-        // Default to Google Auth method when enabled
         switch2faMethod('gauth');
         desc.textContent = 'Choose your verification method below.';
         icon2fa.innerHTML = '\uD83D\uDCF1';
+    } else if (hasPhone && _loginMode === 'phone') {
+        badge.innerHTML = '<span class="gauth-badge active" style="background:rgba(245,197,24,.1);border-color:rgba(245,197,24,.2);color:#f5c518">\uD83D\uDCF2 USSD Verification</span>';
+        switch2faMethod('ussd');
+        desc.textContent = 'Verify using your registered phone number.';
+        icon2fa.innerHTML = '\uD83D\uDCF2';
     } else {
         badge.innerHTML = '<span class="gauth-badge email">\uD83D\uDCE7 Email Verification</span>';
-        toggle.style.display = 'none';
         switch2faMethod('email');
         desc.textContent = 'Enter the 6-digit code sent to your email.';
         icon2fa.innerHTML = '\uD83D\uDD12';
     }
 }
 
+// ── USSD Display Init ──
+function initUssdDisplay() {
+    // Get user phone
+    var phone = '';
+    try {
+        var u = JSON.parse(localStorage.getItem('cw_user') || 'null');
+        if (u && u.phone) phone = u.phone;
+    } catch(e) {}
+    if (!phone && window._pendingAuth && window._pendingAuth.phone) {
+        phone = window._pendingAuth.phone;
+    }
+    if (!phone) {
+        var regCode = document.getElementById('reg-phone-code');
+        var regNum = document.getElementById('reg-phone');
+        if (regCode && regNum) phone = (regCode.value || '+254') + regNum.value.replace(/[\s\-]/g, '');
+    }
+
+    // Generate USSD OTP (same as email OTP for verification)
+    var code = _currentOtp ? _currentOtp.code : generateOtp();
+    if (!_currentOtp) {
+        _currentOtp = {
+            code: code,
+            email: '',
+            expiresAt: Date.now() + OTP_EXPIRE_MINUTES * 60 * 1000,
+            attempts: 0
+        };
+    }
+
+    // Build USSD dial string
+    var ussdDial = '*384*OLIGHFT*' + code + '#';
+    var dialEl = document.getElementById('ussd-dial-display');
+    if (dialEl) dialEl.textContent = ussdDial;
+
+    // Show phone hint
+    var phoneHint = document.getElementById('ussd-phone-hint');
+    if (phoneHint && phone) {
+        phoneHint.textContent = phone.substring(0, 4) + '***' + phone.slice(-3);
+    }
+
+    // Auto-fill USSD OTP inputs
+    var ussdInputs = document.querySelectorAll('#ussd-otp-group input');
+    for (var i = 0; i < ussdInputs.length && i < code.length; i++) {
+        ussdInputs[i].value = code[i];
+    }
+
+    // Start USSD timer
+    startUssdCountdown();
+}
+
+function startUssdCountdown() {
+    var timerEl = document.getElementById('ussd-timer-display');
+    if (!timerEl || !_currentOtp) return;
+    if (window._ussdCountdown) clearInterval(window._ussdCountdown);
+    function tick() {
+        if (!_currentOtp) { timerEl.textContent = ''; return; }
+        var remaining = Math.max(0, Math.floor((_currentOtp.expiresAt - Date.now()) / 1000));
+        var min = Math.floor(remaining / 60);
+        var sec = remaining % 60;
+        timerEl.innerHTML = remaining > 0
+            ? 'PIN expires in <strong style="color:#f5c518">' + min + ':' + String(sec).padStart(2, '0') + '</strong>'
+            : '<span class="otp-expired">PIN expired \u2014 go back and retry</span>';
+        if (remaining <= 0 && window._ussdCountdown) clearInterval(window._ussdCountdown);
+    }
+    tick();
+    window._ussdCountdown = setInterval(tick, 1000);
+}
+
 // ── OTP auto-advance for Google Auth inputs ──
 document.querySelectorAll('#gauth-otp-group input').forEach(function(inp, i, arr) {
+    inp.addEventListener('input', function() {
+        inp.value = inp.value.replace(/\D/g, '');
+        if (inp.value && i < arr.length - 1) arr[i + 1].focus();
+    });
+    inp.addEventListener('keydown', function(e) {
+        if (e.key === 'Backspace' && !inp.value && i > 0) arr[i - 1].focus();
+    });
+    inp.addEventListener('paste', function(e) {
+        e.preventDefault();
+        var data = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g, '').slice(0, 6);
+        data.split('').forEach(function(ch, j) { if (arr[i + j]) arr[i + j].value = ch; });
+        if (arr[Math.min(i + data.length, arr.length - 1)]) arr[Math.min(i + data.length, arr.length - 1)].focus();
+    });
+});
+
+// ── OTP auto-advance for USSD inputs ──
+document.querySelectorAll('#ussd-otp-group input').forEach(function(inp, i, arr) {
     inp.addEventListener('input', function() {
         inp.value = inp.value.replace(/\D/g, '');
         if (inp.value && i < arr.length - 1) arr[i + 1].focus();
@@ -1745,12 +1936,11 @@ async function autoFillFromCredManager() {
         return;
     }
 
-    // No account registered — force Register panel, disable Login tab
+    // No account registered — force Register panel, hint Login tab
     if (!user) {
         showPanel('register');
         var loginTab = document.getElementById('tab-login');
-        loginTab.style.opacity = '0.35';
-        loginTab.style.pointerEvents = 'none';
+        loginTab.style.opacity = '0.5';
         loginTab.title = 'Register first to unlock login';
         showAlert('success', '\uD83D\uDCDD Create your account to get started.');
         return;
