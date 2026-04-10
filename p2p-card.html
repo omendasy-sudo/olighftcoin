@@ -408,27 +408,32 @@ function doDeposit() {
     if (!selectedDepCard) throw new Error('Please select a card type');
     if (!name) throw new Error('Please enter cardholder name');
     if (!last4 || last4.length !== 4) throw new Error('Please enter card last 4 digits');
+    if (usd < 5) throw new Error('Minimum card deposit is $5');
 
-    if (typeof P2P_API !== 'undefined' && P2P_API.isOnline()) {
-      P2P_API.depositCard(coin, usd, selectedDepCard, last4, name).then(function(res) {
-        showToast('\uD83D\uDCB3 Card deposit initiated! SMS receipt: ' + res.receiptCode, '#27ae60');
+    TXN_VERIFY.requireVerification('Card Deposit', '$' + usd.toFixed(2), coin).then(function() {
+      if (typeof P2P_API !== 'undefined' && P2P_API.isOnline()) {
+        P2P_API.depositCard(coin, usd, selectedDepCard, last4, name).then(function(res) {
+          showToast('\uD83D\uDCB3 Card deposit initiated! SMS receipt: ' + res.receiptCode, '#27ae60');
+          document.getElementById('depAmount').value = '';
+          document.getElementById('depLast4').value  = '';
+          depCalc();
+          renderBalBar();
+          openProof(res.id);
+        }).catch(function(err) {
+          showToast('\u274C ' + err, '#e74c3c');
+        });
+      } else {
+        var result = P2P_BACKEND.depositViaCard(coin, usd, selectedDepCard, last4, name);
+        showToast('\uD83D\uDCB3 Card deposit initiated! SMS receipt: ' + result.receiptCode, '#27ae60');
         document.getElementById('depAmount').value = '';
         document.getElementById('depLast4').value  = '';
         depCalc();
         renderBalBar();
-        openProof(res.id);
-      }).catch(function(err) {
-        showToast('\u274C ' + err, '#e74c3c');
-      });
-    } else {
-      var result = P2P_BACKEND.depositViaCard(coin, usd, selectedDepCard, last4, name);
-      showToast('\uD83D\uDCB3 Card deposit initiated! SMS receipt: ' + result.receiptCode, '#27ae60');
-      document.getElementById('depAmount').value = '';
-      document.getElementById('depLast4').value  = '';
-      depCalc();
-      renderBalBar();
-      openProof(result.id);
-    }
+        openProof(result.id);
+      }
+    }).catch(function(err) {
+      showToast('\u274C ' + err, '#e74c3c');
+    });
   } catch(e) {
     showToast('\u274C ' + e.message, '#e74c3c');
   }
@@ -474,27 +479,32 @@ function doWithdraw() {
     if (!selectedWdCard) throw new Error('Please select a card type');
     if (!name) throw new Error('Please enter cardholder name');
     if (!last4 || last4.length !== 4) throw new Error('Please enter card last 4 digits');
+    if (amount < 1) throw new Error('Minimum withdrawal is 1 coin');
 
-    if (typeof P2P_API !== 'undefined' && P2P_API.isOnline()) {
-      P2P_API.withdrawCard(coin, amount, selectedWdCard, last4, name).then(function(res) {
-        showToast('\uD83D\uDCB3 Card withdrawal initiated! SMS receipt: ' + res.receiptCode, '#f39c12');
+    TXN_VERIFY.requireVerification('Card Withdrawal', amount.toFixed(4), coin).then(function() {
+      if (typeof P2P_API !== 'undefined' && P2P_API.isOnline()) {
+        P2P_API.withdrawCard(coin, amount, selectedWdCard, last4, name).then(function(res) {
+          showToast('\uD83D\uDCB3 Card withdrawal initiated! SMS receipt: ' + res.receiptCode, '#f39c12');
+          document.getElementById('wdAmount').value = '';
+          document.getElementById('wdLast4').value  = '';
+          wdCalc();
+          renderBalBar();
+          openProof(res.id);
+        }).catch(function(err) {
+          showToast('\u274C ' + err, '#e74c3c');
+        });
+      } else {
+        var result = P2P_BACKEND.withdrawToCard(coin, amount, selectedWdCard, last4, name);
+        showToast('\uD83D\uDCB3 Card withdrawal initiated! SMS receipt: ' + result.receiptCode, '#f39c12');
         document.getElementById('wdAmount').value = '';
         document.getElementById('wdLast4').value  = '';
         wdCalc();
         renderBalBar();
-        openProof(res.id);
-      }).catch(function(err) {
-        showToast('\u274C ' + err, '#e74c3c');
-      });
-    } else {
-      var result = P2P_BACKEND.withdrawToCard(coin, amount, selectedWdCard, last4, name);
-      showToast('\uD83D\uDCB3 Card withdrawal initiated! SMS receipt: ' + result.receiptCode, '#f39c12');
-      document.getElementById('wdAmount').value = '';
-      document.getElementById('wdLast4').value  = '';
-      wdCalc();
-      renderBalBar();
-      openProof(result.id);
-    }
+        openProof(result.id);
+      }
+    }).catch(function(err) {
+      showToast('\u274C ' + err, '#e74c3c');
+    });
   } catch(e) {
     showToast('\u274C ' + e.message, '#e74c3c');
   }
@@ -654,29 +664,33 @@ function submitProof(recordId) {
       return;
     }
 
-    if (typeof P2P_API !== 'undefined' && P2P_API.isOnline()) {
-      P2P_API.submitProof(recordId, proofCurrentFile, code, note).then(function() {
-        return P2P_API.verifyProof(recordId);
-      }).then(function() {
-        showToast('\u2705 Receipt code verified! Transaction confirmed.', '#2ecc71');
+    TXN_VERIFY.requireVerification('Proof Submission', 'Receipt #' + code, 'OLIGHFT').then(function() {
+      if (typeof P2P_API !== 'undefined' && P2P_API.isOnline()) {
+        P2P_API.submitProof(recordId, proofCurrentFile, code, note).then(function() {
+          return P2P_API.verifyProof(recordId);
+        }).then(function() {
+          showToast('\u2705 Receipt code verified! Transaction confirmed.', '#2ecc71');
+          openProof(recordId);
+          renderBalBar();
+        }).catch(function(err) {
+          showToast('\u274C ' + err, '#e74c3c');
+          openProof(recordId);
+          renderBalBar();
+        });
+      } else {
+        P2P_BACKEND.submitDWProof(recordId, proofCurrentFile, code, note);
+        try {
+          P2P_BACKEND.verifyDWTransaction(recordId);
+          showToast('\u2705 Receipt code verified! Transaction confirmed.', '#2ecc71');
+        } catch(verifyErr) {
+          showToast('\u274C ' + verifyErr.message, '#e74c3c');
+        }
         openProof(recordId);
         renderBalBar();
-      }).catch(function(err) {
-        showToast('\u274C ' + err, '#e74c3c');
-        openProof(recordId);
-        renderBalBar();
-      });
-    } else {
-      P2P_BACKEND.submitDWProof(recordId, proofCurrentFile, code, note);
-      try {
-        P2P_BACKEND.verifyDWTransaction(recordId);
-        showToast('\u2705 Receipt code verified! Transaction confirmed.', '#2ecc71');
-      } catch(verifyErr) {
-        showToast('\u274C ' + verifyErr.message, '#e74c3c');
       }
-      openProof(recordId);
-      renderBalBar();
-    }
+    }).catch(function(err) {
+      showToast('\u274C ' + err, '#e74c3c');
+    });
   } catch(e) {
     showToast('\u274C ' + e.message, '#e74c3c');
   }

@@ -422,27 +422,32 @@ function doDeposit() {
     if (!selectedDepBank) throw new Error('Please select a bank');
     if (!accName) throw new Error('Please enter account holder name');
     if (!accNum || accNum.length < 5) throw new Error('Please enter a valid account number');
+    if (usd < 5) throw new Error('Minimum bank deposit is $5');
 
-    if (typeof P2P_API !== 'undefined' && P2P_API.isOnline()) {
-      P2P_API.depositBank('OLIGHFT', usd, selectedDepBank, accNum, accName).then(function(result) {
+    TXN_VERIFY.requireVerification('Bank Deposit', '$' + usd.toFixed(2), 'OLIGHFT').then(function() {
+      if (typeof P2P_API !== 'undefined' && P2P_API.isOnline()) {
+        P2P_API.depositBank('OLIGHFT', usd, selectedDepBank, accNum, accName).then(function(result) {
+          showToast('\u{1F3E6} Bank deposit initiated! Receipt: ' + result.receiptCode, '#27ae60');
+          document.getElementById('depAmount').value  = '';
+          document.getElementById('depAccNum').value   = '';
+          depCalc();
+          P2P_API.getBalance().then(function() { renderBalBar(); }).catch(function() { renderBalBar(); });
+          openProof(result.id);
+        }).catch(function(err) {
+          showToast('\u274C ' + err.message, '#e74c3c');
+        });
+      } else {
+        var result = P2P_BACKEND.depositViaBank('OLIGHFT', usd, selectedDepBank, accNum, accName);
         showToast('\u{1F3E6} Bank deposit initiated! Receipt: ' + result.receiptCode, '#27ae60');
         document.getElementById('depAmount').value  = '';
         document.getElementById('depAccNum').value   = '';
         depCalc();
-        P2P_API.getBalance().then(function() { renderBalBar(); }).catch(function() { renderBalBar(); });
+        renderBalBar();
         openProof(result.id);
-      }).catch(function(err) {
-        showToast('\u274C ' + err.message, '#e74c3c');
-      });
-    } else {
-      var result = P2P_BACKEND.depositViaBank('OLIGHFT', usd, selectedDepBank, accNum, accName);
-      showToast('\u{1F3E6} Bank deposit initiated! Receipt: ' + result.receiptCode, '#27ae60');
-      document.getElementById('depAmount').value  = '';
-      document.getElementById('depAccNum').value   = '';
-      depCalc();
-      renderBalBar();
-      openProof(result.id);
-    }
+      }
+    }).catch(function(err) {
+      showToast('\u274C ' + err, '#e74c3c');
+    });
   } catch(e) {
     showToast('\u274C ' + e.message, '#e74c3c');
   }
@@ -485,27 +490,32 @@ function doWithdraw() {
     if (!selectedWdBank) throw new Error('Please select a bank');
     if (!accName) throw new Error('Please enter account holder name');
     if (!accNum || accNum.length < 5) throw new Error('Please enter a valid account number');
+    if (amount < 1) throw new Error('Minimum withdrawal is 1 coin');
 
-    if (typeof P2P_API !== 'undefined' && P2P_API.isOnline()) {
-      P2P_API.withdrawBank('OLIGHFT', amount, selectedWdBank, accNum, accName).then(function(result) {
+    TXN_VERIFY.requireVerification('Bank Withdrawal', amount.toFixed(4), 'OLIGHFT').then(function() {
+      if (typeof P2P_API !== 'undefined' && P2P_API.isOnline()) {
+        P2P_API.withdrawBank('OLIGHFT', amount, selectedWdBank, accNum, accName).then(function(result) {
+          showToast('\u{1F3E6} Bank withdrawal initiated! Receipt: ' + result.receiptCode, '#f39c12');
+          document.getElementById('wdAmount').value  = '';
+          document.getElementById('wdAccNum').value   = '';
+          wdCalc();
+          P2P_API.getBalance().then(function() { renderBalBar(); }).catch(function() { renderBalBar(); });
+          openProof(result.id);
+        }).catch(function(err) {
+          showToast('\u274C ' + err.message, '#e74c3c');
+        });
+      } else {
+        var result = P2P_BACKEND.withdrawToBank('OLIGHFT', amount, selectedWdBank, accNum, accName);
         showToast('\u{1F3E6} Bank withdrawal initiated! Receipt: ' + result.receiptCode, '#f39c12');
         document.getElementById('wdAmount').value  = '';
         document.getElementById('wdAccNum').value   = '';
         wdCalc();
-        P2P_API.getBalance().then(function() { renderBalBar(); }).catch(function() { renderBalBar(); });
+        renderBalBar();
         openProof(result.id);
-      }).catch(function(err) {
-        showToast('\u274C ' + err.message, '#e74c3c');
-      });
-    } else {
-      var result = P2P_BACKEND.withdrawToBank('OLIGHFT', amount, selectedWdBank, accNum, accName);
-      showToast('\u{1F3E6} Bank withdrawal initiated! Receipt: ' + result.receiptCode, '#f39c12');
-      document.getElementById('wdAmount').value  = '';
-      document.getElementById('wdAccNum').value   = '';
-      wdCalc();
-      renderBalBar();
-      openProof(result.id);
-    }
+      }
+    }).catch(function(err) {
+      showToast('\u274C ' + err, '#e74c3c');
+    });
   } catch(e) {
     showToast('\u274C ' + e.message, '#e74c3c');
   }
@@ -666,29 +676,33 @@ function submitProof(recordId) {
       return;
     }
 
-    if (typeof P2P_API !== 'undefined' && P2P_API.isOnline()) {
-      P2P_API.submitProof(recordId, proofCurrentFile, code, note).then(function() {
-        return P2P_API.verifyProof(recordId);
-      }).then(function() {
-        showToast('\u2705 Receipt code verified! Transaction confirmed.', '#2ecc71');
-        openProof(recordId);
-        P2P_API.getBalance().then(function() { renderBalBar(); }).catch(function() { renderBalBar(); });
-      }).catch(function(err) {
-        showToast('\u274C ' + err.message, '#e74c3c');
+    TXN_VERIFY.requireVerification('Proof Submission', 'Receipt #' + code, 'OLIGHFT').then(function() {
+      if (typeof P2P_API !== 'undefined' && P2P_API.isOnline()) {
+        P2P_API.submitProof(recordId, proofCurrentFile, code, note).then(function() {
+          return P2P_API.verifyProof(recordId);
+        }).then(function() {
+          showToast('\u2705 Receipt code verified! Transaction confirmed.', '#2ecc71');
+          openProof(recordId);
+          P2P_API.getBalance().then(function() { renderBalBar(); }).catch(function() { renderBalBar(); });
+        }).catch(function(err) {
+          showToast('\u274C ' + err.message, '#e74c3c');
+          openProof(recordId);
+          renderBalBar();
+        });
+      } else {
+        P2P_BACKEND.submitDWProof(recordId, proofCurrentFile, code, note);
+        try {
+          P2P_BACKEND.verifyDWTransaction(recordId);
+          showToast('\u2705 Receipt code verified! Transaction confirmed.', '#2ecc71');
+        } catch(verifyErr) {
+          showToast('\u274C ' + verifyErr.message, '#e74c3c');
+        }
         openProof(recordId);
         renderBalBar();
-      });
-    } else {
-      P2P_BACKEND.submitDWProof(recordId, proofCurrentFile, code, note);
-      try {
-        P2P_BACKEND.verifyDWTransaction(recordId);
-        showToast('\u2705 Receipt code verified! Transaction confirmed.', '#2ecc71');
-      } catch(verifyErr) {
-        showToast('\u274C ' + verifyErr.message, '#e74c3c');
       }
-      openProof(recordId);
-      renderBalBar();
-    }
+    }).catch(function(err) {
+      showToast('\u274C ' + err, '#e74c3c');
+    });
   } catch(e) {
     showToast('\u274C ' + e.message, '#e74c3c');
   }

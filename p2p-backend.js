@@ -2066,3 +2066,325 @@ var P2P_API = (function() {
     getProviders: getProviders,
   };
 })();
+
+// ═══════════════════════════════════════════════════════════════
+//  TRANSACTION VERIFICATION MODULE (USSD / Math CAPTCHA)
+//  All P2P transactions MUST pass verification before executing.
+//  Methods: USSD PIN, Math CAPTCHA, or OTP.
+// ═══════════════════════════════════════════════════════════════
+var TXN_VERIFY = (function() {
+  'use strict';
+
+  var _activeOverlay = null;
+  var _resolvePromise = null;
+  var _rejectPromise = null;
+  var _verifyCode = '';
+  var _captchaAnswer = 0;
+  var _expiresAt = 0;
+  var TIMEOUT_SEC = 120; // 2 min to verify
+
+  // ── Inject CSS once ──
+  (function injectStyles() {
+    if (document.getElementById('txn-verify-css')) return;
+    var s = document.createElement('style');
+    s.id = 'txn-verify-css';
+    s.textContent = [
+      '.tv-overlay{position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:99999;display:flex;justify-content:center;align-items:center;padding:20px;backdrop-filter:blur(4px)}',
+      '.tv-box{background:linear-gradient(135deg,#0f1a2e,#162032);border:1px solid rgba(108,92,231,.2);border-radius:20px;padding:28px 24px;max-width:400px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.6);animation:tvSlideUp .3s ease}',
+      '@keyframes tvSlideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}',
+      '.tv-title{text-align:center;font-size:1rem;font-weight:800;color:#fff;margin-bottom:4px}',
+      '.tv-sub{text-align:center;font-size:.72rem;color:rgba(255,255,255,.4);margin-bottom:18px;line-height:1.5}',
+      '.tv-amount{text-align:center;font-size:1.3rem;font-weight:800;color:#f0b90b;margin-bottom:16px}',
+      '.tv-tabs{display:flex;gap:6px;margin-bottom:16px}',
+      '.tv-tab{flex:1;padding:10px 8px;border-radius:10px;border:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.03);color:rgba(255,255,255,.5);font-size:.68rem;font-weight:600;cursor:pointer;text-align:center;transition:.2s}',
+      '.tv-tab.active{border-color:rgba(108,92,231,.4);background:rgba(108,92,231,.1);color:#a29bfe}',
+      '.tv-tab:hover{border-color:rgba(108,92,231,.25);color:#fff}',
+      '.tv-section{display:none}',
+      '.tv-section.active{display:block}',
+      /* USSD */
+      '.tv-ussd-code{font-size:1.1rem;font-weight:800;color:#f5c518;letter-spacing:1px;background:rgba(0,0,0,.3);display:block;text-align:center;padding:10px 16px;border-radius:10px;border:1px solid rgba(245,197,24,.2);margin:10px 0;font-family:"Courier New",monospace}',
+      '.tv-ussd-step{display:flex;align-items:flex-start;gap:8px;margin:6px 0;font-size:.68rem;color:rgba(255,255,255,.45)}',
+      '.tv-ussd-num{width:20px;height:20px;border-radius:50%;background:rgba(245,197,24,.12);color:#f5c518;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.58rem;flex-shrink:0}',
+      /* PIN input */
+      '.tv-pin-row{display:flex;gap:6px;justify-content:center;margin:14px 0}',
+      '.tv-pin-row input{width:40px;height:48px;border-radius:10px;border:1px solid rgba(108,92,231,.2);background:rgba(0,0,0,.3);color:#fff;font-size:1.2rem;font-weight:700;text-align:center;outline:none;transition:.2s}',
+      '.tv-pin-row input:focus{border-color:#6c5ce7;box-shadow:0 0 8px rgba(108,92,231,.3)}',
+      /* Math captcha */
+      '.tv-math{text-align:center;padding:16px;background:rgba(0,0,0,.2);border-radius:12px;border:1px solid rgba(255,255,255,.06);margin:10px 0}',
+      '.tv-math-q{font-size:1.5rem;font-weight:800;color:#a29bfe;letter-spacing:2px;margin-bottom:10px;font-family:"Courier New",monospace}',
+      '.tv-math input{width:100px;height:44px;border-radius:10px;border:1px solid rgba(108,92,231,.25);background:rgba(0,0,0,.3);color:#fff;font-size:1.2rem;font-weight:700;text-align:center;outline:none}',
+      '.tv-math input:focus{border-color:#6c5ce7}',
+      /* Buttons */
+      '.tv-btn{display:block;width:100%;padding:14px;border-radius:12px;border:none;font-size:.88rem;font-weight:700;cursor:pointer;transition:.2s;margin-top:8px}',
+      '.tv-btn-confirm{background:linear-gradient(135deg,#27ae60,#2ecc71);color:#fff}',
+      '.tv-btn-confirm:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(39,174,96,.3)}',
+      '.tv-btn-confirm:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}',
+      '.tv-btn-cancel{background:rgba(255,255,255,.04);color:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.08)}',
+      '.tv-btn-cancel:hover{color:#fff;border-color:rgba(235,87,87,.3)}',
+      '.tv-timer{text-align:center;font-size:.65rem;color:rgba(255,255,255,.3);margin-top:8px}',
+      '.tv-timer .tv-time{color:#f5c518;font-weight:700}',
+      '.tv-error{text-align:center;font-size:.72rem;color:#eb5757;margin-top:6px;min-height:1em}',
+      '.tv-shield{text-align:center;font-size:2rem;margin-bottom:6px}',
+      '.tv-info{font-size:.62rem;color:rgba(255,255,255,.25);text-align:center;margin-top:12px;line-height:1.5}'
+    ].join('\n');
+    document.head.appendChild(s);
+  })();
+
+  // ── Generate 6-digit PIN ──
+  function _genPin() {
+    var pin = '';
+    for (var i = 0; i < 6; i++) pin += Math.floor(Math.random() * 10);
+    return pin;
+  }
+
+  // ── Generate math problem ──
+  function _genMath() {
+    var ops = ['+', '-', '\u00D7'];
+    var op = ops[Math.floor(Math.random() * ops.length)];
+    var a, b, answer;
+    if (op === '+') {
+      a = Math.floor(Math.random() * 50) + 10;
+      b = Math.floor(Math.random() * 40) + 5;
+      answer = a + b;
+    } else if (op === '-') {
+      a = Math.floor(Math.random() * 50) + 30;
+      b = Math.floor(Math.random() * 25) + 1;
+      answer = a - b;
+    } else {
+      a = Math.floor(Math.random() * 12) + 2;
+      b = Math.floor(Math.random() * 9) + 2;
+      answer = a * b;
+    }
+    return { question: a + ' ' + op + ' ' + b + ' = ?', answer: answer };
+  }
+
+  // ── PIN input auto-advance ──
+  function _setupPinInputs(containerId) {
+    var inputs = document.querySelectorAll('#' + containerId + ' input');
+    for (var i = 0; i < inputs.length; i++) {
+      (function(idx) {
+        inputs[idx].addEventListener('input', function() {
+          this.value = this.value.replace(/[^0-9]/g, '');
+          if (this.value && idx < inputs.length - 1) inputs[idx + 1].focus();
+        });
+        inputs[idx].addEventListener('keydown', function(e) {
+          if (e.key === 'Backspace' && !this.value && idx > 0) inputs[idx - 1].focus();
+        });
+        inputs[idx].addEventListener('paste', function(e) {
+          e.preventDefault();
+          var paste = (e.clipboardData || window.clipboardData).getData('text').replace(/[^0-9]/g, '');
+          for (var j = 0; j < inputs.length && j < paste.length; j++) {
+            inputs[j].value = paste[j];
+          }
+          var last = Math.min(paste.length, inputs.length) - 1;
+          if (last >= 0) inputs[last].focus();
+        });
+      })(i);
+    }
+    setTimeout(function() { inputs[0].focus(); }, 100);
+  }
+
+  // ── Timer ──
+  var _timerInterval = null;
+  function _startTimer(el) {
+    _expiresAt = Date.now() + TIMEOUT_SEC * 1000;
+    clearInterval(_timerInterval);
+    _timerInterval = setInterval(function() {
+      var left = Math.max(0, Math.ceil((_expiresAt - Date.now()) / 1000));
+      var m = Math.floor(left / 60);
+      var s = left % 60;
+      el.innerHTML = 'Expires in <span class="tv-time">' + m + ':' + (s < 10 ? '0' : '') + s + '</span>';
+      if (left <= 0) {
+        clearInterval(_timerInterval);
+        _cleanup();
+        if (_rejectPromise) _rejectPromise('Verification timed out. Please try again.');
+      }
+    }, 1000);
+  }
+
+  // ── Cleanup ──
+  function _cleanup() {
+    clearInterval(_timerInterval);
+    if (_activeOverlay && _activeOverlay.parentNode) {
+      _activeOverlay.parentNode.removeChild(_activeOverlay);
+    }
+    _activeOverlay = null;
+    _resolvePromise = null;
+    _rejectPromise = null;
+  }
+
+  // ── Get user phone for USSD ──
+  function _getUserPhone() {
+    try {
+      var u = JSON.parse(localStorage.getItem('cw_user'));
+      return (u && u.phone) ? u.phone : '+254...';
+    } catch(e) { return '+254...'; }
+  }
+
+  // ── Build overlay ──
+  function _showVerifyOverlay(action, amount, coin) {
+    _cleanup();
+    var pin = _genPin();
+    _verifyCode = pin;
+    var math = _genMath();
+    _captchaAnswer = math.answer;
+    var phone = _getUserPhone();
+
+    var div = document.createElement('div');
+    div.className = 'tv-overlay';
+    div.innerHTML = [
+      '<div class="tv-box">',
+      '<div class="tv-shield">\uD83D\uDD12</div>',
+      '<div class="tv-title">Verify Transaction</div>',
+      '<div class="tv-sub">Confirm this ' + _esc(action) + ' to proceed securely</div>',
+      '<div class="tv-amount">' + _esc(amount) + ' ' + _esc(coin) + '</div>',
+
+      // Tabs
+      '<div class="tv-tabs">',
+      '<div class="tv-tab active" data-tv-tab="ussd" onclick="TXN_VERIFY._switchTab(\'ussd\')">\uD83D\uDCF2 USSD PIN</div>',
+      '<div class="tv-tab" data-tv-tab="math" onclick="TXN_VERIFY._switchTab(\'math\')">\uD83E\uDDE0 Math Captcha</div>',
+      '</div>',
+
+      // ── USSD Section ──
+      '<div class="tv-section active" id="tv-sec-ussd">',
+      '<div class="tv-ussd-step"><div class="tv-ussd-num">1</div><div>Dial this USSD code from your phone (<span style="color:#f5c518">' + _esc(phone) + '</span>)</div></div>',
+      '<div class="tv-ussd-code">*384*OLIGHFT*' + pin + '#</div>',
+      '<div class="tv-ussd-step"><div class="tv-ussd-num">2</div><div>Select <b style="color:#f5c518">Confirm Transaction</b> from the menu</div></div>',
+      '<div class="tv-ussd-step"><div class="tv-ussd-num">3</div><div>Enter the 6-digit PIN below</div></div>',
+      '<div class="tv-pin-row" id="tv-pin-ussd">',
+      '<input type="text" maxlength="1" inputmode="numeric"><input type="text" maxlength="1" inputmode="numeric"><input type="text" maxlength="1" inputmode="numeric"><input type="text" maxlength="1" inputmode="numeric"><input type="text" maxlength="1" inputmode="numeric"><input type="text" maxlength="1" inputmode="numeric">',
+      '</div>',
+      '</div>',
+
+      // ── Math Captcha Section ──
+      '<div class="tv-section" id="tv-sec-math">',
+      '<div class="tv-math">',
+      '<div style="font-size:.68rem;color:rgba(255,255,255,.4);margin-bottom:6px">Solve to verify you\'re human</div>',
+      '<div class="tv-math-q">' + _esc(math.question) + '</div>',
+      '<input type="number" id="tv-math-input" placeholder="?" inputmode="numeric">',
+      '</div>',
+      '</div>',
+
+      '<div class="tv-error" id="tv-error"></div>',
+      '<div class="tv-timer" id="tv-timer"></div>',
+      '<button class="tv-btn tv-btn-confirm" id="tv-confirm-btn" onclick="TXN_VERIFY._confirm()">\u2705 Confirm & Execute</button>',
+      '<button class="tv-btn tv-btn-cancel" onclick="TXN_VERIFY._cancel()">\u274C Cancel</button>',
+      '<div class="tv-info">\uD83D\uDD12 This verification protects your funds. Never share your PIN.</div>',
+      '</div>'
+    ].join('');
+
+    document.body.appendChild(div);
+    _activeOverlay = div;
+
+    // Prevent body scroll
+    document.body.style.overflow = 'hidden';
+
+    _setupPinInputs('tv-pin-ussd');
+    _startTimer(document.getElementById('tv-timer'));
+  }
+
+  function _esc(s) {
+    var d = document.createElement('div');
+    d.appendChild(document.createTextNode(s || ''));
+    return d.innerHTML;
+  }
+
+  // ── Tab switch ──
+  function _switchTab(tab) {
+    var tabs = document.querySelectorAll('.tv-tab');
+    for (var i = 0; i < tabs.length; i++) {
+      tabs[i].classList.toggle('active', tabs[i].getAttribute('data-tv-tab') === tab);
+    }
+    var secs = document.querySelectorAll('.tv-section');
+    for (var j = 0; j < secs.length; j++) {
+      secs[j].classList.toggle('active', secs[j].id === 'tv-sec-' + tab);
+    }
+    document.getElementById('tv-error').textContent = '';
+    if (tab === 'math') {
+      setTimeout(function() { document.getElementById('tv-math-input').focus(); }, 100);
+    } else {
+      _setupPinInputs('tv-pin-ussd');
+    }
+  }
+
+  // ── Confirm verification ──
+  function _confirm() {
+    var errEl = document.getElementById('tv-error');
+    errEl.textContent = '';
+
+    // Check which tab is active
+    var activeTab = document.querySelector('.tv-tab.active');
+    var method = activeTab ? activeTab.getAttribute('data-tv-tab') : 'ussd';
+
+    if (method === 'ussd') {
+      // Read PIN
+      var inputs = document.querySelectorAll('#tv-pin-ussd input');
+      var entered = '';
+      for (var i = 0; i < inputs.length; i++) entered += inputs[i].value;
+      if (entered.length !== 6) {
+        errEl.textContent = 'Please enter all 6 digits of the PIN';
+        return;
+      }
+      if (entered !== _verifyCode) {
+        errEl.textContent = 'Invalid PIN. Check the USSD code and try again.';
+        // Clear inputs
+        for (var j = 0; j < inputs.length; j++) inputs[j].value = '';
+        inputs[0].focus();
+        return;
+      }
+    } else if (method === 'math') {
+      var ans = parseInt(document.getElementById('tv-math-input').value);
+      if (isNaN(ans)) {
+        errEl.textContent = 'Please enter the answer';
+        return;
+      }
+      if (ans !== _captchaAnswer) {
+        errEl.textContent = 'Wrong answer. Try again.';
+        document.getElementById('tv-math-input').value = '';
+        document.getElementById('tv-math-input').focus();
+        return;
+      }
+    }
+
+    // Success
+    document.body.style.overflow = '';
+    var resolve = _resolvePromise;
+    _cleanup();
+    if (resolve) resolve({ verified: true, method: method });
+  }
+
+  // ── Cancel ──
+  function _cancel() {
+    document.body.style.overflow = '';
+    var reject = _rejectPromise;
+    _cleanup();
+    if (reject) reject('Transaction cancelled by user.');
+  }
+
+  // ═══════════════════════════════════════════
+  //  PUBLIC API
+  // ═══════════════════════════════════════════
+
+  /**
+   * Require verification before a transaction.
+   * @param {string} action - "Deposit" | "Withdrawal" | "Proof Submission"
+   * @param {string} amount - Display amount (e.g. "$100.00" or "200 OLIGHFT")
+   * @param {string} coin   - Coin symbol
+   * @returns {Promise} resolves with {verified:true, method:'ussd'|'math'} or rejects
+   */
+  function requireVerification(action, amount, coin) {
+    return new Promise(function(resolve, reject) {
+      _resolvePromise = resolve;
+      _rejectPromise = reject;
+      _showVerifyOverlay(action, amount, coin);
+    });
+  }
+
+  return {
+    requireVerification: requireVerification,
+    // Internal (exposed for onclick in HTML)
+    _switchTab: _switchTab,
+    _confirm: _confirm,
+    _cancel: _cancel,
+  };
+})();

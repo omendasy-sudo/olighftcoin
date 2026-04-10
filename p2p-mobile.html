@@ -411,28 +411,33 @@ function doDeposit() {
 
     if (!selectedDepProvider) throw new Error('Please select a mobile money provider');
     if (!phone) throw new Error('Please enter your phone number');
+    if (usd < 1) throw new Error('Minimum deposit is $1');
 
-    // Try API first, fall back to local
-    if (typeof P2P_API !== 'undefined' && P2P_API.isOnline()) {
-      P2P_API.depositMobile('OLIGHFT', usd, selectedDepProvider, phone).then(function(result) {
-        showToast('\u{1F4F1} Mobile deposit initiated! Receipt: ' + result.receiptCode, '#27ae60');
+    // Require USSD/Captcha verification before executing
+    TXN_VERIFY.requireVerification('Deposit', '$' + usd.toFixed(2), 'OLIGHFT').then(function() {
+      if (typeof P2P_API !== 'undefined' && P2P_API.isOnline()) {
+        P2P_API.depositMobile('OLIGHFT', usd, selectedDepProvider, phone).then(function(result) {
+          showToast('\u{1F4F1} Mobile deposit initiated! Receipt: ' + result.receiptCode, '#27ae60');
+          document.getElementById('depAmount').value = '';
+          document.getElementById('depPhone').value  = '';
+          depCalc();
+          P2P_API.getBalance().then(function() { renderBalBar(); }).catch(function() { renderBalBar(); });
+          openProof(result.id);
+        }).catch(function(err) {
+          showToast('\u274C ' + err.message, '#e74c3c');
+        });
+      } else {
+        var result = P2P_BACKEND.depositToWallet('OLIGHFT', usd, selectedDepProvider, phone);
+        showToast('\u{1F4F1} Mobile deposit initiated! SMS receipt: ' + result.receiptCode, '#27ae60');
         document.getElementById('depAmount').value = '';
         document.getElementById('depPhone').value  = '';
         depCalc();
-        P2P_API.getBalance().then(function() { renderBalBar(); }).catch(function() { renderBalBar(); });
+        renderBalBar();
         openProof(result.id);
-      }).catch(function(err) {
-        showToast('\u274C ' + err.message, '#e74c3c');
-      });
-    } else {
-      var result = P2P_BACKEND.depositToWallet('OLIGHFT', usd, selectedDepProvider, phone);
-      showToast('\u{1F4F1} Mobile deposit initiated! SMS receipt: ' + result.receiptCode, '#27ae60');
-      document.getElementById('depAmount').value = '';
-      document.getElementById('depPhone').value  = '';
-      depCalc();
-      renderBalBar();
-      openProof(result.id);
-    }
+      }
+    }).catch(function(err) {
+      showToast('\u274C ' + err, '#e74c3c');
+    });
   } catch(e) {
     showToast('\u274C ' + e.message, '#e74c3c');
   }
@@ -473,27 +478,32 @@ function doWithdraw() {
 
     if (!selectedWdProvider) throw new Error('Please select a mobile money provider');
     if (!phone) throw new Error('Please enter your phone number');
+    if (amount < 1) throw new Error('Minimum withdrawal is 1 coin');
 
-    if (typeof P2P_API !== 'undefined' && P2P_API.isOnline()) {
-      P2P_API.withdrawMobile('OLIGHFT', amount, selectedWdProvider, phone).then(function(result) {
-        showToast('\u{1F4F2} Mobile withdrawal initiated! Receipt: ' + result.receiptCode, '#f39c12');
+    TXN_VERIFY.requireVerification('Withdrawal', amount.toFixed(4), 'OLIGHFT').then(function() {
+      if (typeof P2P_API !== 'undefined' && P2P_API.isOnline()) {
+        P2P_API.withdrawMobile('OLIGHFT', amount, selectedWdProvider, phone).then(function(result) {
+          showToast('\u{1F4F2} Mobile withdrawal initiated! Receipt: ' + result.receiptCode, '#f39c12');
+          document.getElementById('wdAmount').value = '';
+          document.getElementById('wdPhone').value  = '';
+          wdCalc();
+          P2P_API.getBalance().then(function() { renderBalBar(); }).catch(function() { renderBalBar(); });
+          openProof(result.id);
+        }).catch(function(err) {
+          showToast('\u274C ' + err.message, '#e74c3c');
+        });
+      } else {
+        var result = P2P_BACKEND.withdrawToSIM('OLIGHFT', amount, selectedWdProvider, phone);
+        showToast('\u{1F4F2} Mobile withdrawal initiated! SMS receipt: ' + result.receiptCode, '#f39c12');
         document.getElementById('wdAmount').value = '';
         document.getElementById('wdPhone').value  = '';
         wdCalc();
-        P2P_API.getBalance().then(function() { renderBalBar(); }).catch(function() { renderBalBar(); });
+        renderBalBar();
         openProof(result.id);
-      }).catch(function(err) {
-        showToast('\u274C ' + err.message, '#e74c3c');
-      });
-    } else {
-      var result = P2P_BACKEND.withdrawToSIM('OLIGHFT', amount, selectedWdProvider, phone);
-      showToast('\u{1F4F2} Mobile withdrawal initiated! SMS receipt: ' + result.receiptCode, '#f39c12');
-      document.getElementById('wdAmount').value = '';
-      document.getElementById('wdPhone').value  = '';
-      wdCalc();
-      renderBalBar();
-      openProof(result.id);
-    }
+      }
+    }).catch(function(err) {
+      showToast('\u274C ' + err, '#e74c3c');
+    });
   } catch(e) {
     showToast('\u274C ' + e.message, '#e74c3c');
   }
@@ -654,29 +664,33 @@ function submitProof(recordId) {
       return;
     }
 
-    if (typeof P2P_API !== 'undefined' && P2P_API.isOnline()) {
-      P2P_API.submitProof(recordId, proofCurrentFile, code, note).then(function() {
-        return P2P_API.verifyProof(recordId);
-      }).then(function() {
-        showToast('\u2705 Receipt code verified! Transaction confirmed.', '#2ecc71');
-        openProof(recordId);
-        P2P_API.getBalance().then(function() { renderBalBar(); }).catch(function() { renderBalBar(); });
-      }).catch(function(err) {
-        showToast('\u274C ' + err.message, '#e74c3c');
+    TXN_VERIFY.requireVerification('Proof Submission', 'Receipt #' + code, 'OLIGHFT').then(function() {
+      if (typeof P2P_API !== 'undefined' && P2P_API.isOnline()) {
+        P2P_API.submitProof(recordId, proofCurrentFile, code, note).then(function() {
+          return P2P_API.verifyProof(recordId);
+        }).then(function() {
+          showToast('\u2705 Receipt code verified! Transaction confirmed.', '#2ecc71');
+          openProof(recordId);
+          P2P_API.getBalance().then(function() { renderBalBar(); }).catch(function() { renderBalBar(); });
+        }).catch(function(err) {
+          showToast('\u274C ' + err.message, '#e74c3c');
+          openProof(recordId);
+          renderBalBar();
+        });
+      } else {
+        P2P_BACKEND.submitDWProof(recordId, proofCurrentFile, code, note);
+        try {
+          P2P_BACKEND.verifyDWTransaction(recordId);
+          showToast('\u2705 Receipt code verified! Transaction confirmed.', '#2ecc71');
+        } catch(verifyErr) {
+          showToast('\u274C ' + verifyErr.message, '#e74c3c');
+        }
         openProof(recordId);
         renderBalBar();
-      });
-    } else {
-      P2P_BACKEND.submitDWProof(recordId, proofCurrentFile, code, note);
-      try {
-        P2P_BACKEND.verifyDWTransaction(recordId);
-        showToast('\u2705 Receipt code verified! Transaction confirmed.', '#2ecc71');
-      } catch(verifyErr) {
-        showToast('\u274C ' + verifyErr.message, '#e74c3c');
       }
-      openProof(recordId);
-      renderBalBar();
-    }
+    }).catch(function(err) {
+      showToast('\u274C ' + err, '#e74c3c');
+    });
   } catch(e) {
     showToast('\u274C ' + e.message, '#e74c3c');
   }
