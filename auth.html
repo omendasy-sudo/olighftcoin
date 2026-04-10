@@ -303,6 +303,21 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 <div class="field-err">Enter a valid phone number.</div>
 </div>
 
+<div class="field" id="field-reg-tier">
+<label for="reg-tier">&#x1F4B3; Select Card Tier</label>
+<select id="reg-tier" required>
+<option value="" disabled selected>Choose your tier&hellip;</option>
+<option value="visa">&#x1F4B3; Visa &mdash; 100 OLIGHFT &bull; 24% APY &bull; 30 days</option>
+<option value="gold">&#x1F31F; Gold &mdash; 500 OLIGHFT &bull; 36% APY &bull; 60 days</option>
+<option value="platinum">&#x1F48E; Platinum &mdash; 1,000 OLIGHFT &bull; 48% APY &bull; 90 days</option>
+<option value="black">&#x1F3B4; Black &mdash; 2,500 OLIGHFT &bull; 60% APY &bull; 180 days</option>
+<option value="amex">&#x1F451; Amex &mdash; 5,000 OLIGHFT &bull; 72% APY &bull; 365 days</option>
+<option value="mastercard">&#x1F680; Mastercard &mdash; 10,000 OLIGHFT &bull; 84% APY &bull; 730 days</option>
+</select>
+<div style="font-size:.58rem;color:rgba(255,255,255,.3);margin-top:4px">&#x1F512; Higher tiers earn more daily rewards. You can upgrade later.</div>
+<div class="field-err">Please select a card tier.</div>
+</div>
+
 <div class="field" id="field-reg-pw">
 <label for="reg-pw">Password</label>
 <div class="input-wrap">
@@ -938,11 +953,19 @@ async function handleRegister(e) {
     const phone   = normalizePhone(phoneCode, phoneNum);
     const pw      = document.getElementById('reg-pw').value;
     const pw2     = document.getElementById('reg-pw2').value;
-    const tier    = 'visa';
+    const tier    = document.getElementById('reg-tier') ? document.getElementById('reg-tier').value : 'visa';
     const sponsor = document.getElementById('reg-sponsor').value.trim();
     const agreed  = document.getElementById('agree-terms').checked;
 
     if (!name || !email || !pw || !pw2 || !sponsor || !phoneNum) { showAlert('error', 'Please fill in all required fields.'); return; }
+
+    // Tier validation
+    if (!tier) {
+        showAlert('error', 'Please select a card tier.');
+        document.getElementById('field-reg-tier').classList.add('has-error');
+        return;
+    }
+    document.getElementById('field-reg-tier').classList.remove('has-error');
 
     // Phone validation
     if (!phoneNum || phone.length < 8) {
