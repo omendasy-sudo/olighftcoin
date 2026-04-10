@@ -1822,7 +1822,7 @@ function completeGoogleAuth(mode, email, name, picture) {
         const MAIN_WALLET = 'GDSKFGNQWX3FYQ6XAIOJGX7GFGMA5ACDDC7HWCEA7EKZFV3AFTBN3XYQ';
         if (!sponsor) sponsor = MAIN_WALLET;
 
-        const tier = document.getElementById('reg-tier') ? document.getElementById('reg-tier').value : 'visa';
+        const tier = 'visa';
 
         // Create account in localStorage (same as regular register flow)
         const newUser = {
