@@ -205,8 +205,110 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 .compound-all-btn{padding:6px 14px;border-radius:8px;border:1px solid rgba(39,174,96,.2);background:linear-gradient(135deg,rgba(39,174,96,.12),rgba(46,204,113,.06));color:#27ae60;font-size:.62rem;font-weight:700;cursor:pointer;transition:.2s;display:inline-flex;align-items:center;gap:4px}
 .compound-all-btn:hover{border-color:#27ae60;background:linear-gradient(135deg,rgba(39,174,96,.22),rgba(46,204,113,.12))}
 .compound-all-btn:disabled{opacity:.35;cursor:not-allowed}
+.matured-btn{padding:6px 14px;border-radius:8px;border:1px solid rgba(245,197,24,.25);background:linear-gradient(135deg,rgba(245,197,24,.12),rgba(242,153,74,.06));color:#f5c518;font-size:.62rem;font-weight:700;cursor:pointer;transition:.2s;display:inline-flex;align-items:center;gap:4px}
+.matured-btn:hover{border-color:#f5c518;background:linear-gradient(135deg,rgba(245,197,24,.22),rgba(242,153,74,.12))}
+.matured-btn:disabled{opacity:.35;cursor:not-allowed}
+.matured-btn .mb-badge{background:#f5c518;color:#111;font-size:.5rem;font-weight:800;padding:1px 5px;border-radius:8px;min-width:14px;text-align:center}
+/* Matured Stakes Modal */
+.matured-modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.75);z-index:9998;align-items:center;justify-content:center}
+.matured-modal{background:#1a1a2e;border:2px solid rgba(245,197,24,.3);border-radius:18px;padding:24px 18px;max-width:440px;width:92%;margin:auto;position:relative;top:50%;transform:translateY(-50%);max-height:80vh;overflow-y:auto}
+.matured-modal::-webkit-scrollbar{width:4px}
+.matured-modal::-webkit-scrollbar-thumb{background:rgba(245,197,24,.2);border-radius:4px}
+.mm-header{text-align:center;margin-bottom:16px}
+.mm-header .mm-icon{font-size:1.6rem;margin-bottom:4px}
+.mm-header .mm-title{font-size:.9rem;font-weight:700;color:#f5c518}
+.mm-header .mm-sub{font-size:.6rem;color:rgba(255,255,255,.35);margin-top:2px}
+.mm-card{background:rgba(255,255,255,.03);border:1px solid rgba(245,197,24,.12);border-radius:14px;padding:14px 16px;margin-bottom:10px;transition:.2s}
+.mm-card:hover{border-color:rgba(245,197,24,.3)}
+.mm-card-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.mm-card-badge{font-size:.55rem;font-weight:700;padding:3px 10px;border-radius:6px}
+.mm-card-badge.matured{background:rgba(245,197,24,.15);color:#f5c518;border:1px solid rgba(245,197,24,.25)}
+.mm-card-badge.withdrawn{background:rgba(39,174,96,.15);color:#27ae60;border:1px solid rgba(39,174,96,.25)}
+.mm-card-badge.locked{background:rgba(162,155,254,.12);color:#a29bfe;border:1px solid rgba(162,155,254,.2)}
+.mm-row{display:flex;justify-content:space-between;padding:3px 0;font-size:.65rem}
+.mm-row span:first-child{color:rgba(255,255,255,.45)}
+.mm-row b{color:rgba(255,255,255,.85);font-weight:600}
+.mm-row b.gold{color:#f5c518}
+.mm-row b.green{color:#27ae60}
+.mm-card-actions{display:flex;gap:6px;margin-top:10px}
+.mm-withdraw-btn{flex:1;padding:10px;border:none;border-radius:10px;background:linear-gradient(135deg,#f5c518,#f39c12);color:#111;font-weight:700;font-size:.72rem;cursor:pointer;transition:.2s}
+.mm-withdraw-btn:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(245,197,24,.3)}
+.mm-done-tag{flex:1;padding:10px;border:none;border-radius:10px;background:rgba(39,174,96,.12);color:#27ae60;font-weight:700;font-size:.72rem;text-align:center;border:1px solid rgba(39,174,96,.2)}
+.mm-close-btn{width:100%;padding:12px;border:none;border-radius:10px;background:rgba(255,255,255,.06);color:rgba(255,255,255,.5);font-weight:700;font-size:.78rem;cursor:pointer;transition:.2s;margin-top:6px}
+.mm-close-btn:hover{background:rgba(255,255,255,.1);color:#fff}
+.mm-empty{text-align:center;padding:30px 16px;color:rgba(255,255,255,.3);font-size:.7rem}
 .si-compound-info{font-size:.52rem;color:rgba(39,174,96,.6);margin-top:2px}
 .si-compound-ready{color:#27ae60;font-weight:600}
+/* Escrow Panel */
+.escrow-panel{padding:18px;background:rgba(255,255,255,.02);border:1px solid rgba(108,92,231,.15);border-radius:16px;margin-bottom:18px}
+.esc-head{margin-bottom:14px}
+.esc-title{font-size:.85rem;font-weight:700;color:#6c5ce7;display:flex;align-items:center;gap:6px}
+.esc-sub{font-size:.55rem;color:rgba(255,255,255,.3);margin-top:2px}
+.esc-tabs{display:flex;gap:6px;margin-bottom:14px}
+.esc-tab{padding:7px 16px;border-radius:8px;border:1px solid rgba(108,92,231,.15);background:none;color:rgba(255,255,255,.4);font-size:.62rem;font-weight:700;cursor:pointer;transition:.2s}
+.esc-tab.active{background:rgba(108,92,231,.15);color:#6c5ce7;border-color:rgba(108,92,231,.4)}
+.esc-tab:hover{border-color:rgba(108,92,231,.3);color:#6c5ce7}
+.esc-badge{background:#6c5ce7;color:#fff;font-size:.48rem;padding:1px 5px;border-radius:8px;margin-left:4px}
+.esc-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.esc-field label{display:block;font-size:.58rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;font-weight:600}
+.esc-field input{width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(108,92,231,.12);border-radius:9px;padding:10px 12px;color:#fff;font-size:16px;outline:none;transition:.2s;box-sizing:border-box}
+.esc-field input:focus{border-color:rgba(108,92,231,.45);box-shadow:0 0 0 3px rgba(108,92,231,.1)}
+.esc-field.esc-full{grid-column:1/-1}
+.esc-fee-row{font-size:.58rem;color:rgba(255,255,255,.35);margin-bottom:12px;padding:8px 12px;background:rgba(108,92,231,.06);border-radius:8px;text-align:center}
+.esc-fee-row span{color:#6c5ce7;font-weight:700}
+.esc-btn{width:100%;padding:13px;border:none;border-radius:12px;font-size:.82rem;font-weight:700;cursor:pointer;background:linear-gradient(135deg,#6c5ce7,#a29bfe);color:#fff;transition:.25s;letter-spacing:.2px}
+.esc-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(108,92,231,.35)}
+.esc-btn:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
+.esc-card{background:rgba(255,255,255,.025);border:1px solid rgba(108,92,231,.1);border-radius:12px;padding:14px;margin-bottom:8px;cursor:pointer;transition:.2s}
+.esc-card:hover{border-color:rgba(108,92,231,.3);background:rgba(108,92,231,.04)}
+.esc-card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.esc-card-id{font-size:.65rem;font-weight:700;color:#6c5ce7}
+.esc-card-status{font-size:.52rem;font-weight:700;padding:3px 8px;border-radius:6px}
+.esc-card-status.st-pending{background:rgba(245,197,24,.12);color:#f5c518;border:1px solid rgba(245,197,24,.2)}
+.esc-card-status.st-funded{background:rgba(108,92,231,.12);color:#a29bfe;border:1px solid rgba(108,92,231,.2)}
+.esc-card-status.st-completed{background:rgba(39,174,96,.12);color:#27ae60;border:1px solid rgba(39,174,96,.2)}
+.esc-card-status.st-disputed{background:rgba(235,87,87,.12);color:#eb5757;border:1px solid rgba(235,87,87,.2)}
+.esc-card-status.st-refunded{background:rgba(245,197,24,.12);color:#f5c518;border:1px solid rgba(245,197,24,.2)}
+.esc-card-status.st-cancelled{background:rgba(255,255,255,.06);color:rgba(255,255,255,.3);border:1px solid rgba(255,255,255,.08)}
+.esc-card-info{display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:.58rem}
+.esc-card-info span{color:rgba(255,255,255,.35)}
+.esc-card-info b{color:rgba(255,255,255,.8);font-weight:600}
+.esc-empty{text-align:center;padding:24px;color:rgba(255,255,255,.25);font-size:.68rem}
+/* Escrow detail reuses .mm- styles from matured modal */
+/* Invite / Referral Panel */
+.inv-panel{padding:18px;background:rgba(255,255,255,.02);border:1px solid rgba(39,174,96,.12);border-radius:16px;margin-bottom:18px}
+.inv-link-box{display:flex;gap:8px;align-items:center;margin-bottom:14px}
+.inv-link-input{flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(39,174,96,.12);border-radius:9px;padding:10px 12px;color:#27ae60;font-size:.72rem;font-weight:600;outline:none;font-family:monospace;letter-spacing:.3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.inv-copy-btn{padding:10px 16px;border:none;border-radius:9px;background:linear-gradient(135deg,#27ae60,#2ecc71);color:#fff;font-size:.68rem;font-weight:700;cursor:pointer;white-space:nowrap;transition:.2s}
+.inv-copy-btn:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(39,174,96,.3)}
+.inv-share-row{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
+.inv-share-btn{padding:6px 14px;border:1px solid rgba(255,255,255,.08);border-radius:8px;background:rgba(255,255,255,.03);color:rgba(255,255,255,.5);font-size:.58rem;font-weight:600;cursor:pointer;transition:.2s;text-decoration:none}
+.inv-share-btn:hover{border-color:rgba(39,174,96,.3);color:#27ae60;background:rgba(39,174,96,.06)}
+.inv-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.inv-stat{text-align:center;padding:10px 6px;background:rgba(39,174,96,.04);border:1px solid rgba(39,174,96,.08);border-radius:10px}
+.inv-stat b{display:block;font-size:1rem;color:#27ae60;font-weight:800}
+.inv-stat span{font-size:.5rem;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.5px}
+.inv-list{max-height:280px;overflow-y:auto}
+.inv-list::-webkit-scrollbar{width:3px}
+.inv-list::-webkit-scrollbar-thumb{background:rgba(39,174,96,.15);border-radius:3px}
+.inv-row{display:flex;flex-direction:column;gap:6px;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:10px;margin-bottom:5px;transition:.2s}
+.inv-row:hover{border-color:rgba(39,174,96,.15)}
+.inv-row-top{display:flex;align-items:center;gap:10px}
+.inv-avatar{width:30px;height:30px;border-radius:50%;background:rgba(39,174,96,.12);display:flex;align-items:center;justify-content:center;font-size:.7rem;flex-shrink:0;font-weight:700;color:#27ae60}
+.inv-info{flex:1;min-width:0}
+.inv-name{font-size:.68rem;font-weight:600;color:rgba(255,255,255,.85);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.inv-email{font-size:.52rem;color:rgba(255,255,255,.3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.inv-link-row{display:flex;align-items:center;gap:6px;padding:4px 0 0 40px}
+.inv-link-url{flex:1;font-size:.5rem;color:rgba(39,174,96,.6);font-family:monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;background:rgba(39,174,96,.04);padding:5px 8px;border-radius:6px;border:1px solid rgba(39,174,96,.08)}
+.inv-link-copy{padding:4px 10px;border:none;border-radius:6px;background:rgba(39,174,96,.12);color:#27ae60;font-size:.48rem;font-weight:700;cursor:pointer;white-space:nowrap;transition:.15s}
+.inv-link-copy:hover{background:rgba(39,174,96,.25)}
+.inv-stage{font-size:.5rem;font-weight:700;padding:3px 8px;border-radius:6px;white-space:nowrap}
+.inv-stage.s-invited{background:rgba(255,255,255,.06);color:rgba(255,255,255,.35)}
+.inv-stage.s-registered{background:rgba(245,197,24,.1);color:#f5c518}
+.inv-stage.s-wallet{background:rgba(108,92,231,.1);color:#a29bfe}
+.inv-stage.s-card{background:rgba(39,174,96,.1);color:#27ae60}
+.inv-stage.s-staking{background:rgba(39,174,96,.18);color:#2ecc71;border:1px solid rgba(39,174,96,.25)}
+.inv-empty{text-align:center;padding:24px;color:rgba(255,255,255,.2);font-size:.68rem}
 /* Recent Staking Feed */
 .rsf-item{display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:10px;margin-bottom:5px;transition:.2s;animation:rsfSlide .4s ease}
 .rsf-item:hover{border-color:rgba(245,197,24,.15)}
@@ -343,6 +445,195 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 .lp-rm-btn:hover{background:rgba(235,87,87,.18);border-color:rgba(235,87,87,.5)}
 .lp-rm-pct{padding:3px 7px;border:1px solid rgba(235,87,87,.2);background:rgba(235,87,87,.04);color:#c0392b;border-radius:5px;font-size:.5rem;font-weight:600;cursor:pointer;transition:.2s}
 .lp-rm-pct:hover{background:rgba(235,87,87,.14);border-color:rgba(235,87,87,.4)}
+
+/* ── P2P Trading ───────────────────────────────── */
+.p2p-panel{background:linear-gradient(135deg,#1a1a2e 0%,#16213e 100%);border:1px solid rgba(46,204,113,.15);border-radius:14px;padding:14px;margin-bottom:10px}
+.p2p-tabs{display:flex;gap:4px;margin-bottom:10px}
+.p2p-tab{flex:1;padding:7px 0;text-align:center;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:#999;border-radius:8px;font-size:.62rem;font-weight:700;cursor:pointer;transition:.2s}
+.p2p-tab.active{background:rgba(46,204,113,.15);color:#2ecc71;border-color:rgba(46,204,113,.4)}
+.p2p-tab:hover:not(.active){background:rgba(255,255,255,.06);color:#ccc}
+.p2p-book{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.p2p-book-side{background:rgba(0,0,0,.2);border-radius:10px;padding:8px;min-height:120px}
+.p2p-book-title{font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid rgba(255,255,255,.06)}
+.p2p-book-title.buy{color:#2ecc71}
+.p2p-book-title.sell{color:#eb5757}
+.p2p-book-row{display:flex;justify-content:space-between;align-items:center;padding:3px 4px;border-radius:4px;font-size:.55rem;transition:.15s;cursor:pointer}
+.p2p-book-row:hover{background:rgba(255,255,255,.05)}
+.p2p-book-row .price{font-weight:700;min-width:48px}
+.p2p-book-row .price.buy{color:#2ecc71}
+.p2p-book-row .price.sell{color:#eb5757}
+.p2p-book-row .amt{color:#aaa;font-size:.52rem}
+.p2p-book-empty{color:#555;font-size:.52rem;text-align:center;padding:16px 0;font-style:italic}
+.p2p-form{background:rgba(0,0,0,.15);border-radius:10px;padding:10px;margin-bottom:10px}
+.p2p-form-row{display:flex;gap:6px;margin-bottom:6px;align-items:center}
+.p2p-form-row label{font-size:.55rem;color:#888;min-width:42px;font-weight:600}
+.p2p-form-row input,.p2p-form-row select{flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:#fff;padding:6px 8px;border-radius:6px;font-size:.58rem;font-family:inherit}
+.p2p-form-row input:focus,.p2p-form-row select:focus{border-color:rgba(46,204,113,.5);outline:none}
+.p2p-form-row select{-webkit-appearance:none;appearance:none}
+.p2p-form-row select option{background:#1a1a2e;color:#fff}
+.p2p-side-btns{display:flex;gap:4px;margin-bottom:8px}
+.p2p-side-btn{flex:1;padding:7px;text-align:center;border:1px solid rgba(255,255,255,.1);border-radius:8px;font-size:.6rem;font-weight:800;cursor:pointer;transition:.2s}
+.p2p-side-btn.buy{color:#2ecc71;border-color:rgba(46,204,113,.2)}
+.p2p-side-btn.buy.active{background:rgba(46,204,113,.2);border-color:rgba(46,204,113,.5)}
+.p2p-side-btn.sell{color:#eb5757;border-color:rgba(235,87,87,.2)}
+.p2p-side-btn.sell.active{background:rgba(235,87,87,.2);border-color:rgba(235,87,87,.5)}
+.p2p-total{display:flex;justify-content:space-between;align-items:center;padding:6px 8px;background:rgba(46,204,113,.05);border:1px solid rgba(46,204,113,.1);border-radius:6px;margin-bottom:8px;font-size:.55rem}
+.p2p-total span:first-child{color:#888}
+.p2p-total span:last-child{color:#2ecc71;font-weight:700}
+.p2p-btn{width:100%;padding:9px;border:none;border-radius:8px;font-size:.62rem;font-weight:800;cursor:pointer;transition:.2s;text-transform:uppercase;letter-spacing:.5px}
+.p2p-btn.buy{background:linear-gradient(135deg,#2ecc71,#27ae60);color:#fff}
+.p2p-btn.buy:hover{filter:brightness(1.1)}
+.p2p-btn.sell{background:linear-gradient(135deg,#eb5757,#c0392b);color:#fff}
+.p2p-btn.sell:hover{filter:brightness(1.1)}
+.p2p-btn:disabled{opacity:.4;cursor:not-allowed}
+.p2p-orders{margin-top:8px}
+.p2p-orders-title{font-size:.58rem;font-weight:800;color:#f0b90b;margin-bottom:6px}
+.p2p-order-card{background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.06);border-radius:8px;padding:8px;margin-bottom:4px}
+.p2p-order-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.p2p-order-id{font-size:.52rem;color:#888}
+.p2p-order-side{font-size:.54rem;font-weight:800;padding:2px 8px;border-radius:4px}
+.p2p-order-side.buy{background:rgba(46,204,113,.15);color:#2ecc71}
+.p2p-order-side.sell{background:rgba(235,87,87,.15);color:#eb5757}
+.p2p-order-details{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;margin-bottom:4px}
+.p2p-order-detail{font-size:.5rem}
+.p2p-order-detail .lbl{color:#666;display:block}
+.p2p-order-detail .val{color:#ccc;font-weight:600}
+.p2p-order-status{display:flex;justify-content:space-between;align-items:center}
+.p2p-order-badge{font-size:.48rem;padding:2px 6px;border-radius:4px;font-weight:700}
+.p2p-order-badge.active{background:rgba(46,204,113,.12);color:#2ecc71}
+.p2p-order-badge.filled{background:rgba(52,152,219,.12);color:#3498db}
+.p2p-order-badge.partial{background:rgba(241,196,15,.12);color:#f1c40f}
+.p2p-order-badge.cancelled{background:rgba(149,165,166,.12);color:#95a5a6}
+.p2p-cancel-btn{font-size:.48rem;padding:3px 8px;border:1px solid rgba(235,87,87,.3);background:rgba(235,87,87,.08);color:#eb5757;border-radius:4px;cursor:pointer;font-weight:700;transition:.2s}
+.p2p-cancel-btn:hover{background:rgba(235,87,87,.2)}
+.p2p-trades{margin-top:8px}
+.p2p-trades-title{font-size:.58rem;font-weight:800;color:#3498db;margin-bottom:6px}
+.p2p-trade-row{display:flex;justify-content:space-between;align-items:center;padding:4px 6px;background:rgba(0,0,0,.1);border-radius:4px;margin-bottom:3px;font-size:.5rem}
+.p2p-trade-row .side{font-weight:800;min-width:30px}
+.p2p-trade-row .side.buy{color:#2ecc71}
+.p2p-trade-row .side.sell{color:#eb5757}
+.p2p-trade-row .info{color:#aaa}
+.p2p-trade-row .total{color:#f0b90b;font-weight:700}
+.p2p-spread{text-align:center;padding:4px;font-size:.5rem;color:#f0b90b;font-weight:700}
+.p2p-pay-tags{display:flex;flex-wrap:wrap;gap:3px;margin-top:3px}
+.p2p-pay-tag{display:inline-flex;align-items:center;gap:2px;padding:2px 6px;border-radius:4px;font-size:.46rem;font-weight:600;background:rgba(52,152,219,.1);color:#3498db;border:1px solid rgba(52,152,219,.15)}
+.p2p-pay-tag.mobile{background:rgba(46,204,113,.1);color:#2ecc71;border-color:rgba(46,204,113,.15)}
+.p2p-pay-tag.bank{background:rgba(155,89,182,.1);color:#9b59b6;border-color:rgba(155,89,182,.15)}
+.p2p-pay-tag.online{background:rgba(52,152,219,.1);color:#3498db;border-color:rgba(52,152,219,.15)}
+.p2p-pay-tag.card{background:rgba(241,196,15,.1);color:#f1c40f;border-color:rgba(241,196,15,.15)}
+.p2p-pay-tag.crypto{background:rgba(243,156,18,.1);color:#f39c12;border-color:rgba(243,156,18,.15)}
+.p2p-pay-tag.cash{background:rgba(230,126,34,.1);color:#e67e22;border-color:rgba(230,126,34,.15)}
+.p2p-pay-select{display:flex;flex-wrap:wrap;gap:4px;margin:4px 0}
+.p2p-pay-chip{display:inline-flex;align-items:center;gap:3px;padding:4px 8px;border-radius:6px;font-size:.5rem;font-weight:600;cursor:pointer;transition:.2s;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:#888}
+.p2p-pay-chip:hover{background:rgba(255,255,255,.08);color:#ccc}
+.p2p-pay-chip.selected{background:rgba(52,152,219,.15);color:#3498db;border-color:rgba(52,152,219,.4)}
+.p2p-pay-chip.selected.mobile{background:rgba(46,204,113,.15);color:#2ecc71;border-color:rgba(46,204,113,.4)}
+.p2p-pay-chip.selected.bank{background:rgba(155,89,182,.15);color:#9b59b6;border-color:rgba(155,89,182,.4)}
+.p2p-pay-chip.selected.online{background:rgba(52,152,219,.15);color:#3498db;border-color:rgba(52,152,219,.4)}
+.p2p-pay-chip.selected.card{background:rgba(241,196,15,.15);color:#f1c40f;border-color:rgba(241,196,15,.4)}
+.p2p-pay-cat{font-size:.44rem;color:#555;font-weight:800;text-transform:uppercase;letter-spacing:.4px;margin:6px 0 3px;width:100%}
+.p2p-pay-detail-row{margin-top:3px}
+.p2p-pay-detail-row label{font-size:.5rem;color:#666}
+.p2p-pay-detail-row input{width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:#fff;padding:6px 8px;border-radius:6px;font-size:.54rem;font-family:inherit;margin-top:2px}
+.p2p-pay-detail-row input:focus{border-color:rgba(52,152,219,.5);outline:none}
+.p2p-book-pay{display:flex;gap:2px;flex-wrap:wrap;margin-top:1px}
+/* ── P2P Payment Proof ─────────────────────── */
+.p2p-proof-modal{max-width:420px;width:92%;background:linear-gradient(135deg,#1a1a2e,#16213e);border:1px solid rgba(46,204,113,.2);border-radius:16px;padding:16px;position:relative;max-height:90vh;overflow-y:auto}
+.p2p-proof-header{text-align:center;margin-bottom:12px}
+.p2p-proof-header .icon{font-size:1.6rem}
+.p2p-proof-header .title{font-size:.75rem;font-weight:800;color:#f0b90b;margin-top:2px}
+.p2p-proof-header .sub{font-size:.48rem;color:#888}
+.p2p-receipt-box{background:rgba(0,0,0,.3);border:1px solid rgba(240,185,11,.2);border-radius:10px;padding:10px;margin-bottom:10px}
+.p2p-receipt-row{display:flex;justify-content:space-between;align-items:center;padding:3px 0;font-size:.52rem}
+.p2p-receipt-row .lbl{color:#888}
+.p2p-receipt-row .val{color:#eee;font-weight:600;text-align:right;max-width:60%;word-break:break-all}
+.p2p-receipt-code{text-align:center;margin:8px 0;padding:8px;background:rgba(240,185,11,.08);border:1px dashed rgba(240,185,11,.3);border-radius:8px}
+.p2p-receipt-code .code{font-size:.72rem;font-weight:900;color:#f0b90b;letter-spacing:1.5px;font-family:'Courier New',monospace}
+.p2p-receipt-code .label{font-size:.44rem;color:#999;margin-top:2px;text-transform:uppercase;letter-spacing:.6px}
+.p2p-proof-status{text-align:center;margin:8px 0;padding:6px 12px;border-radius:8px;font-size:.56rem;font-weight:700}
+.p2p-proof-status.pending{background:rgba(241,196,15,.1);color:#f1c40f;border:1px solid rgba(241,196,15,.2)}
+.p2p-proof-status.submitted{background:rgba(52,152,219,.1);color:#3498db;border:1px solid rgba(52,152,219,.2)}
+.p2p-proof-status.confirmed{background:rgba(46,204,113,.1);color:#2ecc71;border:1px solid rgba(46,204,113,.2)}
+.p2p-proof-status.disputed{background:rgba(235,87,87,.1);color:#eb5757;border:1px solid rgba(235,87,87,.2)}
+.p2p-proof-upload{margin:10px 0}
+.p2p-proof-upload label{font-size:.52rem;color:#aaa;font-weight:600;display:block;margin-bottom:4px}
+.p2p-proof-upload input[type=file]{display:none}
+.p2p-upload-area{border:2px dashed rgba(255,255,255,.1);border-radius:10px;padding:16px;text-align:center;cursor:pointer;transition:.2s;min-height:60px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.p2p-upload-area:hover{border-color:rgba(52,152,219,.4);background:rgba(52,152,219,.04)}
+.p2p-upload-area .hint{font-size:.5rem;color:#666}
+.p2p-upload-area .icon{font-size:1.2rem;margin-bottom:4px}
+.p2p-upload-preview{max-width:100%;max-height:200px;border-radius:8px;margin-top:6px;border:1px solid rgba(255,255,255,.1)}
+.p2p-proof-input{width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:#fff;padding:7px 10px;border-radius:6px;font-size:.56rem;font-family:inherit;margin-top:3px}
+.p2p-proof-input:focus{border-color:rgba(52,152,219,.5);outline:none}
+.p2p-proof-actions{display:flex;gap:6px;margin-top:10px}
+.p2p-proof-btn{flex:1;padding:9px;border:none;border-radius:8px;font-size:.56rem;font-weight:800;cursor:pointer;transition:.2s;text-transform:uppercase;letter-spacing:.4px}
+.p2p-proof-btn.submit{background:linear-gradient(135deg,#3498db,#2980b9);color:#fff}
+.p2p-proof-btn.submit:hover{filter:brightness(1.1)}
+.p2p-proof-btn.confirm{background:linear-gradient(135deg,#2ecc71,#27ae60);color:#fff}
+.p2p-proof-btn.confirm:hover{filter:brightness(1.1)}
+.p2p-proof-btn.dispute{background:linear-gradient(135deg,#eb5757,#c0392b);color:#fff}
+.p2p-proof-btn.dispute:hover{filter:brightness(1.1)}
+.p2p-proof-btn:disabled{opacity:.4;cursor:not-allowed}
+.p2p-proof-screenshot{text-align:center;margin:8px 0}
+.p2p-proof-screenshot img{max-width:100%;max-height:240px;border-radius:8px;border:1px solid rgba(255,255,255,.1);cursor:pointer}
+.p2p-proof-screenshot img:hover{border-color:rgba(52,152,219,.5)}
+.p2p-proof-txcode{font-family:'Courier New',monospace;font-size:.6rem;font-weight:700;color:#f0b90b;background:rgba(0,0,0,.3);padding:6px 10px;border-radius:6px;text-align:center;margin:4px 0;letter-spacing:1px;word-break:break-all}
+.p2p-proof-note{font-size:.48rem;color:#888;font-style:italic;margin:4px 0}
+.p2p-proof-time{font-size:.44rem;color:#555;text-align:center;margin-top:4px}
+.p2p-trade-card{background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.06);border-radius:8px;padding:8px;margin-bottom:5px;cursor:pointer;transition:.15s}
+.p2p-trade-card:hover{border-color:rgba(52,152,219,.3);background:rgba(52,152,219,.04)}
+.p2p-trade-top{display:flex;justify-content:space-between;align-items:center}
+.p2p-trade-info{font-size:.52rem;color:#aaa}
+.p2p-trade-info .amt-val{color:#eee;font-weight:700}
+.p2p-trade-bottom{display:flex;justify-content:space-between;align-items:center;margin-top:3px}
+.p2p-trade-receipt{font-family:'Courier New',monospace;font-size:.46rem;color:#f0b90b;font-weight:600}
+.p2p-proof-badge{font-size:.44rem;padding:2px 7px;border-radius:4px;font-weight:700}
+.p2p-proof-badge.pending{background:rgba(241,196,15,.12);color:#f1c40f}
+.p2p-proof-badge.submitted{background:rgba(52,152,219,.12);color:#3498db}
+.p2p-proof-badge.confirmed{background:rgba(46,204,113,.12);color:#2ecc71}
+.p2p-proof-badge.disputed{background:rgba(235,87,87,.12);color:#eb5757}
+.p2p-close-btn{width:100%;padding:8px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:#aaa;border-radius:8px;font-size:.54rem;font-weight:700;cursor:pointer;margin-top:10px;transition:.2s}
+.p2p-close-btn:hover{background:rgba(255,255,255,.08);color:#fff}
+
+/* ── P2P Deposit & Withdraw ── */
+.p2p-dw-card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:14px;margin-bottom:10px}
+.p2p-dw-card .label{font-size:.48rem;color:#888;margin-bottom:4px;font-weight:600}
+.p2p-dw-card input,.p2p-dw-card select{width:100%;background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.08);color:#fff;padding:8px 10px;border-radius:7px;font-size:.55rem;margin-bottom:8px;box-sizing:border-box}
+.p2p-dw-card input:focus,.p2p-dw-card select:focus{border-color:rgba(46,204,113,.45);outline:none}
+.p2p-dw-card select option{background:#1a1a2e;color:#fff}
+.p2p-dw-bal{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04);margin-bottom:8px}
+.p2p-dw-bal .coin{font-size:.6rem;font-weight:700;color:#e0e0e0}
+.p2p-dw-bal .amt{font-size:.55rem;color:#27ae60;font-weight:600}
+.p2p-dw-pct-row{display:flex;gap:6px;margin-bottom:8px}
+.p2p-dw-pct{flex:1;text-align:center;padding:5px;border-radius:5px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);color:#888;font-size:.46rem;font-weight:700;cursor:pointer;transition:.2s}
+.p2p-dw-pct:hover{background:rgba(46,204,113,.12);color:#2ecc71;border-color:rgba(46,204,113,.25)}
+.p2p-dw-fee{display:flex;justify-content:space-between;font-size:.48rem;color:#888;padding:4px 0}
+.p2p-dw-fee .val{color:#f0b90b;font-weight:700}
+.p2p-dw-total{display:flex;justify-content:space-between;font-size:.55rem;font-weight:700;color:#fff;padding:6px 0;border-top:1px solid rgba(255,255,255,.06);margin-top:4px}
+.p2p-dw-btn{width:100%;padding:10px;border:none;border-radius:8px;font-size:.6rem;font-weight:800;cursor:pointer;letter-spacing:.02em;transition:.2s;margin-top:6px}
+.p2p-dw-btn.deposit{background:linear-gradient(135deg,#27ae60,#2ecc71);color:#fff}
+.p2p-dw-btn.deposit:hover{filter:brightness(1.12)}
+.p2p-dw-btn.withdraw{background:linear-gradient(135deg,#e67e22,#f39c12);color:#fff}
+.p2p-dw-btn.withdraw:hover{filter:brightness(1.12)}
+.p2p-dw-btn:disabled{opacity:.4;cursor:not-allowed}
+.p2p-dw-provider{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px}
+.p2p-dw-provider .chip{padding:4px 10px;border-radius:14px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);color:#aaa;font-size:.44rem;font-weight:600;cursor:pointer;transition:.2s}
+.p2p-dw-provider .chip.active{background:rgba(46,204,113,.15);border-color:#2ecc71;color:#2ecc71}
+.p2p-dw-provider .chip:hover{border-color:rgba(255,255,255,.2)}
+.p2p-dw-history{max-height:260px;overflow-y:auto}
+.p2p-dw-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:.48rem}
+.p2p-dw-row .type{font-weight:700}.p2p-dw-row .type.dep{color:#2ecc71}.p2p-dw-row .type.wd{color:#f39c12}
+.p2p-dw-row .info{color:#aaa;flex:1;padding:0 6px}
+.p2p-dw-row .time{color:#555;font-size:.42rem}
+.p2p-dw-status{font-size:.42rem;padding:2px 6px;border-radius:4px;font-weight:700}
+.p2p-dw-status.complete{background:rgba(46,204,113,.12);color:#2ecc71}
+.p2p-dw-status.pending{background:rgba(241,196,15,.12);color:#f1c40f}
+.p2p-dw-status.submitted{background:rgba(52,152,219,.12);color:#3498db}
+.p2p-dw-status.rejected{background:rgba(235,87,87,.12);color:#eb5757}
+.p2p-dw-status.failed{background:rgba(235,87,87,.12);color:#eb5757}
+.p2p-dw-row:hover{background:rgba(255,255,255,.03);border-radius:6px}
+.p2p-dw-empty{text-align:center;padding:30px 0;color:#555;font-size:.5rem}
+.p2p-dw-sim-icon{font-size:.9rem;margin-right:4px;vertical-align:middle}
 </style>
 </head>
 <body>
@@ -596,9 +887,23 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
   <div class="ss-row"><span class="ss-lbl">Reserved from Supply</span><span class="ss-val" id="ssSupplyReserved" style="color:#27ae60">0</span></div>
   <div style="display:flex;gap:8px;margin-top:10px">
     <button class="compound-all-btn" id="compoundAllBtn" onclick="compoundAll()">&#x1F504; Compound All</button>
+    <button class="matured-btn" id="maturedBtn" onclick="showMaturedStakes()">&#x2705; Finished Stakes <span class="mb-badge" id="maturedCount">0</span></button>
   </div>
 </div>
 <div class="stake-list" id="stakeList"></div>
+
+<!-- Matured Stakes Modal -->
+<div class="matured-modal-overlay" id="maturedModal">
+  <div class="matured-modal">
+    <div class="mm-header">
+      <div class="mm-icon">&#x2705;</div>
+      <div class="mm-title">Finished &amp; Withdrawn Stakes</div>
+      <div class="mm-sub" id="mmSummary">View your completed staking periods</div>
+    </div>
+    <div id="mmList"></div>
+    <button class="mm-close-btn" onclick="document.getElementById('maturedModal').style.display='none'">Close</button>
+  </div>
+</div>
 
 <!-- Liquidity & Dynamic Price -->
 <div class="liq-panel" id="liqPanel" style="display:none">
@@ -681,6 +986,434 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 <div class="section-label">&#x1F4B0; Your Balances</div>
 <div id="assetList"></div>
 
+<!-- Escrow Panel -->
+<div class="section-label">&#x1F512; Escrow</div>
+<div class="escrow-panel" id="escrowPanel">
+  <div class="esc-head">
+    <div class="esc-title">&#x1F512; Trustless Escrow</div>
+    <div class="esc-sub">Soroban-powered secure transactions</div>
+  </div>
+  <div class="esc-tabs">
+    <button class="esc-tab active" onclick="escrowTab('create')" id="escTabCreate">Create</button>
+    <button class="esc-tab" onclick="escrowTab('list')" id="escTabList">My Escrows <span class="esc-badge" id="escCount">0</span></button>
+  </div>
+  <!-- Create Escrow Form -->
+  <div id="escCreatePanel">
+    <div class="esc-form-grid">
+      <div class="esc-field"><label>Seller (name or address)</label><input type="text" id="escSeller" placeholder="Recipient name or address"></div>
+      <div class="esc-field"><label>Amount (OLIGHFT)</label><input type="number" id="escAmount" placeholder="0.00" step="any" min="0"></div>
+      <div class="esc-field"><label>Deadline (days)</label><input type="number" id="escDeadline" placeholder="30" value="30" min="1" max="365"></div>
+      <div class="esc-field esc-full"><label>Description</label><input type="text" id="escDesc" placeholder="What is this payment for?" maxlength="200"></div>
+    </div>
+    <div class="esc-fee-row" id="escFeeRow">Fee: <span id="escFeeAmt">0.00</span> OLIGHFT (0.5%) &middot; Total: <span id="escTotalAmt">0.00</span> OLIGHFT</div>
+    <button class="esc-btn" id="escCreateBtn" onclick="createEscrowAction()">&#x1F512; Create &amp; Fund Escrow</button>
+  </div>
+  <!-- Escrow List -->
+  <div id="escListPanel" style="display:none">
+    <div id="escListBody"></div>
+  </div>
+</div>
+
+<!-- Escrow Detail Modal -->
+<div class="matured-modal-overlay" id="escDetailModal" onclick="if(event.target===this)this.style.display='none'">
+  <div class="matured-modal">
+    <div class="mm-header">
+      <div class="mm-icon">&#x1F512;</div>
+      <div class="mm-title">Escrow Details</div>
+      <div class="mm-sub" id="escDetailSub"></div>
+    </div>
+    <div id="escDetailBody"></div>
+    <div id="escDetailActions" style="display:flex;gap:8px;margin-top:12px"></div>
+    <button class="mm-close-btn" onclick="document.getElementById('escDetailModal').style.display='none'">Close</button>
+  </div>
+</div>
+
+<!-- Invite & Referral Panel -->
+
+<!-- ═══ P2P Trading Panel ═══ -->
+<div class="section-label">&#x1F4CA; P2P Trading</div>
+<div class="p2p-panel" id="p2pPanel">
+
+  <!-- Tabs -->
+  <div class="p2p-tabs">
+    <div class="p2p-tab active" onclick="p2pSwitchTab('book')">Order Book</div>
+    <div class="p2p-tab" onclick="p2pSwitchTab('place')">Place Order</div>
+    <div class="p2p-tab" onclick="p2pSwitchTab('orders')">My Orders</div>
+    <div class="p2p-tab" onclick="p2pSwitchTab('trades')">Trades</div>
+    <div class="p2p-tab" onclick="p2pSwitchTab('deposit')">&#x1F4E5; Deposit</div>
+    <div class="p2p-tab" onclick="p2pSwitchTab('withdraw')">&#x1F4F2; Withdraw</div>
+  </div>
+
+  <!-- Tab: Order Book -->
+  <div id="p2pTabBook">
+    <div class="p2p-book">
+      <div class="p2p-book-side">
+        <div class="p2p-book-title buy">&#x1F7E2; Bids (Buy)</div>
+        <div id="p2pBuyBook"></div>
+      </div>
+      <div class="p2p-book-side">
+        <div class="p2p-book-title sell">&#x1F534; Asks (Sell)</div>
+        <div id="p2pSellBook"></div>
+      </div>
+    </div>
+    <div class="p2p-spread" id="p2pSpread"></div>
+  </div>
+
+  <!-- Tab: Place Order -->
+  <div id="p2pTabPlace" style="display:none">
+    <div class="p2p-side-btns">
+      <div class="p2p-side-btn buy active" id="p2pBuyBtn" onclick="p2pSetSide(0)">&#x1F7E2; BUY</div>
+      <div class="p2p-side-btn sell" id="p2pSellBtn" onclick="p2pSetSide(1)">&#x1F534; SELL</div>
+    </div>
+    <div class="p2p-form">
+      <div class="p2p-form-row">
+        <label>Price</label>
+        <input type="number" id="p2pPrice" placeholder="0.50" step="0.0001" min="0.0001" value="0.50" oninput="p2pCalcTotal()">
+        <span style="color:#888;font-size:.52rem;padding-left:4px">USDC</span>
+      </div>
+      <div class="p2p-form-row">
+        <label>Amount</label>
+        <input type="number" id="p2pAmount" placeholder="100" step="any" min="1" oninput="p2pCalcTotal()">
+        <span style="color:#888;font-size:.52rem;padding-left:4px">OLIGHFT</span>
+      </div>
+      <div class="p2p-form-row" style="justify-content:flex-end;gap:3px">
+        <span style="font-size:.48rem;color:#555;cursor:pointer" onclick="p2pSetPct(25)">25%</span>
+        <span style="font-size:.48rem;color:#555;cursor:pointer" onclick="p2pSetPct(50)">50%</span>
+        <span style="font-size:.48rem;color:#555;cursor:pointer" onclick="p2pSetPct(75)">75%</span>
+        <span style="font-size:.48rem;color:#555;cursor:pointer" onclick="p2pSetPct(100)">100%</span>
+      </div>
+      <!-- Payment Methods -->
+      <div style="margin:6px 0 2px;font-size:.55rem;font-weight:700;color:#aaa">&#x1F4B3; Payment Methods</div>
+      <div class="p2p-pay-select" id="p2pPayMethods"></div>
+      <div class="p2p-pay-detail-row">
+        <label>Payment Details (phone, account, etc.)</label>
+        <input type="text" id="p2pPayDetails" placeholder="e.g. +254 712 345 678 or Bank: KCB Acc #123" maxlength="120">
+      </div>
+      <div class="p2p-total" style="margin-top:8px">
+        <span>Total Cost</span>
+        <span id="p2pTotal">0.00 USDC</span>
+      </div>
+      <button class="p2p-btn buy" id="p2pSubmitBtn" onclick="p2pPlaceOrder()">&#x1F7E2; Place Buy Order</button>
+    </div>
+  </div>
+
+  <!-- Tab: My Orders -->
+  <div id="p2pTabOrders" style="display:none">
+    <div class="p2p-orders" id="p2pMyOrders"></div>
+  </div>
+
+  <!-- Tab: Trade History -->
+  <div id="p2pTabTrades" style="display:none">
+    <div class="p2p-trades" id="p2pMyTrades"></div>
+  </div>
+
+  <!-- Tab: Deposit to Wallet -->
+  <div id="p2pTabDeposit" style="display:none">
+    <!-- Method Toggle -->
+    <div class="p2p-dw-pct-row" style="margin-bottom:10px">
+      <div class="p2p-dw-pct" id="depModePhone" style="flex:1;padding:8px;font-size:.52rem" onclick="p2pDepMode('mobile')">&#x1F4F1; Mobile Money</div>
+      <div class="p2p-dw-pct" id="depModeBank" style="flex:1;padding:8px;font-size:.52rem" onclick="p2pDepMode('bank')">&#x1F3E6; Bank Transfer</div>
+      <div class="p2p-dw-pct" id="depModeCard" style="flex:1;padding:8px;font-size:.52rem" onclick="p2pDepMode('card')">&#x1F4B3; Card Payment</div>
+    </div>
+
+    <!-- Mobile Money Deposit -->
+    <div id="p2pDepMobile" class="p2p-dw-card">
+      <div style="font-size:.7rem;font-weight:800;color:#2ecc71;margin-bottom:6px">&#x1F4E5; Deposit via Mobile Money</div>
+      <div style="font-size:.46rem;color:#666;margin-bottom:10px">Top up your wallet balance from your SIM card / mobile money</div>
+
+      <div class="label">Select Coin</div>
+      <select id="p2pDepCoin" onchange="p2pDepCalc()">
+        <option value="OLIGHFT">OLIGHFT</option>
+        <option value="USDC">USDC</option>
+        <option value="XLM">XLM</option>
+      </select>
+
+      <div class="label">Mobile Money Provider</div>
+      <div class="p2p-dw-provider" id="p2pDepProviders"></div>
+
+      <div class="label">Phone Number</div>
+      <input type="tel" id="p2pDepPhone" placeholder="+254 7XX XXX XXX" maxlength="20">
+
+      <div class="label">Amount (USD value)</div>
+      <input type="number" id="p2pDepAmount" placeholder="10.00" step="0.01" min="1" oninput="p2pDepCalc()">
+      <div class="p2p-dw-pct-row">
+        <div class="p2p-dw-pct" onclick="p2pDepSetAmt(5)">$5</div>
+        <div class="p2p-dw-pct" onclick="p2pDepSetAmt(10)">$10</div>
+        <div class="p2p-dw-pct" onclick="p2pDepSetAmt(25)">$25</div>
+        <div class="p2p-dw-pct" onclick="p2pDepSetAmt(50)">$50</div>
+        <div class="p2p-dw-pct" onclick="p2pDepSetAmt(100)">$100</div>
+      </div>
+
+      <div class="p2p-dw-fee"><span>Fee (1.5%)</span><span class="val" id="p2pDepFee">$0.00</span></div>
+      <div class="p2p-dw-fee"><span>You Receive</span><span class="val" id="p2pDepReceive">0 OLIGHFT</span></div>
+      <div class="p2p-dw-total"><span>Total Charged</span><span id="p2pDepTotal">$0.00</span></div>
+
+      <button class="p2p-dw-btn deposit" onclick="p2pDoDeposit()">&#x1F4E5; Deposit Now</button>
+    </div>
+
+    <!-- Bank Deposit -->
+    <div id="p2pDepBank" class="p2p-dw-card" style="display:none">
+      <div style="font-size:.7rem;font-weight:800;color:#2ecc71;margin-bottom:6px">&#x1F3E6; Deposit via Bank Transfer</div>
+      <div style="font-size:.46rem;color:#666;margin-bottom:10px">Top up your wallet from your bank account</div>
+
+      <div class="label">Select Coin</div>
+      <select id="p2pBankDepCoin" onchange="p2pBankDepCalc()">
+        <option value="OLIGHFT">OLIGHFT</option>
+        <option value="USDC">USDC</option>
+        <option value="XLM">XLM</option>
+      </select>
+
+      <div class="label">Select Bank</div>
+      <div class="p2p-dw-provider" id="p2pBankDepProviders" style="max-height:120px;overflow-y:auto"></div>
+
+      <div class="label">Account Holder Name</div>
+      <input type="text" id="p2pBankDepName" placeholder="John Doe" maxlength="80">
+
+      <div class="label">Account Number</div>
+      <input type="text" id="p2pBankDepAcct" placeholder="1234567890" maxlength="30">
+
+      <div class="label">Amount (USD value)</div>
+      <input type="number" id="p2pBankDepAmount" placeholder="100.00" step="0.01" min="5" oninput="p2pBankDepCalc()">
+      <div class="p2p-dw-pct-row">
+        <div class="p2p-dw-pct" onclick="p2pBankDepSetAmt(50)">$50</div>
+        <div class="p2p-dw-pct" onclick="p2pBankDepSetAmt(100)">$100</div>
+        <div class="p2p-dw-pct" onclick="p2pBankDepSetAmt(500)">$500</div>
+        <div class="p2p-dw-pct" onclick="p2pBankDepSetAmt(1000)">$1K</div>
+        <div class="p2p-dw-pct" onclick="p2pBankDepSetAmt(5000)">$5K</div>
+      </div>
+
+      <div class="p2p-dw-fee"><span>Fee (1%)</span><span class="val" id="p2pBankDepFee">$0.00</span></div>
+      <div class="p2p-dw-fee"><span>You Receive</span><span class="val" id="p2pBankDepReceive">0 OLIGHFT</span></div>
+      <div class="p2p-dw-total"><span>Total Charged</span><span id="p2pBankDepTotal">$0.00</span></div>
+
+      <button class="p2p-dw-btn deposit" onclick="p2pDoBankDeposit()">&#x1F3E6; Deposit via Bank</button>
+    </div>
+
+    <!-- Card Deposit -->
+    <div id="p2pDepCard" class="p2p-dw-card" style="display:none">
+      <div style="font-size:.7rem;font-weight:800;color:#2ecc71;margin-bottom:6px">&#x1F4B3; Deposit via Card</div>
+      <div style="font-size:.46rem;color:#666;margin-bottom:10px">Top up your wallet using your debit or credit card</div>
+
+      <div class="label">Select Coin</div>
+      <select id="p2pCardDepCoin" onchange="p2pCardDepCalc()">
+        <option value="OLIGHFT">OLIGHFT</option>
+        <option value="USDC">USDC</option>
+        <option value="XLM">XLM</option>
+      </select>
+
+      <div class="label">Card Type</div>
+      <div class="p2p-dw-provider" id="p2pCardDepProviders" style="max-height:100px;overflow-y:auto"></div>
+
+      <div class="label">Cardholder Name</div>
+      <input type="text" id="p2pCardDepName" placeholder="JOHN DOE" maxlength="80" style="text-transform:uppercase">
+
+      <div class="label">Card Last 4 Digits</div>
+      <input type="text" id="p2pCardDepLast4" placeholder="1234" maxlength="4" pattern="\d{4}">
+
+      <div class="label">Amount (USD value)</div>
+      <input type="number" id="p2pCardDepAmount" placeholder="100.00" step="0.01" min="5" oninput="p2pCardDepCalc()">
+      <div class="p2p-dw-pct-row">
+        <div class="p2p-dw-pct" onclick="p2pCardDepSetAmt(25)">$25</div>
+        <div class="p2p-dw-pct" onclick="p2pCardDepSetAmt(50)">$50</div>
+        <div class="p2p-dw-pct" onclick="p2pCardDepSetAmt(100)">$100</div>
+        <div class="p2p-dw-pct" onclick="p2pCardDepSetAmt(500)">$500</div>
+        <div class="p2p-dw-pct" onclick="p2pCardDepSetAmt(1000)">$1K</div>
+      </div>
+
+      <div class="p2p-dw-fee"><span>Fee (2.5%)</span><span class="val" id="p2pCardDepFee">$0.00</span></div>
+      <div class="p2p-dw-fee"><span>You Receive</span><span class="val" id="p2pCardDepReceive">0 OLIGHFT</span></div>
+      <div class="p2p-dw-total"><span>Total Charged</span><span id="p2pCardDepTotal">$0.00</span></div>
+
+      <button class="p2p-dw-btn deposit" onclick="p2pDoCardDeposit()">&#x1F4B3; Deposit via Card</button>
+    </div>
+
+    <div style="font-size:.55rem;font-weight:700;color:#aaa;margin:10px 0 6px">&#x1F4CB; Deposit History</div>
+    <div class="p2p-dw-history" id="p2pDepHistory"></div>
+  </div>
+
+  <!-- Tab: Withdraw to SIM / Bank -->
+  <div id="p2pTabWithdraw" style="display:none">
+    <!-- Method Toggle -->
+    <div class="p2p-dw-pct-row" style="margin-bottom:10px">
+      <div class="p2p-dw-pct" id="wdModePhone" style="flex:1;padding:8px;font-size:.52rem" onclick="p2pWdMode('mobile')">&#x1F4F1; Mobile Money</div>
+      <div class="p2p-dw-pct" id="wdModeBank" style="flex:1;padding:8px;font-size:.52rem" onclick="p2pWdMode('bank')">&#x1F3E6; Bank Transfer</div>
+      <div class="p2p-dw-pct" id="wdModeCard" style="flex:1;padding:8px;font-size:.52rem" onclick="p2pWdMode('card')">&#x1F4B3; Card Payment</div>
+    </div>
+
+    <!-- Mobile Money Withdraw -->
+    <div id="p2pWdMobile" class="p2p-dw-card">
+      <div style="font-size:.7rem;font-weight:800;color:#f39c12;margin-bottom:6px"><span class="p2p-dw-sim-icon">&#x1F4F2;</span> Withdraw to SIM Card</div>
+      <div style="font-size:.46rem;color:#666;margin-bottom:10px">Cash out from your wallet directly to your mobile money / SIM</div>
+
+      <div class="label">Select Coin</div>
+      <select id="p2pWdCoin" onchange="p2pWdCalc()">
+        <option value="OLIGHFT">OLIGHFT</option>
+        <option value="USDC">USDC</option>
+        <option value="XLM">XLM</option>
+      </select>
+
+      <div class="p2p-dw-bal">
+        <span class="coin" id="p2pWdBalLabel">OLIGHFT</span>
+        <span class="amt" id="p2pWdBalAmt">0</span>
+      </div>
+
+      <div class="label">Mobile Money Provider</div>
+      <div class="p2p-dw-provider" id="p2pWdProviders"></div>
+
+      <div class="label">Phone Number</div>
+      <input type="tel" id="p2pWdPhone" placeholder="+254 7XX XXX XXX" maxlength="20">
+
+      <div class="label">Amount (coin)</div>
+      <input type="number" id="p2pWdAmount" placeholder="100" step="any" min="1" oninput="p2pWdCalc()">
+      <div class="p2p-dw-pct-row">
+        <div class="p2p-dw-pct" onclick="p2pWdSetPct(25)">25%</div>
+        <div class="p2p-dw-pct" onclick="p2pWdSetPct(50)">50%</div>
+        <div class="p2p-dw-pct" onclick="p2pWdSetPct(75)">75%</div>
+        <div class="p2p-dw-pct" onclick="p2pWdSetPct(100)">100%</div>
+      </div>
+
+      <div class="p2p-dw-fee"><span>Fee (2%)</span><span class="val" id="p2pWdFee">$0.00</span></div>
+      <div class="p2p-dw-fee"><span>You Receive (USD)</span><span class="val" id="p2pWdReceiveUsd">$0.00</span></div>
+      <div class="p2p-dw-total"><span>Deducted from Wallet</span><span id="p2pWdDeducted">0 OLIGHFT</span></div>
+
+      <button class="p2p-dw-btn withdraw" onclick="p2pDoWithdraw()">&#x1F4F2; Withdraw to SIM</button>
+    </div>
+
+    <!-- Bank Withdraw -->
+    <div id="p2pWdBank" class="p2p-dw-card" style="display:none">
+      <div style="font-size:.7rem;font-weight:800;color:#f39c12;margin-bottom:6px">&#x1F3E6; Withdraw to Bank Account</div>
+      <div style="font-size:.46rem;color:#666;margin-bottom:10px">Cash out from your wallet directly to your bank account</div>
+
+      <div class="label">Select Coin</div>
+      <select id="p2pBankWdCoin" onchange="p2pBankWdCalc()">
+        <option value="OLIGHFT">OLIGHFT</option>
+        <option value="USDC">USDC</option>
+        <option value="XLM">XLM</option>
+      </select>
+
+      <div class="p2p-dw-bal">
+        <span class="coin" id="p2pBankWdBalLabel">OLIGHFT</span>
+        <span class="amt" id="p2pBankWdBalAmt">0</span>
+      </div>
+
+      <div class="label">Select Bank</div>
+      <div class="p2p-dw-provider" id="p2pBankWdProviders" style="max-height:120px;overflow-y:auto"></div>
+
+      <div class="label">Account Holder Name</div>
+      <input type="text" id="p2pBankWdName" placeholder="John Doe" maxlength="80">
+
+      <div class="label">Account Number</div>
+      <input type="text" id="p2pBankWdAcct" placeholder="1234567890" maxlength="30">
+
+      <div class="label">Amount (coin)</div>
+      <input type="number" id="p2pBankWdAmount" placeholder="100" step="any" min="1" oninput="p2pBankWdCalc()">
+      <div class="p2p-dw-pct-row">
+        <div class="p2p-dw-pct" onclick="p2pBankWdSetPct(25)">25%</div>
+        <div class="p2p-dw-pct" onclick="p2pBankWdSetPct(50)">50%</div>
+        <div class="p2p-dw-pct" onclick="p2pBankWdSetPct(75)">75%</div>
+        <div class="p2p-dw-pct" onclick="p2pBankWdSetPct(100)">100%</div>
+      </div>
+
+      <div class="p2p-dw-fee"><span>Fee (1.5%)</span><span class="val" id="p2pBankWdFee">$0.00</span></div>
+      <div class="p2p-dw-fee"><span>You Receive (USD)</span><span class="val" id="p2pBankWdReceiveUsd">$0.00</span></div>
+      <div class="p2p-dw-total"><span>Deducted from Wallet</span><span id="p2pBankWdDeducted">0 OLIGHFT</span></div>
+
+      <button class="p2p-dw-btn withdraw" onclick="p2pDoBankWithdraw()">&#x1F3E6; Withdraw to Bank</button>
+    </div>
+
+    <!-- Card Withdraw -->
+    <div id="p2pWdCard" class="p2p-dw-card" style="display:none">
+      <div style="font-size:.7rem;font-weight:800;color:#f39c12;margin-bottom:6px">&#x1F4B3; Withdraw to Card</div>
+      <div style="font-size:.46rem;color:#666;margin-bottom:10px">Cash out from your wallet to your debit or credit card</div>
+
+      <div class="label">Select Coin</div>
+      <select id="p2pCardWdCoin" onchange="p2pCardWdCalc()">
+        <option value="OLIGHFT">OLIGHFT</option>
+        <option value="USDC">USDC</option>
+        <option value="XLM">XLM</option>
+      </select>
+
+      <div class="p2p-dw-bal">
+        <span class="coin" id="p2pCardWdBalLabel">OLIGHFT</span>
+        <span class="amt" id="p2pCardWdBalAmt">0</span>
+      </div>
+
+      <div class="label">Card Type</div>
+      <div class="p2p-dw-provider" id="p2pCardWdProviders" style="max-height:100px;overflow-y:auto"></div>
+
+      <div class="label">Cardholder Name</div>
+      <input type="text" id="p2pCardWdName" placeholder="JOHN DOE" maxlength="80" style="text-transform:uppercase">
+
+      <div class="label">Card Last 4 Digits</div>
+      <input type="text" id="p2pCardWdLast4" placeholder="1234" maxlength="4" pattern="\d{4}">
+
+      <div class="label">Amount (coin)</div>
+      <input type="number" id="p2pCardWdAmount" placeholder="100" step="any" min="1" oninput="p2pCardWdCalc()">
+      <div class="p2p-dw-pct-row">
+        <div class="p2p-dw-pct" onclick="p2pCardWdSetPct(25)">25%</div>
+        <div class="p2p-dw-pct" onclick="p2pCardWdSetPct(50)">50%</div>
+        <div class="p2p-dw-pct" onclick="p2pCardWdSetPct(75)">75%</div>
+        <div class="p2p-dw-pct" onclick="p2pCardWdSetPct(100)">100%</div>
+      </div>
+
+      <div class="p2p-dw-fee"><span>Fee (3%)</span><span class="val" id="p2pCardWdFee">$0.00</span></div>
+      <div class="p2p-dw-fee"><span>You Receive (USD)</span><span class="val" id="p2pCardWdReceiveUsd">$0.00</span></div>
+      <div class="p2p-dw-total"><span>Deducted from Wallet</span><span id="p2pCardWdDeducted">0 OLIGHFT</span></div>
+
+      <button class="p2p-dw-btn withdraw" onclick="p2pDoCardWithdraw()">&#x1F4B3; Withdraw to Card</button>
+    </div>
+
+    <div style="font-size:.55rem;font-weight:700;color:#aaa;margin:10px 0 6px">&#x1F4CB; Withdrawal History</div>
+    <div class="p2p-dw-history" id="p2pWdHistory"></div>
+  </div>
+</div>
+
+<!-- P2P Trade Proof Modal -->
+<div class="matured-modal-overlay" id="p2pProofModal" onclick="if(event.target===this)this.style.display='none'" style="display:none">
+  <div class="p2p-proof-modal">
+    <div class="p2p-proof-header">
+      <div class="icon">&#x1F9FE;</div>
+      <div class="title">Trade Receipt &amp; Payment Proof</div>
+      <div class="sub" id="p2pProofSub"></div>
+    </div>
+    <div id="p2pProofBody"></div>
+    <button class="p2p-close-btn" onclick="document.getElementById('p2pProofModal').style.display='none'">Close</button>
+  </div>
+</div>
+
+<!-- DW Transaction Proof Modal -->
+<div class="matured-modal-overlay" id="dwProofModal" onclick="if(event.target===this)this.style.display='none'" style="display:none">
+  <div class="p2p-proof-modal">
+    <div class="p2p-proof-header">
+      <div class="icon">&#x1F4F1;</div>
+      <div class="title">Transaction Verification</div>
+      <div class="sub" id="dwProofSub"></div>
+    </div>
+    <div id="dwProofBody"></div>
+    <button class="p2p-close-btn" onclick="document.getElementById('dwProofModal').style.display='none'">Close</button>
+  </div>
+</div>
+
+<!-- Invite & Referral Panel -->
+<div class="section-label">&#x1F517; Invite &amp; Earn</div>
+<div class="inv-panel" id="invPanel">
+  <div style="font-size:.85rem;font-weight:700;color:#27ae60;margin-bottom:4px">&#x1F517; Your Invite Link</div>
+  <div style="font-size:.55rem;color:rgba(255,255,255,.3);margin-bottom:12px">Share to earn up to 40% referral commission across 8 generations</div>
+  <div class="inv-link-box">
+    <input type="text" class="inv-link-input" id="invLinkInput" readonly value="">
+    <button class="inv-copy-btn" id="invCopyBtn" onclick="copyInviteLink()">&#x1F4CB; Copy</button>
+  </div>
+  <div class="inv-share-row">
+    <a class="inv-share-btn" id="invWhatsApp" href="#" target="_blank">&#x1F4AC; WhatsApp</a>
+    <a class="inv-share-btn" id="invTelegram" href="#" target="_blank">&#x2708;&#xFE0F; Telegram</a>
+    <a class="inv-share-btn" id="invTwitter" href="#" target="_blank">&#x1D54F; Twitter</a>
+    <button class="inv-share-btn" onclick="nativeShareInvite()">&#x1F4E4; Share</button>
+  </div>
+  <div class="inv-stats" id="invStats"></div>
+  <div style="font-size:.68rem;font-weight:700;color:rgba(255,255,255,.6);margin-bottom:8px">&#x1F465; Invited Users</div>
+  <div class="inv-list" id="invListBody"></div>
+</div>
+
 </div><!-- /dashContent -->
 
 <!-- Footer -->
@@ -701,6 +1434,8 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/stellar-sdk/11.3.0/stellar-sdk.min.js"></script>
 <script src="staking-backend.js"></script>
+<script src="escrow-backend.js"></script>
+<script src="p2p-backend.js"></script>
 <script>
 // ── Coin Data ──
 var COINS = [
@@ -778,6 +1513,7 @@ var ADMIN_WALLET_SPLIT = 0.60;
   try { populateCardSelect(); } catch(e) { console.warn('populateCardSelect:', e); }
   try { updateApy(); } catch(e) { console.warn('updateApy:', e); }
   try { updateSupplyDisplay(); } catch(e) { console.warn('supplyDisplay:', e); }
+  try { updateMaturedCount(); } catch(e) { console.warn('maturedCount:', e); }
   // Ensure staking button is never stuck disabled on page load
   var _sb = document.getElementById('stakeBtn');
   if (_sb) _sb.disabled = false;
@@ -996,6 +1732,126 @@ function renderStakeSummary() {
   updateNextCompoundDisplay();
 
   updateSupplyDisplay();
+  updateMaturedCount();
+}
+
+// ── Matured / Finished Stakes Panel ──
+function getMaturedAndWithdrawnStakes() {
+  var stakes = getWalletStakes();
+  var now = Date.now();
+  var result = [];
+  for (var i = 0; i < stakes.length; i++) {
+    var s = stakes[i];
+    var isWithdrawn = !!s.withdrawn;
+    var isMatured = false;
+    if (!isWithdrawn && s.endDate) {
+      var end = new Date(s.endDate).getTime();
+      if (!isNaN(end) && now >= end) isMatured = true;
+    }
+    if (!isWithdrawn && !s.endDate && s.lockDays === 0) {
+      // Flexible stakes are always withdrawable
+      isMatured = true;
+    }
+    if (isWithdrawn || isMatured) {
+      result.push({ stake: s, isWithdrawn: isWithdrawn, isMatured: isMatured });
+    }
+  }
+  return result;
+}
+
+function updateMaturedCount() {
+  var items = getMaturedAndWithdrawnStakes();
+  var badge = document.getElementById('maturedCount');
+  var btn = document.getElementById('maturedBtn');
+  if (badge) badge.textContent = items.length;
+  if (btn) btn.style.display = items.length > 0 ? 'inline-flex' : 'none';
+}
+
+function showMaturedStakes() {
+  var items = getMaturedAndWithdrawnStakes();
+  var list = document.getElementById('mmList');
+  var summary = document.getElementById('mmSummary');
+  var now = Date.now();
+
+  if (items.length === 0) {
+    list.innerHTML = '<div class="mm-empty">No finished or withdrawn stakes yet.</div>';
+    summary.textContent = 'No completed staking periods';
+    document.getElementById('maturedModal').style.display = 'block';
+    return;
+  }
+
+  var totalWithdrawn = 0, totalMatured = 0;
+  for (var c = 0; c < items.length; c++) {
+    if (items[c].isWithdrawn) totalWithdrawn++;
+    else totalMatured++;
+  }
+  summary.textContent = totalMatured + ' ready to withdraw \u00B7 ' + totalWithdrawn + ' already withdrawn';
+
+  var html = '';
+  for (var i = 0; i < items.length; i++) {
+    var s = items[i].stake;
+    var withdrawn = items[i].isWithdrawn;
+    var matured = items[i].isMatured;
+    var asset = s.asset || 'OLIGHFT';
+    var card = s.cardTier || s.card || 'N/A';
+    var lockLabel = s.lockDays > 0 ? s.lockDays + ' days' : 'Flexible';
+    var compLabel = s.compound || 'none';
+    var apy = (s.apy || 0).toFixed(1);
+    var tier = card && CARD_TIERS[card] ? CARD_TIERS[card] : null;
+    var dailyUSD = tier ? '$' + tier.daily + '/day' : '$0/day';
+
+    // Calculate pending reward
+    var stTs = new Date(s.lastCompound || s.startDate || s.date || 0).getTime();
+    var elapsedDays = isNaN(stTs) ? 0 : (now - stTs) / 86400000;
+    if (elapsedDays < 0) elapsedDays = 0;
+    var pending = 0;
+    if (tier) {
+      var cdO = tier.daily / OLIGHFT_PRICE;
+      pending = calcCardDailyCompound(cdO, elapsedDays, compLabel) + (s.reward || 0);
+    } else if (compLabel !== 'none' && s.apy) {
+      pending = calcCompoundReward(s.amount, s.apy, elapsedDays, compLabel) + (s.reward || 0);
+    } else {
+      pending = (s.dailyReward || 0) * elapsedDays + (s.reward || 0);
+    }
+    if (isNaN(pending)) pending = 0;
+
+    var estReward = s.estimatedTotalReward || 0;
+    var reserved = s.reservedFromSupply || 0;
+    var totalReturn = withdrawn ? ((s.amount || 0) + (s.actualReward || 0)) : ((s.amount || 0) + pending);
+    var badgeClass = withdrawn ? 'withdrawn' : 'matured';
+    var badgeText = withdrawn ? '\u2705 Withdrawn' : '\u23F0 Ready to Withdraw';
+    var startStr = s.startDate ? new Date(s.startDate).toLocaleDateString() : 'N/A';
+    var withdrawnStr = s.withdrawnAt ? new Date(s.withdrawnAt).toLocaleDateString() : '';
+    var txId = s.id || 'N/A';
+    var refShare = s.split ? s.split.referralPool : 0;
+    var genCount = s.split ? (s.split.genDistributed || 0) : 0;
+
+    html += '<div class="mm-card">' +
+      '<div class="mm-card-head"><span style="font-size:.7rem;font-weight:700;color:#fff">' + card + '</span>' +
+      '<span class="mm-card-badge ' + badgeClass + '">' + badgeText + '</span></div>' +
+      '<div class="mm-row"><span>Staked</span><b>' + (s.amount || 0).toFixed(2) + ' ' + asset + '</b></div>' +
+      '<div class="mm-row"><span>USD Value</span><b>$' + ((s.amount || 0) * OLIGHFT_PRICE).toFixed(2) + '</b></div>' +
+      '<div class="mm-row"><span>Lock</span><b>' + lockLabel + '</b></div>' +
+      '<div class="mm-row"><span>Compound</span><b>' + compLabel + '</b></div>' +
+      '<div class="mm-row"><span>APY</span><b class="gold">' + apy + '%</b></div>' +
+      '<div class="mm-row"><span>Daily Reward</span><b class="green">' + dailyUSD + '</b></div>' +
+      '<div class="mm-row"><span>Est. Total Reward</span><b class="green">' + estReward.toFixed(2) + ' ' + asset + '</b></div>' +
+      '<div class="mm-row"><span>Referral (40%)</span><b>' + (refShare || 0).toFixed(2) + ' ' + asset + ' (' + genCount + '-gen)</b></div>' +
+      '<div class="mm-row"><span>Supply Reserved</span><b class="green">' + reserved.toFixed(2) + ' ' + asset + '</b></div>' +
+      '<div class="mm-row"><span>Started</span><b>' + startStr + '</b></div>' +
+      (withdrawn ? '<div class="mm-row"><span>Withdrawn</span><b class="green">' + withdrawnStr + '</b></div>' +
+        '<div class="mm-row"><span>Total Returned</span><b class="gold">' + totalReturn.toFixed(2) + ' ' + asset + '</b></div>' : '') +
+      '<div style="border-top:1px solid rgba(255,255,255,.06);margin:8px 0;padding-top:6px">' +
+        '<div style="font-size:.55rem;color:rgba(255,255,255,.25);word-break:break-all">TX: ' + txId + '</div>' +
+      '</div>' +
+      '<div class="mm-card-actions">' +
+      (withdrawn
+        ? '<div class="mm-done-tag">\u2705 Withdrawal Complete</div>'
+        : '<button class="mm-withdraw-btn" onclick="withdrawStake(\'' + s.id + '\');document.getElementById(\'maturedModal\').style.display=\'none\'">\uD83D\uDCB0 Withdraw Now</button>'
+      ) + '</div></div>';
+  }
+  list.innerHTML = html;
+  document.getElementById('maturedModal').style.display = 'block';
 }
 
 function updateSupplyDisplay() {
@@ -1242,7 +2098,7 @@ function getLiquidityInfo() {
 
 function getSupplyPool() {
   var remaining = parseFloat(localStorage.getItem('olighft_remaining_supply') || '');
-  if (isNaN(remaining) || remaining <= 0) remaining = OLIGHFT_TOTAL_SUPPLY;
+  if (isNaN(remaining) || remaining < 0) remaining = OLIGHFT_TOTAL_SUPPLY;
   return remaining;
 }
 
@@ -1267,6 +2123,7 @@ function reserveRewardFromSupply(estimatedReward, stakeId) {
 function returnUnusedToSupply(amount, stakeId) {
   var remaining = getSupplyPool();
   remaining += amount;
+  if (remaining > OLIGHFT_TOTAL_SUPPLY) remaining = OLIGHFT_TOTAL_SUPPLY;
   localStorage.setItem('olighft_remaining_supply', remaining.toString());
   var log = [];
   try { log = JSON.parse(localStorage.getItem('cw_supply_log') || '[]'); } catch(e) { log = []; }
@@ -1354,13 +2211,18 @@ function distribute8GenCommissions(stakerEmail, stakeAmountOLIGHFT, stakeId, car
     });
     genDistributed++;
 
-    // Walk up: find the sponsor's email to continue the chain
+    // Walk up: find the invite where the sponsor was the invitee (to get sponsor's own inviter)
     var sponsorInv = null;
     for (var k = 0; k < invites.length; k++) {
-      if (invites[k].invitee && invites[k].invitee.name &&
-          invites[k].invitee.name.toLowerCase() === sponsorName.toLowerCase()) {
-        sponsorInv = invites[k];
-        break;
+      if (invites[k].invitee && invites[k].invitee.email) {
+        // Match sponsor by inviterName on *this* record OR by invitee.name
+        var invName = (invites[k].invitee.name || '').toLowerCase();
+        var invEmail = (invites[k].invitee.email || '').toLowerCase();
+        // Find the record where the sponsor was invited (sponsor is the invitee)
+        if (invName === sponsorName.toLowerCase() || invEmail === sponsorName.toLowerCase()) {
+          sponsorInv = invites[k];
+          break;
+        }
       }
     }
     if (!sponsorInv || !sponsorInv.invitee || !sponsorInv.invitee.email) break;
@@ -1396,20 +2258,21 @@ function distribute8GenCommissions(stakerEmail, stakeAmountOLIGHFT, stakeId, car
 
 // Credit OLIGHFT to a sponsor's balance
 function creditSponsorBalance(sponsorName, amountOLIGHFT) {
-  // Look up all users to find matching name (localStorage-based users)
-  var allUsers = [];
-  try { allUsers = JSON.parse(localStorage.getItem('cw_all_users') || '[]'); } catch(e) {}
-  var sponsorUser = null;
-  for (var i = 0; i < allUsers.length; i++) {
-    if (allUsers[i].name && allUsers[i].name.toLowerCase() === sponsorName.toLowerCase()) {
-      sponsorUser = allUsers[i]; break;
-    }
-  }
-  // Credit via sponsor-specific balance key
+  // Credit via sponsor-specific balance key (always works)
   var balKey = 'cw_sponsor_bal_' + sponsorName.toLowerCase();
   var bal = parseFloat(localStorage.getItem(balKey) || '0');
   bal += amountOLIGHFT;
   localStorage.setItem(balKey, bal.toString());
+
+  // Also credit sponsor's main balance if they are the current logged-in user
+  var currentUser = null;
+  try { currentUser = JSON.parse(localStorage.getItem('cw_user')); } catch(e) {}
+  if (currentUser && currentUser.name && currentUser.name.toLowerCase() === sponsorName.toLowerCase()) {
+    var bals = {};
+    try { bals = Object.assign({}, DEFAULT_BALS, JSON.parse(localStorage.getItem('cw_balances'))); } catch(e) { bals = Object.assign({}, DEFAULT_BALS); }
+    bals.OLIGHFT = (bals.OLIGHFT || 0) + amountOLIGHFT;
+    localStorage.setItem('cw_balances', JSON.stringify(bals));
+  }
 }
 
 // ── Compound Interest Calculator (uses card + compound selection) ──
@@ -2005,7 +2868,6 @@ function doStake() {
       '<div style="display:flex;justify-content:space-between;padding:4px 0"><span>APY</span><b style="color:#f5c518">' + data.apy.toFixed(1) + '%</b></div>' +
       '<div style="display:flex;justify-content:space-between;padding:4px 0"><span>Daily Reward</span><b style="color:#27ae60">$' + data.dailyUSD + '/day</b></div>' +
       '<div style="display:flex;justify-content:space-between;padding:4px 0"><span>Est. Total Reward</span><b style="color:#27ae60">' + data.estReward.toFixed(2) + ' OLIGHFT</b></div>' +
-      '<div style="display:flex;justify-content:space-between;padding:4px 0"><span>Donation (60%)</span><b>' + data.adminShare.toFixed(2) + ' OLIGHFT</b></div>' +
       '<div style="display:flex;justify-content:space-between;padding:4px 0"><span>Referral (40%)</span><b>' + data.refShare.toFixed(2) + ' OLIGHFT (' + data.genCount + '-gen)</b></div>' +
       '<div style="display:flex;justify-content:space-between;padding:4px 0"><span>Supply Reserved</span><b style="color:#27ae60">' + data.reserved.toFixed(2) + ' OLIGHFT</b></div>';
     tx.textContent = 'TX: ' + data.stakeId + (data.txHash ? ' \u00B7 On-chain: ' + data.txHash : '');
@@ -2167,6 +3029,7 @@ function doStake() {
   document.getElementById('skAmount').value = '';
   updateApy();
   updateSupplyDisplay();
+  updateMaturedCount();
 
   sfDone(5);
   sfStatus.textContent = '\u2705 Stake settled successfully!';
@@ -2220,7 +3083,6 @@ function saveReceipt() {
     'Est. Reward:     ' + d.estReward.toFixed(2) + ' OLIGHFT',
     '',
     '── Split ──',
-    'Donation (60%):  ' + d.adminShare.toFixed(2) + ' OLIGHFT',
     'Referral (40%):  ' + d.refShare.toFixed(2) + ' OLIGHFT (' + d.genCount + '-gen)',
     'Supply Reserved: ' + d.reserved.toFixed(2) + ' OLIGHFT',
     '',
@@ -2268,6 +3130,8 @@ function withdrawStake(stakeId) {
   var sCompound = s.compound || 'none';
   var sLastCompound = s.lastCompound || sStartDate;
 
+  if (s.withdrawn) { showToast('Already withdrawn.', '#eb5757'); return; }
+
   if (sEndDate) {
     var end = new Date(sEndDate).getTime();
     if (!isNaN(end) && now < end) {
@@ -2276,7 +3140,6 @@ function withdrawStake(stakeId) {
       return;
     }
   }
-  if (s.withdrawn) { showToast('Already withdrawn.', '#eb5757'); return; }
 
   var elStartTs = new Date(sLastCompound || 0).getTime();
   var elapsed = isNaN(elStartTs) ? 0 : (now - elStartTs) / 86400000;
@@ -2309,8 +3172,7 @@ function withdrawStake(stakeId) {
   if (!confirm('Withdraw ' + totalReturn.toFixed(2) + ' ' + asset + ' (principal: ' + sAmount.toFixed(2) + ' + reward from supply: ' + rewardPortion.toFixed(2) + ')?')) return;
 
   // On-chain withdraw
-  var bestCard = getBestCard();
-  var tierName = bestCard ? bestCard.card : (sCardTier || 'Visa');
+  var tierName = sCardTier || 'Visa';
   if (typeof STAKING_BACKEND !== 'undefined' && STAKING_BACKEND.isWalletConnected()) {
     (async function() {
       try {
@@ -2341,6 +3203,7 @@ function withdrawStake(stakeId) {
   renderStakeList();
   renderRecentStakes();
   updateSupplyDisplay();
+  updateMaturedCount();
   showToast('\u2705 Withdrew ' + totalReturn.toFixed(2) + ' ' + asset + ' (reward: ' + rewardPortion.toFixed(2) + ' from total supply)!', '#27ae60');
 }
 
@@ -3722,6 +4585,1704 @@ function dashRemoveLiquidity(tokenId, pctToRemove) {
   var actionsUsed = txData.actions.map(function(a) { return a.action; }).join(' \u2192 ');
   showToast('\u2705 ' + (burnIfFull ? 'Closed' : 'Removed ' + (pctToRemove * 100) + '%') + ' LP #' + tokenId + ': ' + removedAmt0.toFixed(4) + ' ' + t0 + ' + ' + removedAmt1.toFixed(4) + ' ' + t1 + (feeAmt0 > 0 || feeAmt1 > 0 ? ' +fees' : '') + (burnIfFull ? ' \uD83D\uDD25' : '') + ' [' + actionsUsed + ']', burnIfFull ? '#eb5757' : '#27ae60');
 }
+
+// ══════════════════════════════════════════════════════════════════
+// ── Escrow Integration ──────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════
+
+var _escrowTab = 'create';
+
+function escrowTab(tab) {
+  _escrowTab = tab;
+  document.getElementById('escTabCreate').className = 'esc-tab' + (tab === 'create' ? ' active' : '');
+  document.getElementById('escTabList').className = 'esc-tab' + (tab === 'list' ? ' active' : '');
+  document.getElementById('escCreatePanel').style.display = tab === 'create' ? 'block' : 'none';
+  document.getElementById('escListPanel').style.display = tab === 'list' ? 'block' : 'none';
+  if (tab === 'list') renderEscrowList();
+}
+
+// Live fee calculation
+(function() {
+  var amtInput = document.getElementById('escAmount');
+  if (amtInput) {
+    amtInput.addEventListener('input', function() {
+      var amt = parseFloat(this.value) || 0;
+      var fee = amt * 0.005;
+      document.getElementById('escFeeAmt').textContent = fee.toFixed(2);
+      document.getElementById('escTotalAmt').textContent = (amt + fee).toFixed(2);
+    });
+  }
+})();
+
+function createEscrowAction() {
+  var seller = document.getElementById('escSeller').value.trim();
+  var amount = parseFloat(document.getElementById('escAmount').value);
+  var deadline = parseInt(document.getElementById('escDeadline').value) || 30;
+  var desc = document.getElementById('escDesc').value.trim();
+
+  if (!seller) { showToast('Enter a seller name or address.', '#eb5757'); return; }
+  if (!amount || amount <= 0) { showToast('Enter a valid amount.', '#eb5757'); return; }
+
+  var fee = amount * 0.005;
+  var total = amount + fee;
+
+  var bals = {};
+  try { bals = Object.assign({}, DEFAULT_BALS, JSON.parse(localStorage.getItem('cw_balances'))); } catch(e) { bals = Object.assign({}, DEFAULT_BALS); }
+  if ((bals.OLIGHFT || 0) < total) {
+    showToast('Insufficient OLIGHFT. Need ' + total.toFixed(2) + ', have ' + (bals.OLIGHFT || 0).toFixed(2), '#eb5757');
+    return;
+  }
+
+  if (!confirm('Create escrow for ' + amount.toFixed(2) + ' OLIGHFT to ' + seller + '?\nFee: ' + fee.toFixed(2) + ' OLIGHFT\nTotal deducted: ' + total.toFixed(2) + ' OLIGHFT\nDeadline: ' + deadline + ' days')) return;
+
+  var btn = document.getElementById('escCreateBtn');
+  btn.disabled = true;
+  btn.textContent = 'Creating...';
+
+  try {
+    // Create locally
+    var escrow = ESCROW_BACKEND.createEscrowLocal(seller, amount, deadline, desc);
+
+    // Fund it immediately
+    ESCROW_BACKEND.fundEscrowLocal(escrow.id);
+
+    // Attempt on-chain if wallet connected:
+    // Step 1: Approve token allowance for escrow contract
+    // Step 2: Call create_fund (combined create + fund in one tx)
+    if (ESCROW_BACKEND.isWalletConnected()) {
+      (async function() {
+        try {
+          // Approve the escrow contract to spend total (amount + fee)
+          showToast('\uD83D\uDD10 Approving token allowance...', '#6c5ce7');
+          await ESCROW_BACKEND.approveToken(total);
+
+          // Combined create + fund (single atomic on-chain tx)
+          showToast('\u26D3\uFE0F Submitting on-chain escrow...', '#6c5ce7');
+          var result = await ESCROW_BACKEND.createAndFundEscrow(
+            seller,
+            ESCROW_BACKEND.getPublicKey() || 'GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF',
+            amount,
+            deadline,
+            0
+          );
+          if (result.escrowId) {
+            escrow.onChainId = result.escrowId;
+            escrow.txHash = result.txHash;
+            ESCROW_BACKEND.saveEscrowLocal(escrow);
+            showToast('\u2705 On-chain escrow #' + result.escrowId + ' confirmed!', '#27ae60');
+          }
+        } catch(e) {
+          console.warn('On-chain escrow failed (local persists):', e.message);
+          showToast('\u26A0\uFE0F On-chain failed, saved locally: ' + e.message, '#f5c518');
+        }
+      })();
+    }
+
+    // Refresh UI
+    var newBals = {};
+    try { newBals = Object.assign({}, DEFAULT_BALS, JSON.parse(localStorage.getItem('cw_balances'))); } catch(e) { newBals = Object.assign({}, DEFAULT_BALS); }
+    renderBalances(newBals);
+    updateTotalBalance(newBals);
+    renderEscrowCount();
+
+    // Clear form
+    document.getElementById('escSeller').value = '';
+    document.getElementById('escAmount').value = '';
+    document.getElementById('escDeadline').value = '30';
+    document.getElementById('escDesc').value = '';
+    document.getElementById('escFeeAmt').textContent = '0.00';
+    document.getElementById('escTotalAmt').textContent = '0.00';
+
+    showToast('\uD83D\uDD12 Escrow #' + escrow.id + ' created & funded! ' + amount.toFixed(2) + ' OLIGHFT locked.', '#6c5ce7');
+
+    // Switch to list tab
+    escrowTab('list');
+
+  } catch(e) {
+    showToast('Escrow failed: ' + e.message, '#eb5757');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '\uD83D\uDD12 Create & Fund Escrow';
+  }
+}
+
+function renderEscrowCount() {
+  var all = ESCROW_BACKEND.getLocalEscrows();
+  var badge = document.getElementById('escCount');
+  if (badge) badge.textContent = all.length;
+}
+
+function renderEscrowList() {
+  var all = ESCROW_BACKEND.getLocalEscrows();
+  var el = document.getElementById('escListBody');
+
+  if (all.length === 0) {
+    el.innerHTML = '<div class="esc-empty">No escrows yet. Create one to get started.</div>';
+    return;
+  }
+
+  var statusClasses = { 0: 'st-pending', 1: 'st-funded', 2: 'st-completed', 3: 'st-disputed', 4: 'st-completed', 5: 'st-refunded', 6: 'st-cancelled' };
+  var statusLabels = { 0: 'Pending', 1: 'Funded', 2: 'Completed', 3: 'Disputed', 4: 'Resolved', 5: 'Refunded', 6: 'Cancelled' };
+
+  var html = '';
+  // Show newest first
+  for (var i = all.length - 1; i >= 0; i--) {
+    var e = all[i];
+    var stCls = statusClasses[e.status] || 'st-pending';
+    var stLbl = e.statusLabel || statusLabels[e.status] || 'Unknown';
+    var timeAgo = '';
+    if (e.createdAt) {
+      var elapsed = Date.now() - e.createdAt;
+      timeAgo = elapsed < 60000 ? 'Just now' : elapsed < 3600000 ? Math.floor(elapsed / 60000) + 'm ago' : elapsed < 86400000 ? Math.floor(elapsed / 3600000) + 'h ago' : Math.floor(elapsed / 86400000) + 'd ago';
+    }
+
+    html += '<div class="esc-card" onclick="showEscrowDetail(' + e.id + ')">' +
+      '<div class="esc-card-top">' +
+      '<span class="esc-card-id">\uD83D\uDD12 Escrow #' + e.id + '</span>' +
+      '<span class="esc-card-status ' + stCls + '">' + stLbl + '</span>' +
+      '</div>' +
+      '<div class="esc-card-info">' +
+      '<div><span>To</span> <b>' + escapeHtml(e.seller || 'N/A') + '</b></div>' +
+      '<div><span>Amount</span> <b>' + (e.amount || 0).toFixed(2) + ' OLIGHFT</b></div>' +
+      '<div><span>Fee</span> <b>' + (e.fee || 0).toFixed(2) + '</b></div>' +
+      '<div><span>Created</span> <b>' + timeAgo + '</b></div>' +
+      '</div></div>';
+  }
+  el.innerHTML = html;
+}
+
+function showEscrowDetail(id) {
+  var e = ESCROW_BACKEND.getLocalEscrow(id);
+  if (!e) { showToast('Escrow not found.', '#eb5757'); return; }
+
+  var statusLabels = { 0: 'Pending', 1: 'Funded', 2: 'Completed', 3: 'Disputed', 4: 'Resolved', 5: 'Refunded', 6: 'Cancelled' };
+  var stLabel = e.statusLabel || statusLabels[e.status] || 'Unknown';
+  var deadlineStr = e.deadlineMs ? new Date(e.deadlineMs).toLocaleDateString() : 'N/A';
+  var isExpired = e.deadlineMs && Date.now() > e.deadlineMs;
+  var createdStr = e.createdAt ? new Date(e.createdAt).toLocaleString() : 'N/A';
+
+  document.getElementById('escDetailSub').textContent = 'Escrow #' + e.id + ' \u2014 ' + stLabel;
+
+  var body = '<div class="mm-row"><span>Status</span><b class="' + (e.status === 2 || e.status === 4 ? 'green' : e.status === 3 ? '' : 'gold') + '">' + stLabel + '</b></div>' +
+    '<div class="mm-row"><span>Buyer</span><b>' + escapeHtml(e.buyerName || e.buyer || 'You') + '</b></div>' +
+    '<div class="mm-row"><span>Seller</span><b>' + escapeHtml(e.seller || 'N/A') + '</b></div>' +
+    '<div class="mm-row"><span>Amount</span><b class="gold">' + (e.amount || 0).toFixed(2) + ' OLIGHFT</b></div>' +
+    '<div class="mm-row"><span>Fee</span><b>' + (e.fee || 0).toFixed(2) + ' OLIGHFT</b></div>' +
+    '<div class="mm-row"><span>Total Locked</span><b>' + ((e.amount || 0) + (e.fee || 0)).toFixed(2) + ' OLIGHFT</b></div>' +
+    '<div class="mm-row"><span>Deadline</span><b' + (isExpired ? ' style="color:#eb5757"' : '') + '>' + deadlineStr + (isExpired ? ' (EXPIRED)' : '') + '</b></div>' +
+    '<div class="mm-row"><span>Created</span><b>' + createdStr + '</b></div>' +
+    (e.description ? '<div class="mm-row"><span>Description</span><b>' + escapeHtml(e.description) + '</b></div>' : '') +
+    '<div style="border-top:1px solid rgba(255,255,255,.06);margin:8px 0;padding-top:6px">' +
+    '<div style="font-size:.55rem;color:rgba(255,255,255,.25);word-break:break-all">TX: ' + (e.txHash || 'N/A') + '</div></div>';
+
+  document.getElementById('escDetailBody').innerHTML = body;
+
+  // Actions based on status
+  var actions = '';
+  if (e.status === 1) { // Funded
+    actions = '<button class="mm-withdraw-btn" style="background:linear-gradient(135deg,#27ae60,#2ecc71)" onclick="releaseEscrowAction(' + e.id + ')">\u2705 Release to Seller</button>' +
+      '<button class="mm-withdraw-btn" style="background:linear-gradient(135deg,#eb5757,#e74c3c)" onclick="disputeEscrowAction(' + e.id + ')">\u26A0\uFE0F Dispute</button>';
+    if (isExpired) {
+      actions += '<button class="mm-withdraw-btn" style="background:linear-gradient(135deg,#f5c518,#f39c12);color:#111" onclick="refundEscrowAction(' + e.id + ')">\uD83D\uDD04 Refund (Expired)</button>';
+    }
+  } else if (e.status === 0) { // Pending
+    actions = '<button class="mm-withdraw-btn" style="background:linear-gradient(135deg,#6c5ce7,#a29bfe)" onclick="fundEscrowAction(' + e.id + ')">\uD83D\uDCB0 Fund Now</button>' +
+      '<button class="mm-withdraw-btn" style="background:rgba(255,255,255,.08);color:rgba(255,255,255,.4)" onclick="cancelEscrowAction(' + e.id + ')">\u274C Cancel</button>';
+  } else {
+    actions = '<div class="mm-done-tag">' + stLabel + '</div>';
+  }
+  document.getElementById('escDetailActions').innerHTML = actions;
+  document.getElementById('escDetailModal').style.display = 'block';
+}
+
+function escapeHtml(str) {
+  var div = document.createElement('div');
+  div.appendChild(document.createTextNode(str));
+  return div.innerHTML;
+}
+
+function releaseEscrowAction(id) {
+  if (!confirm('Release escrow funds to the seller? This cannot be undone.')) return;
+  try {
+    var esc = ESCROW_BACKEND.getLocalEscrow(id);
+    ESCROW_BACKEND.releaseEscrowLocal(id);
+    document.getElementById('escDetailModal').style.display = 'none';
+    renderEscrowList();
+    renderEscrowCount();
+    showToast('\u2705 Escrow #' + id + ' released to seller!', '#27ae60');
+
+    if (ESCROW_BACKEND.isWalletConnected() && esc && esc.onChainId) {
+      (async function() {
+        try { await ESCROW_BACKEND.releaseEscrow(esc.onChainId); } catch(e) { console.warn('On-chain release failed:', e.message); }
+      })();
+    }
+  } catch(e) { showToast('Release failed: ' + e.message, '#eb5757'); }
+}
+
+function disputeEscrowAction(id) {
+  if (!confirm('Raise a dispute on this escrow? An arbiter will review.')) return;
+  try {
+    var esc = ESCROW_BACKEND.getLocalEscrow(id);
+    ESCROW_BACKEND.disputeEscrowLocal(id);
+    document.getElementById('escDetailModal').style.display = 'none';
+    renderEscrowList();
+    renderEscrowCount();
+    showToast('\u26A0\uFE0F Escrow #' + id + ' disputed. Awaiting arbiter resolution.', '#f5c518');
+
+    if (ESCROW_BACKEND.isWalletConnected() && esc && esc.onChainId) {
+      (async function() {
+        try { await ESCROW_BACKEND.disputeEscrow(esc.onChainId); } catch(e) { console.warn('On-chain dispute failed:', e.message); }
+      })();
+    }
+  } catch(e) { showToast('Dispute failed: ' + e.message, '#eb5757'); }
+}
+
+function refundEscrowAction(id) {
+  if (!confirm('Refund this expired escrow? Full amount + fee returned.')) return;
+  try {
+    var esc = ESCROW_BACKEND.getLocalEscrow(id);
+    ESCROW_BACKEND.refundEscrowLocal(id);
+    document.getElementById('escDetailModal').style.display = 'none';
+    renderEscrowList();
+    renderEscrowCount();
+
+    var bals = {};
+    try { bals = Object.assign({}, DEFAULT_BALS, JSON.parse(localStorage.getItem('cw_balances'))); } catch(e) { bals = Object.assign({}, DEFAULT_BALS); }
+    renderBalances(bals);
+    updateTotalBalance(bals);
+
+    showToast('\uD83D\uDD04 Escrow #' + id + ' refunded!', '#27ae60');
+
+    if (ESCROW_BACKEND.isWalletConnected() && esc && esc.onChainId) {
+      (async function() {
+        try { await ESCROW_BACKEND.refundExpired(esc.onChainId); } catch(e) { console.warn('On-chain refund failed:', e.message); }
+      })();
+    }
+  } catch(e) { showToast('Refund failed: ' + e.message, '#eb5757'); }
+}
+
+function fundEscrowAction(id) {
+  if (!confirm('Fund this escrow? The amount + fee will be locked.')) return;
+  try {
+    ESCROW_BACKEND.fundEscrowLocal(id);
+    document.getElementById('escDetailModal').style.display = 'none';
+    renderEscrowList();
+    renderEscrowCount();
+
+    var bals = {};
+    try { bals = Object.assign({}, DEFAULT_BALS, JSON.parse(localStorage.getItem('cw_balances'))); } catch(e) { bals = Object.assign({}, DEFAULT_BALS); }
+    renderBalances(bals);
+    updateTotalBalance(bals);
+
+    showToast('\uD83D\uDCB0 Escrow #' + id + ' funded!', '#6c5ce7');
+  } catch(e) { showToast('Fund failed: ' + e.message, '#eb5757'); }
+}
+
+function cancelEscrowAction(id) {
+  if (!confirm('Cancel this escrow? It has not been funded yet.')) return;
+  try {
+    ESCROW_BACKEND.cancelEscrowLocal(id);
+    document.getElementById('escDetailModal').style.display = 'none';
+    renderEscrowList();
+    renderEscrowCount();
+    showToast('Escrow #' + id + ' cancelled.', '#a29bfe');
+  } catch(e) { showToast('Cancel failed: ' + e.message, '#eb5757'); }
+}
+
+// Init escrow on page load
+try { renderEscrowCount(); } catch(e) { console.warn('escrow init:', e); }
+
+// ══════════════════════════════════════════════════════════════════
+// ── Invite & Referral Panel ─────────────────────────────────
+// ══════════════════════════════════════════════════════════════════
+
+(function initInvitePanel() {
+  try {
+    var user = JSON.parse(localStorage.getItem('cw_user') || 'null');
+    if (!user || !user.name) return;
+
+    var refCode = encodeURIComponent(user.name);
+    var baseUrl = window.location.origin || 'https://olighftcoin.com';
+    var fullLink = baseUrl + '/auth.html?ref=' + refCode;
+
+    // Set link input
+    var inp = document.getElementById('invLinkInput');
+    if (inp) inp.value = fullLink;
+
+    // Share links
+    var msg = 'Join OLIGHFT SMART COIN and earn daily staking rewards! Sign up with my invite link: ' + fullLink;
+    var wa = document.getElementById('invWhatsApp');
+    if (wa) wa.href = 'https://wa.me/?text=' + encodeURIComponent(msg);
+    var tg = document.getElementById('invTelegram');
+    if (tg) tg.href = 'https://t.me/share/url?url=' + encodeURIComponent(fullLink) + '&text=' + encodeURIComponent('Join OLIGHFT SMART COIN!');
+    var tw = document.getElementById('invTwitter');
+    if (tw) tw.href = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(msg);
+
+    // Load invites for this user
+    var allInvites = [];
+    try { allInvites = JSON.parse(localStorage.getItem('cw_invites') || '[]'); } catch(e) {}
+    var myInvites = allInvites.filter(function(inv) {
+      return inv.inviterName && inv.inviterName.toLowerCase() === user.name.toLowerCase();
+    });
+
+    // Stats
+    var total = myInvites.length;
+    var active = myInvites.filter(function(inv) { return inv.stage === 'staking_active'; }).length;
+    var earnings = 0;
+    try {
+      var genLog = JSON.parse(localStorage.getItem('cw_gen_earnings_' + user.name.toLowerCase()) || '[]');
+      for (var g = 0; g < genLog.length; g++) earnings += genLog[g].amount || 0;
+    } catch(e) {}
+
+    var statsEl = document.getElementById('invStats');
+    if (statsEl) {
+      statsEl.innerHTML =
+        '<div class="inv-stat"><b>' + total + '</b><span>Invited</span></div>' +
+        '<div class="inv-stat"><b>' + active + '</b><span>Staking</span></div>' +
+        '<div class="inv-stat"><b>' + earnings.toFixed(2) + '</b><span>Earned (OLIGHFT)</span></div>';
+    }
+
+    // Render invite list
+    var listEl = document.getElementById('invListBody');
+    if (!listEl) return;
+
+    if (myInvites.length === 0) {
+      listEl.innerHTML = '<div class="inv-empty">No invited users yet. Share your link to start earning!</div>';
+      return;
+    }
+
+    var stageCls = { invited: 's-invited', registered: 's-registered', wallet_created: 's-wallet', card_activated: 's-card', staking_active: 's-staking' };
+    var stageLbl = { invited: 'Invited', registered: 'Registered', wallet_created: 'Wallet', card_activated: 'Card Active', staking_active: 'Staking' };
+
+    var html = '';
+    for (var i = myInvites.length - 1; i >= 0; i--) {
+      var inv = myInvites[i];
+      var invName = (inv.invitee && inv.invitee.name) || 'Unknown';
+      var invEmail = (inv.invitee && inv.invitee.email) || '';
+      var initial = invName.charAt(0).toUpperCase();
+      var sc = stageCls[inv.stage] || 's-invited';
+      var sl = stageLbl[inv.stage] || inv.stage;
+      var invRefLink = baseUrl + '/auth.html?ref=' + encodeURIComponent(invName);
+
+      html += '<div class="inv-row">' +
+        '<div class="inv-row-top">' +
+        '<div class="inv-avatar">' + initial + '</div>' +
+        '<div class="inv-info">' +
+        '<div class="inv-name">' + escapeHtml(invName) + '</div>' +
+        '<div class="inv-email">' + escapeHtml(invEmail) + '</div>' +
+        '</div>' +
+        '<span class="inv-stage ' + sc + '">' + sl + '</span>' +
+        '</div>' +
+        '<div class="inv-link-row">' +
+        '<div class="inv-link-url">' + escapeHtml(invRefLink) + '</div>' +
+        '<button class="inv-link-copy" data-link="' + escapeHtml(invRefLink) + '" onclick="copyUserInvLink(this.getAttribute(\'data-link\'))">\uD83D\uDCCB Copy</button>' +
+        '</div>' +
+        '</div>';
+    }
+    listEl.innerHTML = html;
+
+  } catch(e) { console.warn('invite panel init:', e); }
+})();
+
+function copyInviteLink() {
+  var inp = document.getElementById('invLinkInput');
+  if (!inp || !inp.value) return;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(inp.value).then(function() {
+      showToast('\u2705 Invite link copied!', '#27ae60');
+    }).catch(function() { fallbackCopy(inp); });
+  } else {
+    fallbackCopy(inp);
+  }
+}
+
+function fallbackCopy(inp) {
+  inp.select();
+  inp.setSelectionRange(0, 99999);
+  document.execCommand('copy');
+  showToast('\u2705 Invite link copied!', '#27ae60');
+}
+
+function nativeShareInvite() {
+  var inp = document.getElementById('invLinkInput');
+  if (!inp || !inp.value) return;
+  if (navigator.share) {
+    navigator.share({ title: 'Join OLIGHFT SMART COIN', text: 'Earn daily staking rewards!', url: inp.value }).catch(function() {});
+  } else {
+    copyInviteLink();
+  }
+}
+
+function copyUserInvLink(link) {
+  if (!link) return;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(link).then(function() {
+      showToast('\u2705 User invite link copied!', '#27ae60');
+    }).catch(function() {
+      textAreaCopy(link);
+    });
+  } else {
+    textAreaCopy(link);
+  }
+}
+
+function textAreaCopy(text) {
+  var ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.select();
+  document.execCommand('copy');
+  document.body.removeChild(ta);
+  showToast('\u2705 User invite link copied!', '#27ae60');
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  P2P TRADING — Dashboard Integration
+// ═══════════════════════════════════════════════════════════════
+
+var p2pCurrentSide = 0; // 0=Buy, 1=Sell
+var p2pCurrentTab = 'book';
+
+function p2pSwitchTab(tab) {
+  p2pCurrentTab = tab;
+  var tabs = document.querySelectorAll('.p2p-tab');
+  var names = ['book','place','orders','trades','deposit','withdraw'];
+  for (var i = 0; i < tabs.length; i++) {
+    tabs[i].classList.toggle('active', names[i] === tab);
+  }
+  for (var j = 0; j < names.length; j++) {
+    var el = document.getElementById('p2pTab' + names[j].charAt(0).toUpperCase() + names[j].slice(1));
+    if (el) el.style.display = names[j] === tab ? '' : 'none';
+  }
+  if (tab === 'book') p2pRenderOrderBook();
+  else if (tab === 'orders') p2pRenderMyOrders();
+  else if (tab === 'trades') p2pRenderMyTrades();
+  else if (tab === 'deposit') p2pRenderDepositTab();
+  else if (tab === 'withdraw') p2pRenderWithdrawTab();
+}
+
+function p2pSetSide(side) {
+  p2pCurrentSide = side;
+  var buyBtn = document.getElementById('p2pBuyBtn');
+  var sellBtn = document.getElementById('p2pSellBtn');
+  var submitBtn = document.getElementById('p2pSubmitBtn');
+
+  buyBtn.classList.toggle('active', side === 0);
+  sellBtn.classList.toggle('active', side === 1);
+
+  if (side === 0) {
+    submitBtn.className = 'p2p-btn buy';
+    submitBtn.innerHTML = '\uD83D\uDFE2 Place Buy Order';
+  } else {
+    submitBtn.className = 'p2p-btn sell';
+    submitBtn.innerHTML = '\uD83D\uDD34 Place Sell Order';
+  }
+  p2pCalcTotal();
+}
+
+function p2pCalcTotal() {
+  var price = parseFloat(document.getElementById('p2pPrice').value) || 0;
+  var amount = parseFloat(document.getElementById('p2pAmount').value) || 0;
+  var total = price * amount;
+  var el = document.getElementById('p2pTotal');
+  if (p2pCurrentSide === 0) {
+    el.textContent = total.toFixed(2) + ' USDC';
+  } else {
+    el.textContent = amount.toFixed(2) + ' OLIGHFT (\u2248 ' + total.toFixed(2) + ' USDC)';
+  }
+}
+
+function p2pSetPct(pct) {
+  var bals = {};
+  try { bals = JSON.parse(localStorage.getItem('cw_balances') || '{}'); } catch(e) {}
+  var price = parseFloat(document.getElementById('p2pPrice').value) || 0.50;
+
+  if (p2pCurrentSide === 0) {
+    // Buy: use USDC balance
+    var usdcBal = bals.USDC || 0;
+    var maxAmount = price > 0 ? (usdcBal * (pct / 100)) / price : 0;
+    document.getElementById('p2pAmount').value = Math.floor(maxAmount * 100) / 100;
+  } else {
+    // Sell: use OLIGHFT balance
+    var oliBal = bals.OLIGHFT || 0;
+    var amt = oliBal * (pct / 100);
+    document.getElementById('p2pAmount').value = Math.floor(amt * 100) / 100;
+  }
+  p2pCalcTotal();
+}
+
+function p2pPlaceOrder() {
+  try {
+    var side = p2pCurrentSide;
+    var price = parseFloat(document.getElementById('p2pPrice').value);
+    var amount = parseFloat(document.getElementById('p2pAmount').value);
+
+    if (!price || price <= 0) { showToast('\u26A0\uFE0F Enter a valid price', '#e74c3c'); return; }
+    if (!amount || amount <= 0) { showToast('\u26A0\uFE0F Enter a valid amount', '#e74c3c'); return; }
+
+    // Collect selected payment methods
+    var payChips = document.querySelectorAll('#p2pPayMethods .p2p-pay-chip.selected');
+    var payMethods = [];
+    for (var c = 0; c < payChips.length; c++) payMethods.push(payChips[c].dataset.id);
+    if (payMethods.length === 0) { showToast('\u26A0\uFE0F Select at least one payment method', '#e74c3c'); return; }
+    var payDetails = (document.getElementById('p2pPayDetails').value || '').trim();
+
+    var order = P2P_BACKEND.placeOrderLocal(side, amount, price, 7, payMethods, payDetails);
+
+    if (order.status === 1) {
+      showToast('\u2705 Order #' + order.id + ' placed & FILLED!', '#2ecc71');
+    } else if (order.status === 2) {
+      showToast('\u2705 Order #' + order.id + ' placed & partially filled (' + order.filled.toFixed(2) + '/' + order.amount.toFixed(2) + ')', '#f39c12');
+    } else {
+      showToast('\u2705 Order #' + order.id + ' placed! Waiting for match...', '#3498db');
+    }
+
+    document.getElementById('p2pAmount').value = '';
+    document.getElementById('p2pPayDetails').value = '';
+    // Deselect payment chips
+    var chips = document.querySelectorAll('#p2pPayMethods .p2p-pay-chip.selected');
+    for (var ci = 0; ci < chips.length; ci++) chips[ci].classList.remove('selected');
+    p2pCalcTotal();
+    p2pRenderOrderBook();
+    var _bals1 = {}; try { _bals1 = JSON.parse(localStorage.getItem('cw_balances') || '{}'); } catch(e2) {}
+    if (typeof renderBalances === 'function') renderBalances(_bals1);
+    if (typeof renderActivity === 'function') renderActivity();
+  } catch(e) {
+    showToast('\u274C ' + e.message, '#e74c3c');
+  }
+}
+
+function p2pCancelOrder(orderId) {
+  try {
+    P2P_BACKEND.cancelOrderLocal(orderId);
+    showToast('\u2705 Order #' + orderId + ' cancelled', '#f39c12');
+    p2pRenderMyOrders();
+    p2pRenderOrderBook();
+    var _bals2 = {}; try { _bals2 = JSON.parse(localStorage.getItem('cw_balances') || '{}'); } catch(e2) {}
+    if (typeof renderBalances === 'function') renderBalances(_bals2);
+    if (typeof renderActivity === 'function') renderActivity();
+  } catch(e) {
+    showToast('\u274C ' + e.message, '#e74c3c');
+  }
+}
+
+function p2pFillFromBook(price, side) {
+  // Click on an order book row to pre-fill the form
+  p2pSwitchTab('place');
+  // Opposite side: clicking a sell means you want to buy, and vice versa
+  p2pSetSide(side === 1 ? 0 : 1);
+  document.getElementById('p2pPrice').value = price.toFixed(4);
+  p2pCalcTotal();
+}
+
+// ── Renderers ────────────────────────────────────────────────
+
+function p2pRenderOrderBook() {
+  var book = P2P_BACKEND.getOrderBookLocal();
+  var buyEl = document.getElementById('p2pBuyBook');
+  var sellEl = document.getElementById('p2pSellBook');
+  var spreadEl = document.getElementById('p2pSpread');
+
+  // Render buy side
+  if (book.buys.length === 0) {
+    buyEl.innerHTML = '<div class="p2p-book-empty">No buy orders</div>';
+  } else {
+    var bh = '';
+    for (var i = 0; i < Math.min(book.buys.length, 8); i++) {
+      var b = book.buys[i];
+      bh += '<div class="p2p-book-row" onclick="p2pFillFromBook(' + b.price + ',0)" style="flex-wrap:wrap">'
+          + '<span class="price buy">$' + b.price.toFixed(4) + '</span>'
+          + '<span class="amt">' + b.remaining.toFixed(2) + '</span>'
+          + p2pPayTagsHtml(b.payMethods)
+          + '</div>';
+    }
+    buyEl.innerHTML = bh;
+  }
+
+  // Render sell side
+  if (book.sells.length === 0) {
+    sellEl.innerHTML = '<div class="p2p-book-empty">No sell orders</div>';
+  } else {
+    var sh = '';
+    for (var j = 0; j < Math.min(book.sells.length, 8); j++) {
+      var s = book.sells[j];
+      sh += '<div class="p2p-book-row" onclick="p2pFillFromBook(' + s.price + ',1)" style="flex-wrap:wrap">'
+          + '<span class="price sell">$' + s.price.toFixed(4) + '</span>'
+          + '<span class="amt">' + s.remaining.toFixed(2) + '</span>'
+          + p2pPayTagsHtml(s.payMethods)
+          + '</div>';
+    }
+    sellEl.innerHTML = sh;
+  }
+
+  // Spread
+  if (book.buys.length > 0 && book.sells.length > 0) {
+    var bestBuy = book.buys[0].price;
+    var bestSell = book.sells[0].price;
+    var spread = bestSell - bestBuy;
+    var spreadPct = bestBuy > 0 ? ((spread / bestBuy) * 100).toFixed(2) : '0.00';
+    spreadEl.textContent = 'Spread: $' + spread.toFixed(4) + ' (' + spreadPct + '%)';
+  } else {
+    spreadEl.textContent = '';
+  }
+}
+
+function p2pRenderMyOrders() {
+  var orders = P2P_BACKEND.getMyOrdersLocal();
+  var el = document.getElementById('p2pMyOrders');
+
+  if (orders.length === 0) {
+    el.innerHTML = '<div class="p2p-book-empty">No orders yet. Place your first order!</div>';
+    return;
+  }
+
+  var h = '<div class="p2p-orders-title">\uD83D\uDCCB My Orders (' + orders.length + ')</div>';
+  for (var i = 0; i < orders.length; i++) {
+    var o = orders[i];
+    var sideCls = o.side === 0 ? 'buy' : 'sell';
+    var statusCls = o.status === 0 ? 'active' : o.status === 1 ? 'filled' : o.status === 2 ? 'partial' : 'cancelled';
+    var pctFilled = o.amount > 0 ? ((o.filled / o.amount) * 100).toFixed(0) : '0';
+
+    h += '<div class="p2p-order-card">'
+      + '<div class="p2p-order-header">'
+      + '<span class="p2p-order-id">#' + o.id + '</span>'
+      + '<span class="p2p-order-side ' + sideCls + '">' + o.sideLabel + '</span>'
+      + '</div>'
+      + '<div class="p2p-order-details">'
+      + '<div class="p2p-order-detail"><span class="lbl">Amount</span><span class="val">' + o.amount.toFixed(2) + '</span></div>'
+      + '<div class="p2p-order-detail"><span class="lbl">Price</span><span class="val">$' + o.price.toFixed(4) + '</span></div>'
+      + '<div class="p2p-order-detail"><span class="lbl">Filled</span><span class="val">' + pctFilled + '%</span></div>'
+      + '</div>'
+      + p2pPayTagsHtml(o.payMethods)
+      + (o.payDetails ? '<div style="font-size:.48rem;color:#777;margin-top:2px">\uD83D\uDCCB ' + p2pEscapeHtml(o.payDetails) + '</div>' : '')
+      + '<div class="p2p-order-status">'
+      + '<span class="p2p-order-badge ' + statusCls + '">' + o.statusLabel + '</span>';
+
+    if (o.status === 0 || o.status === 2) {
+      h += '<button class="p2p-cancel-btn" onclick="p2pCancelOrder(' + o.id + ')">Cancel</button>';
+    }
+    h += '</div></div>';
+  }
+  el.innerHTML = h;
+}
+
+function p2pRenderMyTrades() {
+  var trades = P2P_BACKEND.getMyTradesLocal();
+  var el = document.getElementById('p2pMyTrades');
+
+  if (trades.length === 0) {
+    el.innerHTML = '<div class="p2p-book-empty">No trades yet</div>';
+    return;
+  }
+
+  var user = null;
+  try { user = JSON.parse(localStorage.getItem('cw_user')); } catch(e) {}
+  var myId = user ? (user.email || user.addr || '') : '';
+
+  var h = '<div class="p2p-trades-title">\uD83D\uDCC8 Trade History (' + trades.length + ')</div>';
+  for (var i = 0; i < Math.min(trades.length, 20); i++) {
+    var t = trades[i];
+    var isBuyer = t.buyer === myId;
+    var sideLabel = isBuyer ? 'BUY' : 'SELL';
+    var sideCls = isBuyer ? 'buy' : 'sell';
+    var d = new Date(t.timestamp);
+    var time = d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+    var proofCls = t.proofStatus === 0 ? 'pending' : t.proofStatus === 1 ? 'submitted' : t.proofStatus === 2 ? 'confirmed' : t.proofStatus === 3 ? 'disputed' : 'confirmed';
+    var proofLbl = t.proofLabel || 'Awaiting Proof';
+
+    h += '<div class="p2p-trade-card" onclick="p2pOpenTradeProof(' + t.id + ')">' 
+      + '<div class="p2p-trade-top">'
+      + '<span class="p2p-order-side ' + sideCls + '" style="font-size:.5rem">' + sideLabel + '</span>'
+      + '<span class="p2p-trade-info"><span class="amt-val">' + t.amount.toFixed(2) + '</span> OLIGHFT @ $' + t.price.toFixed(4) + '</span>'
+      + '<span style="font-size:.5rem;font-weight:700;color:#f0b90b">$' + t.totalCost.toFixed(2) + '</span>'
+      + '</div>'
+      + '<div class="p2p-trade-bottom">'
+      + '<span class="p2p-trade-receipt">' + (t.receiptCode || 'N/A') + '</span>'
+      + '<span class="p2p-proof-badge ' + proofCls + '">' + proofLbl + '</span>'
+      + '</div>'
+      + '<div style="font-size:.42rem;color:#555;margin-top:2px">' + time + '</div>'
+      + '</div>';
+  }
+  el.innerHTML = h;
+}
+
+// ── Init P2P ─────────────────────────────────────────────────
+
+// Helpers for payment tags rendering
+function p2pEscapeHtml(str) {
+  var d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+function p2pPayTagsHtml(methods) {
+  if (!methods || methods.length === 0) return '';
+  var h = '<div class="p2p-pay-tags">';
+  for (var i = 0; i < methods.length; i++) {
+    var m = P2P_BACKEND.getPaymentLabel(methods[i]);
+    h += '<span class="p2p-pay-tag ' + m.category + '">' + m.icon + ' ' + m.label + '</span>';
+  }
+  return h + '</div>';
+}
+
+function p2pRenderPayChips() {
+  var container = document.getElementById('p2pPayMethods');
+  if (!container) return;
+  var methods = P2P_BACKEND.PAYMENT_METHODS;
+  var currentCat = '';
+  var h = '';
+  // Group by category
+  var cats = ['mobile','bank','online','card','crypto','cash'];
+  var catLabels = { mobile: '\uD83D\uDCF1 Mobile Money / Phone', bank: '\uD83C\uDFE6 Bank Transfer', online: '\uD83D\uDCBB Online Payment', card: '\uD83D\uDCB3 Card Payment', crypto: '\u26A1 Crypto', cash: '\uD83D\uDCB5 Cash' };
+  for (var c = 0; c < cats.length; c++) {
+    var cat = cats[c];
+    var items = [];
+    for (var i = 0; i < methods.length; i++) {
+      if (methods[i].category === cat) items.push(methods[i]);
+    }
+    if (items.length === 0) continue;
+    h += '<div class="p2p-pay-cat">' + catLabels[cat] + '</div>';
+    for (var j = 0; j < items.length; j++) {
+      h += '<div class="p2p-pay-chip ' + items[j].category + '" data-id="' + items[j].id + '" onclick="this.classList.toggle(\'selected\')">' + items[j].icon + ' ' + items[j].label + '</div>';
+    }
+  }
+  container.innerHTML = h;
+}
+
+// ── P2P Deposit & Withdraw (SIM / Mobile Money) ──────────
+
+var p2pDepProvider = '';
+var p2pWdProvider = '';
+
+function p2pRenderProviderChips(containerId, selected, setter) {
+  var el = document.getElementById(containerId);
+  if (!el) return;
+  var providers = P2P_BACKEND.MOBILE_PROVIDERS;
+  var h = '';
+  for (var i = 0; i < providers.length; i++) {
+    var p = providers[i];
+    var cls = p.id === selected ? ' active' : '';
+    var safeId = p.id.replace(/[^a-z0-9_]/gi, '');
+    h += '<div class="chip' + cls + '" data-provider="' + safeId + '" onclick="' + setter + '(\'' + safeId + '\')">' + p.icon + ' ' + p.label + '</div>';
+  }
+  el.innerHTML = h;
+}
+
+function p2pSetDepProvider(id) {
+  p2pDepProvider = id;
+  p2pRenderProviderChips('p2pDepProviders', id, 'p2pSetDepProvider');
+}
+function p2pSetWdProvider(id) {
+  p2pWdProvider = id;
+  p2pRenderProviderChips('p2pWdProviders', id, 'p2pSetWdProvider');
+}
+
+function p2pDepSetAmt(usd) {
+  document.getElementById('p2pDepAmount').value = usd;
+  p2pDepCalc();
+}
+
+function p2pDepCalc() {
+  var usd = parseFloat(document.getElementById('p2pDepAmount').value) || 0;
+  var coin = document.getElementById('p2pDepCoin').value;
+  var price = P2P_BACKEND.COIN_PRICES[coin] || 0.50;
+  var fee = usd * P2P_BACKEND.DEPOSIT_FEE_PCT;
+  var net = usd - fee;
+  var coins = net / price;
+  document.getElementById('p2pDepFee').textContent = '$' + fee.toFixed(2);
+  document.getElementById('p2pDepReceive').textContent = coins.toFixed(4) + ' ' + coin;
+  document.getElementById('p2pDepTotal').textContent = '$' + usd.toFixed(2);
+}
+
+function p2pRenderDepositTab() {
+  p2pDepMode(p2pDepModeVal);
+  p2pRenderProviderChips('p2pDepProviders', p2pDepProvider, 'p2pSetDepProvider');
+  p2pRenderBankChips('p2pBankDepProviders', p2pBankDepProvider, 'p2pSetBankDepProvider');
+  p2pRenderCardChips('p2pCardDepProviders', p2pCardDepProvider, 'p2pSetCardDepProvider');
+  p2pDepCalc();
+  p2pBankDepCalc();
+  p2pCardDepCalc();
+  p2pRenderDepHistory();
+}
+
+function p2pRenderDepHistory() {
+  var el = document.getElementById('p2pDepHistory');
+  if (!el) return;
+  var mobileHist = P2P_BACKEND.getDepositHistory();
+  var bankHist = P2P_BACKEND.getBankDepositHistory();
+  var cardHist = P2P_BACKEND.getCardDepositHistory();
+  var history = mobileHist.concat(bankHist).concat(cardHist);
+  history.sort(function(a, b) { return b.timestamp - a.timestamp; });
+  if (!history.length) { el.innerHTML = '<div class="p2p-dw-empty">No deposits yet</div>'; return; }
+  var h = '';
+  for (var i = 0; i < Math.min(history.length, 20); i++) {
+    var r = history[i];
+    var d = new Date(r.timestamp);
+    var time = d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+    var isBank = r.type === 'bank_deposit';
+    var isCard = r.type === 'card_deposit';
+    var via = isCard ? (r.cardType + ' ****' + r.cardLast4) : isBank ? (r.bankId || r.provider) : r.provider;
+    var icon = isCard ? '\uD83D\uDCB3' : isBank ? '\uD83C\uDFE6' : '\u2B06';
+    var label = isCard ? 'Card Dep' : isBank ? 'Bank Dep' : 'Deposit';
+    var statusCls = r.status === 'confirmed' ? 'complete' : r.status === 'pending_proof' ? 'pending' : r.status === 'proof_submitted' ? 'submitted' : r.status === 'rejected' ? 'rejected' : r.status;
+    var statusTxt = r.status === 'pending_proof' ? '\u23F3 VERIFY' : r.status === 'proof_submitted' ? '\uD83D\uDD0D CHECKING' : r.status === 'confirmed' ? '\u2705 CONFIRMED' : r.status === 'rejected' ? '\u274C REJECTED' : r.status.toUpperCase();
+    var clickable = (r.status !== 'confirmed') ? ' onclick="dwOpenProof(\'' + r.id + '\')" style="cursor:pointer"' : ' onclick="dwOpenProof(\'' + r.id + '\')" style="cursor:pointer"';
+    h += '<div class="p2p-dw-row"' + clickable + '>';
+    h += '<span class="type dep">' + icon + ' ' + label + '</span>';
+    h += '<span class="info">+' + r.coinsReceived.toFixed(2) + ' ' + r.coin + ' via ' + via + '</span>';
+    h += '<span class="p2p-dw-status ' + statusCls + '">' + statusTxt + '</span>';
+    h += '<span class="time">' + time + '</span>';
+    h += '</div>';
+  }
+  el.innerHTML = h;
+}
+
+function p2pDoDeposit() {
+  try {
+    var coin = document.getElementById('p2pDepCoin').value;
+    var usd = parseFloat(document.getElementById('p2pDepAmount').value) || 0;
+    var phone = document.getElementById('p2pDepPhone').value;
+    if (!p2pDepProvider) throw new Error('Please select a mobile money provider');
+    if (!phone) throw new Error('Please enter your phone number');
+
+    var result = P2P_BACKEND.depositToWallet(coin, usd, p2pDepProvider, phone);
+
+    showToast('\uD83D\uDCE8 Deposit initiated! Check your SMS for receipt code ' + result.receiptCode, '#3498db');
+    document.getElementById('p2pDepAmount').value = '';
+    p2pDepCalc();
+    p2pRenderDepHistory();
+    if (typeof renderActivity === 'function') renderActivity();
+
+    // Open proof modal
+    dwOpenProof(result.id);
+  } catch(e) {
+    showToast('\u274C ' + e.message, '#e74c3c');
+  }
+}
+
+// ── Deposit / Withdraw Mode Toggles ──
+
+var p2pDepModeVal = 'mobile'; // 'mobile', 'bank', or 'card'
+var p2pWdModeVal  = 'mobile';
+
+// Bank provider selection state
+var p2pBankDepProvider = '';
+var p2pBankWdProvider  = '';
+
+// Card provider selection state
+var p2pCardDepProvider = '';
+var p2pCardWdProvider  = '';
+
+function p2pDepMode(mode) {
+  p2pDepModeVal = mode;
+  document.getElementById('p2pDepMobile').style.display = mode === 'mobile' ? '' : 'none';
+  document.getElementById('p2pDepBank').style.display   = mode === 'bank'   ? '' : 'none';
+  document.getElementById('p2pDepCard').style.display   = mode === 'card'   ? '' : 'none';
+  document.getElementById('depModePhone').style.background = mode === 'mobile' ? '#2ecc71' : '';
+  document.getElementById('depModePhone').style.color      = mode === 'mobile' ? '#fff'    : '';
+  document.getElementById('depModeBank').style.background  = mode === 'bank'   ? '#2ecc71' : '';
+  document.getElementById('depModeBank').style.color       = mode === 'bank'   ? '#fff'    : '';
+  document.getElementById('depModeCard').style.background  = mode === 'card'   ? '#2ecc71' : '';
+  document.getElementById('depModeCard').style.color       = mode === 'card'   ? '#fff'    : '';
+  if (mode === 'bank') p2pRenderBankChips('p2pBankDepProviders', p2pBankDepProvider, 'p2pSetBankDepProvider');
+  if (mode === 'card') p2pRenderCardChips('p2pCardDepProviders', p2pCardDepProvider, 'p2pSetCardDepProvider');
+}
+
+function p2pWdMode(mode) {
+  p2pWdModeVal = mode;
+  document.getElementById('p2pWdMobile').style.display = mode === 'mobile' ? '' : 'none';
+  document.getElementById('p2pWdBank').style.display   = mode === 'bank'   ? '' : 'none';
+  document.getElementById('p2pWdCard').style.display   = mode === 'card'   ? '' : 'none';
+  document.getElementById('wdModePhone').style.background = mode === 'mobile' ? '#f39c12' : '';
+  document.getElementById('wdModePhone').style.color      = mode === 'mobile' ? '#fff'    : '';
+  document.getElementById('wdModeBank').style.background  = mode === 'bank'   ? '#f39c12' : '';
+  document.getElementById('wdModeBank').style.color       = mode === 'bank'   ? '#fff'    : '';
+  document.getElementById('wdModeCard').style.background  = mode === 'card'   ? '#f39c12' : '';
+  document.getElementById('wdModeCard').style.color       = mode === 'card'   ? '#fff'    : '';
+  if (mode === 'bank') {
+    p2pRenderBankChips('p2pBankWdProviders', p2pBankWdProvider, 'p2pSetBankWdProvider');
+    p2pBankWdCalc();
+  }
+  if (mode === 'card') {
+    p2pRenderCardChips('p2pCardWdProviders', p2pCardWdProvider, 'p2pSetCardWdProvider');
+    p2pCardWdCalc();
+  }
+}
+
+// ── Bank Provider Chips ──
+
+function p2pRenderBankChips(containerId, selected, setter) {
+  var el = document.getElementById(containerId);
+  if (!el) return;
+  var banks = P2P_BACKEND.BANK_PROVIDERS;
+  var h = '';
+  for (var i = 0; i < banks.length; i++) {
+    var b = banks[i];
+    var cls = b.id === selected ? ' active' : '';
+    var safeId = b.id.replace(/[^a-z0-9_]/gi, '');
+    h += '<div class="chip' + cls + '" data-provider="' + safeId + '" onclick="' + setter + '(\'' + safeId + '\')">' + b.icon + ' ' + b.label + '</div>';
+  }
+  el.innerHTML = h;
+}
+
+function p2pSetBankDepProvider(id) {
+  p2pBankDepProvider = id;
+  p2pRenderBankChips('p2pBankDepProviders', id, 'p2pSetBankDepProvider');
+}
+function p2pSetBankWdProvider(id) {
+  p2pBankWdProvider = id;
+  p2pRenderBankChips('p2pBankWdProviders', id, 'p2pSetBankWdProvider');
+}
+
+// ── Bank Deposit Functions ──
+
+function p2pBankDepSetAmt(usd) {
+  document.getElementById('p2pBankDepAmount').value = usd;
+  p2pBankDepCalc();
+}
+
+function p2pBankDepCalc() {
+  var usd = parseFloat(document.getElementById('p2pBankDepAmount').value) || 0;
+  var coin = document.getElementById('p2pBankDepCoin').value;
+  var price = P2P_BACKEND.COIN_PRICES[coin] || 0.50;
+  var fee = usd * P2P_BACKEND.BANK_DEPOSIT_FEE_PCT;
+  var net = usd - fee;
+  var coins = net / price;
+  document.getElementById('p2pBankDepFee').textContent = '$' + fee.toFixed(2);
+  document.getElementById('p2pBankDepReceive').textContent = coins.toFixed(4) + ' ' + coin;
+  document.getElementById('p2pBankDepTotal').textContent = '$' + usd.toFixed(2);
+}
+
+function p2pDoBankDeposit() {
+  try {
+    var coin = document.getElementById('p2pBankDepCoin').value;
+    var usd = parseFloat(document.getElementById('p2pBankDepAmount').value) || 0;
+    var name = document.getElementById('p2pBankDepName').value.trim();
+    var acct = document.getElementById('p2pBankDepAcct').value.trim();
+    if (!p2pBankDepProvider) throw new Error('Please select a bank');
+    if (!name) throw new Error('Please enter account holder name');
+    if (!acct) throw new Error('Please enter account number');
+
+    var result = P2P_BACKEND.depositViaBank(coin, usd, p2pBankDepProvider, acct, name);
+
+    showToast('\uD83C\uDFE6 Bank deposit initiated! Check your SMS for receipt code ' + result.receiptCode, '#3498db');
+    document.getElementById('p2pBankDepAmount').value = '';
+    p2pBankDepCalc();
+    p2pRenderDepHistory();
+    if (typeof renderActivity === 'function') renderActivity();
+
+    dwOpenProof(result.id);
+  } catch(e) {
+    showToast('\u274C ' + e.message, '#e74c3c');
+  }
+}
+
+// ── Bank Withdraw Functions ──
+
+function p2pBankWdSetPct(pct) {
+  var coin = document.getElementById('p2pBankWdCoin').value;
+  var bals = {};
+  try { bals = JSON.parse(localStorage.getItem('cw_balances') || '{}'); } catch(e) {}
+  var bal = bals[coin] || 0;
+  document.getElementById('p2pBankWdAmount').value = (bal * pct / 100).toFixed(4);
+  p2pBankWdCalc();
+}
+
+function p2pBankWdCalc() {
+  var coin = document.getElementById('p2pBankWdCoin').value;
+  var amount = parseFloat(document.getElementById('p2pBankWdAmount').value) || 0;
+  var price = P2P_BACKEND.COIN_PRICES[coin] || 0.50;
+  var usdVal = amount * price;
+  var fee = usdVal * P2P_BACKEND.BANK_WITHDRAW_FEE_PCT;
+  var net = usdVal - fee;
+
+  document.getElementById('p2pBankWdFee').textContent = '$' + fee.toFixed(2);
+  document.getElementById('p2pBankWdReceiveUsd').textContent = '$' + net.toFixed(2);
+  document.getElementById('p2pBankWdDeducted').textContent = amount.toFixed(4) + ' ' + coin;
+
+  var bals = {};
+  try { bals = JSON.parse(localStorage.getItem('cw_balances') || '{}'); } catch(e) {}
+  var balEl = document.getElementById('p2pBankWdBalAmt');
+  var lblEl = document.getElementById('p2pBankWdBalLabel');
+  if (balEl) balEl.textContent = (bals[coin] || 0).toFixed(4);
+  if (lblEl) lblEl.textContent = coin;
+}
+
+function p2pDoBankWithdraw() {
+  try {
+    var coin = document.getElementById('p2pBankWdCoin').value;
+    var amount = parseFloat(document.getElementById('p2pBankWdAmount').value) || 0;
+    var name = document.getElementById('p2pBankWdName').value.trim();
+    var acct = document.getElementById('p2pBankWdAcct').value.trim();
+    if (!p2pBankWdProvider) throw new Error('Please select a bank');
+    if (!name) throw new Error('Please enter account holder name');
+    if (!acct) throw new Error('Please enter account number');
+
+    var result = P2P_BACKEND.withdrawToBank(coin, amount, p2pBankWdProvider, acct, name);
+
+    showToast('\uD83C\uDFE6 Bank withdrawal initiated! Check SMS for receipt code ' + result.receiptCode, '#3498db');
+    document.getElementById('p2pBankWdAmount').value = '';
+    p2pBankWdCalc();
+    p2pRenderWdHistory();
+
+    var bals = {};
+    try { bals = JSON.parse(localStorage.getItem('cw_balances') || '{}'); } catch(e) {}
+    if (typeof renderBalances === 'function') renderBalances(bals);
+    if (typeof renderActivity === 'function') renderActivity();
+
+    dwOpenProof(result.id);
+  } catch(e) {
+    showToast('\u274C ' + e.message, '#e74c3c');
+  }
+}
+
+// ── Withdraw to SIM ──
+
+function p2pWdSetPct(pct) {
+  var coin = document.getElementById('p2pWdCoin').value;
+  var bals = {};
+  try { bals = JSON.parse(localStorage.getItem('cw_balances') || '{}'); } catch(e) {}
+  var bal = bals[coin] || 0;
+  document.getElementById('p2pWdAmount').value = (bal * pct / 100).toFixed(4);
+  p2pWdCalc();
+}
+
+function p2pWdCalc() {
+  var coin = document.getElementById('p2pWdCoin').value;
+  var amount = parseFloat(document.getElementById('p2pWdAmount').value) || 0;
+  var price = P2P_BACKEND.COIN_PRICES[coin] || 0.50;
+  var usdVal = amount * price;
+  var fee = usdVal * P2P_BACKEND.WITHDRAW_FEE_PCT;
+  var net = usdVal - fee;
+
+  document.getElementById('p2pWdFee').textContent = '$' + fee.toFixed(2);
+  document.getElementById('p2pWdReceiveUsd').textContent = '$' + net.toFixed(2);
+  document.getElementById('p2pWdDeducted').textContent = amount.toFixed(4) + ' ' + coin;
+
+  // Update balance display
+  var bals = {};
+  try { bals = JSON.parse(localStorage.getItem('cw_balances') || '{}'); } catch(e) {}
+  var balEl = document.getElementById('p2pWdBalAmt');
+  var lblEl = document.getElementById('p2pWdBalLabel');
+  if (balEl) balEl.textContent = (bals[coin] || 0).toFixed(4);
+  if (lblEl) lblEl.textContent = coin;
+}
+
+// ── Card Provider Chips ──
+
+function p2pRenderCardChips(containerId, selected, setter) {
+  var el = document.getElementById(containerId);
+  if (!el) return;
+  var cards = P2P_BACKEND.CARD_PROVIDERS;
+  var h = '';
+  for (var i = 0; i < cards.length; i++) {
+    var c = cards[i];
+    var sel = c.id === selected ? ' style="background:#3498db;color:#fff;border-color:#3498db"' : '';
+    h += '<span class="p2p-dw-chip" onclick="' + setter + '(\'' + c.id + '\')"' + sel + '>' + c.icon + ' ' + c.label + '</span>';
+  }
+  el.innerHTML = h;
+}
+
+function p2pSetCardDepProvider(id) {
+  p2pCardDepProvider = id;
+  p2pRenderCardChips('p2pCardDepProviders', id, 'p2pSetCardDepProvider');
+}
+
+function p2pSetCardWdProvider(id) {
+  p2pCardWdProvider = id;
+  p2pRenderCardChips('p2pCardWdProviders', id, 'p2pSetCardWdProvider');
+}
+
+// ── Card Deposit Functions ──
+
+function p2pCardDepSetAmt(usd) {
+  document.getElementById('p2pCardDepAmount').value = usd;
+  p2pCardDepCalc();
+}
+
+function p2pCardDepCalc() {
+  var usd = parseFloat(document.getElementById('p2pCardDepAmount').value) || 0;
+  var coin = document.getElementById('p2pCardDepCoin').value;
+  var price = P2P_BACKEND.COIN_PRICES[coin] || 0.50;
+  var fee = usd * P2P_BACKEND.CARD_DEPOSIT_FEE_PCT;
+  var net = usd - fee;
+  var coins = net / price;
+  document.getElementById('p2pCardDepFee').textContent = '$' + fee.toFixed(2);
+  document.getElementById('p2pCardDepReceive').textContent = coins.toFixed(4) + ' ' + coin;
+  document.getElementById('p2pCardDepTotal').textContent = '$' + usd.toFixed(2);
+}
+
+function p2pDoCardDeposit() {
+  try {
+    var coin = document.getElementById('p2pCardDepCoin').value;
+    var usd = parseFloat(document.getElementById('p2pCardDepAmount').value) || 0;
+    var name = document.getElementById('p2pCardDepName').value.trim();
+    var last4 = document.getElementById('p2pCardDepLast4').value.trim();
+    if (!p2pCardDepProvider) throw new Error('Please select a card type');
+    if (!name) throw new Error('Please enter cardholder name');
+    if (!last4 || last4.length !== 4) throw new Error('Please enter card last 4 digits');
+
+    var result = P2P_BACKEND.depositViaCard(coin, usd, p2pCardDepProvider, last4, name);
+
+    showToast('\uD83D\uDCB3 Card deposit initiated! Check your SMS for receipt code ' + result.receiptCode, '#3498db');
+    document.getElementById('p2pCardDepAmount').value = '';
+    document.getElementById('p2pCardDepLast4').value = '';
+    p2pCardDepCalc();
+    p2pRenderDepHistory();
+    if (typeof renderActivity === 'function') renderActivity();
+
+    dwOpenProof(result.id);
+  } catch(e) {
+    showToast('\u274C ' + e.message, '#e74c3c');
+  }
+}
+
+// ── Card Withdraw Functions ──
+
+function p2pCardWdSetPct(pct) {
+  var coin = document.getElementById('p2pCardWdCoin').value;
+  var bals = {};
+  try { bals = JSON.parse(localStorage.getItem('cw_balances') || '{}'); } catch(e) {}
+  var bal = bals[coin] || 0;
+  document.getElementById('p2pCardWdAmount').value = (bal * pct / 100).toFixed(4);
+  p2pCardWdCalc();
+}
+
+function p2pCardWdCalc() {
+  var coin = document.getElementById('p2pCardWdCoin').value;
+  var amount = parseFloat(document.getElementById('p2pCardWdAmount').value) || 0;
+  var price = P2P_BACKEND.COIN_PRICES[coin] || 0.50;
+  var usdVal = amount * price;
+  var fee = usdVal * P2P_BACKEND.CARD_WITHDRAW_FEE_PCT;
+  var net = usdVal - fee;
+
+  document.getElementById('p2pCardWdFee').textContent = '$' + fee.toFixed(2);
+  document.getElementById('p2pCardWdReceiveUsd').textContent = '$' + net.toFixed(2);
+  document.getElementById('p2pCardWdDeducted').textContent = amount.toFixed(4) + ' ' + coin;
+
+  var bals = {};
+  try { bals = JSON.parse(localStorage.getItem('cw_balances') || '{}'); } catch(e) {}
+  var balEl = document.getElementById('p2pCardWdBalAmt');
+  var lblEl = document.getElementById('p2pCardWdBalLabel');
+  if (balEl) balEl.textContent = (bals[coin] || 0).toFixed(4);
+  if (lblEl) lblEl.textContent = coin;
+}
+
+function p2pDoCardWithdraw() {
+  try {
+    var coin = document.getElementById('p2pCardWdCoin').value;
+    var amount = parseFloat(document.getElementById('p2pCardWdAmount').value) || 0;
+    var name = document.getElementById('p2pCardWdName').value.trim();
+    var last4 = document.getElementById('p2pCardWdLast4').value.trim();
+    if (!p2pCardWdProvider) throw new Error('Please select a card type');
+    if (!name) throw new Error('Please enter cardholder name');
+    if (!last4 || last4.length !== 4) throw new Error('Please enter card last 4 digits');
+
+    var result = P2P_BACKEND.withdrawToCard(coin, amount, p2pCardWdProvider, last4, name);
+
+    showToast('\uD83D\uDCB3 Card withdrawal initiated! Check SMS for receipt code ' + result.receiptCode, '#3498db');
+    document.getElementById('p2pCardWdAmount').value = '';
+    document.getElementById('p2pCardWdLast4').value = '';
+    p2pCardWdCalc();
+    p2pRenderWdHistory();
+
+    var bals = {};
+    try { bals = JSON.parse(localStorage.getItem('cw_balances') || '{}'); } catch(e) {}
+    if (typeof renderBalances === 'function') renderBalances(bals);
+    if (typeof renderActivity === 'function') renderActivity();
+
+    dwOpenProof(result.id);
+  } catch(e) {
+    showToast('\u274C ' + e.message, '#e74c3c');
+  }
+}
+
+function p2pRenderWithdrawTab() {
+  p2pWdMode(p2pWdModeVal);
+  p2pRenderProviderChips('p2pWdProviders', p2pWdProvider, 'p2pSetWdProvider');
+  p2pRenderBankChips('p2pBankWdProviders', p2pBankWdProvider, 'p2pSetBankWdProvider');
+  p2pRenderCardChips('p2pCardWdProviders', p2pCardWdProvider, 'p2pSetCardWdProvider');
+  p2pWdCalc();
+  p2pBankWdCalc();
+  p2pCardWdCalc();
+  p2pRenderWdHistory();
+}
+
+function p2pRenderWdHistory() {
+  var el = document.getElementById('p2pWdHistory');
+  if (!el) return;
+  var mobileHist = P2P_BACKEND.getWithdrawHistory();
+  var bankHist = P2P_BACKEND.getBankWithdrawHistory();
+  var cardHist = P2P_BACKEND.getCardWithdrawHistory();
+  var history = mobileHist.concat(bankHist).concat(cardHist);
+  history.sort(function(a, b) { return b.timestamp - a.timestamp; });
+  if (!history.length) { el.innerHTML = '<div class="p2p-dw-empty">No withdrawals yet</div>'; return; }
+  var h = '';
+  for (var i = 0; i < Math.min(history.length, 20); i++) {
+    var r = history[i];
+    var d = new Date(r.timestamp);
+    var time = d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+    var isBank = r.type === 'bank_withdraw';
+    var isCard = r.type === 'card_withdraw';
+    var dest = isCard ? (r.cardType + ' ****' + r.cardLast4) : isBank ? (r.bankId || r.provider) + ' (****' + (r.accountNumber || '').slice(-4) + ')' : r.phone + ' (' + r.provider + ')';
+    var icon = isCard ? '\uD83D\uDCB3' : isBank ? '\uD83C\uDFE6' : '\u2B07';
+    var label = isCard ? 'Card Wd' : isBank ? 'Bank Wd' : 'Withdraw';
+    var statusCls = r.status === 'confirmed' ? 'complete' : r.status === 'pending_proof' ? 'pending' : r.status === 'proof_submitted' ? 'submitted' : r.status === 'rejected' ? 'rejected' : r.status;
+    var statusTxt = r.status === 'pending_proof' ? '\u23F3 VERIFY' : r.status === 'proof_submitted' ? '\uD83D\uDD0D CHECKING' : r.status === 'confirmed' ? '\u2705 CONFIRMED' : r.status === 'rejected' ? '\u274C REJECTED' : r.status.toUpperCase();
+    var clickable = ' onclick="dwOpenProof(\'' + r.id + '\')" style="cursor:pointer"';
+    h += '<div class="p2p-dw-row"' + clickable + '>';
+    h += '<span class="type wd">' + icon + ' ' + label + '</span>';
+    h += '<span class="info">-' + r.coinAmount.toFixed(2) + ' ' + r.coin + ' \u2192 ' + dest + '</span>';
+    h += '<span class="p2p-dw-status ' + statusCls + '">' + statusTxt + '</span>';
+    h += '<span class="time">' + time + '</span>';
+    h += '</div>';
+  }
+  el.innerHTML = h;
+}
+
+function p2pDoWithdraw() {
+  try {
+    var coin = document.getElementById('p2pWdCoin').value;
+    var amount = parseFloat(document.getElementById('p2pWdAmount').value) || 0;
+    var phone = document.getElementById('p2pWdPhone').value;
+    if (!p2pWdProvider) throw new Error('Please select a mobile money provider');
+    if (!phone) throw new Error('Please enter recipient phone number');
+
+    var result = P2P_BACKEND.withdrawToSIM(coin, amount, p2pWdProvider, phone);
+
+    showToast('\uD83D\uDCF2 Withdrawal initiated! Check SMS for receipt code ' + result.receiptCode, '#3498db');
+    document.getElementById('p2pWdAmount').value = '';
+    p2pWdCalc();
+    p2pRenderWdHistory();
+
+    var bals = {};
+    try { bals = JSON.parse(localStorage.getItem('cw_balances') || '{}'); } catch(e) {}
+    if (typeof renderBalances === 'function') renderBalances(bals);
+    if (typeof renderActivity === 'function') renderActivity();
+
+    dwOpenProof(result.id);
+  } catch(e) {
+    showToast('\u274C ' + e.message, '#e74c3c');
+  }
+}
+
+function initP2P() {
+  P2P_BACKEND.seedOrderBook();
+  p2pRenderPayChips();
+  p2pRenderOrderBook();
+}
+
+// ── P2P Payment Proof System ──────────────────────────────
+
+var p2pProofCurrentFile = null; // holds base64 screenshot data
+
+function p2pOpenTradeProof(tradeId) {
+  var trade = P2P_BACKEND.getLocalTrade(tradeId);
+  if (!trade) { showToast('\u274C Trade not found', '#e74c3c'); return; }
+
+  p2pProofCurrentFile = null;
+
+  var user = null;
+  try { user = JSON.parse(localStorage.getItem('cw_user')); } catch(e) {}
+  var myId = user ? (user.email || user.addr || '') : '';
+  var isBuyer = trade.buyer === myId;
+  var isSeller = trade.seller === myId;
+
+  var d = new Date(trade.timestamp);
+  var time = d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+
+  document.getElementById('p2pProofSub').textContent = 'Trade #' + trade.id + ' \u2022 ' + time;
+
+  var proofCls = trade.proofStatus === 0 ? 'pending' : trade.proofStatus === 1 ? 'submitted' : trade.proofStatus === 2 ? 'confirmed' : 'disputed';
+
+  // Build receipt section
+  var h = '<div class="p2p-receipt-box">';
+  h += '<div class="p2p-receipt-row"><span class="lbl">Type</span><span class="val">' + (isBuyer ? '\uD83D\uDFE2 You Bought' : '\uD83D\uDD34 You Sold') + '</span></div>';
+  h += '<div class="p2p-receipt-row"><span class="lbl">Amount</span><span class="val">' + trade.amount.toFixed(4) + ' OLIGHFT</span></div>';
+  h += '<div class="p2p-receipt-row"><span class="lbl">Price</span><span class="val">$' + trade.price.toFixed(4) + ' / OLIGHFT</span></div>';
+  h += '<div class="p2p-receipt-row"><span class="lbl">Total</span><span class="val" style="color:#f0b90b;font-weight:800">$' + trade.totalCost.toFixed(2) + ' USDC</span></div>';
+  h += '<div class="p2p-receipt-row"><span class="lbl">Fee</span><span class="val">' + trade.fee.toFixed(4) + ' OLIGHFT (0.5%)</span></div>';
+  h += '<div class="p2p-receipt-row"><span class="lbl">Counterparty</span><span class="val">' + p2pEscapeHtml(isBuyer ? trade.seller : trade.buyer) + '</span></div>';
+  if (trade.payMethods && trade.payMethods.length > 0) {
+    h += '<div class="p2p-receipt-row"><span class="lbl">Payment</span><span class="val">' + p2pPayTagsHtml(trade.payMethods) + '</span></div>';
+  }
+  if (trade.payDetails) {
+    h += '<div class="p2p-receipt-row"><span class="lbl">Pay Info</span><span class="val">' + p2pEscapeHtml(trade.payDetails) + '</span></div>';
+  }
+  h += '</div>';
+
+  // Receipt code
+  h += '<div class="p2p-receipt-code">';
+  h += '<div class="label">Transaction Receipt Code</div>';
+  h += '<div class="code">' + p2pEscapeHtml(trade.receiptCode || 'N/A') + '</div>';
+  h += '</div>';
+
+  // Proof status badge
+  h += '<div class="p2p-proof-status ' + proofCls + '">';
+  h += trade.proofLabel || 'Awaiting Proof';
+  h += '</div>';
+
+  // Show existing proof if submitted
+  if (trade.proofStatus >= 1 && trade.proofScreenshot) {
+    h += '<div class="p2p-proof-screenshot">';
+    h += '<div style="font-size:.5rem;color:#888;font-weight:600;margin-bottom:4px">\uD83D\uDCF8 Payment Screenshot</div>';
+    h += '<img src="' + trade.proofScreenshot + '" alt="Payment proof" onclick="window.open(this.src)">';
+    h += '</div>';
+  }
+  if (trade.proofStatus >= 1 && trade.proofTxCode) {
+    h += '<div style="font-size:.48rem;color:#888;font-weight:600;margin-top:6px">\uD83D\uDCDD Transaction Code from Payment</div>';
+    h += '<div class="p2p-proof-txcode">' + p2pEscapeHtml(trade.proofTxCode) + '</div>';
+  }
+  if (trade.proofNote) {
+    h += '<div class="p2p-proof-note">\uD83D\uDCAC ' + p2pEscapeHtml(trade.proofNote) + '</div>';
+  }
+  if (trade.proofSubmittedAt) {
+    var ps = new Date(trade.proofSubmittedAt);
+    h += '<div class="p2p-proof-time">Proof submitted: ' + ps.toLocaleString() + '</div>';
+  }
+  if (trade.proofConfirmedAt) {
+    var pc = new Date(trade.proofConfirmedAt);
+    h += '<div class="p2p-proof-time" style="color:#2ecc71">\u2705 Confirmed: ' + pc.toLocaleString() + '</div>';
+  }
+  if (trade.disputeReason) {
+    h += '<div style="font-size:.48rem;color:#eb5757;margin-top:4px">\u26A0\uFE0F Dispute reason: ' + p2pEscapeHtml(trade.disputeReason) + '</div>';
+  }
+
+  // Action area
+  h += '<div class="p2p-proof-actions">';
+
+  if (isBuyer && (trade.proofStatus === 0 || trade.proofStatus === 3)) {
+    // Buyer needs to upload proof
+    h += '</div>'; // close actions first, we need a form
+    h += '<div class="p2p-proof-upload">';
+    h += '<label>\uD83D\uDCF8 Upload Payment Screenshot</label>';
+    h += '<input type="file" id="p2pProofFile" accept="image/*" onchange="p2pHandleProofFile(event)">';
+    h += '<div class="p2p-upload-area" onclick="document.getElementById(\'p2pProofFile\').click()" id="p2pUploadArea">';
+    h += '<div class="icon">\uD83D\uDCF7</div>';
+    h += '<div class="hint">Tap to upload screenshot of your payment</div>';
+    h += '</div>';
+    h += '</div>';
+    h += '<div class="p2p-proof-upload">';
+    h += '<label>\uD83D\uDCDD Transaction/Receipt Code (from your bank or mobile money)</label>';
+    h += '<input type="text" class="p2p-proof-input" id="p2pProofTxCode" placeholder="e.g. QJK3R8F2KD or TXN-20260410-123" maxlength="80">';
+    h += '</div>';
+    h += '<div class="p2p-proof-upload">';
+    h += '<label>\uD83D\uDCAC Additional Note (optional)</label>';
+    h += '<input type="text" class="p2p-proof-input" id="p2pProofNote" placeholder="e.g. Sent via M-Pesa at 2:30pm" maxlength="120">';
+    h += '</div>';
+    h += '<div class="p2p-proof-actions">';
+    h += '<button class="p2p-proof-btn submit" onclick="p2pSubmitProofAction(' + trade.id + ')">\uD83D\uDCF8 Submit Payment Proof</button>';
+    h += '</div>';
+  } else if (isSeller && trade.proofStatus === 1) {
+    // Seller reviews proof and can confirm or dispute
+    h += '<button class="p2p-proof-btn confirm" onclick="p2pConfirmProofAction(' + trade.id + ')">\u2705 Confirm Payment Received</button>';
+    h += '<button class="p2p-proof-btn dispute" onclick="p2pDisputeProofAction(' + trade.id + ')">\u26A0\uFE0F Dispute</button>';
+    h += '</div>';
+  } else {
+    h += '</div>';
+  }
+
+  document.getElementById('p2pProofBody').innerHTML = h;
+  document.getElementById('p2pProofModal').style.display = 'flex';
+}
+
+function p2pHandleProofFile(event) {
+  var file = event.target.files[0];
+  if (!file) return;
+
+  // Validate file type
+  if (!file.type.match(/^image\//)) {
+    showToast('\u274C Please upload an image file', '#e74c3c');
+    return;
+  }
+  // Validate size (max 5MB)
+  if (file.size > 5 * 1024 * 1024) {
+    showToast('\u274C Image too large (max 5MB)', '#e74c3c');
+    return;
+  }
+
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    p2pProofCurrentFile = e.target.result;
+    var area = document.getElementById('p2pUploadArea');
+    area.innerHTML = '<img class="p2p-upload-preview" src="' + p2pProofCurrentFile + '" alt="Preview">'
+      + '<div class="hint" style="margin-top:4px">\u2705 ' + p2pEscapeHtml(file.name) + ' \u2022 Tap to change</div>';
+  };
+  reader.readAsDataURL(file);
+}
+
+function p2pSubmitProofAction(tradeId) {
+  try {
+    var txCode = (document.getElementById('p2pProofTxCode').value || '').trim();
+    var note = (document.getElementById('p2pProofNote').value || '').trim();
+
+    if (!p2pProofCurrentFile) {
+      showToast('\u26A0\uFE0F Please upload a screenshot of your payment', '#e74c3c');
+      return;
+    }
+    if (!txCode || txCode.length < 3) {
+      showToast('\u26A0\uFE0F Enter the transaction/receipt code from your payment', '#e74c3c');
+      return;
+    }
+
+    P2P_BACKEND.submitProof(tradeId, p2pProofCurrentFile, txCode, note);
+    showToast('\u2705 Payment proof submitted! Waiting for seller confirmation.', '#3498db');
+    p2pOpenTradeProof(tradeId); // Refresh modal
+    p2pRenderMyTrades();
+    if (typeof renderActivity === 'function') renderActivity();
+  } catch(e) {
+    showToast('\u274C ' + e.message, '#e74c3c');
+  }
+}
+
+function p2pConfirmProofAction(tradeId) {
+  if (!confirm('Confirm that you have received the payment for this trade?')) return;
+  try {
+    P2P_BACKEND.confirmProof(tradeId);
+    showToast('\u2705 Payment confirmed! Trade complete.', '#2ecc71');
+    p2pOpenTradeProof(tradeId); // Refresh modal
+    p2pRenderMyTrades();
+    if (typeof renderActivity === 'function') renderActivity();
+  } catch(e) {
+    showToast('\u274C ' + e.message, '#e74c3c');
+  }
+}
+
+function p2pDisputeProofAction(tradeId) {
+  var reason = prompt('Why are you disputing this payment proof?\n(e.g. "Payment not received", "Wrong amount", "Fake screenshot")');
+  if (!reason) return;
+  try {
+    P2P_BACKEND.disputeProof(tradeId, reason);
+    showToast('\u26A0\uFE0F Trade disputed. Buyer can resubmit proof.', '#e74c3c');
+    p2pOpenTradeProof(tradeId); // Refresh modal
+    p2pRenderMyTrades();
+    if (typeof renderActivity === 'function') renderActivity();
+  } catch(e) {
+    showToast('\u274C ' + e.message, '#e74c3c');
+  }
+}
+
+// ── DW Transaction Proof System ───────────────────────────
+
+var dwProofCurrentFile = null;
+
+function dwOpenProof(recordId) {
+  var rec = P2P_BACKEND.getDWRecord(recordId);
+  if (!rec) { showToast('\u274C Transaction not found', '#e74c3c'); return; }
+
+  dwProofCurrentFile = null;
+
+  var d = new Date(rec.timestamp);
+  var time = d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+  var isDep = rec.type === 'deposit' || rec.type === 'bank_deposit';
+  var isBank = rec.type === 'bank_deposit' || rec.type === 'bank_withdraw';
+  var typeLabel = isDep ? '\u2B06 Deposit' : '\u2B07 Withdraw';
+  var typeIcon = isDep ? '\uD83D\uDCE5' : '\uD83D\uDCF2';
+  if (isBank) typeIcon = '\uD83C\uDFE6';
+
+  document.getElementById('dwProofSub').textContent = typeLabel + ' #' + rec.id.split('_')[0] + ' \u2022 ' + time;
+
+  var statusCls = rec.status === 'pending_proof' ? 'pending' : rec.status === 'proof_submitted' ? 'submitted' : rec.status === 'confirmed' ? 'confirmed' : 'disputed';
+
+  // Build receipt details
+  var h = '<div class="p2p-receipt-box">';
+  h += '<div class="p2p-receipt-row"><span class="lbl">Type</span><span class="val">' + typeIcon + ' ' + (isBank ? 'Bank ' : 'Mobile ') + (isDep ? 'Deposit' : 'Withdrawal') + '</span></div>';
+  h += '<div class="p2p-receipt-row"><span class="lbl">Coin</span><span class="val">' + p2pEscapeHtml(rec.coin) + '</span></div>';
+
+  if (isDep) {
+    h += '<div class="p2p-receipt-row"><span class="lbl">USD Amount</span><span class="val" style="color:#f0b90b;font-weight:800">$' + rec.usdAmount.toFixed(2) + '</span></div>';
+    h += '<div class="p2p-receipt-row"><span class="lbl">Fee</span><span class="val">$' + rec.fee.toFixed(2) + '</span></div>';
+    h += '<div class="p2p-receipt-row"><span class="lbl">You Receive</span><span class="val" style="color:#2ecc71;font-weight:700">' + rec.coinsReceived.toFixed(4) + ' ' + rec.coin + '</span></div>';
+  } else {
+    h += '<div class="p2p-receipt-row"><span class="lbl">Amount</span><span class="val" style="color:#f39c12;font-weight:800">' + rec.coinAmount.toFixed(4) + ' ' + rec.coin + '</span></div>';
+    h += '<div class="p2p-receipt-row"><span class="lbl">USD Value</span><span class="val">$' + rec.usdValue.toFixed(2) + '</span></div>';
+    h += '<div class="p2p-receipt-row"><span class="lbl">Fee</span><span class="val">$' + rec.fee.toFixed(2) + '</span></div>';
+    h += '<div class="p2p-receipt-row"><span class="lbl">You Receive</span><span class="val" style="color:#2ecc71;font-weight:700">$' + rec.netUsd.toFixed(2) + '</span></div>';
+  }
+
+  if (isBank) {
+    h += '<div class="p2p-receipt-row"><span class="lbl">Bank</span><span class="val">' + p2pEscapeHtml(rec.bankId) + '</span></div>';
+    h += '<div class="p2p-receipt-row"><span class="lbl">Account</span><span class="val">' + p2pEscapeHtml(rec.accountName) + ' \u2022 ****' + (rec.accountNumber || '').slice(-4) + '</span></div>';
+  } else {
+    h += '<div class="p2p-receipt-row"><span class="lbl">Provider</span><span class="val">' + p2pEscapeHtml(rec.provider) + '</span></div>';
+    h += '<div class="p2p-receipt-row"><span class="lbl">Phone</span><span class="val">' + p2pEscapeHtml(rec.phone) + '</span></div>';
+  }
+  h += '</div>';
+
+  // Receipt code (the reference the user must enter)
+  h += '<div class="p2p-receipt-code">';
+  h += '<div class="label">\uD83D\uDCE8 SMS Receipt Code (check your phone)</div>';
+  h += '<div class="code">' + p2pEscapeHtml(rec.receiptCode || 'N/A') + '</div>';
+  h += '</div>';
+
+  // Status badge
+  h += '<div class="p2p-proof-status ' + statusCls + '">';
+  if (rec.status === 'pending_proof') h += '\u23F3 Awaiting Proof — Upload screenshot & enter receipt code';
+  else if (rec.status === 'proof_submitted') h += '\uD83D\uDD0D Proof Submitted — Verifying receipt code...';
+  else if (rec.status === 'confirmed') h += '\u2705 Verified & Confirmed';
+  else if (rec.status === 'rejected') h += '\u274C Rejected — Receipt code mismatch';
+  h += '</div>';
+
+  // Show existing proof
+  if (rec.proofScreenshot) {
+    h += '<div class="p2p-proof-screenshot">';
+    h += '<div style="font-size:.5rem;color:#888;font-weight:600;margin-bottom:4px">\uD83D\uDCF8 Payment Screenshot</div>';
+    h += '<img src="' + rec.proofScreenshot + '" alt="Payment proof" onclick="window.open(this.src)">';
+    h += '</div>';
+  }
+  if (rec.proofEnteredCode) {
+    h += '<div style="font-size:.48rem;color:#888;font-weight:600;margin-top:6px">\uD83D\uDCDD Entered Receipt Code</div>';
+    h += '<div class="p2p-proof-txcode">' + p2pEscapeHtml(rec.proofEnteredCode) + '</div>';
+  }
+  if (rec.proofNote) {
+    h += '<div class="p2p-proof-note">\uD83D\uDCAC ' + p2pEscapeHtml(rec.proofNote) + '</div>';
+  }
+  if (rec.proofSubmittedAt) {
+    var ps = new Date(rec.proofSubmittedAt);
+    h += '<div class="p2p-proof-time">Proof submitted: ' + ps.toLocaleString() + '</div>';
+  }
+  if (rec.proofVerifiedAt) {
+    var pv = new Date(rec.proofVerifiedAt);
+    h += '<div class="p2p-proof-time" style="color:#2ecc71">\u2705 Verified: ' + pv.toLocaleString() + '</div>';
+  }
+  if (rec.rejectReason) {
+    h += '<div style="font-size:.48rem;color:#eb5757;margin-top:4px">\u26A0\uFE0F ' + p2pEscapeHtml(rec.rejectReason) + '</div>';
+  }
+
+  // Actions based on status
+  if (rec.status === 'pending_proof' || rec.status === 'rejected') {
+    h += '<div class="p2p-proof-upload">';
+    h += '<label>\uD83D\uDCF8 Upload Payment Screenshot / SMS Receipt</label>';
+    h += '<input type="file" id="dwProofFile" accept="image/*" onchange="dwHandleProofFile(event)">';
+    h += '<div class="p2p-upload-area" onclick="document.getElementById(\'dwProofFile\').click()" id="dwUploadArea">';
+    h += '<div class="icon">\uD83D\uDCF7</div>';
+    h += '<div class="hint">Tap to upload screenshot of your payment SMS or receipt</div>';
+    h += '</div>';
+    h += '</div>';
+    h += '<div class="p2p-proof-upload">';
+    h += '<label>\uD83D\uDCDD Enter Receipt Code (from your SMS confirmation)</label>';
+    h += '<input type="text" class="p2p-proof-input" id="dwProofCode" placeholder="e.g. OLI-XXXX-YYYYYY" maxlength="40">';
+    h += '</div>';
+    h += '<div class="p2p-proof-upload">';
+    h += '<label>\uD83D\uDCAC Additional Note (optional)</label>';
+    h += '<input type="text" class="p2p-proof-input" id="dwProofNote" placeholder="e.g. Sent from M-Pesa at 2:30pm" maxlength="120">';
+    h += '</div>';
+    h += '<div class="p2p-proof-actions">';
+    h += '<button class="p2p-proof-btn submit" onclick="dwSubmitProofAction(\'' + p2pEscapeHtml(rec.id) + '\')">\uD83D\uDCF8 Submit Proof & Verify</button>';
+    h += '</div>';
+  } else if (rec.status === 'proof_submitted') {
+    h += '<div class="p2p-proof-actions">';
+    h += '<button class="p2p-proof-btn confirm" onclick="dwVerifyAction(\'' + p2pEscapeHtml(rec.id) + '\')">\u2705 Verify Receipt Code</button>';
+    h += '<button class="p2p-proof-btn dispute" onclick="dwRejectAction(\'' + p2pEscapeHtml(rec.id) + '\')">\u274C Reject</button>';
+    h += '</div>';
+  }
+
+  document.getElementById('dwProofBody').innerHTML = h;
+  document.getElementById('dwProofModal').style.display = 'flex';
+}
+
+function dwHandleProofFile(event) {
+  var file = event.target.files[0];
+  if (!file) return;
+  if (!file.type.match(/^image\//)) {
+    showToast('\u274C Please upload an image file', '#e74c3c');
+    return;
+  }
+  if (file.size > 5 * 1024 * 1024) {
+    showToast('\u274C Image too large (max 5MB)', '#e74c3c');
+    return;
+  }
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    dwProofCurrentFile = e.target.result;
+    var area = document.getElementById('dwUploadArea');
+    area.innerHTML = '<img class="p2p-upload-preview" src="' + dwProofCurrentFile + '" alt="Preview">'
+      + '<div class="hint" style="margin-top:4px">\u2705 ' + p2pEscapeHtml(file.name) + ' \u2022 Tap to change</div>';
+  };
+  reader.readAsDataURL(file);
+}
+
+function dwSubmitProofAction(recordId) {
+  try {
+    var code = (document.getElementById('dwProofCode').value || '').trim();
+    var note = (document.getElementById('dwProofNote').value || '').trim();
+    if (!dwProofCurrentFile) {
+      showToast('\u26A0\uFE0F Please upload a screenshot of your payment', '#e74c3c');
+      return;
+    }
+    if (!code || code.length < 3) {
+      showToast('\u26A0\uFE0F Enter the receipt code from your SMS', '#e74c3c');
+      return;
+    }
+
+    // Submit proof
+    P2P_BACKEND.submitDWProof(recordId, dwProofCurrentFile, code, note);
+
+    // Auto-verify (compares receipt codes)
+    try {
+      P2P_BACKEND.verifyDWTransaction(recordId);
+      showToast('\u2705 Receipt code verified! Transaction confirmed.', '#2ecc71');
+    } catch(verifyErr) {
+      showToast('\u274C ' + verifyErr.message, '#e74c3c');
+    }
+
+    dwOpenProof(recordId);
+    p2pRenderDepHistory();
+    p2pRenderWdHistory();
+
+    // Refresh balances
+    var bals = {};
+    try { bals = JSON.parse(localStorage.getItem('cw_balances') || '{}'); } catch(e) {}
+    if (typeof renderBalances === 'function') renderBalances(bals);
+    if (typeof renderActivity === 'function') renderActivity();
+  } catch(e) {
+    showToast('\u274C ' + e.message, '#e74c3c');
+  }
+}
+
+function dwVerifyAction(recordId) {
+  try {
+    P2P_BACKEND.verifyDWTransaction(recordId);
+    showToast('\u2705 Transaction verified and confirmed!', '#2ecc71');
+    dwOpenProof(recordId);
+    p2pRenderDepHistory();
+    p2pRenderWdHistory();
+    var bals = {};
+    try { bals = JSON.parse(localStorage.getItem('cw_balances') || '{}'); } catch(e) {}
+    if (typeof renderBalances === 'function') renderBalances(bals);
+    if (typeof renderActivity === 'function') renderActivity();
+  } catch(e) {
+    showToast('\u274C ' + e.message, '#e74c3c');
+  }
+}
+
+function dwRejectAction(recordId) {
+  var reason = prompt('Reason for rejection:');
+  if (!reason) return;
+  try {
+    P2P_BACKEND.rejectDWProof(recordId, reason);
+    showToast('\u26A0\uFE0F Transaction rejected. Funds refunded for withdrawals.', '#e74c3c');
+    dwOpenProof(recordId);
+    p2pRenderDepHistory();
+    p2pRenderWdHistory();
+    var bals = {};
+    try { bals = JSON.parse(localStorage.getItem('cw_balances') || '{}'); } catch(e) {}
+    if (typeof renderBalances === 'function') renderBalances(bals);
+    if (typeof renderActivity === 'function') renderActivity();
+  } catch(e) {
+    showToast('\u274C ' + e.message, '#e74c3c');
+  }
+}
+
+// Call on page load
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initP2P);
+} else {
+  initP2P();
+}
+
 </script>
 </body>
 </html>

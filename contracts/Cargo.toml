@@ -9,6 +9,8 @@ members = [
     "swap_amm",
     "payment",
     "invite",
+    "escrow",
+    "p2p",
 ]
 
 [workspace.dependencies]

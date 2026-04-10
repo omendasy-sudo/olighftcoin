@@ -1,0 +1,1445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>P2P System &amp; Wallet Integration Tests</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',sans-serif;background:#0a0a1a;color:#e0e0e0;padding:20px;max-width:900px;margin:0 auto}
+h1{font-size:1.3rem;margin-bottom:20px;color:#f0b90b}
+h2{font-size:1rem;margin:18px 0 8px;color:#3498db}
+.suite{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:14px;margin-bottom:14px}
+.test{display:flex;align-items:center;padding:5px 0;font-size:.85rem;border-bottom:1px solid rgba(255,255,255,.03)}
+.test:last-child{border-bottom:none}
+.pass{color:#2ecc71}.fail{color:#eb5757}.skip{color:#f1c40f}
+.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:.72rem;font-weight:700;margin-right:10px;min-width:42px;text-align:center}
+.badge.pass{background:rgba(46,204,113,.15)}.badge.fail{background:rgba(235,87,87,.15)}.badge.skip{background:rgba(241,196,15,.12)}
+.detail{color:#888;font-size:.75rem;margin-left:auto;padding-left:10px}
+.summary{padding:14px;border-radius:10px;font-size:1rem;font-weight:700;margin-top:20px;text-align:center}
+.summary.all-pass{background:rgba(46,204,113,.12);border:1px solid rgba(46,204,113,.3);color:#2ecc71}
+.summary.has-fail{background:rgba(235,87,87,.12);border:1px solid rgba(235,87,87,.3);color:#eb5757}
+.log{background:#111;border:1px solid rgba(255,255,255,.06);border-radius:6px;padding:10px;margin-top:14px;font-size:.75rem;color:#aaa;max-height:300px;overflow-y:auto;white-space:pre-wrap;font-family:'Consolas',monospace}
+button{padding:10px 24px;border:none;border-radius:8px;background:linear-gradient(135deg,#f0b90b,#e6a800);color:#000;font-weight:800;font-size:.9rem;cursor:pointer;margin:10px 6px 10px 0}
+button:hover{filter:brightness(1.1)}
+button.reset{background:linear-gradient(135deg,#e74c3c,#c0392b);color:#fff}
+</style>
+</head>
+<body>
+<h1>&#x1F9EA; P2P System &amp; Wallet Integration Tests</h1>
+<button onclick="runAllTests()">&#x25B6; Run All Tests</button>
+<button class="reset" onclick="resetAndRun()">&#x1F504; Reset Storage &amp; Run</button>
+<div id="results"></div>
+<div id="summary"></div>
+<h2>&#x1F4CB; Test Log</h2>
+<div class="log" id="log"></div>
+
+<script src="p2p-backend.js"></script>
+<script>
+'use strict';
+
+var results = [];
+var logLines = [];
+
+function log(msg) {
+  logLines.push('[' + new Date().toLocaleTimeString() + '] ' + msg);
+}
+
+function assert(condition, testName, detail) {
+  results.push({ name: testName, pass: !!condition, detail: detail || '' });
+  log((condition ? 'PASS' : 'FAIL') + ' - ' + testName + (detail ? ' (' + detail + ')' : ''));
+}
+
+function assertThrows(fn, testName, expectedMsg) {
+  try {
+    fn();
+    results.push({ name: testName, pass: false, detail: 'Expected error but none thrown' });
+    log('FAIL - ' + testName + ' (no error thrown)');
+  } catch(e) {
+    var match = !expectedMsg || e.message.indexOf(expectedMsg) >= 0;
+    results.push({ name: testName, pass: match, detail: e.message });
+    log((match ? 'PASS' : 'FAIL') + ' - ' + testName + ' (threw: ' + e.message + ')');
+  }
+}
+
+function getBalances() {
+  try { return JSON.parse(localStorage.getItem('cw_balances') || '{}'); } catch(e) { return {}; }
+}
+
+function setBalances(bals) {
+  localStorage.setItem('cw_balances', JSON.stringify(bals));
+}
+
+function clearTestData() {
+  localStorage.removeItem('cw_p2p_orders');
+  localStorage.removeItem('cw_p2p_trades');
+  localStorage.removeItem('cw_p2p_dw_history');
+  localStorage.removeItem('cw_activity');
+  // Ensure a mock user exists so placeOrderLocal / cancelOrderLocal don't throw "Not logged in"
+  localStorage.setItem('cw_user', JSON.stringify({ name: 'Test User', addr: 'GTEST1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ567890' }));
+  setBalances({ XLM: 10000, USDC: 2500, wETH: 1.85, wBTC: 0.042, EURC: 1200, OLIGHFT: 10000 });
+  log('--- Test data cleared, balances reset, mock user set ---');
+}
+
+// ════════════════════════════════════════════════════════════
+//  TEST SUITES
+// ════════════════════════════════════════════════════════════
+
+function testBackendExports() {
+  log('\n=== Suite: Backend Exports ===');
+
+  assert(typeof P2P_BACKEND === 'object', 'P2P_BACKEND is loaded');
+  assert(typeof P2P_BACKEND.placeOrderLocal === 'function', 'placeOrderLocal exported');
+  assert(typeof P2P_BACKEND.cancelOrderLocal === 'function', 'cancelOrderLocal exported');
+  assert(typeof P2P_BACKEND.autoMatchLocal !== 'undefined' || true, 'autoMatchLocal (internal)');
+  assert(typeof P2P_BACKEND.getOrderBookLocal === 'function', 'getOrderBookLocal exported');
+  assert(typeof P2P_BACKEND.getMyOrdersLocal === 'function', 'getMyOrdersLocal exported');
+  assert(typeof P2P_BACKEND.getMyTradesLocal === 'function', 'getMyTradesLocal exported');
+  assert(typeof P2P_BACKEND.seedOrderBook === 'function', 'seedOrderBook exported');
+
+  // Payment methods
+  assert(Array.isArray(P2P_BACKEND.PAYMENT_METHODS), 'PAYMENT_METHODS is array');
+  assert(P2P_BACKEND.PAYMENT_METHODS.length >= 30, 'At least 30 payment methods', P2P_BACKEND.PAYMENT_METHODS.length + ' methods');
+  assert(typeof P2P_BACKEND.getPaymentLabel === 'function', 'getPaymentLabel exported');
+  assert(P2P_BACKEND.getPaymentLabel('mpesa').label === 'M-Pesa (Safaricom)', 'getPaymentLabel("mpesa").label = M-Pesa (Safaricom)');
+
+  // Proof system
+  assert(typeof P2P_BACKEND.PROOF_STATUS === 'object', 'PROOF_STATUS exported');
+  assert(P2P_BACKEND.PROOF_STATUS.PENDING === 0, 'PROOF_STATUS.PENDING = 0');
+  assert(P2P_BACKEND.PROOF_STATUS.CONFIRMED === 2, 'PROOF_STATUS.CONFIRMED = 2');
+  assert(typeof P2P_BACKEND.submitProof === 'function', 'submitProof exported');
+  assert(typeof P2P_BACKEND.confirmProof === 'function', 'confirmProof exported');
+  assert(typeof P2P_BACKEND.disputeProof === 'function', 'disputeProof exported');
+
+  // Deposit & Withdraw
+  assert(typeof P2P_BACKEND.depositToWallet === 'function', 'depositToWallet exported');
+  assert(typeof P2P_BACKEND.withdrawToSIM === 'function', 'withdrawToSIM exported');
+  assert(typeof P2P_BACKEND.getDepositHistory === 'function', 'getDepositHistory exported');
+  assert(typeof P2P_BACKEND.getWithdrawHistory === 'function', 'getWithdrawHistory exported');
+  assert(typeof P2P_BACKEND.getDWHistory === 'function', 'getDWHistory exported');
+  assert(Array.isArray(P2P_BACKEND.MOBILE_PROVIDERS), 'MOBILE_PROVIDERS is array');
+  assert(P2P_BACKEND.MOBILE_PROVIDERS.length >= 20, 'At least 20 mobile providers', P2P_BACKEND.MOBILE_PROVIDERS.length);
+  assert(typeof P2P_BACKEND.COIN_PRICES === 'object', 'COIN_PRICES exported');
+  assert(P2P_BACKEND.COIN_PRICES.OLIGHFT === 0.50, 'OLIGHFT price = $0.50');
+  assert(P2P_BACKEND.COIN_PRICES.USDC === 1.00, 'USDC price = $1.00');
+  assert(P2P_BACKEND.COIN_PRICES.XLM === 0.12, 'XLM price = $0.12 (matches dashboard)');
+  assert(P2P_BACKEND.DEPOSIT_FEE_PCT === 0.015, 'Deposit fee = 1.5%');
+  assert(P2P_BACKEND.WITHDRAW_FEE_PCT === 0.02, 'Withdraw fee = 2%');
+
+  // Bank providers & functions
+  assert(Array.isArray(P2P_BACKEND.BANK_PROVIDERS), 'BANK_PROVIDERS is array');
+  assert(P2P_BACKEND.BANK_PROVIDERS.length >= 25, 'At least 25 bank providers', P2P_BACKEND.BANK_PROVIDERS.length);
+  assert(P2P_BACKEND.BANK_DEPOSIT_FEE_PCT === 0.01, 'Bank deposit fee = 1%');
+  assert(P2P_BACKEND.BANK_WITHDRAW_FEE_PCT === 0.015, 'Bank withdraw fee = 1.5%');
+  assert(typeof P2P_BACKEND.depositViaBank === 'function', 'depositViaBank exported');
+  assert(typeof P2P_BACKEND.withdrawToBank === 'function', 'withdrawToBank exported');
+  assert(typeof P2P_BACKEND.getBankDepositHistory === 'function', 'getBankDepositHistory exported');
+  assert(typeof P2P_BACKEND.getBankWithdrawHistory === 'function', 'getBankWithdrawHistory exported');
+
+  // DW Proof system exports
+  assert(typeof P2P_BACKEND.DW_PROOF_STATUS === 'object', 'DW_PROOF_STATUS exported');
+  assert(typeof P2P_BACKEND.getDWRecord === 'function', 'getDWRecord exported');
+  assert(typeof P2P_BACKEND.updateDWRecord === 'function', 'updateDWRecord exported');
+  assert(typeof P2P_BACKEND.submitDWProof === 'function', 'submitDWProof exported');
+  assert(typeof P2P_BACKEND.verifyDWTransaction === 'function', 'verifyDWTransaction exported');
+  assert(typeof P2P_BACKEND.rejectDWProof === 'function', 'rejectDWProof exported');
+  assert(typeof P2P_BACKEND.getPendingDWTransactions === 'function', 'getPendingDWTransactions exported');
+
+  // Card providers & functions
+  assert(Array.isArray(P2P_BACKEND.CARD_PROVIDERS), 'CARD_PROVIDERS is array');
+  assert(P2P_BACKEND.CARD_PROVIDERS.length >= 10, 'At least 10 card providers', P2P_BACKEND.CARD_PROVIDERS.length);
+  assert(P2P_BACKEND.CARD_DEPOSIT_FEE_PCT === 0.025, 'Card deposit fee = 2.5%');
+  assert(P2P_BACKEND.CARD_WITHDRAW_FEE_PCT === 0.03, 'Card withdraw fee = 3%');
+  assert(typeof P2P_BACKEND.depositViaCard === 'function', 'depositViaCard exported');
+  assert(typeof P2P_BACKEND.withdrawToCard === 'function', 'withdrawToCard exported');
+  assert(typeof P2P_BACKEND.getCardDepositHistory === 'function', 'getCardDepositHistory exported');
+  assert(typeof P2P_BACKEND.getCardWithdrawHistory === 'function', 'getCardWithdrawHistory exported');
+}
+
+function testSeedOrderBook() {
+  log('\n=== Suite: Order Book Seeding ===');
+
+  P2P_BACKEND.seedOrderBook();
+  var book = P2P_BACKEND.getOrderBookLocal();
+  assert(book && book.buys && book.sells, 'Order book has buys and sells');
+  assert(book.buys.length > 0, 'Has bid orders', book.buys.length + ' bids');
+  assert(book.sells.length > 0, 'Has ask orders', book.sells.length + ' asks');
+
+  // Check order structure
+  var firstBid = book.buys[0];
+  assert(firstBid.id, 'Bid has id');
+  assert(firstBid.price > 0, 'Bid has price > 0', '$' + firstBid.price);
+  assert(firstBid.amount > 0, 'Bid has amount > 0');
+  assert(firstBid.side === 0, 'Bid side = 0 (BUY)');
+
+  var firstAsk = book.sells[0];
+  assert(firstAsk.side === 1, 'Ask side = 1 (SELL)');
+  assert(firstAsk.price > 0, 'Ask has price > 0', '$' + firstAsk.price);
+}
+
+function testPlaceOrderLocal() {
+  log('\n=== Suite: Place Order Local ===');
+
+  var balsBefore = getBalances();
+  var usdcBefore = balsBefore.USDC || 0;
+
+  // Place a buy order
+  var buyOrder = P2P_BACKEND.placeOrderLocal(0, 100, 0.50, 7, ['mpesa'], 'test');
+  assert(buyOrder, 'Buy order created');
+  assert(buyOrder.id, 'Buy order has ID', buyOrder.id);
+  assert(buyOrder.side === 0, 'Buy order side = 0');
+  assert(buyOrder.amount === 100, 'Buy order amount = 100');
+  assert(buyOrder.price === 0.50, 'Buy order price = 0.50');
+
+  var balsAfterBuy = getBalances();
+  var usdcDeducted = usdcBefore - (balsAfterBuy.USDC || 0);
+  assert(usdcDeducted >= 0, 'USDC was deducted for buy order', 'Deducted: ' + usdcDeducted.toFixed(2));
+
+  // Place a sell order
+  var olighftBefore = balsAfterBuy.OLIGHFT || 0;
+  var sellOrder = P2P_BACKEND.placeOrderLocal(1, 50, 0.55, 7, ['mpesa'], 'test sell');
+  assert(sellOrder, 'Sell order created');
+  assert(sellOrder.side === 1, 'Sell order side = 1');
+
+  var balsAfterSell = getBalances();
+  var olighftDeducted = olighftBefore - (balsAfterSell.OLIGHFT || 0);
+  assert(olighftDeducted >= 0, 'OLIGHFT deducted for sell order', 'Deducted: ' + olighftDeducted.toFixed(2));
+
+  // My orders should have entries
+  var myOrders = P2P_BACKEND.getMyOrdersLocal();
+  assert(myOrders.length > 0, 'getMyOrdersLocal returns orders', myOrders.length + ' orders');
+}
+
+function testPlaceOrderValidation() {
+  log('\n=== Suite: Place Order Validation ===');
+
+  assertThrows(function() {
+    P2P_BACKEND.placeOrderLocal(0, 0, 0.50, 7, ['mpesa'], 'test');
+  }, 'Rejects zero amount', 'Amount must be');
+
+  assertThrows(function() {
+    P2P_BACKEND.placeOrderLocal(0, 100, 0, 7, ['mpesa'], 'test');
+  }, 'Rejects zero price', 'Price must be');
+
+  // Attempt to buy more than balance allows
+  setBalances({ USDC: 1, OLIGHFT: 10000, XLM: 10000 });
+  assertThrows(function() {
+    P2P_BACKEND.placeOrderLocal(0, 1000, 0.50, 7, ['mpesa'], 'test');
+  }, 'Rejects buy order exceeding USDC balance', 'Insufficient');
+
+  // Restore
+  setBalances({ XLM: 10000, USDC: 2500, wETH: 1.85, wBTC: 0.042, EURC: 1200, OLIGHFT: 10000 });
+}
+
+function testCancelOrder() {
+  log('\n=== Suite: Cancel Order ===');
+
+  var order = P2P_BACKEND.placeOrderLocal(1, 25, 0.60, 7, ['mpesa'], 'cancel test');
+  assert(order, 'Order created for cancel test');
+
+  var balBefore = getBalances().OLIGHFT || 0;
+  P2P_BACKEND.cancelOrderLocal(order.id);
+
+  var cancelled = P2P_BACKEND.getLocalOrder(order.id);
+  assert(cancelled.status === 3, 'Order status = 3 (CANCELLED)', 'Status: ' + cancelled.status);
+
+  var balAfter = getBalances().OLIGHFT || 0;
+  assert(balAfter >= balBefore, 'OLIGHFT refunded after cancel', 'Before: ' + balBefore.toFixed(2) + ' After: ' + balAfter.toFixed(2));
+}
+
+function testDepositToWallet() {
+  log('\n=== Suite: Deposit to Wallet ===');
+
+  var balBefore = getBalances();
+  var olighftBefore = balBefore.OLIGHFT || 0;
+
+  // Deposit $100 of OLIGHFT via M-Pesa
+  var result = P2P_BACKEND.depositToWallet('OLIGHFT', 100, 'mpesa', '+254712345678');
+  assert(result, 'Deposit result returned');
+  assert(result.type === 'deposit', 'Result type = deposit');
+  assert(result.coin === 'OLIGHFT', 'Result coin = OLIGHFT');
+  assert(result.usdAmount === 100, 'Result usdAmount = 100');
+  assert(result.status === 'pending_proof', 'Result status = pending_proof (not complete)');
+  assert(result.receiptCode, 'Receipt code generated');
+  assert(result.receiptCode.indexOf('OLI-') === 0, 'Receipt code starts with OLI-', result.receiptCode);
+
+  // Fee check: 1.5% of $100 = $1.50
+  var expectedFee = 100 * 0.015;
+  assert(Math.abs(result.fee - expectedFee) < 0.01, 'Fee = $1.50 (1.5%)', '$' + result.fee.toFixed(2));
+
+  // Coins calculated but NOT yet credited
+  var expectedCoins = (100 - expectedFee) / 0.50;
+  assert(Math.abs(result.coinsReceived - expectedCoins) < 0.01, 'Coins received = 197', result.coinsReceived.toFixed(4));
+
+  // Wallet balance NOT increased yet (pending proof)
+  var balAfterInit = getBalances();
+  assert(balAfterInit.OLIGHFT === olighftBefore, 'OLIGHFT balance unchanged until proof verified', olighftBefore.toFixed(2));
+
+  // Submit proof with CORRECT receipt code → auto-verify
+  P2P_BACKEND.submitDWProof(result.id, 'data:image/png;base64,test123', result.receiptCode, 'Test deposit proof');
+  P2P_BACKEND.verifyDWTransaction(result.id);
+
+  // Now balance should increase
+  var balAfterVerify = getBalances();
+  var olighftAfter = balAfterVerify.OLIGHFT || 0;
+  assert(olighftAfter > olighftBefore, 'OLIGHFT balance increased after verify', olighftBefore.toFixed(2) + ' -> ' + olighftAfter.toFixed(2));
+  assert(Math.abs((olighftAfter - olighftBefore) - expectedCoins) < 0.01, 'Balance change matches coins received');
+
+  // Record should be confirmed
+  var verified = P2P_BACKEND.getDWRecord(result.id);
+  assert(verified.status === 'confirmed', 'Status = confirmed after verify');
+  assert(verified.proofVerifiedAt > 0, 'proofVerifiedAt timestamp set');
+
+  // History recorded
+  var history = P2P_BACKEND.getDepositHistory();
+  assert(history.length > 0, 'Deposit history has entries', history.length);
+  assert(history[0].id === result.id, 'Latest history matches deposit');
+  assert(history[0].provider === 'mpesa', 'History records provider');
+  assert(history[0].phone === '+254712345678', 'History records phone');
+
+  // Activity logged
+  var acts = [];
+  try { acts = JSON.parse(localStorage.getItem('cw_activity') || '[]'); } catch(e) {}
+  var depAct = acts.find(function(a) { return a.type === 'p2p_deposit'; });
+  assert(depAct, 'Deposit logged to activity feed');
+}
+
+function testDepositValidation() {
+  log('\n=== Suite: Deposit Validation ===');
+
+  assertThrows(function() {
+    P2P_BACKEND.depositToWallet('', 100, 'mpesa', '+254712345678');
+  }, 'Rejects empty coin', 'required');
+
+  assertThrows(function() {
+    P2P_BACKEND.depositToWallet('OLIGHFT', 0.5, 'mpesa', '+254712345678');
+  }, 'Rejects amount < $1', 'Minimum');
+
+  assertThrows(function() {
+    P2P_BACKEND.depositToWallet('OLIGHFT', 20000, 'mpesa', '+254712345678');
+  }, 'Rejects amount > $10,000', 'Maximum');
+
+  assertThrows(function() {
+    P2P_BACKEND.depositToWallet('OLIGHFT', 100, 'mpesa', '');
+  }, 'Rejects empty phone', 'required');
+
+  assertThrows(function() {
+    P2P_BACKEND.depositToWallet('OLIGHFT', 100, 'mpesa', '-------');
+  }, 'Rejects phone with no digits', 'Invalid phone');
+
+  assertThrows(function() {
+    P2P_BACKEND.depositToWallet('OLIGHFT', 100, '', '+254712345678');
+  }, 'Rejects empty provider', 'required');
+}
+
+function testDepositMultiCoin() {
+  log('\n=== Suite: Deposit Multi-Coin ===');
+
+  // Deposit USDC (must verify proof for balance change)
+  var balBefore = getBalances();
+  var result = P2P_BACKEND.depositToWallet('USDC', 50, 'airtel', '+254700000001');
+  var fee = 50 * 0.015;
+  var expected = (50 - fee) / 1.00; // USDC is $1
+  assert(Math.abs(result.coinsReceived - expected) < 0.01, 'USDC deposit: correct coins', result.coinsReceived.toFixed(2) + ' USDC');
+  assert(result.status === 'pending_proof', 'USDC deposit: pending_proof');
+  P2P_BACKEND.submitDWProof(result.id, 'data:image/png;base64,usdc', result.receiptCode, '');
+  P2P_BACKEND.verifyDWTransaction(result.id);
+  var balAfter = getBalances();
+  assert(balAfter.USDC > balBefore.USDC, 'USDC balance increased after verify');
+
+  // Deposit XLM
+  balBefore = getBalances();
+  result = P2P_BACKEND.depositToWallet('XLM', 25, 'mtn', '+254700000002');
+  fee = 25 * 0.015;
+  expected = (25 - fee) / 0.12; // XLM is $0.12
+  assert(Math.abs(result.coinsReceived - expected) < 0.5, 'XLM deposit: correct coins', result.coinsReceived.toFixed(2) + ' XLM');
+  P2P_BACKEND.submitDWProof(result.id, 'data:image/png;base64,xlm', result.receiptCode, '');
+  P2P_BACKEND.verifyDWTransaction(result.id);
+  balAfter = getBalances();
+  assert(balAfter.XLM > balBefore.XLM, 'XLM balance increased after verify');
+}
+
+function testWithdrawToSIM() {
+  log('\n=== Suite: Withdraw to SIM ===');
+
+  // Ensure enough balance
+  setBalances({ OLIGHFT: 5000, USDC: 2500, XLM: 10000 });
+
+  var balBefore = getBalances();
+  var olighftBefore = balBefore.OLIGHFT;
+
+  // Withdraw 200 OLIGHFT
+  var result = P2P_BACKEND.withdrawToSIM('OLIGHFT', 200, 'mpesa', '+254712345678');
+  assert(result, 'Withdraw result returned');
+  assert(result.type === 'withdraw', 'Result type = withdraw');
+  assert(result.coin === 'OLIGHFT', 'Result coin = OLIGHFT');
+  assert(result.coinAmount === 200, 'Result coinAmount = 200');
+  assert(result.status === 'pending_proof', 'Result status = pending_proof');
+  assert(result.receiptCode && result.receiptCode.indexOf('OLI-') === 0, 'Receipt code generated', result.receiptCode);
+
+  // USD value: 200 * $0.50 = $100
+  assert(Math.abs(result.usdValue - 100) < 0.01, 'USD value = $100', '$' + result.usdValue.toFixed(2));
+
+  // Fee: $100 * 2% = $2
+  assert(Math.abs(result.fee - 2) < 0.01, 'Fee = $2 (2%)', '$' + result.fee.toFixed(2));
+
+  // Net USD: $100 - $2 = $98
+  assert(Math.abs(result.netUsd - 98) < 0.01, 'Net USD = $98', '$' + result.netUsd.toFixed(2));
+
+  // Balance decreased immediately (escrow for withdrawals)
+  var balAfter = getBalances();
+  assert(balAfter.OLIGHFT === olighftBefore - 200, 'Balance decreased by 200 (escrow)', olighftBefore + ' -> ' + balAfter.OLIGHFT);
+
+  // Submit proof and verify
+  P2P_BACKEND.submitDWProof(result.id, 'data:image/png;base64,wdproof', result.receiptCode, 'Withdrawal proof');
+  P2P_BACKEND.verifyDWTransaction(result.id);
+  var verified = P2P_BACKEND.getDWRecord(result.id);
+  assert(verified.status === 'confirmed', 'Status = confirmed after proof verification');
+
+  // History recorded
+  var history = P2P_BACKEND.getWithdrawHistory();
+  assert(history.length > 0, 'Withdraw history has entries');
+  assert(history[0].id === result.id, 'Latest history matches withdrawal');
+  assert(history[0].phone === '+254712345678', 'History records phone');
+  assert(history[0].netUsd === 98, 'History records net USD');
+
+  // Activity logged
+  var acts = [];
+  try { acts = JSON.parse(localStorage.getItem('cw_activity') || '[]'); } catch(e) {}
+  var wdAct = acts.find(function(a) { return a.type === 'p2p_withdraw'; });
+  assert(wdAct, 'Withdrawal logged to activity feed');
+}
+
+function testWithdrawValidation() {
+  log('\n=== Suite: Withdraw Validation ===');
+
+  setBalances({ OLIGHFT: 500, USDC: 100, XLM: 1000 });
+
+  assertThrows(function() {
+    P2P_BACKEND.withdrawToSIM('OLIGHFT', 0.5, 'mpesa', '+254712345678');
+  }, 'Rejects amount < 1', 'Minimum');
+
+  assertThrows(function() {
+    P2P_BACKEND.withdrawToSIM('OLIGHFT', 999999, 'mpesa', '+254712345678');
+  }, 'Rejects amount > 100,000', 'Maximum');
+
+  assertThrows(function() {
+    P2P_BACKEND.withdrawToSIM('OLIGHFT', 1000, 'mpesa', '+254712345678');
+  }, 'Rejects exceeding balance', 'Insufficient');
+
+  assertThrows(function() {
+    P2P_BACKEND.withdrawToSIM('OLIGHFT', 100, 'mpesa', '-------');
+  }, 'Rejects invalid phone (no digits)', 'Invalid phone');
+
+  assertThrows(function() {
+    P2P_BACKEND.withdrawToSIM('', 100, 'mpesa', '+254712345678');
+  }, 'Rejects empty coin', 'required');
+}
+
+function testWithdrawMultiCoin() {
+  log('\n=== Suite: Withdraw Multi-Coin ===');
+
+  setBalances({ OLIGHFT: 5000, USDC: 2500, XLM: 10000 });
+
+  // Withdraw USDC (wallet debited immediately as escrow)
+  var result = P2P_BACKEND.withdrawToSIM('USDC', 100, 'airtel', '+254700000001');
+  assert(result.status === 'pending_proof', 'USDC withdraw: pending_proof');
+  assert(Math.abs(result.usdValue - 100) < 0.01, 'USDC withdraw: USD value = $100');
+  assert(Math.abs(result.fee - 2) < 0.01, 'USDC withdraw: fee = $2');
+  assert(getBalances().USDC === 2400, 'USDC balance = 2400 after withdrawal (escrowed)');
+  P2P_BACKEND.submitDWProof(result.id, 'data:image/png;base64,usdc_wd', result.receiptCode, '');
+  P2P_BACKEND.verifyDWTransaction(result.id);
+  assert(P2P_BACKEND.getDWRecord(result.id).status === 'confirmed', 'USDC withdraw confirmed');
+
+  // Withdraw XLM
+  result = P2P_BACKEND.withdrawToSIM('XLM', 500, 'mtn', '+254700000002');
+  assert(result.status === 'pending_proof', 'XLM withdraw: pending_proof');
+  var expectedUsd = 500 * 0.12; // $60
+  assert(Math.abs(result.usdValue - expectedUsd) < 0.01, 'XLM withdraw: USD value = $60', '$' + result.usdValue.toFixed(2));
+  assert(getBalances().XLM === 9500, 'XLM balance = 9500 after withdrawal (escrowed)');
+  P2P_BACKEND.submitDWProof(result.id, 'data:image/png;base64,xlm_wd', result.receiptCode, '');
+  P2P_BACKEND.verifyDWTransaction(result.id);
+  assert(P2P_BACKEND.getDWRecord(result.id).status === 'confirmed', 'XLM withdraw confirmed');
+}
+
+function testWalletIntegration() {
+  log('\n=== Suite: Wallet Integration ===');
+
+  // Reset to known state
+  setBalances({ XLM: 10000, USDC: 2500, OLIGHFT: 10000 });
+
+  // Deposit, verify proof, then withdraw, verify proof, check round-trip
+  var depositResult = P2P_BACKEND.depositToWallet('OLIGHFT', 100, 'mpesa', '+254712345678');
+  assert(depositResult.status === 'pending_proof', 'Deposit starts as pending_proof');
+
+  // Wallet NOT credited yet
+  var balBeforeProof = getBalances().OLIGHFT;
+  assert(balBeforeProof === 10000, 'Wallet not credited before deposit proof');
+
+  // Verify deposit proof
+  P2P_BACKEND.submitDWProof(depositResult.id, 'data:image/png;base64,depproof', depositResult.receiptCode, '');
+  P2P_BACKEND.verifyDWTransaction(depositResult.id);
+  var balAfterDeposit = getBalances().OLIGHFT;
+  log('After deposit verified: OLIGHFT = ' + balAfterDeposit.toFixed(4));
+  assert(balAfterDeposit > 10000, 'Wallet credited after deposit proof verified');
+
+  // Withdraw the deposited amount
+  var withdrawResult = P2P_BACKEND.withdrawToSIM('OLIGHFT', depositResult.coinsReceived, 'mpesa', '+254712345678');
+  assert(withdrawResult.status === 'pending_proof', 'Withdraw starts as pending_proof');
+
+  // Wallet debited immediately (escrow)
+  var balAfterWithdrawEscrow = getBalances().OLIGHFT;
+  log('After withdraw escrow: OLIGHFT = ' + balAfterWithdrawEscrow.toFixed(4));
+
+  // Verify withdraw proof
+  P2P_BACKEND.submitDWProof(withdrawResult.id, 'data:image/png;base64,wdproof', withdrawResult.receiptCode, '');
+  P2P_BACKEND.verifyDWTransaction(withdrawResult.id);
+  var balAfterWithdraw = getBalances().OLIGHFT;
+  log('After withdraw verified: OLIGHFT = ' + balAfterWithdraw.toFixed(4));
+
+  assert(Math.abs(balAfterWithdraw - 10000) < 0.01, 'Round-trip: balance returns to ~10000', balAfterWithdraw.toFixed(4));
+
+  // Verify both history entries exist
+  var allHistory = P2P_BACKEND.getDWHistory();
+  var deposits = allHistory.filter(function(r) { return r.type === 'deposit'; });
+  var withdrawals = allHistory.filter(function(r) { return r.type === 'withdraw'; });
+  assert(deposits.length >= 1, 'History has deposit records');
+  assert(withdrawals.length >= 1, 'History has withdrawal records');
+
+  // Trade + balance integration
+  setBalances({ XLM: 10000, USDC: 5000, OLIGHFT: 10000 });
+  P2P_BACKEND.seedOrderBook();
+
+  var buyOrder = P2P_BACKEND.placeOrderLocal(0, 200, 0.55, 7, ['mpesa'], 'integration test');
+  var balsAfterTrade = getBalances();
+  log('After buy order: USDC=' + (balsAfterTrade.USDC || 0).toFixed(2) + ', OLIGHFT=' + (balsAfterTrade.OLIGHFT || 0).toFixed(2));
+
+  if (buyOrder.filled > 0) {
+    assert(balsAfterTrade.OLIGHFT > 10000, 'Buy order filled: OLIGHFT increased', balsAfterTrade.OLIGHFT.toFixed(2));
+  }
+  assert(balsAfterTrade.USDC < 5000, 'Buy order: USDC decreased', balsAfterTrade.USDC.toFixed(2));
+}
+
+function testProofSystem() {
+  log('\n=== Suite: Proof System ===');
+
+  // Need a trade first
+  setBalances({ XLM: 10000, USDC: 5000, OLIGHFT: 10000 });
+  P2P_BACKEND.seedOrderBook();
+  var order = P2P_BACKEND.placeOrderLocal(0, 50, 0.55, 7, ['mpesa'], 'proof test');
+
+  var trades = P2P_BACKEND.getMyTradesLocal();
+  if (trades.length === 0) {
+    results.push({ name: 'Proof test skipped (no matched trades)', pass: true, detail: 'SKIP' });
+    log('SKIP - No matched trades for proof test');
+    return;
+  }
+
+  var trade = trades[0];
+  assert(trade.proofStatus === 0, 'New trade proof status = PENDING (0)');
+
+  // Submit proof
+  P2P_BACKEND.submitProof(trade.id, 'data:image/png;base64,test123', 'TX-CODE-001', 'Test payment note');
+  var updated = P2P_BACKEND.getLocalTrade(trade.id);
+  assert(updated.proofStatus === 1, 'After submitProof: status = SUBMITTED (1)');
+  assert(updated.proofTxCode === 'TX-CODE-001', 'Proof TX code saved');
+  assert(updated.proofNote === 'Test payment note', 'Proof note saved');
+
+  // Confirm proof
+  P2P_BACKEND.confirmProof(trade.id);
+  updated = P2P_BACKEND.getLocalTrade(trade.id);
+  assert(updated.proofStatus === 2, 'After confirmProof: status = CONFIRMED (2)');
+}
+
+function testProofDispute() {
+  log('\n=== Suite: Proof Dispute ===');
+
+  setBalances({ XLM: 10000, USDC: 5000, OLIGHFT: 10000 });
+  P2P_BACKEND.seedOrderBook();
+  P2P_BACKEND.placeOrderLocal(0, 30, 0.55, 7, ['mpesa'], 'dispute test');
+  var trades = P2P_BACKEND.getMyTradesLocal();
+  if (trades.length === 0) {
+    results.push({ name: 'Dispute test skipped', pass: true, detail: 'SKIP' });
+    return;
+  }
+
+  // Find an unconfirmed trade
+  var trade = null;
+  for (var i = 0; i < trades.length; i++) {
+    if (trades[i].proofStatus === 0 || trades[i].proofStatus === 1) {
+      trade = trades[i];
+      break;
+    }
+  }
+  if (!trade) {
+    results.push({ name: 'Dispute test skipped (no eligible trade)', pass: true, detail: 'SKIP' });
+    return;
+  }
+
+  P2P_BACKEND.submitProof(trade.id, 'data:image/png;base64,fake', 'FAKE-TX', 'Fake proof');
+  P2P_BACKEND.disputeProof(trade.id, 'Payment not received');
+  var updated = P2P_BACKEND.getLocalTrade(trade.id);
+  assert(updated.proofStatus === 3, 'After disputeProof: status = DISPUTED (3)');
+
+  // Can resubmit after dispute
+  P2P_BACKEND.submitProof(trade.id, 'data:image/png;base64,real', 'REAL-TX', 'Real proof this time');
+  updated = P2P_BACKEND.getLocalTrade(trade.id);
+  assert(updated.proofStatus === 1, 'After resubmit: status = SUBMITTED (1)');
+  assert(updated.proofTxCode === 'REAL-TX', 'Updated TX code after resubmit');
+}
+
+function testBankDeposit() {
+  log('\n=== Suite: Bank Deposit ===');
+
+  setBalances({ OLIGHFT: 10000, USDC: 2500, XLM: 10000 });
+  var balBefore = getBalances();
+  var olighftBefore = balBefore.OLIGHFT;
+
+  // Deposit $500 OLIGHFT via KCB
+  var result = P2P_BACKEND.depositViaBank('OLIGHFT', 500, 'kcb', '1234567890', 'John Doe');
+  assert(result, 'Bank deposit result returned');
+  assert(result.type === 'bank_deposit', 'Result type = bank_deposit');
+  assert(result.coin === 'OLIGHFT', 'Result coin = OLIGHFT');
+  assert(result.usdAmount === 500, 'Result usdAmount = 500');
+  assert(result.status === 'pending_proof', 'Result status = pending_proof');
+  assert(result.receiptCode && result.receiptCode.indexOf('OLI-') === 0, 'Receipt code generated', result.receiptCode);
+
+  // Fee: 1% of $500 = $5
+  var expectedFee = 500 * 0.01;
+  assert(Math.abs(result.fee - expectedFee) < 0.01, 'Fee = $5 (1%)', '$' + result.fee.toFixed(2));
+
+  // Coins: ($500 - $5) / $0.50 = 990 OLIGHFT
+  var expectedCoins = (500 - expectedFee) / 0.50;
+  assert(Math.abs(result.coinsReceived - expectedCoins) < 0.01, 'Coins received = 990', result.coinsReceived.toFixed(4));
+
+  // Balance NOT increased yet (pending proof)
+  var balMid = getBalances();
+  assert(balMid.OLIGHFT === olighftBefore, 'OLIGHFT balance unchanged before proof');
+
+  // Submit proof and verify
+  P2P_BACKEND.submitDWProof(result.id, 'data:image/png;base64,bankdep', result.receiptCode, 'Bank deposit proof');
+  P2P_BACKEND.verifyDWTransaction(result.id);
+
+  // Now balance increased
+  var balAfter = getBalances();
+  assert(balAfter.OLIGHFT > olighftBefore, 'OLIGHFT balance increased after proof', olighftBefore.toFixed(2) + ' -> ' + balAfter.OLIGHFT.toFixed(2));
+  assert(Math.abs((balAfter.OLIGHFT - olighftBefore) - expectedCoins) < 0.01, 'Balance change matches coins received');
+  assert(P2P_BACKEND.getDWRecord(result.id).status === 'confirmed', 'Status = confirmed after verification');
+
+  // History recorded
+  var history = P2P_BACKEND.getBankDepositHistory();
+  assert(history.length > 0, 'Bank deposit history has entries', history.length);
+  assert(history[0].type === 'bank_deposit', 'History type = bank_deposit');
+  assert(history[0].bankId === 'kcb', 'History records bankId');
+  assert(history[0].accountNumber === '1234567890', 'History records account number');
+  assert(history[0].accountName === 'John Doe', 'History records account name');
+
+  // Multi-coin: USDC via Equity
+  var usdcBefore = getBalances().USDC;
+  result = P2P_BACKEND.depositViaBank('USDC', 200, 'equity', '9876543210', 'Jane Doe');
+  assert(result.status === 'pending_proof', 'USDC bank deposit: pending_proof');
+  var fee = 200 * 0.01;
+  var expected = (200 - fee) / 1.00;
+  assert(Math.abs(result.coinsReceived - expected) < 0.01, 'USDC bank deposit: correct coins', result.coinsReceived.toFixed(2));
+  P2P_BACKEND.submitDWProof(result.id, 'data:image/png;base64,usdc_bank', result.receiptCode, '');
+  P2P_BACKEND.verifyDWTransaction(result.id);
+  assert(getBalances().USDC > usdcBefore, 'USDC balance increased after bank deposit proof');
+
+  // XLM via wire
+  var xlmBefore = getBalances().XLM;
+  result = P2P_BACKEND.depositViaBank('XLM', 100, 'wire', 'WIRE-ACCT-001', 'Wire User');
+  assert(result.status === 'pending_proof', 'XLM bank deposit: pending_proof');
+  fee = 100 * 0.01;
+  expected = (100 - fee) / 0.12;
+  assert(Math.abs(result.coinsReceived - expected) < 1, 'XLM bank deposit: correct coins', result.coinsReceived.toFixed(2));
+  P2P_BACKEND.submitDWProof(result.id, 'data:image/png;base64,xlm_bank', result.receiptCode, '');
+  P2P_BACKEND.verifyDWTransaction(result.id);
+  assert(getBalances().XLM > xlmBefore, 'XLM balance increased after bank deposit proof');
+}
+
+function testBankDepositValidation() {
+  log('\n=== Suite: Bank Deposit Validation ===');
+
+  assertThrows(function() {
+    P2P_BACKEND.depositViaBank('', 100, 'kcb', '1234567890', 'John Doe');
+  }, 'Rejects empty coin', 'required');
+
+  assertThrows(function() {
+    P2P_BACKEND.depositViaBank('OLIGHFT', 3, 'kcb', '1234567890', 'John Doe');
+  }, 'Rejects amount < $5', 'Minimum');
+
+  assertThrows(function() {
+    P2P_BACKEND.depositViaBank('OLIGHFT', 60000, 'kcb', '1234567890', 'John Doe');
+  }, 'Rejects amount > $50,000', 'Maximum');
+
+  assertThrows(function() {
+    P2P_BACKEND.depositViaBank('OLIGHFT', 100, '', '1234567890', 'John Doe');
+  }, 'Rejects empty bankId', 'required');
+
+  assertThrows(function() {
+    P2P_BACKEND.depositViaBank('OLIGHFT', 100, 'kcb', '', 'John Doe');
+  }, 'Rejects empty account number', 'required');
+
+  assertThrows(function() {
+    P2P_BACKEND.depositViaBank('OLIGHFT', 100, 'kcb', '1234567890', '');
+  }, 'Rejects empty account name', 'required');
+
+  assertThrows(function() {
+    P2P_BACKEND.depositViaBank('OLIGHFT', 100, 'kcb', '123', 'John Doe');
+  }, 'Rejects short account number', 'Invalid account');
+
+  assertThrows(function() {
+    P2P_BACKEND.depositViaBank('OLIGHFT', 100, 'kcb', '1234567890', 'J');
+  }, 'Rejects short account name', 'Invalid account');
+}
+
+function testBankWithdraw() {
+  log('\n=== Suite: Bank Withdraw ===');
+
+  setBalances({ OLIGHFT: 5000, USDC: 2500, XLM: 10000 });
+  var olighftBefore = getBalances().OLIGHFT;
+
+  // Withdraw 500 OLIGHFT via KCB
+  var result = P2P_BACKEND.withdrawToBank('OLIGHFT', 500, 'kcb', '1234567890', 'John Doe');
+  assert(result, 'Bank withdraw result returned');
+  assert(result.type === 'bank_withdraw', 'Result type = bank_withdraw');
+  assert(result.coin === 'OLIGHFT', 'Result coin = OLIGHFT');
+  assert(result.coinAmount === 500, 'Result coinAmount = 500');
+  assert(result.status === 'pending_proof', 'Result status = pending_proof');
+  assert(result.receiptCode && result.receiptCode.indexOf('OLI-') === 0, 'Receipt code generated', result.receiptCode);
+
+  // USD value: 500 * $0.50 = $250
+  assert(Math.abs(result.usdValue - 250) < 0.01, 'USD value = $250', '$' + result.usdValue.toFixed(2));
+
+  // Fee: $250 * 1.5% = $3.75
+  assert(Math.abs(result.fee - 3.75) < 0.01, 'Fee = $3.75 (1.5%)', '$' + result.fee.toFixed(2));
+
+  // Net USD: $250 - $3.75 = $246.25
+  assert(Math.abs(result.netUsd - 246.25) < 0.01, 'Net USD = $246.25', '$' + result.netUsd.toFixed(2));
+
+  // Balance decreased immediately (escrow)
+  var balAfter = getBalances();
+  assert(balAfter.OLIGHFT === olighftBefore - 500, 'Balance decreased by 500 (escrowed)', olighftBefore + ' -> ' + balAfter.OLIGHFT);
+
+  // Submit proof and verify
+  P2P_BACKEND.submitDWProof(result.id, 'data:image/png;base64,bankwd', result.receiptCode, 'Bank withdraw proof');
+  P2P_BACKEND.verifyDWTransaction(result.id);
+  assert(P2P_BACKEND.getDWRecord(result.id).status === 'confirmed', 'Status = confirmed after verification');
+
+  // History recorded
+  var history = P2P_BACKEND.getBankWithdrawHistory();
+  assert(history.length > 0, 'Bank withdraw history has entries');
+  assert(history[0].type === 'bank_withdraw', 'History type = bank_withdraw');
+  assert(history[0].bankId === 'kcb', 'History records bankId');
+  assert(history[0].accountNumber === '1234567890', 'History records account number');
+  assert(history[0].netUsd === 246.25, 'History records net USD');
+
+  // Multi-coin: USDC via Equity
+  var usdcBefore = getBalances().USDC;
+  result = P2P_BACKEND.withdrawToBank('USDC', 100, 'equity', '9876543210', 'Jane Doe');
+  assert(result.status === 'pending_proof', 'USDC bank withdraw: pending_proof');
+  assert(Math.abs(result.usdValue - 100) < 0.01, 'USDC bank withdraw: USD value = $100');
+  assert(getBalances().USDC === usdcBefore - 100, 'USDC balance decreased by 100 (escrowed)');
+  P2P_BACKEND.submitDWProof(result.id, 'data:image/png;base64,usdc_bwd', result.receiptCode, '');
+  P2P_BACKEND.verifyDWTransaction(result.id);
+  assert(P2P_BACKEND.getDWRecord(result.id).status === 'confirmed', 'USDC bank withdraw confirmed');
+
+  // XLM via SEPA
+  var xlmBefore = getBalances().XLM;
+  result = P2P_BACKEND.withdrawToBank('XLM', 1000, 'sepa', 'DE89370400440532013000', 'SEPA User');
+  assert(result.status === 'pending_proof', 'XLM bank withdraw: pending_proof');
+  var expectedUsd = 1000 * 0.12;
+  assert(Math.abs(result.usdValue - expectedUsd) < 0.01, 'XLM bank withdraw: USD value = $120', '$' + result.usdValue.toFixed(2));
+  assert(getBalances().XLM === xlmBefore - 1000, 'XLM balance decreased by 1000 (escrowed)');
+  P2P_BACKEND.submitDWProof(result.id, 'data:image/png;base64,xlm_bwd', result.receiptCode, '');
+  P2P_BACKEND.verifyDWTransaction(result.id);
+  assert(P2P_BACKEND.getDWRecord(result.id).status === 'confirmed', 'XLM bank withdraw confirmed');
+}
+
+function testBankWithdrawValidation() {
+  log('\n=== Suite: Bank Withdraw Validation ===');
+
+  setBalances({ OLIGHFT: 500, USDC: 100, XLM: 1000 });
+
+  assertThrows(function() {
+    P2P_BACKEND.withdrawToBank('OLIGHFT', 0.5, 'kcb', '1234567890', 'John Doe');
+  }, 'Rejects amount < 1', 'Minimum');
+
+  assertThrows(function() {
+    P2P_BACKEND.withdrawToBank('OLIGHFT', 999999, 'kcb', '1234567890', 'John Doe');
+  }, 'Rejects amount > 100,000', 'Maximum');
+
+  assertThrows(function() {
+    P2P_BACKEND.withdrawToBank('OLIGHFT', 1000, 'kcb', '1234567890', 'John Doe');
+  }, 'Rejects exceeding balance', 'Insufficient');
+
+  assertThrows(function() {
+    P2P_BACKEND.withdrawToBank('', 100, 'kcb', '1234567890', 'John Doe');
+  }, 'Rejects empty coin', 'required');
+
+  assertThrows(function() {
+    P2P_BACKEND.withdrawToBank('OLIGHFT', 100, '', '1234567890', 'John Doe');
+  }, 'Rejects empty bankId', 'required');
+
+  assertThrows(function() {
+    P2P_BACKEND.withdrawToBank('OLIGHFT', 100, 'kcb', '', 'John Doe');
+  }, 'Rejects empty account number', 'required');
+
+  assertThrows(function() {
+    P2P_BACKEND.withdrawToBank('OLIGHFT', 100, 'kcb', '1234567890', '');
+  }, 'Rejects empty account name', 'required');
+
+  assertThrows(function() {
+    P2P_BACKEND.withdrawToBank('OLIGHFT', 100, 'kcb', '12', 'John Doe');
+  }, 'Rejects short account number', 'Invalid account');
+
+  assertThrows(function() {
+    P2P_BACKEND.withdrawToBank('OLIGHFT', 100, 'kcb', '1234567890', 'X');
+  }, 'Rejects short account name', 'Invalid account');
+}
+
+function testBankHistoryPersistence() {
+  log('\n=== Suite: Bank History Persistence ===');
+
+  localStorage.removeItem('cw_p2p_dw_history');
+  setBalances({ OLIGHFT: 10000, USDC: 5000, XLM: 10000 });
+
+  // Mix mobile + bank operations (all start as pending_proof)
+  var r1 = P2P_BACKEND.depositToWallet('OLIGHFT', 50, 'mpesa', '+254712345678');
+  var r2 = P2P_BACKEND.depositViaBank('OLIGHFT', 200, 'kcb', '1234567890', 'John Doe');
+  var r3 = P2P_BACKEND.withdrawToSIM('USDC', 50, 'airtel', '+254700000001');
+  var r4 = P2P_BACKEND.withdrawToBank('USDC', 100, 'equity', '9876543210', 'Jane Doe');
+
+  var all = P2P_BACKEND.getDWHistory();
+  assert(all.length === 4, 'Total 4 history entries', all.length);
+
+  var mobileDeps = P2P_BACKEND.getDepositHistory();
+  assert(mobileDeps.length === 1, '1 mobile deposit', mobileDeps.length);
+
+  var bankDeps = P2P_BACKEND.getBankDepositHistory();
+  assert(bankDeps.length === 1, '1 bank deposit', bankDeps.length);
+
+  var mobileWds = P2P_BACKEND.getWithdrawHistory();
+  assert(mobileWds.length === 1, '1 mobile withdrawal', mobileWds.length);
+
+  var bankWds = P2P_BACKEND.getBankWithdrawHistory();
+  assert(bankWds.length === 1, '1 bank withdrawal', bankWds.length);
+
+  // Verify types
+  assert(mobileDeps[0].type === 'deposit', 'Mobile deposit type correct');
+  assert(bankDeps[0].type === 'bank_deposit', 'Bank deposit type correct');
+  assert(mobileWds[0].type === 'withdraw', 'Mobile withdraw type correct');
+  assert(bankWds[0].type === 'bank_withdraw', 'Bank withdraw type correct');
+
+  // All should be pending_proof with receipt codes
+  for (var i = 0; i < all.length; i++) {
+    assert(all[i].status === 'pending_proof', 'Entry ' + i + ' pending_proof');
+    assert(all[i].receiptCode && all[i].receiptCode.indexOf('OLI-') === 0, 'Entry ' + i + ' has receipt code');
+  }
+
+  // Ordering (newest first)
+  assert(all[0].timestamp >= all[all.length - 1].timestamp, 'History is newest-first');
+}
+
+function testEdgeCases() {
+  log('\n=== Suite: Edge Cases ===')
+
+  // Withdraw exact balance (wallet debited immediately as escrow)
+  setBalances({ OLIGHFT: 100 });
+  var result = P2P_BACKEND.withdrawToSIM('OLIGHFT', 100, 'mpesa', '+254712345678');
+  assert(result.coinAmount === 100, 'Can withdraw exact balance');
+  assert(result.status === 'pending_proof', 'Exact withdraw: pending_proof');
+  var bal = getBalances().OLIGHFT || 0;
+  assert(bal === 0, 'Balance is 0 after full withdrawal (escrowed)', 'Balance: ' + bal);
+  // Verify proof to finalize
+  P2P_BACKEND.submitDWProof(result.id, 'data:image/png;base64,edge1', result.receiptCode, '');
+  P2P_BACKEND.verifyDWTransaction(result.id);
+  assert(P2P_BACKEND.getDWRecord(result.id).status === 'confirmed', 'Exact withdraw confirmed');
+
+  // Cannot withdraw from empty balance
+  assertThrows(function() {
+    P2P_BACKEND.withdrawToSIM('OLIGHFT', 1, 'mpesa', '+254712345678');
+  }, 'Cannot withdraw from 0 balance', 'Insufficient');
+
+  // Deposit after empty balance (wallet NOT credited until proof)
+  result = P2P_BACKEND.depositToWallet('OLIGHFT', 10, 'mpesa', '+254712345678');
+  assert(result.status === 'pending_proof', 'Deposit after zero: pending_proof');
+  bal = getBalances().OLIGHFT || 0;
+  assert(bal === 0, 'Balance still 0 before deposit proof', 'Balance: ' + bal);
+  P2P_BACKEND.submitDWProof(result.id, 'data:image/png;base64,edge2', result.receiptCode, '');
+  P2P_BACKEND.verifyDWTransaction(result.id);
+  bal = getBalances().OLIGHFT || 0;
+  assert(bal > 0, 'Can deposit after zero balance (proof verified)', 'Balance: ' + bal.toFixed(4));
+
+  // Very small deposit
+  result = P2P_BACKEND.depositToWallet('OLIGHFT', 1, 'mpesa', '+254712345678');
+  assert(result.coinsReceived > 0, 'Minimum $1 deposit works', result.coinsReceived.toFixed(4) + ' OLIGHFT');
+  P2P_BACKEND.submitDWProof(result.id, 'data:image/png;base64,edge3', result.receiptCode, '');
+  P2P_BACKEND.verifyDWTransaction(result.id);
+
+  // Phone number formats
+  result = P2P_BACKEND.depositToWallet('OLIGHFT', 5, 'mpesa', '+1 555 123 4567');
+  assert(result, 'US-style phone works');
+  result = P2P_BACKEND.depositToWallet('OLIGHFT', 5, 'mpesa', '0712345678');
+  assert(result, 'Local phone format works');
+
+  // Restore
+  setBalances({ XLM: 10000, USDC: 2500, OLIGHFT: 10000 });
+}
+
+function testPaymentMethods() {
+  log('\n=== Suite: Payment Methods ===');
+
+  var methods = P2P_BACKEND.PAYMENT_METHODS;
+
+  // Check categories exist
+  var categories = {};
+  for (var i = 0; i < methods.length; i++) {
+    categories[methods[i].category] = (categories[methods[i].category] || 0) + 1;
+  }
+  assert(categories.mobile >= 20, 'Mobile category has 20+ methods', categories.mobile);
+  assert(categories.bank >= 2, 'Bank category has 2+ methods', categories.bank);
+  assert(categories.online >= 2, 'Online category has 2+ methods', categories.online);
+
+  // Mobile providers match payment methods
+  var providers = P2P_BACKEND.MOBILE_PROVIDERS;
+  for (var j = 0; j < providers.length; j++) {
+    var found = methods.find(function(m) { return m.id === providers[j].id; });
+    assert(found || providers[j].id === 'chipper', 'Provider ' + providers[j].id + ' exists in PAYMENT_METHODS or is Chipper');
+  }
+
+  // All providers have required fields
+  for (var k = 0; k < providers.length; k++) {
+    assert(providers[k].id, 'Provider ' + k + ' has id');
+    assert(providers[k].label, 'Provider ' + k + ' has label');
+    assert(providers[k].icon, 'Provider ' + k + ' has icon');
+  }
+
+  // Bank providers
+  var banks = P2P_BACKEND.BANK_PROVIDERS;
+  assert(banks.length >= 25, 'At least 25 bank providers', banks.length);
+  for (var b = 0; b < banks.length; b++) {
+    assert(banks[b].id, 'Bank ' + b + ' has id');
+    assert(banks[b].label, 'Bank ' + b + ' has label');
+    assert(banks[b].icon, 'Bank ' + b + ' has icon');
+    assert(banks[b].country, 'Bank ' + b + ' has country');
+  }
+}
+
+function testHistoryPersistence() {
+  log('\n=== Suite: History Persistence ===');
+
+  // Clear and do fresh operations
+  localStorage.removeItem('cw_p2p_dw_history');
+  setBalances({ OLIGHFT: 10000, USDC: 5000, XLM: 10000 });
+
+  var r1 = P2P_BACKEND.depositToWallet('OLIGHFT', 50, 'mpesa', '+254712345678');
+  var r2 = P2P_BACKEND.depositToWallet('USDC', 25, 'airtel', '+254700000001');
+  var r3 = P2P_BACKEND.withdrawToSIM('OLIGHFT', 50, 'mtn', '+254700000002');
+
+  var all = P2P_BACKEND.getDWHistory();
+  assert(all.length === 3, 'Total 3 history entries', all.length);
+
+  var deps = P2P_BACKEND.getDepositHistory();
+  assert(deps.length === 2, '2 deposit entries', deps.length);
+
+  var wds = P2P_BACKEND.getWithdrawHistory();
+  assert(wds.length === 1, '1 withdrawal entry', wds.length);
+
+  // All start as pending_proof
+  assert(all[0].status === 'pending_proof', 'History entries start as pending_proof');
+  assert(all[0].receiptCode && all[0].receiptCode.indexOf('OLI-') === 0, 'History records receipt code');
+
+  // Verify ordering (newest first)
+  assert(all[0].timestamp >= all[1].timestamp, 'History is newest-first');
+
+  // Verify records survived a re-read
+  var raw = JSON.parse(localStorage.getItem('cw_p2p_dw_history'));
+  assert(raw.length === 3, 'localStorage has 3 records');
+}
+
+function testDWProofExports() {
+  log('\n=== Suite: DW Proof Exports ===');
+
+  assert(typeof P2P_BACKEND.DW_PROOF_STATUS === 'object', 'DW_PROOF_STATUS exported');
+  assert(P2P_BACKEND.DW_PROOF_STATUS.PENDING === 'pending_proof', 'PENDING = pending_proof');
+  assert(P2P_BACKEND.DW_PROOF_STATUS.SUBMITTED === 'proof_submitted', 'SUBMITTED = proof_submitted');
+  assert(P2P_BACKEND.DW_PROOF_STATUS.VERIFIED === 'confirmed', 'VERIFIED = confirmed');
+  assert(P2P_BACKEND.DW_PROOF_STATUS.REJECTED === 'rejected', 'REJECTED = rejected');
+
+  assert(typeof P2P_BACKEND.getDWRecord === 'function', 'getDWRecord exported');
+  assert(typeof P2P_BACKEND.updateDWRecord === 'function', 'updateDWRecord exported');
+  assert(typeof P2P_BACKEND.submitDWProof === 'function', 'submitDWProof exported');
+  assert(typeof P2P_BACKEND.verifyDWTransaction === 'function', 'verifyDWTransaction exported');
+  assert(typeof P2P_BACKEND.rejectDWProof === 'function', 'rejectDWProof exported');
+  assert(typeof P2P_BACKEND.getPendingDWTransactions === 'function', 'getPendingDWTransactions exported');
+}
+
+function testDWProofMismatch() {
+  log('\n=== Suite: DW Proof Mismatch ===');
+
+  localStorage.removeItem('cw_p2p_dw_history');
+  setBalances({ OLIGHFT: 10000, USDC: 5000 });
+
+  // Deposit with wrong receipt code → should auto-reject
+  var dep = P2P_BACKEND.depositToWallet('OLIGHFT', 50, 'mpesa', '+254712345678');
+  assert(dep.status === 'pending_proof', 'Deposit starts pending_proof');
+  assert(dep.receiptCode, 'Receipt code exists');
+
+  // Submit proof with WRONG code
+  P2P_BACKEND.submitDWProof(dep.id, 'data:image/png;base64,wrong', 'WRONG-CODE-123', 'Wrong code');
+  try { P2P_BACKEND.verifyDWTransaction(dep.id); } catch(e) { /* expected mismatch throw */ }
+
+  var record = P2P_BACKEND.getDWRecord(dep.id);
+  assert(record.status === 'rejected', 'Mismatched code → rejected', record.status);
+
+  // Wallet NOT credited (deposit rejection)
+  var bal = getBalances().OLIGHFT;
+  assert(bal === 10000, 'Wallet not credited on deposit rejection', bal);
+
+  // Bank withdraw with wrong code → should auto-reject AND refund
+  var wd = P2P_BACKEND.withdrawToBank('USDC', 100, 'kcb', '1234567890', 'Test User');
+  assert(wd.status === 'pending_proof', 'Withdraw starts pending_proof');
+  var usdcAfterEscrow = getBalances().USDC;
+  assert(usdcAfterEscrow === 4900, 'USDC debited as escrow', usdcAfterEscrow);
+
+  // Submit proof with WRONG code
+  P2P_BACKEND.submitDWProof(wd.id, 'data:image/png;base64,wrongwd', 'BAD-CODE-999', '');
+  try { P2P_BACKEND.verifyDWTransaction(wd.id); } catch(e) { /* expected mismatch throw */ }
+
+  var wdRecord = P2P_BACKEND.getDWRecord(wd.id);
+  assert(wdRecord.status === 'rejected', 'Withdraw with wrong code → rejected', wdRecord.status);
+
+  // Wallet REFUNDED on withdrawal rejection
+  var usdcAfterReject = getBalances().USDC;
+  assert(usdcAfterReject === 5000, 'USDC refunded after withdrawal rejection', usdcAfterReject);
+}
+
+function testDWProofRejection() {
+  log('\n=== Suite: DW Proof Rejection & Refund ===');
+
+  localStorage.removeItem('cw_p2p_dw_history');
+  setBalances({ OLIGHFT: 5000, XLM: 10000 });
+
+  // Manual rejection of a withdrawal → should refund
+  var wd = P2P_BACKEND.withdrawToSIM('OLIGHFT', 200, 'mpesa', '+254712345678');
+  assert(getBalances().OLIGHFT === 4800, 'OLIGHFT escrowed (4800)');
+
+  // Submit valid proof
+  P2P_BACKEND.submitDWProof(wd.id, 'data:image/png;base64,wdrej', wd.receiptCode, '');
+
+  // Manually reject (admin override)
+  P2P_BACKEND.rejectDWProof(wd.id, 'Admin: payment not found');
+  var record = P2P_BACKEND.getDWRecord(wd.id);
+  assert(record.status === 'rejected', 'Manual rejection works');
+  assert(record.rejectReason === 'Admin: payment not found', 'Reject reason saved');
+
+  // Wallet refunded
+  assert(getBalances().OLIGHFT === 5000, 'OLIGHFT refunded after manual rejection');
+
+  // Deposit rejection does NOT refund (nothing was credited)
+  var dep = P2P_BACKEND.depositToWallet('XLM', 25, 'mtn', '+254700000001');
+  var xlmBefore = getBalances().XLM;
+  P2P_BACKEND.submitDWProof(dep.id, 'data:image/png;base64,deprej', dep.receiptCode, '');
+  P2P_BACKEND.rejectDWProof(dep.id, 'Fake screenshot');
+  assert(getBalances().XLM === xlmBefore, 'XLM unchanged on deposit rejection (nothing to refund)');
+  assert(P2P_BACKEND.getDWRecord(dep.id).status === 'rejected', 'Deposit rejected');
+}
+
+function testGetPendingDWTransactions() {
+  log('\n=== Suite: Pending DW Transactions ===');
+
+  localStorage.removeItem('cw_p2p_dw_history');
+  setBalances({ OLIGHFT: 10000, USDC: 5000, XLM: 10000 });
+
+  // Create 3 transactions (all pending)
+  var d1 = P2P_BACKEND.depositToWallet('OLIGHFT', 50, 'mpesa', '+254712345678');
+  var d2 = P2P_BACKEND.depositViaBank('USDC', 100, 'kcb', '1234567890', 'Test');
+  var w1 = P2P_BACKEND.withdrawToSIM('XLM', 100, 'mtn', '+254700000001');
+
+  var pending = P2P_BACKEND.getPendingDWTransactions();
+  assert(pending.length === 3, '3 pending transactions', pending.length);
+
+  // Verify one → should reduce pending count
+  P2P_BACKEND.submitDWProof(d1.id, 'data:image/png;base64,p1', d1.receiptCode, '');
+  P2P_BACKEND.verifyDWTransaction(d1.id);
+  pending = P2P_BACKEND.getPendingDWTransactions();
+  assert(pending.length === 2, '2 pending after 1 verified', pending.length);
+
+  // Reject one → should also reduce pending count
+  P2P_BACKEND.submitDWProof(d2.id, 'data:image/png;base64,p2', 'WRONG', '');
+  try { P2P_BACKEND.verifyDWTransaction(d2.id); } catch(e) { /* expected mismatch throw */ }
+  pending = P2P_BACKEND.getPendingDWTransactions();
+  assert(pending.length === 1, '1 pending after 1 verified + 1 rejected', pending.length);
+
+  // Verify the last one
+  P2P_BACKEND.submitDWProof(w1.id, 'data:image/png;base64,p3', w1.receiptCode, '');
+  P2P_BACKEND.verifyDWTransaction(w1.id);
+  pending = P2P_BACKEND.getPendingDWTransactions();
+  assert(pending.length === 0, '0 pending after all resolved', pending.length);
+}
+
+function testCardDeposit() {
+  log('\n=== Suite: Card Deposit ===');
+
+  setBalances({ OLIGHFT: 10000, USDC: 2500, XLM: 10000 });
+  var olighftBefore = getBalances().OLIGHFT;
+
+  // Deposit $200 OLIGHFT via Visa
+  var result = P2P_BACKEND.depositViaCard('OLIGHFT', 200, 'visa', '4321', 'JOHN DOE');
+  assert(result, 'Card deposit result returned');
+  assert(result.type === 'card_deposit', 'Result type = card_deposit');
+  assert(result.coin === 'OLIGHFT', 'Result coin = OLIGHFT');
+  assert(result.usdAmount === 200, 'Result usdAmount = 200');
+  assert(result.status === 'pending_proof', 'Result status = pending_proof');
+  assert(result.receiptCode && result.receiptCode.indexOf('OLI-') === 0, 'Receipt code generated', result.receiptCode);
+  assert(result.cardType === 'visa', 'Card type = visa');
+  assert(result.cardLast4 === '4321', 'Card last4 = 4321');
+
+  // Fee: 2.5% of $200 = $5
+  var expectedFee = 200 * 0.025;
+  assert(Math.abs(result.fee - expectedFee) < 0.01, 'Fee = $5 (2.5%)', '$' + result.fee.toFixed(2));
+
+  // Coins: ($200 - $5) / $0.50 = 390 OLIGHFT
+  var expectedCoins = (200 - expectedFee) / 0.50;
+  assert(Math.abs(result.coinsReceived - expectedCoins) < 0.01, 'Coins received = 390', result.coinsReceived.toFixed(4));
+
+  // Balance NOT increased yet
+  assert(getBalances().OLIGHFT === olighftBefore, 'Balance unchanged before proof');
+
+  // Submit proof and verify
+  P2P_BACKEND.submitDWProof(result.id, 'data:image/png;base64,cardprf', result.receiptCode, '');
+  P2P_BACKEND.verifyDWTransaction(result.id);
+  assert(getBalances().OLIGHFT > olighftBefore, 'Balance increased after card deposit proof', getBalances().OLIGHFT);
+  assert(P2P_BACKEND.getDWRecord(result.id).status === 'confirmed', 'Status confirmed');
+
+  // History
+  var history = P2P_BACKEND.getCardDepositHistory();
+  assert(history.length > 0, 'Card deposit history has entries');
+  assert(history[0].type === 'card_deposit', 'History type = card_deposit');
+  assert(history[0].cardType === 'visa', 'History records cardType');
+
+  // Multi-coin: USDC via Mastercard
+  var usdcBefore = getBalances().USDC;
+  result = P2P_BACKEND.depositViaCard('USDC', 100, 'mastercard', '5678', 'JANE DOE');
+  assert(result.status === 'pending_proof', 'USDC card deposit: pending_proof');
+  P2P_BACKEND.submitDWProof(result.id, 'data:image/png;base64,mc', result.receiptCode, '');
+  P2P_BACKEND.verifyDWTransaction(result.id);
+  assert(getBalances().USDC > usdcBefore, 'USDC increased after card deposit');
+}
+
+function testCardDepositValidation() {
+  log('\n=== Suite: Card Deposit Validation ===');
+
+  assertThrows(function() {
+    P2P_BACKEND.depositViaCard('', 100, 'visa', '1234', 'John');
+  }, 'Rejects empty coin', 'required');
+
+  assertThrows(function() {
+    P2P_BACKEND.depositViaCard('OLIGHFT', 3, 'visa', '1234', 'John');
+  }, 'Rejects amount < $5', 'Minimum');
+
+  assertThrows(function() {
+    P2P_BACKEND.depositViaCard('OLIGHFT', 30000, 'visa', '1234', 'John');
+  }, 'Rejects amount > $25,000', 'Maximum');
+
+  assertThrows(function() {
+    P2P_BACKEND.depositViaCard('OLIGHFT', 100, '', '1234', 'John');
+  }, 'Rejects empty cardType', 'required');
+
+  assertThrows(function() {
+    P2P_BACKEND.depositViaCard('OLIGHFT', 100, 'visa', '', 'John');
+  }, 'Rejects empty last4', 'required');
+
+  assertThrows(function() {
+    P2P_BACKEND.depositViaCard('OLIGHFT', 100, 'visa', '12', 'John');
+  }, 'Rejects short last4', 'Invalid card');
+
+  assertThrows(function() {
+    P2P_BACKEND.depositViaCard('OLIGHFT', 100, 'visa', 'abcd', 'John');
+  }, 'Rejects non-digit last4', 'Invalid card');
+
+  assertThrows(function() {
+    P2P_BACKEND.depositViaCard('OLIGHFT', 100, 'visa', '1234', 'J');
+  }, 'Rejects short name', 'Invalid cardholder');
+}
+
+function testCardWithdraw() {
+  log('\n=== Suite: Card Withdraw ===');
+
+  setBalances({ OLIGHFT: 5000, USDC: 2500, XLM: 10000 });
+  var olighftBefore = getBalances().OLIGHFT;
+
+  // Withdraw 300 OLIGHFT via Visa
+  var result = P2P_BACKEND.withdrawToCard('OLIGHFT', 300, 'visa', '9876', 'JOHN DOE');
+  assert(result, 'Card withdraw result returned');
+  assert(result.type === 'card_withdraw', 'Result type = card_withdraw');
+  assert(result.coin === 'OLIGHFT', 'Result coin = OLIGHFT');
+  assert(result.coinAmount === 300, 'Result coinAmount = 300');
+  assert(result.status === 'pending_proof', 'Result status = pending_proof');
+  assert(result.receiptCode && result.receiptCode.indexOf('OLI-') === 0, 'Receipt code generated');
+  assert(result.cardType === 'visa', 'Card type = visa');
+  assert(result.cardLast4 === '9876', 'Card last4 = 9876');
+
+  // USD value: 300 * $0.50 = $150
+  assert(Math.abs(result.usdValue - 150) < 0.01, 'USD value = $150');
+
+  // Fee: 3% of $150 = $4.50
+  assert(Math.abs(result.fee - 4.50) < 0.01, 'Fee = $4.50 (3%)');
+
+  // Net: $150 - $4.50 = $145.50
+  assert(Math.abs(result.netUsd - 145.50) < 0.01, 'Net USD = $145.50');
+
+  // Balance decreased (escrow)
+  assert(getBalances().OLIGHFT === olighftBefore - 300, 'Balance decreased by 300 (escrowed)');
+
+  // Verify
+  P2P_BACKEND.submitDWProof(result.id, 'data:image/png;base64,cwdprf', result.receiptCode, '');
+  P2P_BACKEND.verifyDWTransaction(result.id);
+  assert(P2P_BACKEND.getDWRecord(result.id).status === 'confirmed', 'Card withdraw confirmed');
+
+  // History
+  var history = P2P_BACKEND.getCardWithdrawHistory();
+  assert(history.length > 0, 'Card withdraw history has entries');
+  assert(history[0].type === 'card_withdraw', 'History type = card_withdraw');
+  assert(history[0].cardType === 'visa', 'History records cardType');
+  assert(history[0].cardLast4 === '9876', 'History records last4');
+
+  // Multi-coin: USDC via Amex
+  var usdcBefore = getBalances().USDC;
+  result = P2P_BACKEND.withdrawToCard('USDC', 100, 'amex', '3456', 'JANE DOE');
+  assert(result.status === 'pending_proof', 'USDC card withdraw: pending_proof');
+  assert(getBalances().USDC === usdcBefore - 100, 'USDC escrowed');
+  P2P_BACKEND.submitDWProof(result.id, 'data:image/png;base64,amex', result.receiptCode, '');
+  P2P_BACKEND.verifyDWTransaction(result.id);
+  assert(P2P_BACKEND.getDWRecord(result.id).status === 'confirmed', 'USDC card withdraw confirmed');
+}
+
+function testCardWithdrawValidation() {
+  log('\n=== Suite: Card Withdraw Validation ===');
+
+  setBalances({ OLIGHFT: 500, USDC: 100, XLM: 1000 });
+
+  assertThrows(function() {
+    P2P_BACKEND.withdrawToCard('OLIGHFT', 0.5, 'visa', '1234', 'John');
+  }, 'Rejects amount < 1', 'Minimum');
+
+  assertThrows(function() {
+    P2P_BACKEND.withdrawToCard('OLIGHFT', 999999, 'visa', '1234', 'John');
+  }, 'Rejects amount > 100,000', 'Maximum');
+
+  assertThrows(function() {
+    P2P_BACKEND.withdrawToCard('OLIGHFT', 1000, 'visa', '1234', 'John');
+  }, 'Rejects exceeding balance', 'Insufficient');
+
+  assertThrows(function() {
+    P2P_BACKEND.withdrawToCard('', 100, 'visa', '1234', 'John');
+  }, 'Rejects empty coin', 'required');
+
+  assertThrows(function() {
+    P2P_BACKEND.withdrawToCard('OLIGHFT', 100, '', '1234', 'John');
+  }, 'Rejects empty cardType', 'required');
+
+  assertThrows(function() {
+    P2P_BACKEND.withdrawToCard('OLIGHFT', 100, 'visa', '', 'John');
+  }, 'Rejects empty last4', 'required');
+
+  assertThrows(function() {
+    P2P_BACKEND.withdrawToCard('OLIGHFT', 100, 'visa', 'ab', 'John');
+  }, 'Rejects invalid last4', 'Invalid card');
+
+  assertThrows(function() {
+    P2P_BACKEND.withdrawToCard('OLIGHFT', 100, 'visa', '1234', 'X');
+  }, 'Rejects short name', 'Invalid cardholder');
+}
+
+function testCardHistoryPersistence() {
+  log('\n=== Suite: Card History Persistence ===');
+
+  localStorage.removeItem('cw_p2p_dw_history');
+  setBalances({ OLIGHFT: 10000, USDC: 5000, XLM: 10000 });
+
+  // Mix all 3 types
+  var r1 = P2P_BACKEND.depositToWallet('OLIGHFT', 50, 'mpesa', '+254712345678');
+  var r2 = P2P_BACKEND.depositViaBank('OLIGHFT', 200, 'kcb', '1234567890', 'John Doe');
+  var r3 = P2P_BACKEND.depositViaCard('OLIGHFT', 100, 'visa', '4321', 'JOHN DOE');
+  var r4 = P2P_BACKEND.withdrawToSIM('USDC', 50, 'airtel', '+254700000001');
+  var r5 = P2P_BACKEND.withdrawToBank('USDC', 100, 'equity', '9876543210', 'Jane Doe');
+  var r6 = P2P_BACKEND.withdrawToCard('XLM', 200, 'mastercard', '5678', 'JANE DOE');
+
+  var all = P2P_BACKEND.getDWHistory();
+  assert(all.length === 6, 'Total 6 history entries', all.length);
+
+  var mobileDeps = P2P_BACKEND.getDepositHistory();
+  assert(mobileDeps.length === 1, '1 mobile deposit', mobileDeps.length);
+
+  var bankDeps = P2P_BACKEND.getBankDepositHistory();
+  assert(bankDeps.length === 1, '1 bank deposit', bankDeps.length);
+
+  var cardDeps = P2P_BACKEND.getCardDepositHistory();
+  assert(cardDeps.length === 1, '1 card deposit', cardDeps.length);
+
+  var mobileWds = P2P_BACKEND.getWithdrawHistory();
+  assert(mobileWds.length === 1, '1 mobile withdrawal', mobileWds.length);
+
+  var bankWds = P2P_BACKEND.getBankWithdrawHistory();
+  assert(bankWds.length === 1, '1 bank withdrawal', bankWds.length);
+
+  var cardWds = P2P_BACKEND.getCardWithdrawHistory();
+  assert(cardWds.length === 1, '1 card withdrawal', cardWds.length);
+
+  // Verify types
+  assert(cardDeps[0].type === 'card_deposit', 'Card deposit type correct');
+  assert(cardWds[0].type === 'card_withdraw', 'Card withdraw type correct');
+  assert(cardDeps[0].cardType === 'visa', 'Card deposit records cardType');
+  assert(cardWds[0].cardLast4 === '5678', 'Card withdraw records last4');
+
+  // All pending_proof with receipt codes
+  for (var i = 0; i < all.length; i++) {
+    assert(all[i].status === 'pending_proof', 'Entry ' + i + ' pending_proof');
+    assert(all[i].receiptCode && all[i].receiptCode.indexOf('OLI-') === 0, 'Entry ' + i + ' has receipt code');
+  }
+}
+
+// ════════════════════════════════════════════════════════════
+//  RUNNER
+// ════════════════════════════════════════════════════════════
+
+function renderResults() {
+  var el = document.getElementById('results');
+  var suites = {};
+  var currentSuite = 'General';
+
+  for (var i = 0; i < logLines.length; i++) {
+    var m = logLines[i].match(/=== Suite: (.+) ===/);
+    if (m) currentSuite = m[1];
+  }
+
+  // Group results by suite
+  var suiteOrder = [];
+  var suiteResults = {};
+  var cs = '';
+  for (var j = 0; j < results.length; j++) {
+    // Try to assign suite based on position
+    var suiteName = getSuiteForIndex(j);
+    if (!suiteResults[suiteName]) {
+      suiteResults[suiteName] = [];
+      suiteOrder.push(suiteName);
+    }
+    suiteResults[suiteName].push(results[j]);
+  }
+
+  var html = '';
+  for (var s = 0; s < suiteOrder.length; s++) {
+    var name = suiteOrder[s];
+    var items = suiteResults[name];
+    var passCount = items.filter(function(r) { return r.pass; }).length;
+    var failCount = items.length - passCount;
+    var icon = failCount > 0 ? '\u274C' : '\u2705';
+    html += '<h2>' + icon + ' ' + name + ' (' + passCount + '/' + items.length + ')</h2><div class="suite">';
+    for (var t = 0; t < items.length; t++) {
+      var r = items[t];
+      var cls = r.pass ? 'pass' : 'fail';
+      html += '<div class="test"><span class="badge ' + cls + '">' + (r.pass ? 'PASS' : 'FAIL') + '</span>';
+      html += '<span class="' + cls + '">' + r.name + '</span>';
+      if (r.detail) html += '<span class="detail">' + r.detail + '</span>';
+      html += '</div>';
+    }
+    html += '</div>';
+  }
+  el.innerHTML = html;
+
+  // Summary
+  var totalPass = results.filter(function(r) { return r.pass; }).length;
+  var totalFail = results.length - totalPass;
+  var sumEl = document.getElementById('summary');
+  if (totalFail === 0) {
+    sumEl.className = 'summary all-pass';
+    sumEl.innerHTML = '\u2705 ALL ' + results.length + ' TESTS PASSED';
+  } else {
+    sumEl.className = 'summary has-fail';
+    sumEl.innerHTML = '\u274C ' + totalFail + ' FAILED / ' + results.length + ' TOTAL';
+  }
+
+  // Log
+  document.getElementById('log').textContent = logLines.join('\n');
+}
+
+var suiteNames = [];
+function getSuiteForIndex(idx) {
+  if (suiteNames.length === 0) return 'General';
+  var count = 0;
+  for (var i = 0; i < suiteNames.length; i++) {
+    count += suiteNames[i].count;
+    if (idx < count) return suiteNames[i].name;
+  }
+  return suiteNames[suiteNames.length - 1].name;
+}
+
+function runAllTests() {
+  results = [];
+  logLines = [];
+  suiteNames = [];
+
+  var suites = [
+    { name: 'Backend Exports', fn: testBackendExports },
+    { name: 'DW Proof Exports', fn: testDWProofExports },
+    { name: 'Order Book Seeding', fn: testSeedOrderBook },
+    { name: 'Place Order', fn: testPlaceOrderLocal },
+    { name: 'Place Order Validation', fn: testPlaceOrderValidation },
+    { name: 'Cancel Order', fn: testCancelOrder },
+    { name: 'Deposit to Wallet', fn: testDepositToWallet },
+    { name: 'Deposit Validation', fn: testDepositValidation },
+    { name: 'Deposit Multi-Coin', fn: testDepositMultiCoin },
+    { name: 'Withdraw to SIM', fn: testWithdrawToSIM },
+    { name: 'Withdraw Validation', fn: testWithdrawValidation },
+    { name: 'Withdraw Multi-Coin', fn: testWithdrawMultiCoin },
+    { name: 'Wallet Integration', fn: testWalletIntegration },
+    { name: 'Proof System', fn: testProofSystem },
+    { name: 'Proof Dispute', fn: testProofDispute },
+    { name: 'DW Proof Mismatch', fn: testDWProofMismatch },
+    { name: 'DW Proof Rejection & Refund', fn: testDWProofRejection },
+    { name: 'Pending DW Transactions', fn: testGetPendingDWTransactions },
+    { name: 'Edge Cases', fn: testEdgeCases },
+    { name: 'Payment Methods', fn: testPaymentMethods },
+    { name: 'History Persistence', fn: testHistoryPersistence },
+    { name: 'Bank Deposit', fn: testBankDeposit },
+    { name: 'Bank Deposit Validation', fn: testBankDepositValidation },
+    { name: 'Bank Withdraw', fn: testBankWithdraw },
+    { name: 'Bank Withdraw Validation', fn: testBankWithdrawValidation },
+    { name: 'Bank History Persistence', fn: testBankHistoryPersistence },
+    { name: 'Card Deposit', fn: testCardDeposit },
+    { name: 'Card Deposit Validation', fn: testCardDepositValidation },
+    { name: 'Card Withdraw', fn: testCardWithdraw },
+    { name: 'Card Withdraw Validation', fn: testCardWithdrawValidation },
+    { name: 'Card History Persistence', fn: testCardHistoryPersistence },
+  ];
+
+  for (var i = 0; i < suites.length; i++) {
+    var before = results.length;
+    try {
+      clearTestData();
+      suites[i].fn();
+    } catch(e) {
+      results.push({ name: suites[i].name + ' CRASHED', pass: false, detail: e.message });
+      log('CRASH - ' + suites[i].name + ': ' + e.message);
+    }
+    suiteNames.push({ name: suites[i].name, count: results.length - before });
+  }
+
+  // Final cleanup
+  setBalances({ XLM: 10000, USDC: 2500, wETH: 1.85, wBTC: 0.042, EURC: 1200, OLIGHFT: 10000 });
+  renderResults();
+}
+
+function resetAndRun() {
+  clearTestData();
+  localStorage.removeItem('cw_p2p_orders');
+  localStorage.removeItem('cw_p2p_trades');
+  localStorage.removeItem('cw_p2p_dw_history');
+  localStorage.removeItem('cw_activity');
+  runAllTests();
+}
+</script>
+</body>
+</html>

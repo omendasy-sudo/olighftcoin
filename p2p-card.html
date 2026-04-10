@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OLIGHFT SMART COIN &mdash; P2P Card (Deposit &amp; Withdraw)</title>
+<meta name="description" content="OLIGHFT P2P Card — deposit and withdraw OLIGHFT tokens via Visa, Mastercard, Amex, and 7 more card networks.">
+<link rel="canonical" href="https://olighftcoin.com/p2p-card.html">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135deg,#0a0a1a,#0d1b2a,#0a0a1a);color:#fff;min-height:100vh;padding:16px 12px}
+.container{max-width:680px;margin:0 auto}
+h1{text-align:center;font-size:1.5rem;margin-bottom:4px;background:linear-gradient(90deg,#f0b90b,#3498db,#f0b90b);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.subtitle{text-align:center;color:rgba(255,255,255,.4);font-size:.72rem;margin-bottom:18px}
+
+/* ── Auth Banner ── */
+.auth-banner{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-radius:12px;margin-bottom:14px;font-size:.75rem;gap:10px;flex-wrap:wrap}
+.auth-banner.logged-in{background:rgba(39,174,96,.08);border:1px solid rgba(39,174,96,.18)}
+.auth-banner.logged-out{background:rgba(235,87,87,.08);border:1px solid rgba(235,87,87,.18)}
+.auth-banner .ab-left{display:flex;align-items:center;gap:8px}
+.auth-banner .ab-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.auth-banner.logged-in .ab-dot{background:#27ae60;box-shadow:0 0 6px rgba(39,174,96,.5)}
+.auth-banner.logged-out .ab-dot{background:#eb5757;box-shadow:0 0 6px rgba(235,87,87,.5)}
+.auth-banner .ab-name{font-weight:700;color:rgba(255,255,255,.85)}
+.auth-banner .ab-addr{font-family:'Courier New',monospace;font-size:.65rem;color:rgba(255,255,255,.4)}
+.auth-banner .ab-right{display:flex;align-items:center;gap:8px}
+.auth-banner .ab-tag{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:6px;font-size:.6rem;font-weight:700}
+.auth-banner .ab-tag.gauth-on{background:rgba(39,174,96,.12);color:#27ae60;border:1px solid rgba(39,174,96,.2)}
+.auth-banner .ab-tag.gauth-off{background:rgba(255,255,255,.04);color:rgba(255,255,255,.3);border:1px solid rgba(255,255,255,.06)}
+.auth-banner .ab-tag.cred-on{background:rgba(108,92,231,.12);color:#a29bfe;border:1px solid rgba(108,92,231,.2)}
+.auth-banner .ab-tag.cred-off{background:rgba(255,255,255,.04);color:rgba(255,255,255,.25);border:1px solid rgba(255,255,255,.06)}
+.auth-banner .ab-tag.google-on{background:rgba(66,133,244,.12);color:#4285f4;border:1px solid rgba(66,133,244,.2)}
+.auth-banner .ab-login{display:inline-flex;align-items:center;gap:4px;padding:5px 14px;border-radius:8px;font-size:.7rem;font-weight:700;text-decoration:none;background:linear-gradient(135deg,#6c5ce7,#a29bfe);color:#fff;transition:.2s}
+.auth-banner .ab-login:hover{opacity:.85}
+
+/* ── Tabs ── */
+.tabs{display:flex;gap:2px;background:rgba(255,255,255,.04);border-radius:12px;padding:3px;margin-bottom:16px}
+.tab{flex:1;padding:10px 8px;text-align:center;border-radius:10px;font-size:.72rem;font-weight:700;cursor:pointer;transition:.2s;color:rgba(255,255,255,.4)}
+.tab.active-dep{background:linear-gradient(135deg,rgba(46,204,113,.15),rgba(39,174,96,.08));color:#2ecc71;border:1px solid rgba(46,204,113,.2)}
+.tab.active-wd{background:linear-gradient(135deg,rgba(243,156,18,.15),rgba(230,126,34,.08));color:#f39c12;border:1px solid rgba(243,156,18,.2)}
+.tab:hover{color:rgba(255,255,255,.7)}
+
+/* ── Wallet Balance Bar ── */
+.bal-bar{display:grid;grid-template-columns:1fr;gap:1px;background:rgba(240,185,11,.06);border-radius:12px;overflow:hidden;margin-bottom:16px}
+.bal-item{background:rgba(10,10,26,.8);padding:12px;text-align:center}
+.bal-item .bl{font-size:.52rem;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.5px}
+.bal-item .bv{font-size:.95rem;font-weight:800;color:#f0b90b;margin-top:2px}
+
+/* ── Card Chips ── */
+.chip-grid{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.chip{display:inline-flex;align-items:center;gap:5px;padding:8px 14px;border-radius:10px;font-size:.68rem;font-weight:700;cursor:pointer;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);color:rgba(255,255,255,.5);transition:.2s}
+.chip:hover{border-color:rgba(52,152,219,.3);color:#3498db}
+.chip.selected{background:rgba(52,152,219,.15);border-color:#3498db;color:#fff;box-shadow:0 0 12px rgba(52,152,219,.15)}
+.chip .c-icon{font-size:.9rem}
+.chip .c-net{font-size:.48rem;color:rgba(255,255,255,.25);font-weight:600}
+
+/* ── Form Elements ── */
+.section{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:16px;padding:20px;margin-bottom:16px}
+.section-title{font-size:.78rem;font-weight:800;margin-bottom:4px;display:flex;align-items:center;gap:6px}
+.section-sub{font-size:.5rem;color:rgba(255,255,255,.3);margin-bottom:14px}
+.label{font-size:.58rem;text-transform:uppercase;letter-spacing:.5px;color:rgba(255,255,255,.3);margin-bottom:5px;font-weight:600}
+input,select{width:100%;padding:10px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.08);background:rgba(0,0,0,.25);color:#fff;font-size:.8rem;outline:none;margin-bottom:12px;transition:.2s}
+input:focus,select:focus{border-color:rgba(52,152,219,.4);box-shadow:0 0 12px rgba(52,152,219,.1)}
+input::placeholder{color:rgba(255,255,255,.2)}
+
+/* ── Quick Amounts ── */
+.quick-row{display:flex;gap:6px;margin:-6px 0 14px;flex-wrap:wrap}
+.quick{flex:1;min-width:50px;padding:7px 4px;text-align:center;border-radius:8px;font-size:.65rem;font-weight:700;cursor:pointer;border:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.02);color:rgba(255,255,255,.4);transition:.2s}
+.quick:hover{border-color:rgba(52,152,219,.3);color:#3498db}
+
+/* ── Fee Display ── */
+.fee-row{display:flex;justify-content:space-between;padding:6px 0;font-size:.7rem;color:rgba(255,255,255,.4)}
+.fee-row .fv{font-weight:700;color:rgba(255,255,255,.7)}
+.total-row{display:flex;justify-content:space-between;padding:10px 14px;background:rgba(240,185,11,.04);border-radius:10px;margin:8px 0 14px;font-size:.78rem;font-weight:800}
+.total-row .tv{color:#f0b90b}
+
+/* ── Buttons ── */
+.btn{width:100%;padding:13px;border:none;border-radius:12px;font-size:.82rem;font-weight:800;cursor:pointer;transition:.2s;letter-spacing:.3px}
+.btn:hover{opacity:.85;transform:translateY(-1px)}
+.btn-dep{background:linear-gradient(135deg,#2ecc71,#27ae60);color:#fff}
+.btn-wd{background:linear-gradient(135deg,#f39c12,#e67e22);color:#fff}
+
+/* ── Bal tag ── */
+.bal-tag{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-radius:10px;background:rgba(240,185,11,.04);border:1px solid rgba(240,185,11,.08);margin-bottom:12px;font-size:.72rem}
+.bal-tag .bt-coin{font-weight:700;color:#f0b90b}
+.bal-tag .bt-amt{font-weight:800;color:#2ecc71}
+
+
+
+/* ── Proof Modal ── */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9999;justify-content:center;align-items:flex-start;overflow-y:auto;padding:20px}
+.modal-overlay.show{display:flex}
+.modal-box{background:linear-gradient(135deg,#0f1a2e,#162032);border:1px solid rgba(52,152,219,.15);border-radius:20px;padding:24px 20px;max-width:440px;width:100%;margin:auto;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+.modal-header{text-align:center;margin-bottom:16px}
+.modal-header .m-icon{font-size:2rem;margin-bottom:4px}
+.modal-header .m-title{font-size:.92rem;font-weight:800}
+.modal-header .m-sub{font-size:.55rem;color:rgba(255,255,255,.35)}
+.receipt-box{background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.05);border-radius:12px;padding:12px;margin-bottom:12px}
+.receipt-row{display:flex;justify-content:space-between;padding:5px 0;font-size:.65rem;border-bottom:1px solid rgba(255,255,255,.03)}
+.receipt-row:last-child{border-bottom:none}
+.receipt-row .rl{color:rgba(255,255,255,.35)}
+.receipt-row .rv{font-weight:600;color:rgba(255,255,255,.7)}
+.receipt-code-box{text-align:center;padding:14px;background:rgba(240,185,11,.06);border:1px solid rgba(240,185,11,.12);border-radius:12px;margin-bottom:12px}
+.receipt-code-box .rc-label{font-size:.52rem;color:rgba(255,255,255,.35);margin-bottom:4px;font-weight:600}
+.receipt-code-box .rc-code{font-size:1.1rem;font-weight:900;color:#f0b90b;letter-spacing:2px;font-family:'Courier New',monospace}
+.status-badge{text-align:center;padding:10px;border-radius:10px;font-size:.65rem;font-weight:700;margin-bottom:12px}
+.status-badge.pending{background:rgba(241,196,15,.08);color:#f1c40f;border:1px solid rgba(241,196,15,.15)}
+.status-badge.submitted{background:rgba(52,152,219,.08);color:#3498db;border:1px solid rgba(52,152,219,.15)}
+.status-badge.confirmed{background:rgba(46,204,113,.08);color:#2ecc71;border:1px solid rgba(46,204,113,.15)}
+.status-badge.rejected{background:rgba(235,87,87,.08);color:#eb5757;border:1px solid rgba(235,87,87,.15)}
+.proof-screenshot{text-align:center;margin-bottom:10px}
+.proof-screenshot img{max-width:100%;max-height:200px;border-radius:10px;border:1px solid rgba(255,255,255,.08);cursor:pointer}
+.upload-area{border:2px dashed rgba(52,152,219,.2);border-radius:12px;padding:20px;text-align:center;cursor:pointer;transition:.2s;margin-bottom:10px}
+.upload-area:hover{border-color:rgba(52,152,219,.4);background:rgba(52,152,219,.03)}
+.upload-area .u-icon{font-size:1.6rem;margin-bottom:4px}
+.upload-area .u-hint{font-size:.55rem;color:rgba(255,255,255,.3)}
+.proof-input{width:100%;padding:10px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.08);background:rgba(0,0,0,.2);color:#fff;font-size:.78rem;outline:none;margin-bottom:10px}
+.proof-input:focus{border-color:rgba(52,152,219,.4)}
+.proof-input::placeholder{color:rgba(255,255,255,.2)}
+.proof-actions{display:flex;gap:8px;margin-top:12px}
+.proof-actions .pbtn{flex:1;padding:11px;border:none;border-radius:10px;font-size:.72rem;font-weight:800;cursor:pointer;transition:.2s}
+.pbtn-submit{background:linear-gradient(135deg,#3498db,#2980b9);color:#fff}
+.pbtn-verify{background:linear-gradient(135deg,#2ecc71,#27ae60);color:#fff}
+.pbtn-reject{background:rgba(235,87,87,.12);border:1px solid rgba(235,87,87,.2)!important;color:#eb5757}
+.pbtn-close{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08)!important;color:rgba(255,255,255,.4)}
+.pbtn-close:hover,.pbtn-reject:hover{opacity:.8}
+.proof-note{font-size:.5rem;color:rgba(255,255,255,.3);margin-top:4px}
+.proof-time{font-size:.48rem;color:rgba(255,255,255,.25);margin-top:4px}
+.proof-txcode{font-family:'Courier New',monospace;font-size:.72rem;font-weight:700;color:#3498db;padding:6px 10px;background:rgba(52,152,219,.06);border-radius:8px;margin-top:4px;word-break:break-all}
+.upload-preview{max-width:100%;max-height:160px;border-radius:10px}
+
+/* ── Toast ── */
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:12px;font-size:.75rem;font-weight:700;z-index:99999;opacity:0;transition:opacity .3s;pointer-events:none;max-width:90%;text-align:center}
+.toast.show{opacity:1}
+
+/* ── Card Nav ── */
+.card-nav{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:24px}
+.card-nav a{display:inline-flex;align-items:center;gap:4px;padding:7px 12px;border-radius:8px;font-size:.7rem;font-weight:600;text-decoration:none;transition:.2s;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.5)}
+.card-nav a:hover{border-color:rgba(52,152,219,.4);color:#3498db}
+.card-nav a.active{background:rgba(52,152,219,.15);border-color:rgba(52,152,219,.4);color:#3498db}
+
+
+
+@media(max-width:480px){h1{font-size:1.2rem}.chip{padding:6px 10px;font-size:.6rem}}
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- Auth Banner -->
+<div id="authBanner" class="auth-banner logged-out">
+<div class="ab-left"><span class="ab-dot"></span><span class="ab-name">Not logged in</span></div>
+<div class="ab-right"><a href="auth.html" class="ab-login">&#x1F512; Login</a></div>
+</div>
+<script>
+(function(){try{var u=JSON.parse(localStorage.getItem('cw_user')||'null');var b=document.getElementById('authBanner');if(!b)return;if(u&&u.name){b.className='auth-banner logged-in';var addr=u.addr?u.addr.slice(0,6)+'...'+u.addr.slice(-4):'';var tfa=false;try{var d=JSON.parse(localStorage.getItem('cw_2fa')||'null');tfa=d&&d.enabled&&d.secret;}catch(e){}var cm=false;try{var c=JSON.parse(localStorage.getItem('cw_credmgr')||'null');cm=c&&c.enabled;}catch(e){}var ga=u.googleAuth||false;b.querySelector('.ab-left').innerHTML='<span class="ab-dot"></span><span class="ab-name">'+u.name+'</span>'+(addr?'<span class="ab-addr">'+addr+'</span>':'');b.querySelector('.ab-right').innerHTML=(ga?'<span class="ab-tag google-on">&#x1F310; Google</span>':'')+'<span class="ab-tag '+(tfa?'gauth-on':'gauth-off')+'">'+(tfa?'&#x1F510; 2FA On':'&#x26A0;&#xFE0F; 2FA Off')+'</span><span class="ab-tag '+(cm?'cred-on':'cred-off')+'">'+(cm?'&#x1F511; Cred Saved':'&#x1F511; No Cred')+'</span>'+(tfa?'':'<a href="wallet.html" class="ab-login" style="font-size:.6rem;padding:3px 10px">Set up</a>');}else{b.className='auth-banner logged-out';}}catch(e){}})();
+</script>
+
+<h1>&#x1F4B3; P2P Card Payments</h1>
+<p class="subtitle">Deposit &amp; withdraw OLIGHFT via 10 card networks &bull; Receipt code verification</p>
+
+<!-- Wallet Balances -->
+<div class="bal-bar" id="balBar"></div>
+
+<!-- Tabs: Deposit / Withdraw -->
+<div class="tabs">
+<div class="tab active-dep" id="tabDep" onclick="switchTab('deposit')">&#x1F4E5; Deposit</div>
+<div class="tab" id="tabWd" onclick="switchTab('withdraw')">&#x1F4F2; Withdraw</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!--  DEPOSIT TAB                                          -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div id="panelDeposit">
+<div class="section">
+  <div class="section-title" style="color:#2ecc71">&#x1F4B3; Deposit via Card</div>
+  <div class="section-sub">Top up your wallet using your debit or credit card</div>
+
+  <div class="label">Coin</div>
+  <select id="depCoin" onchange="depCalc()" disabled>
+    <option value="OLIGHFT">OLIGHFT ($0.50)</option>
+  </select>
+
+  <div class="label">Card Type</div>
+  <div class="chip-grid" id="depChips"></div>
+
+  <div class="label">Cardholder Name</div>
+  <input type="text" id="depName" placeholder="JOHN DOE" maxlength="80" style="text-transform:uppercase">
+
+  <div class="label">Card Last 4 Digits</div>
+  <input type="text" id="depLast4" placeholder="1234" maxlength="4" inputmode="numeric" pattern="\d{4}">
+
+  <div class="label">Amount (USD)</div>
+  <input type="number" id="depAmount" placeholder="100.00" step="0.01" min="5" max="25000" oninput="depCalc()">
+  <div class="quick-row">
+    <div class="quick" onclick="depSetAmt(25)">$25</div>
+    <div class="quick" onclick="depSetAmt(50)">$50</div>
+    <div class="quick" onclick="depSetAmt(100)">$100</div>
+    <div class="quick" onclick="depSetAmt(250)">$250</div>
+    <div class="quick" onclick="depSetAmt(500)">$500</div>
+    <div class="quick" onclick="depSetAmt(1000)">$1K</div>
+    <div class="quick" onclick="depSetAmt(5000)">$5K</div>
+  </div>
+
+  <div class="fee-row"><span>Fee (2.5%)</span><span class="fv" id="depFee">$0.00</span></div>
+  <div class="fee-row"><span>You Receive</span><span class="fv" id="depReceive" style="color:#2ecc71">0 OLIGHFT</span></div>
+  <div class="total-row"><span>Total Charged</span><span class="tv" id="depTotal">$0.00</span></div>
+
+  <button class="btn btn-dep" onclick="doDeposit()">&#x1F4B3; Deposit via Card</button>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!--  WITHDRAW TAB                                         -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div id="panelWithdraw" style="display:none">
+<div class="section">
+  <div class="section-title" style="color:#f39c12">&#x1F4B3; Withdraw to Card</div>
+  <div class="section-sub">Cash out from your wallet to your debit or credit card</div>
+
+  <div class="label">Coin</div>
+  <select id="wdCoin" onchange="wdCalc()" disabled>
+    <option value="OLIGHFT">OLIGHFT ($0.50)</option>
+  </select>
+
+  <div class="bal-tag">
+    <span class="bt-coin" id="wdBalLabel">OLIGHFT</span>
+    <span class="bt-amt" id="wdBalAmt">0</span>
+  </div>
+
+  <div class="label">Card Type</div>
+  <div class="chip-grid" id="wdChips"></div>
+
+  <div class="label">Cardholder Name</div>
+  <input type="text" id="wdName" placeholder="JOHN DOE" maxlength="80" style="text-transform:uppercase">
+
+  <div class="label">Card Last 4 Digits</div>
+  <input type="text" id="wdLast4" placeholder="1234" maxlength="4" inputmode="numeric" pattern="\d{4}">
+
+  <div class="label">Amount (Coins)</div>
+  <input type="number" id="wdAmount" placeholder="100" step="any" min="1" oninput="wdCalc()">
+  <div class="quick-row">
+    <div class="quick" onclick="wdSetPct(10)">10%</div>
+    <div class="quick" onclick="wdSetPct(25)">25%</div>
+    <div class="quick" onclick="wdSetPct(50)">50%</div>
+    <div class="quick" onclick="wdSetPct(75)">75%</div>
+    <div class="quick" onclick="wdSetPct(100)">100%</div>
+  </div>
+
+  <div class="fee-row"><span>Fee (3%)</span><span class="fv" id="wdFee">$0.00</span></div>
+  <div class="fee-row"><span>You Receive (USD)</span><span class="fv" id="wdReceiveUsd" style="color:#2ecc71">$0.00</span></div>
+  <div class="total-row"><span>Deducted from Wallet</span><span class="tv" id="wdDeducted">0 OLIGHFT</span></div>
+
+  <button class="btn btn-wd" onclick="doWithdraw()">&#x1F4B3; Withdraw to Card</button>
+</div>
+</div>
+
+
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!--  PROOF VERIFICATION MODAL                             -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="proofModal" onclick="if(event.target===this)closeModal()">
+<div class="modal-box">
+  <div class="modal-header">
+    <div class="m-icon" id="proofIcon">&#x1F4B3;</div>
+    <div class="m-title">Transaction Verification</div>
+    <div class="m-sub" id="proofSub"></div>
+  </div>
+  <div id="proofBody"></div>
+  <div style="margin-top:12px">
+    <button class="pbtn pbtn-close" style="width:100%;padding:10px;border-radius:10px;font-size:.72rem;font-weight:700;cursor:pointer" onclick="closeModal()">Close</button>
+  </div>
+</div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Navigation -->
+<div class="card-nav">
+<a href="dashboard.html">&#x1F4CA; Dashboard</a>
+<a href="wallet.html">&#x1F4B3; Wallet</a>
+<a href="p2p-mobile.html">&#x1F4F1; P2P Mobile</a>
+<a href="p2p-card.html" class="active">&#x1F4B3; P2P Card</a>
+<a href="p2p-bank.html">&#x1F3E6; P2P Bank</a>
+<a href="card-visa.html">&#x1F4B3; Visa</a>
+<a href="card-mastercard.html">&#x1F504; Mastercard</a>
+<a href="card-amex.html">&#x1F3DB;&#xFE0F; Amex</a>
+<a href="card-platinum.html">&#x26CF;&#xFE0F; Platinum</a>
+<a href="card-gold.html">&#x1F3C6; Gold</a>
+<a href="card-black.html">&#x1F5C4;&#xFE0F; Black</a>
+<a href="auth.html">&#x1F512; Login</a>
+</div>
+
+<div style="text-align:center;padding:20px 0;color:rgba(255,255,255,.2);font-size:.6rem;margin-top:12px;border-top:1px solid rgba(255,255,255,.04)">
+OLIGHFT SMART COIN &copy; 2024&ndash;2026 &bull; Stellar Network &bull; All card transactions require receipt code verification
+</div>
+
+</div><!-- /container -->
+
+<script src="p2p-backend.js"></script>
+<script>
+'use strict';
+
+// ── State ──
+var selectedDepCard = '';
+var selectedWdCard  = '';
+var currentTab = 'deposit';
+var proofCurrentFile = null;
+
+// ── Helpers ──
+function esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+function getBals() { try { return JSON.parse(localStorage.getItem('cw_balances') || '{}'); } catch(e) { return {}; } }
+
+function showToast(msg, bg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = bg || '#333';
+  t.style.color = '#fff';
+  t.className = 'toast show';
+  setTimeout(function() { t.className = 'toast'; }, 3500);
+}
+
+// ── Tab Switching ──
+function switchTab(tab) {
+  currentTab = tab;
+  document.getElementById('panelDeposit').style.display  = tab === 'deposit'  ? '' : 'none';
+  document.getElementById('panelWithdraw').style.display  = tab === 'withdraw' ? '' : 'none';
+
+  var tDep = document.getElementById('tabDep');
+  var tWd  = document.getElementById('tabWd');
+  tDep.className = 'tab' + (tab === 'deposit'  ? ' active-dep' : '');
+  tWd.className  = 'tab' + (tab === 'withdraw' ? ' active-wd'  : '');
+
+  if (tab === 'withdraw') wdCalc();
+}
+
+// ── Balance Bar ──
+function renderBalBar() {
+  var bals = getBals();
+  var h = '<div class="bal-item"><div class="bl">OLIGHFT</div><div class="bv">' + (bals['OLIGHFT'] || 0).toFixed(4) + '</div></div>';
+  document.getElementById('balBar').innerHTML = h;
+}
+
+
+
+// ══════════════════════════════════════════════════════════
+//  CARD CHIP RENDERING
+// ══════════════════════════════════════════════════════════
+
+function renderChips(containerId, selected) {
+  var el = document.getElementById(containerId);
+  if (!el) return;
+  var cards = P2P_BACKEND.CARD_PROVIDERS;
+  var h = '';
+  for (var i = 0; i < cards.length; i++) {
+    var c = cards[i];
+    var sel = c.id === selected ? ' selected' : '';
+    h += '<div class="chip' + sel + '" onclick="selectCard(\'' + containerId + '\',\'' + esc(c.id) + '\')">';
+    h += '<span class="c-icon">' + c.icon + '</span>';
+    h += '<span>' + esc(c.label) + '</span>';
+    h += '<span class="c-net">' + esc(c.network) + '</span>';
+    h += '</div>';
+  }
+  el.innerHTML = h;
+}
+
+function selectCard(container, cardId) {
+  if (container === 'depChips') {
+    selectedDepCard = cardId;
+    renderChips('depChips', selectedDepCard);
+  } else {
+    selectedWdCard = cardId;
+    renderChips('wdChips', selectedWdCard);
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+//  DEPOSIT FUNCTIONS
+// ══════════════════════════════════════════════════════════
+
+function depCalc() {
+  var usd  = parseFloat(document.getElementById('depAmount').value) || 0;
+  var coin = document.getElementById('depCoin').value;
+  var price = P2P_BACKEND.COIN_PRICES[coin] || 0.50;
+  var fee  = usd * P2P_BACKEND.CARD_DEPOSIT_FEE_PCT;
+  var net  = usd - fee;
+  var coins = net > 0 ? net / price : 0;
+
+  document.getElementById('depFee').textContent     = '$' + fee.toFixed(2);
+  document.getElementById('depReceive').textContent  = coins.toFixed(4) + ' ' + coin;
+  document.getElementById('depTotal').textContent    = '$' + usd.toFixed(2);
+}
+
+function depSetAmt(v) {
+  document.getElementById('depAmount').value = v;
+  depCalc();
+}
+
+function doDeposit() {
+  try {
+    var coin  = document.getElementById('depCoin').value;
+    var usd   = parseFloat(document.getElementById('depAmount').value) || 0;
+    var name  = document.getElementById('depName').value.trim();
+    var last4 = document.getElementById('depLast4').value.trim();
+
+    if (!selectedDepCard) throw new Error('Please select a card type');
+    if (!name) throw new Error('Please enter cardholder name');
+    if (!last4 || last4.length !== 4) throw new Error('Please enter card last 4 digits');
+
+    if (typeof P2P_API !== 'undefined' && P2P_API.isOnline()) {
+      P2P_API.depositCard(coin, usd, selectedDepCard, last4, name).then(function(res) {
+        showToast('\uD83D\uDCB3 Card deposit initiated! SMS receipt: ' + res.receiptCode, '#27ae60');
+        document.getElementById('depAmount').value = '';
+        document.getElementById('depLast4').value  = '';
+        depCalc();
+        renderBalBar();
+        openProof(res.id);
+      }).catch(function(err) {
+        showToast('\u274C ' + err, '#e74c3c');
+      });
+    } else {
+      var result = P2P_BACKEND.depositViaCard(coin, usd, selectedDepCard, last4, name);
+      showToast('\uD83D\uDCB3 Card deposit initiated! SMS receipt: ' + result.receiptCode, '#27ae60');
+      document.getElementById('depAmount').value = '';
+      document.getElementById('depLast4').value  = '';
+      depCalc();
+      renderBalBar();
+      openProof(result.id);
+    }
+  } catch(e) {
+    showToast('\u274C ' + e.message, '#e74c3c');
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+//  WITHDRAW FUNCTIONS
+// ══════════════════════════════════════════════════════════
+
+function wdCalc() {
+  var coin   = document.getElementById('wdCoin').value;
+  var amount = parseFloat(document.getElementById('wdAmount').value) || 0;
+  var price  = P2P_BACKEND.COIN_PRICES[coin] || 0.50;
+  var usdVal = amount * price;
+  var fee    = usdVal * P2P_BACKEND.CARD_WITHDRAW_FEE_PCT;
+  var net    = usdVal - fee;
+
+  document.getElementById('wdFee').textContent        = '$' + fee.toFixed(2);
+  document.getElementById('wdReceiveUsd').textContent  = '$' + (net > 0 ? net : 0).toFixed(2);
+  document.getElementById('wdDeducted').textContent    = amount.toFixed(4) + ' ' + coin;
+
+  var bals = getBals();
+  document.getElementById('wdBalLabel').textContent = coin;
+  document.getElementById('wdBalAmt').textContent   = (bals[coin] || 0).toFixed(4);
+}
+
+function wdSetPct(pct) {
+  var coin = document.getElementById('wdCoin').value;
+  var bals = getBals();
+  var bal  = bals[coin] || 0;
+  var amt  = bal * (pct / 100);
+  document.getElementById('wdAmount').value = amt > 0 ? amt.toFixed(4) : '';
+  wdCalc();
+}
+
+function doWithdraw() {
+  try {
+    var coin   = document.getElementById('wdCoin').value;
+    var amount = parseFloat(document.getElementById('wdAmount').value) || 0;
+    var name   = document.getElementById('wdName').value.trim();
+    var last4  = document.getElementById('wdLast4').value.trim();
+
+    if (!selectedWdCard) throw new Error('Please select a card type');
+    if (!name) throw new Error('Please enter cardholder name');
+    if (!last4 || last4.length !== 4) throw new Error('Please enter card last 4 digits');
+
+    if (typeof P2P_API !== 'undefined' && P2P_API.isOnline()) {
+      P2P_API.withdrawCard(coin, amount, selectedWdCard, last4, name).then(function(res) {
+        showToast('\uD83D\uDCB3 Card withdrawal initiated! SMS receipt: ' + res.receiptCode, '#f39c12');
+        document.getElementById('wdAmount').value = '';
+        document.getElementById('wdLast4').value  = '';
+        wdCalc();
+        renderBalBar();
+        openProof(res.id);
+      }).catch(function(err) {
+        showToast('\u274C ' + err, '#e74c3c');
+      });
+    } else {
+      var result = P2P_BACKEND.withdrawToCard(coin, amount, selectedWdCard, last4, name);
+      showToast('\uD83D\uDCB3 Card withdrawal initiated! SMS receipt: ' + result.receiptCode, '#f39c12');
+      document.getElementById('wdAmount').value = '';
+      document.getElementById('wdLast4').value  = '';
+      wdCalc();
+      renderBalBar();
+      openProof(result.id);
+    }
+  } catch(e) {
+    showToast('\u274C ' + e.message, '#e74c3c');
+  }
+}
+// ══════════════════════════════════════════════════════════
+//  PROOF MODAL
+// ══════════════════════════════════════════════════════════
+
+function openProof(recordId) {
+  var rec = P2P_BACKEND.getDWRecord(recordId);
+  if (!rec) { showToast('\u274C Transaction not found', '#e74c3c'); return; }
+
+  proofCurrentFile = null;
+
+  var d = new Date(rec.timestamp);
+  var time = d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+  var isDep = rec.type === 'card_deposit';
+  var typeLabel = isDep ? '\u2B06 Card Deposit' : '\u2B07 Card Withdraw';
+
+  // Find card label
+  var cardLabel = rec.cardType || '—';
+  var providers = P2P_BACKEND.CARD_PROVIDERS;
+  for (var i = 0; i < providers.length; i++) {
+    if (providers[i].id === rec.cardType) { cardLabel = providers[i].icon + ' ' + providers[i].label; break; }
+  }
+
+  document.getElementById('proofSub').textContent = typeLabel + ' \u2022 ' + time;
+
+  var statusCls = rec.status === 'pending_proof' ? 'pending' : rec.status === 'proof_submitted' ? 'submitted' : rec.status === 'confirmed' ? 'confirmed' : 'rejected';
+
+  var h = '<div class="receipt-box">';
+  h += '<div class="receipt-row"><span class="rl">Type</span><span class="rv">\uD83D\uDCB3 ' + (isDep ? 'Card Deposit' : 'Card Withdrawal') + '</span></div>';
+  h += '<div class="receipt-row"><span class="rl">Coin</span><span class="rv">' + esc(rec.coin) + '</span></div>';
+  h += '<div class="receipt-row"><span class="rl">Card</span><span class="rv">' + cardLabel + ' ****' + esc(rec.cardLast4 || '') + '</span></div>';
+  h += '<div class="receipt-row"><span class="rl">Cardholder</span><span class="rv">' + esc(rec.cardHolder || '') + '</span></div>';
+
+  if (isDep) {
+    h += '<div class="receipt-row"><span class="rl">USD Amount</span><span class="rv" style="color:#f0b90b;font-weight:800">$' + rec.usdAmount.toFixed(2) + '</span></div>';
+    h += '<div class="receipt-row"><span class="rl">Fee (2.5%)</span><span class="rv">$' + rec.fee.toFixed(2) + '</span></div>';
+    h += '<div class="receipt-row"><span class="rl">You Receive</span><span class="rv" style="color:#2ecc71;font-weight:800">' + rec.coinsReceived.toFixed(4) + ' ' + rec.coin + '</span></div>';
+  } else {
+    h += '<div class="receipt-row"><span class="rl">Amount</span><span class="rv" style="color:#f39c12;font-weight:800">' + rec.coinAmount.toFixed(4) + ' ' + rec.coin + '</span></div>';
+    h += '<div class="receipt-row"><span class="rl">USD Value</span><span class="rv">$' + rec.usdValue.toFixed(2) + '</span></div>';
+    h += '<div class="receipt-row"><span class="rl">Fee (3%)</span><span class="rv">$' + rec.fee.toFixed(2) + '</span></div>';
+    h += '<div class="receipt-row"><span class="rl">You Receive</span><span class="rv" style="color:#2ecc71;font-weight:800">$' + rec.netUsd.toFixed(2) + '</span></div>';
+  }
+  h += '</div>';
+
+  // Receipt code
+  h += '<div class="receipt-code-box">';
+  h += '<div class="rc-label">\uD83D\uDCE8 SMS Receipt Code (check your phone)</div>';
+  h += '<div class="rc-code">' + esc(rec.receiptCode || 'N/A') + '</div>';
+  h += '</div>';
+
+  // Status badge
+  h += '<div class="status-badge ' + statusCls + '">';
+  if (rec.status === 'pending_proof') h += '\u23F3 Awaiting Proof \u2014 Upload screenshot & enter receipt code';
+  else if (rec.status === 'proof_submitted') h += '\uD83D\uDD0D Proof Submitted \u2014 Verifying receipt code...';
+  else if (rec.status === 'confirmed') h += '\u2705 Verified & Confirmed';
+  else if (rec.status === 'rejected') h += '\u274C Rejected \u2014 Receipt code mismatch';
+  h += '</div>';
+
+  // Existing proof data
+  if (rec.proofScreenshot) {
+    h += '<div class="proof-screenshot">';
+    h += '<div style="font-size:.5rem;color:#888;font-weight:600;margin-bottom:4px">\uD83D\uDCF8 Payment Screenshot</div>';
+    h += '<img src="' + rec.proofScreenshot + '" alt="Payment proof" onclick="window.open(this.src)">';
+    h += '</div>';
+  }
+  if (rec.proofEnteredCode) {
+    h += '<div style="font-size:.48rem;color:#888;font-weight:600;margin-top:6px">\uD83D\uDCDD Entered Receipt Code</div>';
+    h += '<div class="proof-txcode">' + esc(rec.proofEnteredCode) + '</div>';
+  }
+  if (rec.proofNote) {
+    h += '<div class="proof-note">\uD83D\uDCAC ' + esc(rec.proofNote) + '</div>';
+  }
+  if (rec.proofSubmittedAt) {
+    var ps = new Date(rec.proofSubmittedAt);
+    h += '<div class="proof-time">Proof submitted: ' + ps.toLocaleString() + '</div>';
+  }
+  if (rec.proofVerifiedAt) {
+    var pv = new Date(rec.proofVerifiedAt);
+    h += '<div class="proof-time" style="color:#2ecc71">\u2705 Verified: ' + pv.toLocaleString() + '</div>';
+  }
+  if (rec.rejectReason) {
+    h += '<div style="font-size:.5rem;color:#eb5757;margin-top:6px">\u26A0\uFE0F ' + esc(rec.rejectReason) + '</div>';
+  }
+
+  // Actions
+  if (rec.status === 'pending_proof' || rec.status === 'rejected') {
+    h += '<div style="margin-top:14px">';
+    h += '<div class="label">\uD83D\uDCF8 Upload Payment Screenshot / SMS Receipt</div>';
+    h += '<input type="file" id="proofFile" accept="image/*" onchange="handleProofFile(event)" style="display:none">';
+    h += '<div class="upload-area" onclick="document.getElementById(\'proofFile\').click()" id="uploadArea">';
+    h += '<div class="u-icon">\uD83D\uDCF7</div>';
+    h += '<div class="u-hint">Tap to upload screenshot of your payment SMS or receipt</div>';
+    h += '</div>';
+    h += '</div>';
+    h += '<div style="margin-top:8px">';
+    h += '<div class="label">\uD83D\uDCDD Enter Receipt Code (from your SMS confirmation)</div>';
+    h += '<input type="text" class="proof-input" id="proofCode" placeholder="e.g. OLI-XXXX-YYYYYY" maxlength="40">';
+    h += '</div>';
+    h += '<div style="margin-top:4px">';
+    h += '<div class="label">\uD83D\uDCAC Additional Note (optional)</div>';
+    h += '<input type="text" class="proof-input" id="proofNote" placeholder="e.g. Paid via Visa ending 4321" maxlength="120">';
+    h += '</div>';
+    h += '<div class="proof-actions">';
+    h += '<button class="pbtn pbtn-submit" onclick="submitProof(\'' + esc(rec.id) + '\')">\uD83D\uDCF8 Submit Proof & Verify</button>';
+    h += '</div>';
+  } else if (rec.status === 'proof_submitted') {
+    h += '<div class="proof-actions">';
+    h += '<button class="pbtn pbtn-verify" onclick="verifyProof(\'' + esc(rec.id) + '\')">\u2705 Verify Receipt Code</button>';
+    h += '<button class="pbtn pbtn-reject" onclick="rejectProof(\'' + esc(rec.id) + '\')">\u274C Reject</button>';
+    h += '</div>';
+  }
+
+  document.getElementById('proofBody').innerHTML = h;
+  document.getElementById('proofModal').className = 'modal-overlay show';
+}
+
+function closeModal() {
+  document.getElementById('proofModal').className = 'modal-overlay';
+}
+
+function handleProofFile(event) {
+  var file = event.target.files[0];
+  if (!file) return;
+  if (!file.type.match(/^image\//)) {
+    showToast('\u274C Please upload an image file', '#e74c3c');
+    return;
+  }
+  if (file.size > 5 * 1024 * 1024) {
+    showToast('\u274C Image too large (max 5MB)', '#e74c3c');
+    return;
+  }
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    proofCurrentFile = e.target.result;
+    var area = document.getElementById('uploadArea');
+    area.innerHTML = '<img class="upload-preview" src="' + proofCurrentFile + '" alt="Preview">'
+      + '<div class="u-hint" style="margin-top:4px">\u2705 ' + esc(file.name) + ' \u2022 Tap to change</div>';
+  };
+  reader.readAsDataURL(file);
+}
+
+function submitProof(recordId) {
+  try {
+    var code = (document.getElementById('proofCode').value || '').trim();
+    var note = (document.getElementById('proofNote').value || '').trim();
+
+    if (!proofCurrentFile) {
+      showToast('\u26A0\uFE0F Please upload a screenshot of your payment', '#e74c3c');
+      return;
+    }
+    if (!code || code.length < 3) {
+      showToast('\u26A0\uFE0F Enter the receipt code from your SMS', '#e74c3c');
+      return;
+    }
+
+    if (typeof P2P_API !== 'undefined' && P2P_API.isOnline()) {
+      P2P_API.submitProof(recordId, proofCurrentFile, code, note).then(function() {
+        return P2P_API.verifyProof(recordId);
+      }).then(function() {
+        showToast('\u2705 Receipt code verified! Transaction confirmed.', '#2ecc71');
+        openProof(recordId);
+        renderBalBar();
+      }).catch(function(err) {
+        showToast('\u274C ' + err, '#e74c3c');
+        openProof(recordId);
+        renderBalBar();
+      });
+    } else {
+      P2P_BACKEND.submitDWProof(recordId, proofCurrentFile, code, note);
+      try {
+        P2P_BACKEND.verifyDWTransaction(recordId);
+        showToast('\u2705 Receipt code verified! Transaction confirmed.', '#2ecc71');
+      } catch(verifyErr) {
+        showToast('\u274C ' + verifyErr.message, '#e74c3c');
+      }
+      openProof(recordId);
+      renderBalBar();
+    }
+  } catch(e) {
+    showToast('\u274C ' + e.message, '#e74c3c');
+  }
+}
+
+function verifyProof(recordId) {
+  try {
+    if (typeof P2P_API !== 'undefined' && P2P_API.isOnline()) {
+      P2P_API.verifyProof(recordId).then(function() {
+        showToast('\u2705 Transaction verified and confirmed!', '#2ecc71');
+        openProof(recordId);
+        renderBalBar();
+      }).catch(function(err) {
+        showToast('\u274C ' + err, '#e74c3c');
+      });
+    } else {
+      P2P_BACKEND.verifyDWTransaction(recordId);
+      showToast('\u2705 Transaction verified and confirmed!', '#2ecc71');
+      openProof(recordId);
+      renderBalBar();
+    }
+  } catch(e) {
+    showToast('\u274C ' + e.message, '#e74c3c');
+  }
+}
+
+function rejectProof(recordId) {
+  var reason = prompt('Reason for rejection:');
+  if (!reason) return;
+  try {
+    if (typeof P2P_API !== 'undefined' && P2P_API.isOnline()) {
+      P2P_API.rejectProof(recordId, reason).then(function() {
+        showToast('\u26A0\uFE0F Transaction rejected. Funds refunded for withdrawals.', '#e74c3c');
+        openProof(recordId);
+        renderBalBar();
+      }).catch(function(err) {
+        showToast('\u274C ' + err, '#e74c3c');
+      });
+    } else {
+      P2P_BACKEND.rejectDWProof(recordId, reason);
+      showToast('\u26A0\uFE0F Transaction rejected. Funds refunded for withdrawals.', '#e74c3c');
+      openProof(recordId);
+      renderBalBar();
+    }
+  } catch(e) {
+    showToast('\u274C ' + e.message, '#e74c3c');
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════════════════
+
+(function init() {
+  renderBalBar();
+  renderChips('depChips', '');
+  renderChips('wdChips', '');
+  depCalc();
+  wdCalc();
+
+  // Sync with API server if available
+  if (typeof P2P_API !== 'undefined') {
+    P2P_API.checkHealth().then(function() {
+      console.log('[P2P-Card] API server connected');
+      return P2P_API.syncBalance();
+    }).then(function() {
+      renderBalBar();
+    }).catch(function() {
+      console.log('[P2P-Card] API server offline, using local storage');
+    });
+  }
+})();
+</script>
+</body>
+</html>
