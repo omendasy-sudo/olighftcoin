@@ -392,6 +392,74 @@ function onCardChange(){
 function getUser(){try{return JSON.parse(localStorage.getItem('cw_user')||'null');}catch(e){return null;}}
 
 const MAX_STAKES=5;
+const OLIGHFT_TOTAL_SUPPLY=100000000000000;
+const ADMIN_WALLET_SPLIT=0.60;
+const ADMIN_WALLET_USERNAME='OLIGHFTCOIN';
+
+// ── Supply Pool ──
+function getSupplyPool(){
+  var remaining=parseFloat(localStorage.getItem('olighft_remaining_supply')||'');
+  if(isNaN(remaining)||remaining<=0)remaining=OLIGHFT_TOTAL_SUPPLY;
+  return remaining;
+}
+function deductFromSupply(amount,reason,stakeId){
+  var remaining=getSupplyPool();
+  if(amount>remaining)amount=remaining;
+  remaining-=amount;
+  localStorage.setItem('olighft_remaining_supply',remaining.toString());
+  var log=[];try{log=JSON.parse(localStorage.getItem('cw_supply_log')||'[]');}catch(e){log=[];}
+  log.push({amount:amount,reason:reason,stakeId:stakeId||'',remaining:remaining,ts:Date.now()});
+  if(log.length>300)log=log.slice(-300);
+  localStorage.setItem('cw_supply_log',JSON.stringify(log));
+  return {deducted:amount,remaining:remaining};
+}
+function reserveRewardFromSupply(estimatedReward,stakeId){
+  return deductFromSupply(estimatedReward,'reward_reserve',stakeId);
+}
+
+// ── Admin Wallet Deposit → OLIGHFTCOIN ──
+function depositToAdminWallet(amountOLIGHFT,source,stakeId){
+  var deposits=[];try{deposits=JSON.parse(localStorage.getItem('cw_admin_deposits')||'[]');}catch(e){deposits=[];}
+  var usdValue=amountOLIGHFT*0.50;
+  deposits.push({id:'adm_'+Date.now()+'_'+Math.random().toString(36).slice(2,6),wallet:ADMIN_WALLET_USERNAME,amount:amountOLIGHFT,usd:usdValue,source:source,stakeId:stakeId,ts:Date.now(),date:new Date().toISOString()});
+  localStorage.setItem('cw_admin_deposits',JSON.stringify(deposits));
+  var total=parseFloat(localStorage.getItem('cw_admin_total')||'0');
+  total+=amountOLIGHFT;
+  localStorage.setItem('cw_admin_total',total.toString());
+  return {amount:amountOLIGHFT,usd:usdValue};
+}
+
+// ── Credit Sponsor Balance ──
+function creditSponsorBalance(sponsorName,amountOLIGHFT){
+  var balKey='cw_sponsor_bal_'+sponsorName.toLowerCase();
+  var bal=parseFloat(localStorage.getItem(balKey)||'0');
+  bal+=amountOLIGHFT;
+  localStorage.setItem(balKey,bal.toString());
+}
+
+// ── 8-Generation Commission Distribution ──
+function distribute8GenCommissions(stakerEmail,stakeAmountOLIGHFT,stakeId,cardTier){
+  var invites=[];try{invites=JSON.parse(localStorage.getItem('cw_invites')||'[]');}catch(e){return [];}
+  var GEN_RATES_ABS=[0.10,0.06,0.04,0.04,0.04,0.04,0.04,0.04];
+  var currentEmail=stakerEmail.toLowerCase();
+  var commissions=[];
+  for(var gen=0;gen<8;gen++){
+    var found=null;
+    for(var inv of invites){if(inv.invitee&&inv.invitee.email&&inv.invitee.email.toLowerCase()===currentEmail){found=inv;break;}}
+    if(!found||!found.inviterName)break;
+    var genAmt=stakeAmountOLIGHFT*GEN_RATES_ABS[gen];
+    creditSponsorBalance(found.inviterName,genAmt);
+    commissions.push({gen:gen+1,sponsor:found.inviterName,amount:genAmt,rate:GEN_RATES_ABS[gen]});
+    var sponsorInv=invites.find(function(x){return x.invitee&&x.invitee.email&&x.inviterName&&x.inviterName.toLowerCase()===found.inviterName.toLowerCase();});
+    if(!sponsorInv||!sponsorInv.invitee)break;
+    currentEmail=sponsorInv.invitee.email.toLowerCase();
+  }
+  if(commissions.length<8){
+    var undist=0;for(var g=commissions.length;g<8;g++)undist+=stakeAmountOLIGHFT*GEN_RATES_ABS[g];
+    if(undist>0)depositToAdminWallet(undist,'unclaimed_gen_'+(commissions.length+1)+'_to_8',stakeId);
+  }
+  return commissions;
+}
 
 function getMyStakes(){
   const all=JSON.parse(localStorage.getItem('card_stakes')||'[]');
@@ -521,10 +589,19 @@ async function activateStake(){
   if(!confirm('Confirm '+CARD.name+' Stake #'+slotNum+' Activation?\n\n\uD83D\uDCB0 Cost: '+requiredOLIGHFT.toLocaleString()+' OLIGHFT ($'+totalCostUSD+')\n\u23F1 Period: '+d+' days\n\uD83D\uDCC8 Daily: $'+CARD.daily+'\n\uD83D\uDCB5 Total: $'+compPayout+' ('+comp+')\n\uD83C\uDF33 Sponsor: '+sponsor+'\n\uD83D\uDCE6 Slot: '+slotNum+' of '+MAX_STAKES+'\n\n\uD83D\uDCB0 Your OLIGHFT Balance: '+myOLIGHFT.toLocaleString()))return;
   cwBals.OLIGHFT=myOLIGHFT-requiredOLIGHFT;
   localStorage.setItem('cw_balances',JSON.stringify(cwBals));
-  const mainWallet=(CARD.stake*0.60).toFixed(2);
-  const refTotal=(CARD.stake*0.40).toFixed(2);
+  // ── 60% Admin Deposit → OLIGHFTCOIN ──
+  var stakeId=CARD.name+'_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);
+  var adminOLIGHFT=requiredOLIGHFT*ADMIN_WALLET_SPLIT;
+  var adminDeposit=depositToAdminWallet(adminOLIGHFT,'card_stake_'+CARD.name,stakeId);
+  // ── 40% → 8-Gen Referral Distribution ──
+  var refOLIGHFT=requiredOLIGHFT*(1-ADMIN_WALLET_SPLIT);
+  var genCommissions=distribute8GenCommissions(user.email,refOLIGHFT,stakeId,CARD.name);
+  // ── Reserve estimated reward from supply pool ──
+  var cardDailyOLIGHFT=CARD.daily/0.50;
+  var estimatedReward=calcCardDailyCompound(cardDailyOLIGHFT,d,comp);
+  var supplyResult=reserveRewardFromSupply(estimatedReward,stakeId);
   const stakes=JSON.parse(localStorage.getItem('card_stakes')||'[]');
-  stakes.push({card:CARD.name,stake:CARD.stake,fee:CARD.fee,daily:CARD.daily,period:d,payout:compPayout,compound:comp,sponsor:sponsor,activatedBy:user.name,date:new Date().toISOString(),paidOLIGHFT:requiredOLIGHFT,referral:{mainWallet:parseFloat(mainWallet),genTotal:parseFloat(refTotal),gens:GEN_RATES.map((rt,i)=>({gen:i+1,amt:CARD.stake*rt}))}});
+  stakes.push({id:stakeId,card:CARD.name,stake:CARD.stake,fee:CARD.fee,daily:CARD.daily,period:d,payout:compPayout,compound:comp,sponsor:sponsor,activatedBy:user.name,date:new Date().toISOString(),paidOLIGHFT:requiredOLIGHFT,estimatedTotalReward:estimatedReward,reservedFromSupply:supplyResult.deducted,split:{adminWallet:adminOLIGHFT,adminWalletName:ADMIN_WALLET_USERNAME,adminUSD:adminDeposit.usd,referralPool:refOLIGHFT,genDistributed:genCommissions.length,genCommissions:genCommissions}});
   localStorage.setItem('card_stakes',JSON.stringify(stakes));
   // Unified activity log
   try{var al=JSON.parse(localStorage.getItem('cw_activity')||'[]');al.unshift({type:CARD.name+' Card Stake',icon:'\uD83C\uDF1F',detail:'$'+CARD.stake+' staked \u00B7 '+d+'d \u00B7 $'+CARD.daily+'/day \u00B7 Sponsor: '+sponsor,amt:'-'+requiredOLIGHFT.toFixed(0)+' OLIGHFT',cls:'red',time:'Just now',ts:Date.now()});if(al.length>50)al.length=50;localStorage.setItem('cw_activity',JSON.stringify(al));}catch(e){}
@@ -542,10 +619,6 @@ async function activateStake(){
       console.warn('On-chain activate failed:',e.message);
     }
   }
-  const TOTAL_SUPPLY=100000000000000;
-  let totalStaked=0;stakes.forEach(function(s){totalStaked+=s.payout||0;});
-  const remaining=TOTAL_SUPPLY-totalStaked;
-  localStorage.setItem('olighft_remaining_supply',remaining.toString());
   // ── Advance invite stage: card_activated ──
   (function(){try{var ISTAGES=['invited','registered','wallet_created','card_activated','staking_active'];var u=JSON.parse(localStorage.getItem('cw_user')||'null');if(!u||!u.email)return;var invs=JSON.parse(localStorage.getItem('cw_invites')||'[]');for(var inv of invs){if(inv.invitee&&inv.invitee.email&&inv.invitee.email.toLowerCase()===u.email.toLowerCase()){var ci=ISTAGES.indexOf(inv.stage),ni=ISTAGES.indexOf('card_activated');if(ni>ci){inv.stage='card_activated';inv.stageHistory.push({stage:'card_activated',at:Date.now()});}break;}}localStorage.setItem('cw_invites',JSON.stringify(invs));}catch(e){}})();
   alert('\u2705 '+CARD.name+' Stake #'+slotNum+' Activated!\n\n\uD83D\uDCB0 Paid: '+requiredOLIGHFT.toLocaleString()+' OLIGHFT ($'+totalCostUSD+')\n\u23F1 Period: '+d+' days\n\uD83D\uDCC8 Daily: $'+CARD.daily+' \u2192 Total: $'+compPayout+' ('+comp+')\n\uD83D\uDCB5 Net Profit: $'+(compPayout-CARD.stake-CARD.fee)+'\n\uD83C\uDF33 Sponsor: '+sponsor+'\n\uD83D\uDCE6 Slots used: '+slotNum+'/'+MAX_STAKES+'\n\uD83D\uDCB0 Remaining OLIGHFT: '+cwBals.OLIGHFT.toLocaleString());

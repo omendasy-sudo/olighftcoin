@@ -533,6 +533,7 @@ function getUser(){try{return JSON.parse(localStorage.getItem('cw_user')||'null'
 const MAX_STAKES=5;
 const OLIGHFT_TOTAL_SUPPLY=100000000000000;
 const ADMIN_WALLET_SPLIT=0.60;
+const ADMIN_WALLET_USERNAME='OLIGHFTCOIN';
 
 // ── Supply Pool (shared with dashboard) ──
 function getSupplyPool(){
@@ -559,7 +560,7 @@ function reserveRewardFromSupply(estimatedReward,stakeId){
 function depositToAdminWallet(amountOLIGHFT,source,stakeId){
   var deposits=[];try{deposits=JSON.parse(localStorage.getItem('cw_admin_deposits')||'[]');}catch(e){deposits=[];}
   var usdValue=amountOLIGHFT*0.50;
-  deposits.push({id:'adm_'+Date.now()+'_'+Math.random().toString(36).slice(2,6),amount:amountOLIGHFT,usd:usdValue,source:source,stakeId:stakeId,ts:Date.now(),date:new Date().toISOString()});
+  deposits.push({id:'adm_'+Date.now()+'_'+Math.random().toString(36).slice(2,6),wallet:ADMIN_WALLET_USERNAME,amount:amountOLIGHFT,usd:usdValue,source:source,stakeId:stakeId,ts:Date.now(),date:new Date().toISOString()});
   localStorage.setItem('cw_admin_deposits',JSON.stringify(deposits));
   var total=parseFloat(localStorage.getItem('cw_admin_total')||'0');
   total+=amountOLIGHFT;
