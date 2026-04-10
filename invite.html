@@ -235,7 +235,7 @@ var GEN_RATES = [0.10, 0.06, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04];
 
   document.getElementById('mainContent').style.display = 'block';
 
-  var refCode = user.name || 'USER';
+  var refCode = user.username || user.name || 'USER';
   var baseUrl = window.location.origin || 'https://olighftcoin.com';
   var fullLink = baseUrl + '/auth.html?ref=' + encodeURIComponent(refCode);
 

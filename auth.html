@@ -284,7 +284,17 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 
 <div class="field">
 <label for="reg-name">Full Name</label>
-<input type="text" id="reg-name" placeholder="John Doe" required autocomplete="name">
+<input type="text" id="reg-name" placeholder="John Doe" required autocomplete="name" oninput="autoGenUsername()">
+</div>
+
+<div class="field" id="field-reg-username">
+<label for="reg-username">Username <span style="color:rgba(245,197,24,.6);font-size:.55rem">(unique &mdash; used as your referral code)</span></label>
+<div style="display:flex;gap:8px;align-items:center">
+<input type="text" id="reg-username" placeholder="e.g. john_doe42" required autocomplete="username" style="flex:1" oninput="checkUsernameAvail()">
+<button type="button" onclick="regenerateUsername()" style="padding:8px 14px;border:none;border-radius:8px;background:rgba(108,92,231,.15);color:#a29bfe;font-size:.7rem;font-weight:700;cursor:pointer;white-space:nowrap" title="Generate new">&#x1F504;</button>
+</div>
+<div id="username-status" style="font-size:.58rem;color:rgba(255,255,255,.3);margin-top:4px">&#x1F511; This will be your unique invite code</div>
+<div class="field-err">Username is required and must be unique.</div>
 </div>
 
 <div class="field" id="field-reg-email">
@@ -942,11 +952,62 @@ async function handleLogin(e) {
     }
 }
 
+// ── Username Helpers ──
+function generateUsername(fullName) {
+    var base = (fullName || '').toLowerCase().replace(/[^a-z0-9]/g, '_').replace(/_+/g, '_').replace(/^_|_$/g, '');
+    if (!base) base = 'user';
+    if (base.length > 14) base = base.substring(0, 14);
+    var suffix = Math.floor(10 + Math.random() * 990);
+    return base + suffix;
+}
+
+function isUsernameTaken(uname) {
+    var registry = [];
+    try { registry = JSON.parse(localStorage.getItem('cw_usernames') || '[]'); } catch(e) { registry = []; }
+    return registry.indexOf(uname.toLowerCase()) !== -1;
+}
+
+function autoGenUsername() {
+    var nameVal = document.getElementById('reg-name').value.trim();
+    var el = document.getElementById('reg-username');
+    if (!el._userEdited && nameVal.length >= 2) {
+        var candidate = generateUsername(nameVal);
+        var tries = 0;
+        while (isUsernameTaken(candidate) && tries < 10) { candidate = generateUsername(nameVal); tries++; }
+        el.value = candidate;
+        checkUsernameAvail();
+    }
+}
+
+function regenerateUsername() {
+    var nameVal = document.getElementById('reg-name').value.trim() || 'user';
+    var el = document.getElementById('reg-username');
+    var candidate = generateUsername(nameVal);
+    var tries = 0;
+    while (isUsernameTaken(candidate) && tries < 10) { candidate = generateUsername(nameVal); tries++; }
+    el.value = candidate;
+    el._userEdited = false;
+    checkUsernameAvail();
+}
+
+function checkUsernameAvail() {
+    var el = document.getElementById('reg-username');
+    var st = document.getElementById('username-status');
+    var val = el.value.trim().toLowerCase().replace(/[^a-z0-9_]/g, '');
+    el.value = val;
+    if (el === document.activeElement) el._userEdited = true;
+    if (val.length < 3) { st.innerHTML = '&#x26A0;&#xFE0F; Min 3 characters'; st.style.color = 'rgba(255,100,100,.6)'; return; }
+    if (val.length > 20) { st.innerHTML = '&#x26A0;&#xFE0F; Max 20 characters'; st.style.color = 'rgba(255,100,100,.6)'; return; }
+    if (isUsernameTaken(val)) { st.innerHTML = '&#x274C; \"' + val + '\" is taken'; st.style.color = 'rgba(255,100,100,.6)'; return; }
+    st.innerHTML = '&#x2705; \"' + val + '\" is available'; st.style.color = 'rgba(39,174,96,.7)';
+}
+
 // ── Register Handler ──
 async function handleRegister(e) {
     e.preventDefault();
     hideAlert();
     const name    = document.getElementById('reg-name').value.trim();
+    const username = document.getElementById('reg-username').value.trim().toLowerCase().replace(/[^a-z0-9_]/g, '');
     const email   = document.getElementById('reg-email').value.trim();
     const phoneCode = document.getElementById('reg-phone-code').value.trim();
     const phoneNum  = document.getElementById('reg-phone').value.trim();
@@ -957,7 +1018,20 @@ async function handleRegister(e) {
     const sponsor = document.getElementById('reg-sponsor').value.trim();
     const agreed  = document.getElementById('agree-terms').checked;
 
-    if (!name || !email || !pw || !pw2 || !sponsor || !phoneNum) { showAlert('error', 'Please fill in all required fields.'); return; }
+    if (!name || !username || !email || !pw || !pw2 || !sponsor || !phoneNum) { showAlert('error', 'Please fill in all required fields.'); return; }
+
+    // Username validation
+    if (username.length < 3 || username.length > 20) {
+        showAlert('error', 'Username must be 3–20 characters.');
+        document.getElementById('field-reg-username').classList.add('has-error');
+        return;
+    }
+    if (isUsernameTaken(username)) {
+        showAlert('error', 'Username "' + username + '" is already taken. Please choose another.');
+        document.getElementById('field-reg-username').classList.add('has-error');
+        return;
+    }
+    document.getElementById('field-reg-username').classList.remove('has-error');
 
     // Tier validation
     if (!tier) {
@@ -1016,6 +1090,7 @@ async function handleRegister(e) {
     // ── Create account NOW using the registration email ──
     const user = {
         name: name,
+        username: username,
         email: email,
         phone: phone,
         sponsor: sponsor,
@@ -1026,6 +1101,12 @@ async function handleRegister(e) {
         verified: false   // will be set to true after OTP confirmation
     };
     localStorage.setItem('cw_user', JSON.stringify(user));
+
+    // Save username to registry for uniqueness
+    var uReg = [];
+    try { uReg = JSON.parse(localStorage.getItem('cw_usernames') || '[]'); } catch(e) { uReg = []; }
+    if (uReg.indexOf(username) === -1) uReg.push(username);
+    localStorage.setItem('cw_usernames', JSON.stringify(uReg));
 
     // ── Track invite stage: mark as "registered" ──
     if (sponsor) {
@@ -1064,7 +1145,7 @@ async function handleRegister(e) {
     }
 
     // Store pending context for OTP verification
-    window._pendingAuth = { type: 'register', name: name, email: email, phone: phone, sponsor: sponsor, tier: tier };
+    window._pendingAuth = { type: 'register', name: name, username: username, email: email, phone: phone, sponsor: sponsor, tier: tier };
 
     // If Google Auth enabled, skip email OTP
     if (isGauthEnabled()) {
