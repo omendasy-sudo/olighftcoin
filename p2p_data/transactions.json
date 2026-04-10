@@ -1,0 +1,24 @@
+[
+  {
+    "id": "dep_1775830826520_ba613c",
+    "type": "deposit",
+    "userId": "testUser1",
+    "coin": "OLIGHFT",
+    "usdAmount": 100.0,
+    "fee": 1.5,
+    "feePct": 0.015,
+    "coinsReceived": 197.0,
+    "status": "confirmed",
+    "receiptCode": "OLI-1E36-DE9717",
+    "proofScreenshot": "dep_1775830826520_ba613c_proof.txt",
+    "proofEnteredCode": "OLI-1E36-DE9717",
+    "proofNote": "Test proof",
+    "proofSubmittedAt": 1775830875538,
+    "proofVerifiedAt": 1775830891553,
+    "rejectReason": "",
+    "timestamp": 1775830826520,
+    "completedAt": 1775830891553,
+    "provider": "mpesa",
+    "phone": "0712345678"
+  }
+]
