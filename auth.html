@@ -185,8 +185,8 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 
 <!-- Tabs -->
 <div class="tabs">
-<button class="tab active" onclick="showPanel('login')" id="tab-login">&#x1F512; Login</button>
-<button class="tab" onclick="showPanel('register')" id="tab-register">&#x1F4DD; Register</button>
+<button class="tab" onclick="showPanel('login')" id="tab-login">&#x1F512; Login</button>
+<button class="tab active" onclick="showPanel('register')" id="tab-register">&#x1F4DD; Register</button>
 </div>
 
 <!-- Auth Card -->
@@ -201,7 +201,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 <!-- ═══════════════════════════════════════════ -->
 <!-- ═══ LOGIN PANEL ═══ -->
 <!-- ═══════════════════════════════════════════ -->
-<div class="form-panel active" id="panel-login">
+<div class="form-panel" id="panel-login">
 <form id="login-form" onsubmit="handleLogin(event)" novalidate>
 
 <div class="login-toggle" id="loginToggle">
@@ -269,7 +269,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 <!-- ═══════════════════════════════════════════ -->
 <!-- ═══ REGISTER PANEL ═══ -->
 <!-- ═══════════════════════════════════════════ -->
-<div class="form-panel" id="panel-register">
+<div class="form-panel active" id="panel-register">
 <form id="register-form" onsubmit="handleRegister(event)" novalidate>
 
 <div class="referral-box">
