@@ -859,7 +859,11 @@ async function handleLogin(e) {
     setLoading('login-btn', true);
 
     // Check if user already registered in localStorage
-    const existingUser = JSON.parse(localStorage.getItem('cw_user') || 'null');
+    var existingUser = JSON.parse(localStorage.getItem('cw_user') || 'null');
+    // Also check saved account from previous logout
+    if (!existingUser) {
+        try { existingUser = JSON.parse(localStorage.getItem('cw_registered_account') || 'null'); } catch(e) {}
+    }
     if (!existingUser) {
         setLoading('login-btn', false);
         showAlert('error', 'No account found. Please register first.');
@@ -872,6 +876,10 @@ async function handleLogin(e) {
         setLoading('login-btn', false);
         showAlert('error', (_loginMode === 'phone' ? 'Phone number' : 'Email') + ' not found. Please check or register.');
         return;
+    }
+    // Restore cw_user from saved account if needed
+    if (!localStorage.getItem('cw_user')) {
+        localStorage.setItem('cw_user', JSON.stringify(existingUser));
     }
     // Resolve email for OTP sending
     if (!email && existingUser.email) email = existingUser.email;
@@ -1034,6 +1042,8 @@ async function handleRegister(e) {
         verified: false   // will be set to true after OTP confirmation
     };
     localStorage.setItem('cw_user', JSON.stringify(user));
+    // Also save as registered account for remember-after-logout
+    localStorage.setItem('cw_registered_account', JSON.stringify(user));
 
     // Save username to registry for uniqueness
     var uReg = [];
@@ -1980,8 +1990,14 @@ async function autoFillFromCredManager() {
         return;
     }
 
-    // No account registered — force Register panel, hint Login tab
-    if (!user) {
+    // Check if user previously registered (saved on logout)
+    var savedAcct = null;
+    try { savedAcct = JSON.parse(localStorage.getItem('cw_registered_account') || 'null'); } catch(e) {}
+    var savedRemember = null;
+    try { savedRemember = JSON.parse(localStorage.getItem('cw_remember') || 'null'); } catch(e) {}
+
+    // No account ever registered — show Register panel
+    if (!user && !savedAcct && !savedRemember) {
         showPanel('register');
         var loginTab = document.getElementById('tab-login');
         loginTab.style.opacity = '0.5';
@@ -1990,21 +2006,31 @@ async function autoFillFromCredManager() {
         return;
     }
 
-    // Auto-fill from Remember Me (localStorage)
+    // User was registered before — show Login panel with auto-fill
+    showPanel('login');
+
+    // Auto-fill from Remember Me
     try {
-        var saved = JSON.parse(localStorage.getItem('cw_remember') || 'null');
-        if (saved && saved.email && saved.pw) {
-            var age = Date.now() - (saved.at || 0);
-            if (age < 30 * 24 * 60 * 60 * 1000) { // 30 days
-                document.getElementById('login-email').value = saved.email;
-                document.getElementById('login-pw').value = atob(saved.pw);
+        if (savedRemember && savedRemember.email && savedRemember.pw) {
+            var age = Date.now() - (savedRemember.at || 0);
+            if (age < 30 * 24 * 60 * 60 * 1000) {
+                document.getElementById('login-email').value = savedRemember.email;
+                document.getElementById('login-pw').value = atob(savedRemember.pw);
                 document.getElementById('remember-me').checked = true;
                 showAlert('success', '\uD83D\uDD11 Welcome back! Tap Sign In to continue.');
+                return;
             } else {
                 localStorage.removeItem('cw_remember');
             }
         }
     } catch(e) {}
+
+    // Auto-fill email from saved account
+    if (savedAcct && savedAcct.email) {
+        document.getElementById('login-email').value = savedAcct.email;
+        showAlert('success', '\uD83D\uDD11 Welcome back, ' + (savedAcct.name || savedAcct.username || '') + '! Please sign in.');
+    }
+
     // Try auto-fill from Credential Manager
     if (isCredManagerSupported()) {
         autoFillFromCredManager();
