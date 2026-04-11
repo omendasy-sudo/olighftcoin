@@ -240,7 +240,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 
 <div class="check-row">
 <input type="checkbox" id="remember-me">
-<label for="remember-me">Remember me for 30 days</label>
+<label for="remember-me">Remember me</label>
 </div>
 
 <button type="submit" class="btn-primary login-btn" id="login-btn">Sign In</button>
@@ -2012,16 +2012,11 @@ async function autoFillFromCredManager() {
     // Auto-fill from Remember Me
     try {
         if (savedRemember && savedRemember.email && savedRemember.pw) {
-            var age = Date.now() - (savedRemember.at || 0);
-            if (age < 30 * 24 * 60 * 60 * 1000) {
                 document.getElementById('login-email').value = savedRemember.email;
                 document.getElementById('login-pw').value = atob(savedRemember.pw);
                 document.getElementById('remember-me').checked = true;
                 showAlert('success', '\uD83D\uDD11 Welcome back! Tap Sign In to continue.');
                 return;
-            } else {
-                localStorage.removeItem('cw_remember');
-            }
         }
     } catch(e) {}
 
