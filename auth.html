@@ -1206,6 +1206,11 @@ async function handleVerify() {
                 storedUser.verified = true;
                 localStorage.setItem('cw_user', JSON.stringify(storedUser));
             }
+            // After registration, go to login panel so user logs in
+            window._pendingAuth = null;
+            showAlert('success', 'Registration complete! Please log in.');
+            setTimeout(() => { showPanel('login'); }, 800);
+            return;
         }
         // For login / forgot — cw_user already exists, just verify & redirect
 
