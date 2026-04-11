@@ -580,11 +580,8 @@ h1{text-align:center;font-size:1.6rem;margin-bottom:4px;background:linear-gradie
 </div>
 <div class="stake-fg">
 <label>Auto-Compound</label>
-<select id="stakeCompound" onchange="updateStakeSummary()">
-<option value="daily" selected>Daily (+2.4%)</option>
-<option value="weekly">Weekly (+1.2%)</option>
-<option value="monthly">Monthly (+0.5%)</option>
-</select>
+<input type="hidden" id="stakeCompound" value="daily">
+<div style="padding:10px 14px;border-radius:10px;border:1px solid rgba(39,174,96,.15);background:rgba(39,174,96,.06);color:#27ae60;font-size:.8rem;font-weight:600">&#x1F504; Daily Auto-Compound (+2.4%)</div>
 </div>
 <div class="stake-fg" style="flex:0 0 auto">
 <label>&nbsp;</label>

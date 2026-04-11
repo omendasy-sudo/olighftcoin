@@ -557,11 +557,8 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
     </div>
     <div class="sp-field">
       <label>Compound</label>
-      <select id="skCompound" onchange="updateApy()">
-        <option value="daily" selected>&#x1F504; Daily (+2.4%)</option>
-        <option value="weekly">&#x1F504; Weekly (+1.2%)</option>
-        <option value="monthly">&#x1F504; Monthly (+0.5%)</option>
-      </select>
+      <input type="hidden" id="skCompound" value="daily">
+      <div style="padding:11px 13px;border-radius:10px;border:1px solid rgba(39,174,96,.15);background:rgba(39,174,96,.06);color:#27ae60;font-size:.8rem;font-weight:600">&#x1F504; Daily Auto-Compound (+2.4%)</div>
     </div>
     <div class="sp-field">
       <label>Staking Via</label>
