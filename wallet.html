@@ -1282,6 +1282,8 @@ function loadDashboard(){
   restoreGauthState();
   restoreGoogleLinkState();
   msRender();
+  // Auto-withdraw matured stakes on page load
+  try { autoWithdrawMaturedStakes(); } catch(e) { console.warn('autoWithdraw:', e); }
 }
 
 function renderAssets(){
@@ -1808,6 +1810,141 @@ function _executeWithdraw(stakeId, totalReturn, asset) {
   renderActivity();
   renderWalletStakes();
   showToast('\u2705 Withdrew ' + totalReturn.toFixed(2) + ' ' + asset + '!', '#27ae60');
+}
+
+// ── Auto-Withdraw Matured Stakes (18% fee to OLIGHFTCOIN admin wallet) ──
+var AUTO_WD_FEE_RATE = 0.18;
+var AUTO_WD_ADMIN_WALLET = 'OLIGHFTCOIN';
+
+function _autoDepositAdminWallet(amountOLIGHFT, source, stakeId) {
+  var deposits = [];
+  try { deposits = JSON.parse(localStorage.getItem('cw_admin_deposits') || '[]'); } catch(e) { deposits = []; }
+  var usdValue = amountOLIGHFT * 0.50;
+  deposits.push({
+    id: 'adm_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+    wallet: AUTO_WD_ADMIN_WALLET,
+    amount: amountOLIGHFT,
+    usd: usdValue,
+    source: source,
+    stakeId: stakeId,
+    ts: Date.now(),
+    date: new Date().toISOString()
+  });
+  localStorage.setItem('cw_admin_deposits', JSON.stringify(deposits));
+  var total = parseFloat(localStorage.getItem('cw_admin_total') || '0');
+  total += amountOLIGHFT;
+  localStorage.setItem('cw_admin_total', total.toString());
+}
+
+function autoWithdrawMaturedStakes() {
+  var now = Date.now();
+  var cwBals = JSON.parse(localStorage.getItem('cw_balances') || '{}');
+  var autoCount = 0;
+
+  // ── 1. Wallet Stakes (wallet_stakes) ──
+  var wStakes = [];
+  try { wStakes = JSON.parse(localStorage.getItem('wallet_stakes') || '[]'); } catch(e) {}
+  for (var i = 0; i < wStakes.length; i++) {
+    var s = wStakes[i];
+    if (s.withdrawn) continue;
+    if (!s.endDate) continue; // flexible stakes need manual withdraw
+    var end = new Date(s.endDate).getTime();
+    if (isNaN(end) || now < end) continue;
+
+    // Matured! Calculate total return
+    var elapsed = (now - new Date(s.lastCompound || s.startDate).getTime()) / 86400000;
+    var accrued = (s.dailyReward || 0) * elapsed;
+    var totalReturn = s.amount + (s.reward || 0) + accrued;
+    var asset = s.asset || 'XLM';
+
+    // 18% fee to admin wallet
+    var fee = totalReturn * AUTO_WD_FEE_RATE;
+    var userCredit = totalReturn - fee;
+
+    // Credit user balance
+    cwBals[asset] = (cwBals[asset] || 0) + userCredit;
+    var assetObj = assets.find(function(a) { return a.sym === asset; });
+    if (assetObj) assetObj.bal = cwBals[asset];
+
+    // Fee to admin wallet (convert to OLIGHFT equivalent)
+    var feeOLIGHFT = asset === 'OLIGHFT' ? fee : fee * ((assetObj ? assetObj.price : 1) / 0.50);
+    _autoDepositAdminWallet(feeOLIGHFT, 'auto_wd_fee_wallet', s.id);
+
+    // Mark withdrawn
+    wStakes[i].status = 'withdrawn';
+    wStakes[i].withdrawn = true;
+    wStakes[i].autoWithdrawn = true;
+    wStakes[i].withdrawnAt = new Date().toISOString();
+    wStakes[i].feeDeducted = fee;
+    wStakes[i].userCredited = userCredit;
+
+    // Activity log
+    defaultActivity.unshift({
+      type: 'Auto-Withdrawn',
+      icon: '\uD83D\uDD14',
+      detail: 'Auto-withdrew ' + userCredit.toFixed(2) + ' ' + asset + ' (18% fee: ' + fee.toFixed(2) + ' to admin)',
+      amt: '+' + userCredit.toFixed(2) + ' ' + asset,
+      cls: 'green',
+      time: 'Just now',
+      ts: Date.now()
+    });
+    autoCount++;
+  }
+  if (wStakes.length > 0) localStorage.setItem('wallet_stakes', JSON.stringify(wStakes));
+
+  // ── 2. Card Stakes (card_stakes) ──
+  var cStakes = [];
+  try { cStakes = JSON.parse(localStorage.getItem('card_stakes') || '[]'); } catch(e) {}
+  for (var j = 0; j < cStakes.length; j++) {
+    var cs = cStakes[j];
+    if (cs.withdrawn) continue;
+    var cEnd = new Date(cs.date).getTime() + ((cs.period || 0) * 86400000);
+    if (isNaN(cEnd) || now < cEnd) continue;
+
+    // Matured card stake — payout in OLIGHFT
+    var payoutUSD = cs.payout || 0;
+    var payoutOLIGHFT = payoutUSD / 0.50;
+
+    // 18% fee to admin wallet
+    var cFee = payoutOLIGHFT * AUTO_WD_FEE_RATE;
+    var cUserCredit = payoutOLIGHFT - cFee;
+
+    // Credit user OLIGHFT balance
+    cwBals.OLIGHFT = (cwBals.OLIGHFT || 0) + cUserCredit;
+
+    // Fee to admin wallet
+    _autoDepositAdminWallet(cFee, 'auto_wd_fee_card_' + (cs.card || ''), cs.id || '');
+
+    // Mark withdrawn
+    cStakes[j].withdrawn = true;
+    cStakes[j].autoWithdrawn = true;
+    cStakes[j].withdrawnAt = new Date().toISOString();
+    cStakes[j].withdrawnOLIGHFT = cUserCredit;
+    cStakes[j].feeDeducted = cFee;
+
+    // Activity log
+    defaultActivity.unshift({
+      type: 'Auto-Withdrawn',
+      icon: '\uD83D\uDD14',
+      detail: 'Auto-withdrew ' + cUserCredit.toFixed(2) + ' OLIGHFT from ' + (cs.card || 'Card') + ' stake (18% fee: ' + cFee.toFixed(2) + ')',
+      amt: '+' + cUserCredit.toFixed(2) + ' OLIGHFT',
+      cls: 'green',
+      time: 'Just now',
+      ts: Date.now()
+    });
+    autoCount++;
+  }
+  if (cStakes.length > 0) localStorage.setItem('card_stakes', JSON.stringify(cStakes));
+
+  // Save balances and activity
+  if (autoCount > 0) {
+    localStorage.setItem('cw_balances', JSON.stringify(cwBals));
+    saveActivity();
+    renderAssets();
+    renderActivity();
+    renderWalletStakes();
+    showToast('\uD83D\uDD14 ' + autoCount + ' matured stake' + (autoCount > 1 ? 's' : '') + ' auto-withdrawn (18% fee to admin)', '#27ae60');
+  }
 }
 
 function renderWalletStakes() {
