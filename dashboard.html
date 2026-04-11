@@ -556,10 +556,68 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
       </select>
     </div>
     <div class="sp-field">
-      <label>Compound</label>
       <input type="hidden" id="skCompound" value="daily">
-      <div style="padding:11px 13px;border-radius:10px;border:1px solid rgba(39,174,96,.15);background:rgba(39,174,96,.06);color:#27ae60;font-size:.8rem;font-weight:600">&#x1F504; Daily Auto-Compound (+2.4%)</div>
+      <label>Profit Summary</label>
+      <button onclick="document.getElementById('profitSummaryModal').style.display='block'" style="width:100%;padding:11px 13px;border-radius:10px;border:1px solid rgba(245,197,24,.2);background:linear-gradient(135deg,rgba(245,197,24,.08),rgba(39,174,96,.06));color:#f5c518;font-size:.78rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">&#x1F4CA; Card Profit &amp; 8-Gen Commission</button>
     </div>
+
+<!-- Profit Summary Modal -->
+<div id="profitSummaryModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);overflow-y:auto;padding:20px">
+<div style="max-width:520px;margin:30px auto;background:linear-gradient(145deg,#1a1a2e,#16213e);border:1px solid rgba(245,197,24,.15);border-radius:18px;padding:22px;position:relative">
+<button onclick="document.getElementById('profitSummaryModal').style.display='none'" style="position:absolute;top:12px;right:14px;background:none;border:none;color:rgba(255,255,255,.4);font-size:1.2rem;cursor:pointer">&times;</button>
+<h3 style="text-align:center;font-size:1rem;margin:0 0 6px;color:#f5c518">&#x1F4CA; Card Profit Summary</h3>
+<div style="text-align:center;font-size:.6rem;color:rgba(255,255,255,.35);margin-bottom:16px">Daily auto-compound (+2.4%) applied &bull; All amounts in USD</div>
+
+<div style="overflow-x:auto;margin-bottom:18px">
+<table style="width:100%;border-collapse:collapse;font-size:.7rem">
+<thead><tr style="border-bottom:1px solid rgba(245,197,24,.15)">
+<th style="text-align:left;padding:8px 6px;color:rgba(255,255,255,.4);font-weight:600">Card</th>
+<th style="text-align:center;padding:8px 4px;color:rgba(255,255,255,.4);font-weight:600">Stake</th>
+<th style="text-align:center;padding:8px 4px;color:rgba(255,255,255,.4);font-weight:600">Fee</th>
+<th style="text-align:center;padding:8px 4px;color:rgba(255,255,255,.4);font-weight:600">Daily</th>
+<th style="text-align:center;padding:8px 4px;color:#27ae60;font-weight:600">3 Mo</th>
+<th style="text-align:center;padding:8px 4px;color:#818cf8;font-weight:600">6 Mo</th>
+<th style="text-align:center;padding:8px 4px;color:#f5c518;font-weight:600">1 Yr</th>
+</tr></thead>
+<tbody>
+<tr style="border-bottom:1px solid rgba(255,255,255,.04)"><td style="padding:7px 6px;color:#f2994a;font-weight:700">&#x1F4B3; MC</td><td style="text-align:center;padding:7px 4px">$50</td><td style="text-align:center;padding:7px 4px;color:rgba(255,255,255,.4)">$20</td><td style="text-align:center;padding:7px 4px">$4</td><td style="text-align:center;padding:7px 4px;color:#27ae60;font-weight:700">$360</td><td style="text-align:center;padding:7px 4px;color:#818cf8;font-weight:700">$720</td><td style="text-align:center;padding:7px 4px;color:#f5c518;font-weight:700">$1,460</td></tr>
+<tr style="border-bottom:1px solid rgba(255,255,255,.04)"><td style="padding:7px 6px;color:#f5c518;font-weight:700">&#x1F4B3; Visa</td><td style="text-align:center;padding:7px 4px">$100</td><td style="text-align:center;padding:7px 4px;color:rgba(255,255,255,.4)">$40</td><td style="text-align:center;padding:7px 4px">$6</td><td style="text-align:center;padding:7px 4px;color:#27ae60;font-weight:700">$540</td><td style="text-align:center;padding:7px 4px;color:#818cf8;font-weight:700">$1,080</td><td style="text-align:center;padding:7px 4px;color:#f5c518;font-weight:700">$2,190</td></tr>
+<tr style="border-bottom:1px solid rgba(255,255,255,.04)"><td style="padding:7px 6px;color:#2d9cdb;font-weight:700">&#x1F3DB; Amex</td><td style="text-align:center;padding:7px 4px">$200</td><td style="text-align:center;padding:7px 4px;color:rgba(255,255,255,.4)">$80</td><td style="text-align:center;padding:7px 4px">$12</td><td style="text-align:center;padding:7px 4px;color:#27ae60;font-weight:700">$1,080</td><td style="text-align:center;padding:7px 4px;color:#818cf8;font-weight:700">$2,160</td><td style="text-align:center;padding:7px 4px;color:#f5c518;font-weight:700">$4,380</td></tr>
+<tr style="border-bottom:1px solid rgba(255,255,255,.04)"><td style="padding:7px 6px;color:#a0aec0;font-weight:700">&#x26CF; Plat</td><td style="text-align:center;padding:7px 4px">$300</td><td style="text-align:center;padding:7px 4px;color:rgba(255,255,255,.4)">$120</td><td style="text-align:center;padding:7px 4px">$18</td><td style="text-align:center;padding:7px 4px;color:#27ae60;font-weight:700">$1,620</td><td style="text-align:center;padding:7px 4px;color:#818cf8;font-weight:700">$3,240</td><td style="text-align:center;padding:7px 4px;color:#f5c518;font-weight:700">$6,570</td></tr>
+<tr style="border-bottom:1px solid rgba(255,255,255,.04)"><td style="padding:7px 6px;color:#daa520;font-weight:700">&#x1F3C6; Gold</td><td style="text-align:center;padding:7px 4px">$400</td><td style="text-align:center;padding:7px 4px;color:rgba(255,255,255,.4)">$160</td><td style="text-align:center;padding:7px 4px">$24</td><td style="text-align:center;padding:7px 4px;color:#27ae60;font-weight:700">$2,160</td><td style="text-align:center;padding:7px 4px;color:#818cf8;font-weight:700">$4,320</td><td style="text-align:center;padding:7px 4px;color:#f5c518;font-weight:700">$8,760</td></tr>
+<tr><td style="padding:7px 6px;color:#e2e8f0;font-weight:700">&#x1F5C4; Black</td><td style="text-align:center;padding:7px 4px">$500</td><td style="text-align:center;padding:7px 4px;color:rgba(255,255,255,.4)">$200</td><td style="text-align:center;padding:7px 4px">$30</td><td style="text-align:center;padding:7px 4px;color:#27ae60;font-weight:700">$2,700</td><td style="text-align:center;padding:7px 4px;color:#818cf8;font-weight:700">$5,400</td><td style="text-align:center;padding:7px 4px;color:#f5c518;font-weight:700">$10,950</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3 style="font-size:.88rem;color:#f5c518;margin:0 0 10px">&#x1F333; 8-Generation Referral Commission</h3>
+<div style="font-size:.62rem;color:rgba(255,255,255,.35);margin-bottom:10px">60% &#x2192; OLIGHFTCOIN Admin &bull; 40% &#x2192; 8-Gen Referral Tree</div>
+<table style="width:100%;border-collapse:collapse;font-size:.7rem">
+<thead><tr style="border-bottom:1px solid rgba(245,197,24,.15)">
+<th style="text-align:left;padding:6px;color:rgba(255,255,255,.4)">Gen</th>
+<th style="text-align:left;padding:6px;color:rgba(255,255,255,.4)">Role</th>
+<th style="text-align:center;padding:6px;color:rgba(255,255,255,.4)">Rate</th>
+<th style="text-align:right;padding:6px;color:rgba(255,255,255,.4)">MC $50</th>
+<th style="text-align:right;padding:6px;color:rgba(255,255,255,.4)">Visa $100</th>
+<th style="text-align:right;padding:6px;color:rgba(255,255,255,.4)">Black $500</th>
+</tr></thead>
+<tbody>
+<tr style="background:rgba(245,197,24,.04)"><td style="padding:5px 6px;font-weight:700;color:#f5c518">&mdash;</td><td style="padding:5px 6px">Admin Wallet</td><td style="text-align:center;padding:5px 6px;color:#f2994a">60%</td><td style="text-align:right;padding:5px 6px;font-weight:700;color:#f2994a">$30</td><td style="text-align:right;padding:5px 6px;font-weight:700;color:#f2994a">$60</td><td style="text-align:right;padding:5px 6px;font-weight:700;color:#f2994a">$300</td></tr>
+<tr><td style="padding:5px 6px;font-weight:700">1</td><td style="padding:5px 6px">Direct Inviter</td><td style="text-align:center;padding:5px 6px;color:#27ae60">10%</td><td style="text-align:right;padding:5px 6px;color:#27ae60">$5</td><td style="text-align:right;padding:5px 6px;color:#27ae60">$10</td><td style="text-align:right;padding:5px 6px;color:#27ae60">$50</td></tr>
+<tr><td style="padding:5px 6px;font-weight:700">2</td><td style="padding:5px 6px">Inviter&rsquo;s Inviter</td><td style="text-align:center;padding:5px 6px;color:#27ae60">6%</td><td style="text-align:right;padding:5px 6px;color:#27ae60">$3</td><td style="text-align:right;padding:5px 6px;color:#27ae60">$6</td><td style="text-align:right;padding:5px 6px;color:#27ae60">$30</td></tr>
+<tr><td style="padding:5px 6px;font-weight:700">3</td><td style="padding:5px 6px">Upline Lvl 3</td><td style="text-align:center;padding:5px 6px;color:#27ae60">4%</td><td style="text-align:right;padding:5px 6px;color:#27ae60">$2</td><td style="text-align:right;padding:5px 6px;color:#27ae60">$4</td><td style="text-align:right;padding:5px 6px;color:#27ae60">$20</td></tr>
+<tr><td style="padding:5px 6px;font-weight:700">4</td><td style="padding:5px 6px">Upline Lvl 4</td><td style="text-align:center;padding:5px 6px;color:#27ae60">4%</td><td style="text-align:right;padding:5px 6px;color:#27ae60">$2</td><td style="text-align:right;padding:5px 6px;color:#27ae60">$4</td><td style="text-align:right;padding:5px 6px;color:#27ae60">$20</td></tr>
+<tr><td style="padding:5px 6px;font-weight:700">5</td><td style="padding:5px 6px">Upline Lvl 5</td><td style="text-align:center;padding:5px 6px;color:#27ae60">4%</td><td style="text-align:right;padding:5px 6px;color:#27ae60">$2</td><td style="text-align:right;padding:5px 6px;color:#27ae60">$4</td><td style="text-align:right;padding:5px 6px;color:#27ae60">$20</td></tr>
+<tr><td style="padding:5px 6px;font-weight:700">6</td><td style="padding:5px 6px">Upline Lvl 6</td><td style="text-align:center;padding:5px 6px;color:#27ae60">4%</td><td style="text-align:right;padding:5px 6px;color:#27ae60">$2</td><td style="text-align:right;padding:5px 6px;color:#27ae60">$4</td><td style="text-align:right;padding:5px 6px;color:#27ae60">$20</td></tr>
+<tr><td style="padding:5px 6px;font-weight:700">7</td><td style="padding:5px 6px">Upline Lvl 7</td><td style="text-align:center;padding:5px 6px;color:#27ae60">4%</td><td style="text-align:right;padding:5px 6px;color:#27ae60">$2</td><td style="text-align:right;padding:5px 6px;color:#27ae60">$4</td><td style="text-align:right;padding:5px 6px;color:#27ae60">$20</td></tr>
+<tr style="border-bottom:none"><td style="padding:5px 6px;font-weight:700">8</td><td style="padding:5px 6px">Upline Lvl 8</td><td style="text-align:center;padding:5px 6px;color:#27ae60">4%</td><td style="text-align:right;padding:5px 6px;color:#27ae60">$2</td><td style="text-align:right;padding:5px 6px;color:#27ae60">$4</td><td style="text-align:right;padding:5px 6px;color:#27ae60">$20</td></tr>
+<tr style="border-top:1px solid rgba(245,197,24,.2)"><td colspan="3" style="padding:6px;font-weight:700;color:#f5c518">TOTAL</td><td style="text-align:right;padding:6px;font-weight:700;color:#f5c518">$50</td><td style="text-align:right;padding:6px;font-weight:700;color:#f5c518">$100</td><td style="text-align:right;padding:6px;font-weight:700;color:#f5c518">$500</td></tr>
+</tbody>
+</table>
+
+<div style="margin-top:14px;padding:10px;border-radius:10px;background:rgba(39,174,96,.06);border:1px solid rgba(39,174,96,.1);text-align:center;font-size:.62rem;color:rgba(255,255,255,.4)">&#x1F504; Daily auto-compound permanently active &bull; 18% withdrawal fee on maturity &bull; Auto-withdraw when period ends</div>
+</div>
+</div>
     <div class="sp-field">
       <label>Staking Via</label>
       <select id="dashCardSelect" onchange="onCardDropdownChange()" style="width:100%;padding:11px 13px;border-radius:10px;border:1px solid rgba(242,153,74,.12);background:rgba(0,0,0,.2);color:#fff;font-size:.8rem;outline:none">
