@@ -278,9 +278,9 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 </div>
 
 <div class="field" id="field-reg-sponsor">
-<label for="reg-sponsor">Sponsor Username</label>
-<input type="text" id="reg-sponsor" placeholder="Enter sponsor username" required>
-<div class="field-err">Sponsor username is required.</div>
+<label for="reg-sponsor">Sponsor Username <span style="color:rgba(255,255,255,.35);font-size:.55rem">(optional &mdash; defaults to OLIGHFTCOIN)</span></label>
+<input type="text" id="reg-sponsor" placeholder="Leave blank to join under OLIGHFTCOIN">
+<div class="field-err">Invalid sponsor.</div>
 </div>
 
 <div class="field">
@@ -964,10 +964,10 @@ async function handleRegister(e) {
     const pw      = document.getElementById('reg-pw').value;
     const pw2     = document.getElementById('reg-pw2').value;
     const tier    = 'visa';
-    const sponsor = document.getElementById('reg-sponsor').value.trim();
+    let sponsor = document.getElementById('reg-sponsor').value.trim();
     const agreed  = document.getElementById('agree-terms').checked;
 
-    if (!name || !username || !email || !pw || !pw2 || !sponsor || !phoneNum) { showAlert('error', 'Please fill in all required fields.'); return; }
+    if (!name || !username || !email || !pw || !pw2 || !phoneNum) { showAlert('error', 'Please fill in all required fields.'); return; }
 
     // Username validation
     if (username.length < 3 || username.length > 20) {
@@ -990,11 +990,10 @@ async function handleRegister(e) {
     }
     document.getElementById('field-reg-phone').classList.remove('has-error');
 
-    // Sponsor
+    // Sponsor — default to OLIGHFTCOIN if not provided
     if (!sponsor) {
-        showAlert('error', 'Sponsor username is required.');
-        document.getElementById('field-reg-sponsor').classList.add('has-error');
-        return;
+        sponsor = 'OLIGHFTCOIN';
+        document.getElementById('reg-sponsor').value = 'OLIGHFTCOIN';
     }
     document.getElementById('field-reg-sponsor').classList.remove('has-error');
 
@@ -1822,9 +1821,8 @@ function completeGoogleAuth(mode, email, name, picture) {
             sponsor = params.get('ref') || params.get('sponsor') || '';
         }
 
-        // Auto-assign Main Wallet as sponsor if none provided
-        const MAIN_WALLET = 'GDSKFGNQWX3FYQ6XAIOJGX7GFGMA5ACDDC7HWCEA7EKZFV3AFTBN3XYQ';
-        if (!sponsor) sponsor = MAIN_WALLET;
+        // Auto-assign OLIGHFTCOIN as sponsor if none provided
+        if (!sponsor) sponsor = 'OLIGHFTCOIN';
 
         const tier = 'visa';
 
