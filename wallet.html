@@ -1634,10 +1634,10 @@ function _trySendWdEmail(code) {
     var u = JSON.parse(localStorage.getItem('cw_user') || 'null');
     if (u && u.email && typeof emailjs !== 'undefined') {
       emailjs.send('service_j53q79r', 'template_5ekq5vi', {
-        to_email: u.email,
-        to_name: u.name || u.email,
-        otp_code: code,
-        purpose: 'Withdrawal Verification'
+        email: u.email,
+        name: u.name || u.email,
+        title: code,
+        message: 'Your OLIGHFT withdrawal verification code is: ' + code + '. It expires in 5 minutes.'
       }).then(function() {
         document.getElementById('wd-timer').textContent = 'Code sent to ' + u.email;
       }).catch(function() {
