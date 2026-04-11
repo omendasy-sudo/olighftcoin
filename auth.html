@@ -638,17 +638,6 @@ function startResendCooldown() {
 
 // ── Panel Switching ──
 function showPanel(id) {
-    // If no account exists and trying to go to login, redirect to register
-    if (id === 'login') {
-        var u = null;
-        try { u = JSON.parse(localStorage.getItem('cw_user') || 'null'); } catch(e) {}
-        if (!u || !u.email) {
-            id = 'register';
-            setTimeout(function() {
-                showAlert('success', '\uD83D\uDCDD No account found — create one to get started.');
-            }, 50);
-        }
-    }
     document.querySelectorAll('.form-panel').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     var panel = document.getElementById('panel-' + id);
