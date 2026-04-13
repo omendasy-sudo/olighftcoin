@@ -588,6 +588,13 @@ function universalRouterExecute(commands, encodedActions, deadline, preComputedQ
 // Auth guard
 (function(){const u=JSON.parse(localStorage.getItem('cw_user')||'null');if(!u){window.location.href='auth.html';return;}})();
 
+// ── Backend API ──
+var BACKEND_URL=(location.hostname==='localhost'||location.hostname==='127.0.0.1')?'http://localhost:3001':'https://olighftcoin.com:3001';
+function _getJwt(){return localStorage.getItem('cw_jwt')||'';}
+function _apiPost(path,body){
+  return fetch(BACKEND_URL+path,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+_getJwt()},body:JSON.stringify(body)}).then(function(r){return r.json();});
+}
+
 // ── HD Account helpers ──
 function getAccounts(){
   try{const raw=localStorage.getItem('cw_accounts');return raw?JSON.parse(atob(raw)):[];}catch(e){return[];}
@@ -767,10 +774,17 @@ function executeSwap(){
   const fromAcc=accounts.find(a=>a.index===activeIdx);
   const acctAddr=fromAcc?fromAcc.publicKey:(JSON.parse(localStorage.getItem('cw_user')||'{}').addr||'');
 
-  // Update balances
+  // Update local balances immediately (sync for tests)
   bals[f]=(bals[f]||0)-fAmt;bals[t]=(bals[t]||0)+tAmt;
   saveSharedBalances(bals);
   updateBals();
+
+  // ── Sync to backend API (async, non-blocking) ──
+  if(_getJwt()){
+    _apiPost('/api/swap/execute',{tokenIn:f,tokenOut:t,amountIn:fAmt,minAmountOut:amountOutMinimum})
+    .then(function(r){if(r&&r.success)console.log('[Swap] Backend synced:',r.amountOut);})
+    .catch(function(e){console.warn('[Swap] Backend sync failed, local only:',e.message);});
+  }
 
   // Success overlay with router receipt details
   document.getElementById('swapSummary').textContent=fAmt+' '+f+' \u2192 '+tAmt.toFixed(6)+' '+t;
@@ -887,15 +901,33 @@ function runAllTests(){
   var snap=JSON.parse(JSON.stringify(getSharedBalances()));
   var swapSnap=localStorage.getItem('swap_txs')||'[]';
 
+  // Snapshot and reset POOL_REGISTRY to initial reserves for deterministic tests
+  var poolSnap=JSON.parse(JSON.stringify(POOL_REGISTRY));
+  var INITIAL_POOLS={
+    'XLM/USDC':     { reserve0: 5000000,  reserve1: 600000 },
+    'XLM/OLIGHFT':  { reserve0: 2000000,  reserve1: 480000 },
+    'USDC/OLIGHFT': { reserve0: 500000,   reserve1: 1000000 },
+    'USDC/EURC':    { reserve0: 2000000,  reserve1: 1851852 },
+    'wETH/USDC':    { reserve0: 500,      reserve1: 1600000 },
+    'wBTC/USDC':    { reserve0: 25,       reserve1: 1700000 },
+    'wETH/OLIGHFT': { reserve0: 200,      reserve1: 1280000 },
+    'wBTC/OLIGHFT': { reserve0: 10,       reserve1: 1360000 },
+    'PI/USDC':      { reserve0: 1500000,  reserve1: 1065000 },
+    'PI/OLIGHFT':   { reserve0: 800000,   reserve1: 1136000 },
+    'PI/XLM':       { reserve0: 1000000,  reserve1: 5916667 }
+  };
+  for(var pk in INITIAL_POOLS){if(POOL_REGISTRY[pk]){POOL_REGISTRY[pk].reserve0=INITIAL_POOLS[pk].reserve0;POOL_REGISTRY[pk].reserve1=INITIAL_POOLS[pk].reserve1;}}
+
+  // Set guaranteed test balances BEFORE all tests (calc + integration)
+  var testBals={XLM:10000,USDC:2500,wETH:1.85,wBTC:0.042,EURC:1200,OLIGHFT:5000,PI:500};
+  saveSharedBalances(testBals);
+  for(var k in testBals)bals[k]=testBals[k];
+
   var calcTests=[['XLM','OLIGHFT',1000],['USDC','OLIGHFT',500],['OLIGHFT','USDC',2000],['wETH','OLIGHFT',0.5],['wBTC','OLIGHFT',0.01]];
   var calcBtns=document.querySelectorAll('.test-case button');
   calcTests.forEach(function(t,i){runTest(t[0],t[1],t[2],calcBtns[i]);});
 
   var intRows=document.querySelectorAll('#intTests .tst-row');
-  var testBals=JSON.parse(JSON.stringify(snap));
-  if(!testBals.OLIGHFT||testBals.OLIGHFT<5000)testBals.OLIGHFT=5000;
-  saveSharedBalances(testBals);
-  for(var k in testBals)bals[k]=testBals[k];
 
   (function(){
     var xlmBefore=bals['XLM'];var usdcBefore=bals['USDC'];
@@ -977,6 +1009,8 @@ function runAllTests(){
   })();
 
   saveSharedBalances(snap);for(var k in snap)bals[k]=snap[k];
+  // Restore POOL_REGISTRY to pre-test state
+  for(var pk in poolSnap){if(POOL_REGISTRY[pk]){POOL_REGISTRY[pk].reserve0=poolSnap[pk].reserve0;POOL_REGISTRY[pk].reserve1=poolSnap[pk].reserve1;}}
   localStorage.setItem('swap_txs',swapSnap);
   updateBals();document.getElementById('fromAmt').value='';document.getElementById('toAmt').value='';hideDetails();renderRecent();
 }
