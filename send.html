@@ -346,7 +346,7 @@ function doSend(){
   var kp=getWalletKeypair();
   var isStellar=(type==='stellar'||type==='contract');
 
-  if(kp&&isStellar&&typeof StellarSdk!=='undefined'){
+  if(kp&&isStellar&&typeof StellarSdk!=='undefined'&&!_testMode){
     btn.disabled=true;btn.textContent='\u23F3 Submitting to Stellar...';showStatus('Building transaction...');
     var txPromise;
     if(tk==='XLM'&&type==='stellar'){
