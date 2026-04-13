@@ -272,8 +272,8 @@ function detectAddrType(addr){
   if(/^bc1[a-zA-HJ-NP-Z0-9]{25,62}$/.test(addr))return'btc-segwit';
   if(/^3[a-km-zA-HJ-NP-Z1-9]{25,34}$/.test(addr))return'btc-p2sh';
   if(/^T[a-zA-HJ-NP-Z1-9]{33}$/.test(addr))return'tron';
-  if(/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(addr))return'solana';
   if(/^r[a-zA-HJ-NP-Z1-9]{24,34}$/.test(addr))return'xrp';
+  if(/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(addr))return'solana';
   if(addr.length>0&&addr.length<56&&(addr[0]==='G'||addr[0]==='C'))return'partial';
   return'invalid';
 }
@@ -475,8 +475,8 @@ renderAccountSelector();updateBalance();renderRecent();
 var _testMode=false,_passed=0,_failed=0,_total=0;
 
 var ADDR_TESTS=[
-  {icon:'\u2B50',label:'Stellar (G...)',addr:'GABCDEFGHIJKLMNOPQRSTUVWXYZ234567ABCDEFGHIJKLMNOPQRSTUV',expect:'stellar'},
-  {icon:'\uD83D\uDCDC',label:'OLIGHFT (C...)',addr:'CABCDEFGHIJKLMNOPQRSTUVWXYZ234567ABCDEFGHIJKLMNOPQRSTUV',expect:'contract'},
+  {icon:'\u2B50',label:'Stellar (G...)',addr:'GABCDEFGHIJKLMNOPQRSTUVWXYZ234567ABCDEFGHIJKLMNOPQRSTUVW',expect:'stellar'},
+  {icon:'\uD83D\uDCDC',label:'OLIGHFT (C...)',addr:'CABCDEFGHIJKLMNOPQRSTUVWXYZ234567ABCDEFGHIJKLMNOPQRSTUVW',expect:'contract'},
   {icon:'\uD83D\uDC8E',label:'Ethereum (0x...)',addr:'0x742d35Cc6634C0532925a3b844Bc9e7595f2bD18',expect:'evm'},
   {icon:'\uD83D\uDD36',label:'Bitcoin Legacy (1...)',addr:'1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa',expect:'btc-legacy'},
   {icon:'\uD83D\uDD36',label:'Bitcoin SegWit (bc1...)',addr:'bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4',expect:'btc-segwit'},
@@ -601,7 +601,7 @@ function runAllTests(){
   // Zero Amount
   (function(){
     var b=balances.XLM;
-    document.getElementById('recipient').value='GABCDEFGHIJKLMNOPQRSTUVWXYZ234567ABCDEFGHIJKLMNOPQRSTUV';
+    document.getElementById('recipient').value='GABCDEFGHIJKLMNOPQRSTUVWXYZ234567ABCDEFGHIJKLMNOPQRSTUVW';
     document.getElementById('amount').value='0';
     document.getElementById('tokenSelect').value='XLM';
     doSend().then(function(){
@@ -637,7 +637,7 @@ function runAllTests(){
   // Full doSend() Flow
   (function(){
     balances.XLM=5000;saveBalances(balances);
-    document.getElementById('recipient').value='GABCDEFGHIJKLMNOPQRSTUVWXYZ234567ABCDEFGHIJKLMNOPQRSTUV';
+    document.getElementById('recipient').value='GABCDEFGHIJKLMNOPQRSTUVWXYZ234567ABCDEFGHIJKLMNOPQRSTUVW';
     document.getElementById('amount').value='100';
     document.getElementById('tokenSelect').value='XLM';
     document.getElementById('memo').value='_TEST_';
@@ -667,7 +667,7 @@ function runAllTests(){
   // doSend() Overdraft Guard
   (function(){
     balances.XLM=100;saveBalances(balances);
-    document.getElementById('recipient').value='GABCDEFGHIJKLMNOPQRSTUVWXYZ234567ABCDEFGHIJKLMNOPQRSTUV';
+    document.getElementById('recipient').value='GABCDEFGHIJKLMNOPQRSTUVWXYZ234567ABCDEFGHIJKLMNOPQRSTUVW';
     document.getElementById('amount').value='999999';
     document.getElementById('tokenSelect').value='XLM';
     var before=balances.XLM;
