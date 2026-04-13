@@ -1518,12 +1518,36 @@ function _sendOLIGHFTOnChain(destAddr, amountOLIGHFT, label, callback) {
       console.log('[API] Backend auth OK');
       // Register wallet addr with backend
       if (user.addr) _apiRegisterWallet(user.addr);
-      // Full data sync from server
-      _apiFullSync().then(function() { console.log('[API] Full sync complete'); });
+      // Full data sync from server → localStorage → re-render
+      _apiFullSync().then(function() {
+        console.log('[API] Full sync complete — re-rendering from server data');
+        try {
+          var sb = Object.assign({}, DEFAULT_BALS, JSON.parse(localStorage.getItem('cw_balances') || '{}'));
+          renderBalances(sb); updateTotalBalance(sb);
+        } catch(e) {}
+        try { renderStakeSummary(); renderStakeList(); renderRecentStakes(); } catch(e) {}
+        try { updateSupplyDisplay(); } catch(e) {}
+        try { updateMaturedCount(); } catch(e) {}
+        try { renderGenFlow(); } catch(e) {}
+        try { renderPrices(); } catch(e) {}
+      });
     } else {
       console.warn('[API] Backend auth failed — running offline mode');
     }
   }).catch(function(e) { console.warn('[API] Backend unreachable — offline mode:', e.message); });
+
+  // ── Periodic Server Sync — pull latest data every 30s ──
+  var _periodicSyncTimer = setInterval(function() {
+    if (!_apiToken) return;
+    _apiFullSync().then(function() {
+      try {
+        var pb = Object.assign({}, DEFAULT_BALS, JSON.parse(localStorage.getItem('cw_balances') || '{}'));
+        renderBalances(pb); updateTotalBalance(pb);
+      } catch(e) {}
+      try { renderStakeSummary(); renderStakeList(); renderRecentStakes(); } catch(e) {}
+      try { updateMaturedCount(); } catch(e) {}
+    }).catch(function() {});
+  }, 30000);
 })();
 
 function renderPricesOnly() {
@@ -1852,10 +1876,20 @@ function showMaturedStakes() {
 }
 
 function updateSupplyDisplay() {
+  // Fetch supply from server, fallback to local
+  _apiSyncSupply().then(function(data) {
+    if (data && data.remaining != null) {
+      _renderSupply(data.remaining);
+    } else {
+      _renderSupply(getSupplyPool());
+    }
+  }).catch(function() {
+    _renderSupply(getSupplyPool());
+  });
+}
+function _renderSupply(remaining) {
   // Refresh dynamic OLIGHFT price based on liquidity
   refreshOLIGHFTPrice();
-
-  var remaining = getSupplyPool();
   var pct = ((remaining / OLIGHFT_TOTAL_SUPPLY) * 100);
   var el = document.getElementById('supplyRemaining');
   if (el) {
@@ -1872,7 +1906,27 @@ function updateSupplyDisplay() {
 function renderLiquidityPanel() {
   var panel = document.getElementById('liqPanel');
   if (!panel) return;
-  var info = getLiquidityInfo();
+
+  // Try server supply data first
+  _apiGet('/api/supply').then(function(data) {
+    if (data && data.price != null) {
+      _renderLiqPanel(panel, {
+        price: data.price,
+        priceChange: data.priceChange || 0,
+        circulating: data.circulating || 0,
+        totalStaked: data.totalStaked || 0,
+        stakingRatio: data.stakingRatio || 0,
+        reserved: data.reserved || 0,
+        lockBreakdown: data.lockBreakdown || { 30: 0, 90: 0, 180: 0, 365: 0 }
+      });
+    } else {
+      _renderLiqPanel(panel, getLiquidityInfo());
+    }
+  }).catch(function() {
+    _renderLiqPanel(panel, getLiquidityInfo());
+  });
+}
+function _renderLiqPanel(panel, info) {
   panel.style.display = 'block';
 
   // Price
@@ -2042,18 +2096,27 @@ function getOLIGHFTPrice() {
 }
 
 function refreshOLIGHFTPrice() {
+  // Immediate local value
   OLIGHFT_PRICE = getOLIGHFTPrice();
-  // Sync COINS array and TOKEN_PRICES
+  _applyOLIGHFTPrice(OLIGHFT_PRICE);
+  // Async fetch server price to override
+  _apiSyncPrice().then(function(data) {
+    if (data && data.price && data.price > 0) {
+      OLIGHFT_PRICE = data.price;
+      _applyOLIGHFTPrice(data.price);
+    }
+  }).catch(function() { /* local value stays */ });
+  return OLIGHFT_PRICE;
+}
+function _applyOLIGHFTPrice(price) {
   for (var i = 0; i < COINS.length; i++) {
     if (COINS[i].sym === 'OLIGHFT') {
-      var oldPrice = COINS[i].price;
-      COINS[i].price = OLIGHFT_PRICE;
-      if (oldPrice > 0) COINS[i].pct = parseFloat((((OLIGHFT_PRICE - OLIGHFT_BASE_PRICE_FLOOR) / OLIGHFT_BASE_PRICE_FLOOR) * 100).toFixed(2));
+      COINS[i].price = price;
+      COINS[i].pct = parseFloat((((price - OLIGHFT_BASE_PRICE_FLOOR) / OLIGHFT_BASE_PRICE_FLOOR) * 100).toFixed(2));
       break;
     }
   }
-  if (typeof TOKEN_PRICES !== 'undefined') TOKEN_PRICES.OLIGHFT = OLIGHFT_PRICE;
-  return OLIGHFT_PRICE;
+  if (typeof TOKEN_PRICES !== 'undefined') TOKEN_PRICES.OLIGHFT = price;
 }
 
 // ── OLIGHFT Price Chart — supply/demand driven ──
@@ -2123,7 +2186,9 @@ function setPriceChartRange(range) {
   for (var i = 0; i < btns.length; i++) {
     btns[i].className = btns[i].textContent.trim() === range ? 'active' : '';
   }
-  renderPriceChart();
+  // Fetch server history for new range, then render
+  _apiSyncPriceHistory(range).then(function() { renderPriceChart(); })
+    .catch(function() { renderPriceChart(); });
 }
 
 function renderPriceChart() {
@@ -2292,13 +2357,15 @@ function startPriceChartUpdater() {
   _seedPriceHistory();
   _recordPricePoint();
   renderPriceChart();
-  // Record a new price point every 60s
+  // Fetch server price history on start
+  _apiSyncPriceHistory(_priceChartRange).then(function() { try { renderPriceChart(); } catch(e) {} });
+  // Record a new price point every 60s and sync from server
   if (_priceChartTimer) clearInterval(_priceChartTimer);
   _priceChartTimer = setInterval(function() {
     _recordPricePoint();
-    renderPriceChart();
+    _apiSyncPriceHistory(_priceChartRange).then(function() { try { renderPriceChart(); } catch(e) {} })
+      .catch(function() { try { renderPriceChart(); } catch(e) {} });
   }, 60000);
-  // Redraw on resize
   window.addEventListener('resize', function() { try { renderPriceChart(); } catch(e) {} });
 }
 
@@ -2881,7 +2948,7 @@ function formatTimeRemaining(ms) {
 }
 
 function compoundStake(stakeId) {
-  // Find the stake in wallet_stakes or card_stakes
+  // Find the stake in wallet_stakes or card_stakes (for validation)
   var wsOnly = [];
   try { wsOnly = JSON.parse(localStorage.getItem('wallet_stakes') || '[]'); } catch(e) { wsOnly = []; }
   var csAll = [];
@@ -2907,71 +2974,74 @@ function compoundStake(stakeId) {
     return false;
   }
 
-  // Calculate accrued reward since lastCompound
+  var tierName = s.cardTier || s.card || '';
+
+  // ── SERVER-FIRST: call backend to compound ──
+  _apiCompound(stakeId).then(function(r) {
+    if (r && r.success) {
+      console.log('[API] Compound server OK:', stakeId, 'accrued:', r.accrued, 'newPrincipal:', r.newPrincipal);
+      // Sync server state → localStorage
+      _apiSyncStakes().then(function() {
+        renderStakeSummary(); renderStakeList(); renderRecentStakes(); updateMaturedCount();
+      });
+      _apiSyncSupply().then(function() { updateSupplyDisplay(); });
+      // Transaction notification
+      var added = (r.accrued || 0) + (r.boost || 0);
+      try{var notifs=JSON.parse(localStorage.getItem('cw_tx_notifications')||'[]');notifs.unshift({type:'Compounded',icon:'\uD83D\uDD04',detail:'Compounded +'+added.toFixed(4)+' OLIGHFT into '+tierName+' stake',amt:'+'+added.toFixed(4)+' OLIGHFT',cls:'green',ts:Date.now()});if(notifs.length>50)notifs.length=50;localStorage.setItem('cw_tx_notifications',JSON.stringify(notifs));updateNotifBadge();}catch(e){}
+      showToast('\u2705 Compounded +' + added.toFixed(4) + ' OLIGHFT', '#27ae60');
+    } else {
+      console.warn('[API] Compound server failed, using offline:', r && r.error);
+      _compoundOffline(stakeId, s, stakes, idx, isCardStake, comp, tierName);
+    }
+  }).catch(function(e) {
+    console.warn('[API] Compound server unreachable, using offline:', e.message);
+    _compoundOffline(stakeId, s, stakes, idx, isCardStake, comp, tierName);
+  });
+
+  return true; // async — result handled via promises
+}
+
+// Offline fallback for compoundStake
+function _compoundOffline(stakeId, s, stakes, idx, isCardStake, comp, tierName) {
   var now = Date.now();
   var lastTs = new Date(s.lastCompound || s.startDate || s.date || 0).getTime();
   var elapsed = isNaN(lastTs) ? 0 : (now - lastTs) / 86400000;
-  if (elapsed <= 0) { showToast('\u26A0\uFE0F Nothing to compound yet.', '#eb5757'); return false; }
+  if (elapsed <= 0) return;
 
   var accrued = 0;
-  var tierName = s.cardTier || s.card || '';
   var tier = tierName && CARD_TIERS[tierName] ? CARD_TIERS[tierName] : null;
   if (tier) {
     var cardDailyOLIGHFT = tier.daily / OLIGHFT_PRICE;
-    accrued = cardDailyOLIGHFT * elapsed; // raw daily accumulation for this period
+    accrued = cardDailyOLIGHFT * elapsed;
   } else if (s.apy) {
     accrued = (s.amount || 0) * (s.apy / 100) * (elapsed / 365);
   } else {
     accrued = (s.dailyReward || 0) * elapsed;
   }
-  if (accrued <= 0) { showToast('\u26A0\uFE0F No rewards to compound.', '#eb5757'); return false; }
+  if (accrued <= 0) return;
 
-  // Apply compound boost rate
   var compBoostRate = comp === 'daily' ? 0.024 : (comp === 'weekly' ? 0.012 : 0.005);
   var grossBoost = accrued * compBoostRate;
   var adminFee = grossBoost * COMPOUND_FEE_RATE;
   var netBoost = grossBoost - adminFee;
 
-  // Compound rewards come from total supply — deduct accrued + boost from supply pool
-  var compoundRewardTotal = accrued + netBoost;
-  deductFromSupply(compoundRewardTotal, 'compound_reward', stakeId);
+  deductFromSupply(accrued + netBoost, 'compound_reward', stakeId);
 
-  // Reinvest: add net reward to principal, reset lastCompound
   var prevAmount = parseFloat(s.amount) || 0;
   stakes[idx].amount = prevAmount + accrued + netBoost;
   stakes[idx].lastCompound = new Date(now).toISOString();
-  stakes[idx].reward = 0; // rewards are now part of principal
+  stakes[idx].reward = 0;
   stakes[idx].compoundCount = (stakes[idx].compoundCount || 0) + 1;
   stakes[idx].totalCompounded = (stakes[idx].totalCompounded || 0) + accrued + netBoost;
-
-  // Save
   localStorage.setItem(isCardStake ? 'card_stakes' : 'wallet_stakes', JSON.stringify(stakes));
 
-  // Route admin fee to admin wallet
-  if (adminFee > 0) {
-    depositToAdminWallet(adminFee * OLIGHFT_PRICE, 'compound_fee', stakeId);
-  }
+  if (adminFee > 0) depositToAdminWallet(adminFee * OLIGHFT_PRICE, 'compound_fee', stakeId);
 
-  // Activity log
-  try {
-    var al = JSON.parse(localStorage.getItem('cw_activity') || '[]');
-    al.unshift({
-      type: 'Compounded', icon: '\uD83D\uDD04',
-      detail: 'Compounded ' + accrued.toFixed(4) + ' OLIGHFT + ' + netBoost.toFixed(4) + ' boost into ' + tierName + ' stake (fee: ' + adminFee.toFixed(4) + ')',
-      amt: '+' + (accrued + netBoost).toFixed(4) + ' OLIGHFT', cls: 'green', time: 'Just now', ts: now
-    });
-    if (al.length > 50) al.length = 50;
-    localStorage.setItem('cw_activity', JSON.stringify(al));
-  } catch(e) {}
-  // Transaction notification
+  try { var al = JSON.parse(localStorage.getItem('cw_activity') || '[]'); al.unshift({ type: 'Compounded', icon: '\uD83D\uDD04', detail: 'Compounded ' + accrued.toFixed(4) + ' OLIGHFT + ' + netBoost.toFixed(4) + ' boost into ' + tierName + ' stake (fee: ' + adminFee.toFixed(4) + ')', amt: '+' + (accrued + netBoost).toFixed(4) + ' OLIGHFT', cls: 'green', time: 'Just now', ts: now }); if (al.length > 50) al.length = 50; localStorage.setItem('cw_activity', JSON.stringify(al)); } catch(e) {}
   try{var notifs=JSON.parse(localStorage.getItem('cw_tx_notifications')||'[]');notifs.unshift({type:'Compounded',icon:'\uD83D\uDD04',detail:'Compounded +'+(accrued+netBoost).toFixed(4)+' OLIGHFT into '+tierName+' stake',amt:'+'+(accrued+netBoost).toFixed(4)+' OLIGHFT',cls:'green',ts:now});if(notifs.length>50)notifs.length=50;localStorage.setItem('cw_tx_notifications',JSON.stringify(notifs));updateNotifBadge();}catch(e){}
 
-  // ── Backend sync: compound on server ──
-  _apiCompound(stakeId).then(function(r) {
-    if (r && r.success) console.log('[API] Compound synced:', stakeId);
-  }).catch(function(e) { console.warn('[API] Compound sync error:', e.message); });
-
-  return { stakeId: stakeId, accrued: accrued, boost: netBoost, fee: adminFee, newPrincipal: stakes[idx].amount };
+  renderStakeSummary(); renderStakeList(); renderRecentStakes();
+  showToast('\u2705 Compounded +' + (accrued + netBoost).toFixed(4) + ' OLIGHFT (offline)', '#27ae60');
 }
 
 function compoundAll() {
@@ -2987,55 +3057,80 @@ function compoundAll() {
     return;
   }
 
-  var results = [];
-  for (var j = 0; j < ready.length; j++) {
-    var r = compoundStake(ready[j].id);
-    if (r) results.push(r);
-  }
-
-  // Refresh UI
-  renderStakeSummary();
-  renderStakeList();
-  renderRecentStakes();
-  var bals = {};
-  try { bals = Object.assign({}, DEFAULT_BALS, JSON.parse(localStorage.getItem('cw_balances'))); } catch(e) { bals = Object.assign({}, DEFAULT_BALS); }
-  renderBalances(bals);
-  updateTotalBalance(bals);
-
-  var totalAdded = 0, totalFees = 0;
-  for (var k = 0; k < results.length; k++) {
-    totalAdded += results[k].accrued + results[k].boost;
-    totalFees += results[k].fee;
-  }
-  showToast('\u2705 Compounded ' + results.length + ' stake' + (results.length > 1 ? 's' : '') + ' — +' + totalAdded.toFixed(4) + ' OLIGHFT reinvested (fee: ' + totalFees.toFixed(4) + ')', '#27ae60');
-
-  // ── Backend sync: compound all on server ──
-  _apiCompoundAll().catch(function(e) { console.warn('[API] CompoundAll sync:', e.message); });
+  // ── SERVER-FIRST: compound all on server ──
+  _apiCompoundAll().then(function(r) {
+    if (r && r.success && r.compounded > 0) {
+      console.log('[API] CompoundAll server OK:', r.compounded, 'stakes');
+      // Sync all server state
+      Promise.all([_apiSyncStakes(), _apiSyncBalances(), _apiSyncSupply(), _apiSyncActivity()]).then(function() {
+        renderStakeSummary(); renderStakeList(); renderRecentStakes(); updateSupplyDisplay(); updateMaturedCount();
+        var bals = {}; try { bals = Object.assign({}, DEFAULT_BALS, JSON.parse(localStorage.getItem('cw_balances'))); } catch(e) { bals = Object.assign({}, DEFAULT_BALS); }
+        renderBalances(bals); updateTotalBalance(bals);
+      });
+      showToast('\u2705 Compounded ' + r.compounded + ' stake(s) via server', '#27ae60');
+    } else {
+      console.warn('[API] CompoundAll server failed, using offline');
+      _compoundAllOffline(ready);
+    }
+  }).catch(function(e) {
+    console.warn('[API] CompoundAll unreachable, using offline:', e.message);
+    _compoundAllOffline(ready);
+  });
 }
 
-// Auto-compound timer — checks every 60s and compounds eligible stakes
+function _compoundAllOffline(ready) {
+  for (var j = 0; j < ready.length; j++) {
+    compoundStake(ready[j].id);
+  }
+  renderStakeSummary(); renderStakeList(); renderRecentStakes();
+  var bals = {};
+  try { bals = Object.assign({}, DEFAULT_BALS, JSON.parse(localStorage.getItem('cw_balances'))); } catch(e) { bals = Object.assign({}, DEFAULT_BALS); }
+  renderBalances(bals); updateTotalBalance(bals);
+}
+
+// Auto-compound timer — server handles auto-compound, we just sync results
 var _autoCompoundTimer = null;
 function startAutoCompound() {
   if (_autoCompoundTimer) clearInterval(_autoCompoundTimer);
-  // Run deposit sync once on load then every 60s
   _syncOnChainDeposits();
   _autoCompoundTimer = setInterval(function() {
-    var all = getWalletStakes().filter(function(s) { return !s.withdrawn && s.compound && s.compound !== 'none'; });
-    var ready = all.filter(isCompoundReady);
-    if (ready.length > 0) {
-      for (var i = 0; i < ready.length; i++) {
-        compoundStake(ready[i].id);
+    if (_apiToken) {
+      // Server handles auto-compound & auto-withdraw — just sync results
+      _apiCompoundAll().then(function(r) {
+        if (r && r.success && r.compounded > 0) {
+          showToast('\uD83D\uDD04 Server auto-compounded ' + r.compounded + ' stake(s)', '#27ae60');
+        }
+        // Always sync latest state from server
+        return Promise.all([_apiSyncStakes(), _apiSyncBalances(), _apiSyncSupply()]);
+      }).then(function() {
+        renderStakeSummary(); renderStakeList(); renderRecentStakes(); updateMaturedCount(); updateNextCompoundDisplay();
+        var bals = {}; try { bals = Object.assign({}, DEFAULT_BALS, JSON.parse(localStorage.getItem('cw_balances'))); } catch(e) { bals = Object.assign({}, DEFAULT_BALS); }
+        renderBalances(bals); updateTotalBalance(bals);
+      }).catch(function() {
+        // Offline fallback: use local auto-compound
+        var all = getWalletStakes().filter(function(s) { return !s.withdrawn && s.compound && s.compound !== 'none'; });
+        var ready = all.filter(isCompoundReady);
+        if (ready.length > 0) {
+          for (var i = 0; i < ready.length; i++) { compoundStake(ready[i].id); }
+          renderStakeSummary(); renderStakeList();
+          showToast('\uD83D\uDD04 Auto-compounded ' + ready.length + ' stake(s) (offline)', '#27ae60');
+        }
+        _autoWithdrawMatured();
+        updateNextCompoundDisplay();
+      });
+    } else {
+      // No server token — local-only mode
+      var all = getWalletStakes().filter(function(s) { return !s.withdrawn && s.compound && s.compound !== 'none'; });
+      var ready = all.filter(isCompoundReady);
+      if (ready.length > 0) {
+        for (var i = 0; i < ready.length; i++) { compoundStake(ready[i].id); }
+        renderStakeSummary(); renderStakeList();
+        showToast('\uD83D\uDD04 Auto-compounded ' + ready.length + ' stake(s)', '#27ae60');
       }
-      renderStakeSummary();
-      renderStakeList();
-      showToast('\uD83D\uDD04 Auto-compounded ' + ready.length + ' stake(s)', '#27ae60');
+      _autoWithdrawMatured();
+      updateNextCompoundDisplay();
     }
-    // Auto-withdraw matured stakes
-    _autoWithdrawMatured();
-    // Sync on-chain deposits to available balance
     _syncOnChainDeposits();
-    // Update next-compound timer display
-    updateNextCompoundDisplay();
   }, 60000);
 }
 
@@ -3613,141 +3708,184 @@ function doStake() {
 
   setTimeout(function() { try {
 
-  // Deduct ALL tokens from user balance — entire amount leaves the user's wallet
-  bals[asset] = (bals[asset] || 0) - amt;
-  localStorage.setItem('cw_balances', JSON.stringify(bals));
+  // ── SERVER-FIRST: call backend to settle the stake ──
+  var _stakeSettled = false;
+  var _serverStakeId = null;
+  var _serverGenCount = 0;
+  var _serverReserved = 0;
 
-  var stakeId = 'dsk_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
-  var now = new Date();
-  var endDate = days > 0 ? new Date(now.getTime() + days * 86400000).toISOString() : null;
+  function _finishStep4(stakeId, genCount, reserved, adminUsd, txHash) {
+    if (_stakeSettled) return;
+    _stakeSettled = true;
 
-  // Send FULL staked amount on-chain to activator (admin) wallet
-  _sendOLIGHFTOnChain(FEE_WALLET_ADDRESS, amt, 'Card activation ' + cardTierName + ' full stake', function(txHash) {
-    if (txHash) {
-      try {
-        var ws = JSON.parse(localStorage.getItem('wallet_stakes') || '[]');
-        for (var wi = 0; wi < ws.length; wi++) {
-          if (ws[wi].id === stakeId) { ws[wi].activationTxHash = txHash; break; }
-        }
-        localStorage.setItem('wallet_stakes', JSON.stringify(ws));
-      } catch(e) {}
-    }
-  });
+    sfDone(4);
+    sfActivate(5, 'Step 5/5 \u2014 Generating receipt\u2026');
 
-  // 60% admin deposit (off-chain record + on-chain transfer)
-  var adminDeposit = depositToAdminWallet(adminShare, 'stake_' + cardTierName, stakeId);
-  // 40% referral tree — autopay on-chain to each gen wallet via 8-gen flow
-  var genCommissions = distribute8GenCommissions(user.email, refShare, stakeId, cardTierName);
+    setTimeout(function() { try {
 
-  var compoundIntervalMs = 0;
-  if (comp === 'daily')   compoundIntervalMs = 86400000;
-  if (comp === 'weekly')  compoundIntervalMs = 604800000;
-  if (comp === 'monthly') compoundIntervalMs = 2592000000;
+    // Refresh UI from localStorage (server sync already updated it)
+    var newBals = {};
+    try { newBals = Object.assign({}, DEFAULT_BALS, JSON.parse(localStorage.getItem('cw_balances'))); } catch(e) { newBals = Object.assign({}, DEFAULT_BALS); }
+    renderBalances(newBals);
+    updateTotalBalance(newBals);
+    populateCardSelect();
+    renderStakeSummary();
+    renderStakeList();
+    renderRecentStakes();
+    renderGenFlow();
+    document.getElementById('skAmount').value = '';
+    updateApy();
+    updateSupplyDisplay();
+    updateMaturedCount();
 
-  // Reserve from supply
-  var supplyBefore = getSupplyPool();
-  var supplyResult = reserveRewardFromSupply(estimatedReward, stakeId);
-  var actualReserved = supplyResult.deducted;
+    sfDone(5);
+    sfStatus.textContent = '\u2705 Stake settled successfully!';
+    stakeBtn.disabled = false;
 
-  var stake = {
-    id: stakeId, asset: asset, amount: amt, apy: apy.total, dailyReward: dailyReward,
-    startDate: now.toISOString(), endDate: endDate, lastCompound: now.toISOString(),
-    reward: 0, status: 'active', withdrawn: false, compound: comp, lockDays: days,
-    cardTier: cardTierName, cardBoost: apy.card || 0,
-    compoundInterval: compoundIntervalMs,
-    estimatedTotalReward: estimatedReward,
-    reservedFromSupply: actualReserved,
-    supplyAtStake: supplyBefore,
-    split: {
-      adminWallet: adminShare,
-      adminUSD: adminDeposit.usd,
-      referralPool: refShare,
-      genDistributed: genCommissions.length,
-      genCommissions: genCommissions
-    }
-  };
+    // Show receipt modal
+    showReceipt({
+      card: cardTierName,
+      amount: amt,
+      usd: amtUSD,
+      lockDays: days,
+      compound: comp,
+      apy: apy.total,
+      dailyUSD: cardDailyUSD,
+      estReward: estimatedReward,
+      adminShare: adminShare,
+      refShare: refShare,
+      genCount: genCount,
+      reserved: reserved,
+      stakeId: stakeId,
+      txHash: txHash || '',
+      timestamp: Date.now()
+    });
 
-  // Save only to wallet_stakes (not merged with card_stakes) to avoid duplication
-  var wsOnly = [];
-  try { wsOnly = JSON.parse(localStorage.getItem('wallet_stakes') || '[]'); } catch(e) { wsOnly = []; }
-  wsOnly.push(stake);
-  localStorage.setItem('wallet_stakes', JSON.stringify(wsOnly));
+    // Hide flow box after delay
+    setTimeout(function() { flowBox.style.display = 'none'; }, 4000);
 
-  // Activity log
-  var genSummary = genCommissions.length > 0 ? ' \u00B7 ' + genCommissions.length + '-gen referral' : '';
-  try { var al = JSON.parse(localStorage.getItem('cw_activity') || '[]'); al.unshift({ type: 'Staked', icon: '\uD83D\uDCC8', detail: amt + ' ' + asset + ' \u00B7 ' + (days > 0 ? days + 'd' : 'Flex') + ' \u00B7 ' + apy.total.toFixed(1) + '% APY \u00B7 ' + comp + ' compound' + genSummary, amt: '-' + amt + ' ' + asset, cls: 'red', time: 'Just now', ts: Date.now() }); if (al.length > 50) al.length = 50; localStorage.setItem('cw_activity', JSON.stringify(al)); } catch(e) {}
-  // Transaction notification
-  try{var notifs=JSON.parse(localStorage.getItem('cw_tx_notifications')||'[]');notifs.unshift({type:'Staked',icon:'\uD83D\uDCC8',detail:amt+' '+asset+' staked \u00B7 '+(days>0?days+'d':'Flex')+' \u00B7 '+apy.total.toFixed(1)+'% APY',amt:'-'+amt+' '+asset,cls:'red',ts:Date.now()});if(notifs.length>50)notifs.length=50;localStorage.setItem('cw_tx_notifications',JSON.stringify(notifs));updateNotifBadge();}catch(e){}
-
-  // ── Backend sync: replicate stake on server ──
-  _apiDoStake(cardTierName, days, comp).then(function(r) {
-    if (r && r.success) console.log('[API] Stake synced:', r.stakeId);
-    else console.warn('[API] Stake sync failed:', r && r.error);
-  }).catch(function(e) { console.warn('[API] Stake sync error:', e.message); });
-
-  // On-chain Soroban stake (async, non-blocking)
-  if (typeof STAKING_BACKEND !== 'undefined' && STAKING_BACKEND.isWalletConnected()) {
-    (async function() {
-      try {
-        var res = await STAKING_BACKEND.activateStake(cardTierName, amt);
-        if (res && res.success) {
-          stake.onChainIndex = res.stakeIndex;
-          stake.txHash = res.txHash || '';
-          var wsUpdate = [];
-          try { wsUpdate = JSON.parse(localStorage.getItem('wallet_stakes') || '[]'); } catch(ex) { wsUpdate = []; }
-          localStorage.setItem('wallet_stakes', JSON.stringify(wsUpdate.map(function(s) { return s.id === stakeId ? stake : s; })));
-        }
-      } catch(e) { console.warn('On-chain stake failed:', e.message); }
-    })();
+    } catch(e) { console.error('Step 5 error:', e); sfFail(5, 'Receipt error: ' + e.message); } }, 500);
   }
 
-  sfDone(4);
-  sfActivate(5, 'Step 5/5 \u2014 Generating receipt\u2026');
+  // Try server first
+  _apiDoStake(cardTierName, days, comp).then(function(r) {
+    if (r && r.success) {
+      console.log('[API] Stake created on server:', r.stakeId);
+      // Server handled: balance deduction, supply reserve, admin deposit, 8-gen commissions
+      // Sync server state → localStorage
+      Promise.all([
+        _apiSyncBalances().then(function(b) { if (b) { try { renderBalances(b); updateTotalBalance(b); } catch(e) {} } }),
+        _apiSyncStakes(),
+        _apiSyncActivity(),
+        _apiSyncSupply()
+      ]).then(function() {
+        // Transaction notification
+        try{var notifs=JSON.parse(localStorage.getItem('cw_tx_notifications')||'[]');notifs.unshift({type:'Staked',icon:'\uD83D\uDCC8',detail:amt+' '+asset+' staked \u00B7 '+(days>0?days+'d':'Flex')+' \u00B7 '+apy.total.toFixed(1)+'% APY',amt:'-'+amt+' '+asset,cls:'red',ts:Date.now()});if(notifs.length>50)notifs.length=50;localStorage.setItem('cw_tx_notifications',JSON.stringify(notifs));updateNotifBadge();}catch(e){}
+        _finishStep4(r.stakeId, (r.commissions || []).length, r.estimatedReward || 0, r.adminShare || 0, '');
+      }).catch(function() {
+        _finishStep4(r.stakeId, (r.commissions || []).length, r.estimatedReward || 0, r.adminShare || 0, '');
+      });
 
-  setTimeout(function() { try {
-
-  // Refresh UI
-  var newBals = {};
-  try { newBals = Object.assign({}, DEFAULT_BALS, JSON.parse(localStorage.getItem('cw_balances'))); } catch(e) { newBals = Object.assign({}, DEFAULT_BALS); }
-  renderBalances(newBals);
-  updateTotalBalance(newBals);
-  populateCardSelect();
-  renderStakeSummary();
-  renderStakeList();
-  renderRecentStakes();
-  renderGenFlow();
-  document.getElementById('skAmount').value = '';
-  updateApy();
-  updateSupplyDisplay();
-  updateMaturedCount();
-
-  sfDone(5);
-  sfStatus.textContent = '\u2705 Stake settled successfully!';
-  stakeBtn.disabled = false;
-
-  // Show receipt modal
-  showReceipt({
-    card: cardTierName,
-    amount: amt,
-    usd: amtUSD,
-    lockDays: days,
-    compound: comp,
-    apy: apy.total,
-    dailyUSD: cardDailyUSD,
-    estReward: estimatedReward,
-    adminShare: adminShare,
-    refShare: refShare,
-    genCount: genCommissions.length,
-    reserved: actualReserved,
-    stakeId: stakeId,
-    txHash: stake.txHash || '',
-    timestamp: Date.now()
+      // On-chain Soroban stake (async, non-blocking)
+      _sendOLIGHFTOnChain(FEE_WALLET_ADDRESS, amt, 'Card activation ' + cardTierName + ' full stake', function(txHash) {
+        if (txHash) {
+          try {
+            var ws = JSON.parse(localStorage.getItem('wallet_stakes') || '[]');
+            for (var wi = 0; wi < ws.length; wi++) {
+              if (ws[wi].id === r.stakeId) { ws[wi].activationTxHash = txHash; break; }
+            }
+            localStorage.setItem('wallet_stakes', JSON.stringify(ws));
+          } catch(e) {}
+        }
+      });
+      return;
+    }
+    // Server failed — fall back to offline mode
+    console.warn('[API] Stake server failed, using offline mode:', r && r.error);
+    _doStakeOffline();
+  }).catch(function(e) {
+    console.warn('[API] Stake server unreachable, using offline mode:', e.message);
+    _doStakeOffline();
   });
 
-  // Hide flow box after delay
-  setTimeout(function() { flowBox.style.display = 'none'; }, 4000);
+  function _doStakeOffline() {
+    // Offline fallback: full local logic
+    bals[asset] = (bals[asset] || 0) - amt;
+    localStorage.setItem('cw_balances', JSON.stringify(bals));
 
-  } catch(e) { console.error('Step 5 error:', e); sfFail(5, 'Receipt error: ' + e.message); } }, 500);
+    var stakeId = 'dsk_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
+    var now = new Date();
+    var endDate = days > 0 ? new Date(now.getTime() + days * 86400000).toISOString() : null;
+
+    _sendOLIGHFTOnChain(FEE_WALLET_ADDRESS, amt, 'Card activation ' + cardTierName + ' full stake', function(txHash) {
+      if (txHash) {
+        try {
+          var ws = JSON.parse(localStorage.getItem('wallet_stakes') || '[]');
+          for (var wi = 0; wi < ws.length; wi++) {
+            if (ws[wi].id === stakeId) { ws[wi].activationTxHash = txHash; break; }
+          }
+          localStorage.setItem('wallet_stakes', JSON.stringify(ws));
+        } catch(e) {}
+      }
+    });
+
+    var adminDeposit = depositToAdminWallet(adminShare, 'stake_' + cardTierName, stakeId);
+    var genCommissions = distribute8GenCommissions(user.email, refShare, stakeId, cardTierName);
+
+    var compoundIntervalMs = 0;
+    if (comp === 'daily')   compoundIntervalMs = 86400000;
+    if (comp === 'weekly')  compoundIntervalMs = 604800000;
+    if (comp === 'monthly') compoundIntervalMs = 2592000000;
+
+    var supplyBefore = getSupplyPool();
+    var supplyResult = reserveRewardFromSupply(estimatedReward, stakeId);
+    var actualReserved = supplyResult.deducted;
+
+    var stake = {
+      id: stakeId, asset: asset, amount: amt, apy: apy.total, dailyReward: dailyReward,
+      startDate: now.toISOString(), endDate: endDate, lastCompound: now.toISOString(),
+      reward: 0, status: 'active', withdrawn: false, compound: comp, lockDays: days,
+      cardTier: cardTierName, cardBoost: apy.card || 0,
+      compoundInterval: compoundIntervalMs,
+      estimatedTotalReward: estimatedReward,
+      reservedFromSupply: actualReserved,
+      supplyAtStake: supplyBefore,
+      split: {
+        adminWallet: adminShare,
+        adminUSD: adminDeposit.usd,
+        referralPool: refShare,
+        genDistributed: genCommissions.length,
+        genCommissions: genCommissions
+      }
+    };
+
+    var wsOnly = [];
+    try { wsOnly = JSON.parse(localStorage.getItem('wallet_stakes') || '[]'); } catch(e) { wsOnly = []; }
+    wsOnly.push(stake);
+    localStorage.setItem('wallet_stakes', JSON.stringify(wsOnly));
+
+    var genSummary = genCommissions.length > 0 ? ' \u00B7 ' + genCommissions.length + '-gen referral' : '';
+    try { var al = JSON.parse(localStorage.getItem('cw_activity') || '[]'); al.unshift({ type: 'Staked', icon: '\uD83D\uDCC8', detail: amt + ' ' + asset + ' \u00B7 ' + (days > 0 ? days + 'd' : 'Flex') + ' \u00B7 ' + apy.total.toFixed(1) + '% APY \u00B7 ' + comp + ' compound' + genSummary, amt: '-' + amt + ' ' + asset, cls: 'red', time: 'Just now', ts: Date.now() }); if (al.length > 50) al.length = 50; localStorage.setItem('cw_activity', JSON.stringify(al)); } catch(e) {}
+    try{var notifs=JSON.parse(localStorage.getItem('cw_tx_notifications')||'[]');notifs.unshift({type:'Staked',icon:'\uD83D\uDCC8',detail:amt+' '+asset+' staked \u00B7 '+(days>0?days+'d':'Flex')+' \u00B7 '+apy.total.toFixed(1)+'% APY',amt:'-'+amt+' '+asset,cls:'red',ts:Date.now()});if(notifs.length>50)notifs.length=50;localStorage.setItem('cw_tx_notifications',JSON.stringify(notifs));updateNotifBadge();}catch(e){}
+
+    if (typeof STAKING_BACKEND !== 'undefined' && STAKING_BACKEND.isWalletConnected()) {
+      (async function() {
+        try {
+          var res = await STAKING_BACKEND.activateStake(cardTierName, amt);
+          if (res && res.success) {
+            stake.onChainIndex = res.stakeIndex;
+            stake.txHash = res.txHash || '';
+            var wsUpdate = [];
+            try { wsUpdate = JSON.parse(localStorage.getItem('wallet_stakes') || '[]'); } catch(ex) { wsUpdate = []; }
+            localStorage.setItem('wallet_stakes', JSON.stringify(wsUpdate.map(function(s) { return s.id === stakeId ? stake : s; })));
+          }
+        } catch(e) { console.warn('On-chain stake failed:', e.message); }
+      })();
+    }
+
+    _finishStep4(stakeId, genCommissions.length, actualReserved, adminDeposit.usd, stake.txHash || '');
+  }
+
   } catch(e) { console.error('Step 4 error:', e); sfFail(4, 'Settle error: ' + e.message); } }, 600);
   } catch(e) { console.error('Step 3 error:', e); sfFail(3, 'Convert error: ' + e.message); } }, 500);
   } catch(e) { console.error('Step 2 error:', e); sfFail(2, 'Validate error: ' + e.message); } }, 500);
@@ -3799,7 +3937,6 @@ function withdrawStake(stakeId) {
   var wsOnly = [];
   try { wsOnly = JSON.parse(localStorage.getItem('wallet_stakes') || '[]'); } catch(e) { wsOnly = []; }
   var idx = wsOnly.findIndex(function(s) { return s.id === stakeId; });
-  // Also check card_stakes if not found in wallet_stakes
   var isCardStake = false;
   var csAll = [];
   if (idx < 0) {
@@ -3812,7 +3949,6 @@ function withdrawStake(stakeId) {
   var s = stakes[idx];
   var now = Date.now();
 
-  // Normalize card_stakes fields for withdrawal
   var sStartDate = s.startDate || s.date || null;
   var sEndDate = s.endDate || (sStartDate && (s.lockDays || s.period) > 0 ? new Date(new Date(sStartDate).getTime() + (s.lockDays || s.period) * 86400000).toISOString() : null);
   var sAmount = parseFloat(s.amount || s.paidOLIGHFT || ((s.stake || 0) / (OLIGHFT_PRICE || 0.50))) || 0;
@@ -3831,6 +3967,7 @@ function withdrawStake(stakeId) {
     }
   }
 
+  // Calculate preview amounts for confirmation dialog
   var elStartTs = new Date(sLastCompound || 0).getTime();
   var elapsed = isNaN(elStartTs) ? 0 : (now - elStartTs) / 86400000;
   if (elapsed < 0) elapsed = 0;
@@ -3844,30 +3981,66 @@ function withdrawStake(stakeId) {
   } else {
     accrued = (s.dailyReward || 0) * elapsed;
   }
-  var totalReturn = sAmount + (s.reward || 0) + accrued;
+  var rewardPortion = (s.reward || 0) + accrued;
+  var grossReturn = sAmount + rewardPortion;
   var asset = s.asset || 'OLIGHFT';
 
-  // Platform service fee (auto-deducted to fee wallet)
+  if (!confirm('Withdraw from this stake? (principal: ' + sAmount.toFixed(2) + ' + reward: ' + rewardPortion.toFixed(2) + ' ' + asset + ')')) return;
+
+  // ── SERVER-FIRST: call backend to withdraw ──
+  _apiWithdraw(stakeId).then(function(r) {
+    if (r && r.success) {
+      console.log('[API] Withdraw server OK:', r.stakeId, 'net:', r.net);
+      // Server handled: fee deduction, supply return, balance credit, activity log
+      // Sync all data from server
+      Promise.all([
+        _apiSyncBalances().then(function(b) { if (b) { renderBalances(b); updateTotalBalance(b); } }),
+        _apiSyncStakes(),
+        _apiSyncActivity(),
+        _apiSyncSupply()
+      ]).then(function() {
+        renderStakeSummary(); renderStakeList(); renderRecentStakes(); updateSupplyDisplay(); updateMaturedCount(); renderGenFlow();
+      });
+      // Transaction notification
+      var netAmt = r.net || grossReturn * 0.65;
+      try{var notifs=JSON.parse(localStorage.getItem('cw_tx_notifications')||'[]');notifs.unshift({type:'Unstaked',icon:'\uD83D\uDCB0',detail:'Withdrew '+netAmt.toFixed(2)+' '+asset,amt:'+'+netAmt.toFixed(2)+' '+asset,cls:'green',ts:Date.now()});if(notifs.length>50)notifs.length=50;localStorage.setItem('cw_tx_notifications',JSON.stringify(notifs));updateNotifBadge();}catch(e){}
+      showToast('\u2705 Withdrew ' + netAmt.toFixed(2) + ' ' + asset + '!', '#27ae60');
+    } else {
+      console.warn('[API] Withdraw server failed, using offline:', r && r.error);
+      _withdrawOffline(stakeId, stakes, idx, isCardStake, sAmount, sCardTier, sCompound, sLastCompound, asset, rewardPortion, s);
+    }
+  }).catch(function(e) {
+    console.warn('[API] Withdraw server unreachable, using offline:', e.message);
+    _withdrawOffline(stakeId, stakes, idx, isCardStake, sAmount, sCardTier, sCompound, sLastCompound, asset, rewardPortion, s);
+  });
+}
+
+function _withdrawOffline(stakeId, stakes, idx, isCardStake, sAmount, sCardTier, sCompound, sLastCompound, asset, rewardPortion, s) {
+  var now = Date.now();
+  var elStartTs = new Date(sLastCompound || 0).getTime();
+  var elapsed = isNaN(elStartTs) ? 0 : (now - elStartTs) / 86400000;
+  if (elapsed < 0) elapsed = 0;
+  var accrued;
+  var tier = sCardTier && CARD_TIERS[sCardTier] ? CARD_TIERS[sCardTier] : null;
+  if (tier) {
+    accrued = calcCardDailyCompound(tier.daily / OLIGHFT_PRICE, elapsed, sCompound);
+  } else if (sCompound && sCompound !== 'none' && s.apy) {
+    accrued = calcCompoundReward(sAmount, s.apy, elapsed, sCompound);
+  } else {
+    accrued = (s.dailyReward || 0) * elapsed;
+  }
+  var totalReturn = sAmount + (s.reward || 0) + accrued;
   var _sfr = 0.35;
   var _sfAmt = totalReturn * _sfr;
   totalReturn = totalReturn - _sfAmt;
   depositToAdminWallet(_sfAmt, 'service_fee', stakeId);
-
-  // Reward portion comes from total supply (principal returns to user, reward is minted from supply)
-  var rewardPortion = (s.reward || 0) + accrued;
   var reservedAmt = s.reservedFromSupply || 0;
-
-  // If actual reward exceeds what was reserved, deduct the extra from supply
   if (rewardPortion > reservedAmt) {
     deductFromSupply(rewardPortion - reservedAmt, 'extra_reward', stakeId);
   } else if (rewardPortion < reservedAmt) {
-    // Return unused reserved supply
     returnUnusedToSupply(reservedAmt - rewardPortion, stakeId);
   }
 
-  if (!confirm('Withdraw ' + totalReturn.toFixed(2) + ' ' + asset + ' (principal: ' + sAmount.toFixed(2) + ' + reward from supply: ' + rewardPortion.toFixed(2) + ')?')) return;
-
-  // On-chain withdraw
   var tierName = sCardTier || 'Visa';
   if (typeof STAKING_BACKEND !== 'undefined' && STAKING_BACKEND.isWalletConnected()) {
     (async function() {
@@ -3878,7 +4051,6 @@ function withdrawStake(stakeId) {
     })();
   }
 
-  // Credit balance
   var bals = {};
   try { bals = Object.assign({}, DEFAULT_BALS, JSON.parse(localStorage.getItem('cw_balances'))); } catch(e) { bals = Object.assign({}, DEFAULT_BALS); }
   bals[asset] = (bals[asset] || 0) + totalReturn;
@@ -3890,26 +4062,13 @@ function withdrawStake(stakeId) {
   stakes[idx].withdrawnAt = Date.now();
   localStorage.setItem(isCardStake ? 'card_stakes' : 'wallet_stakes', JSON.stringify(stakes));
 
-  // Activity log
-  try { var al = JSON.parse(localStorage.getItem('cw_activity') || '[]'); al.unshift({ type: 'Unstaked', icon: '\uD83D\uDCB0', detail: 'Withdrew ' + totalReturn.toFixed(2) + ' ' + asset + ' (reward: ' + rewardPortion.toFixed(2) + ' from supply' + (s.compound && s.compound !== 'none' ? ' \u00B7 ' + s.compound + ' compound' : '') + ')', amt: '+' + totalReturn.toFixed(2) + ' ' + asset, cls: 'green', time: 'Just now', ts: Date.now() }); if (al.length > 50) al.length = 50; localStorage.setItem('cw_activity', JSON.stringify(al)); } catch(e) {}
-  // Transaction notification
+  try { var al = JSON.parse(localStorage.getItem('cw_activity') || '[]'); al.unshift({ type: 'Unstaked', icon: '\uD83D\uDCB0', detail: 'Withdrew ' + totalReturn.toFixed(2) + ' ' + asset + ' (reward: ' + rewardPortion.toFixed(2) + ' from supply)', amt: '+' + totalReturn.toFixed(2) + ' ' + asset, cls: 'green', time: 'Just now', ts: Date.now() }); if (al.length > 50) al.length = 50; localStorage.setItem('cw_activity', JSON.stringify(al)); } catch(e) {}
   try{var notifs=JSON.parse(localStorage.getItem('cw_tx_notifications')||'[]');notifs.unshift({type:'Unstaked',icon:'\uD83D\uDCB0',detail:'Withdrew '+totalReturn.toFixed(2)+' '+asset,amt:'+'+totalReturn.toFixed(2)+' '+asset,cls:'green',ts:Date.now()});if(notifs.length>50)notifs.length=50;localStorage.setItem('cw_tx_notifications',JSON.stringify(notifs));updateNotifBadge();}catch(e){}
 
-  renderBalances(bals);
-  updateTotalBalance(bals);
-  renderStakeSummary();
-  renderStakeList();
-  renderRecentStakes();
-  updateSupplyDisplay();
-  updateMaturedCount();
-  renderGenFlow();
-  showToast('\u2705 Withdrew ' + totalReturn.toFixed(2) + ' ' + asset + ' (reward: ' + rewardPortion.toFixed(2) + ' from total supply)!', '#27ae60');
-
-  // ── Backend sync: withdraw on server ──
-  _apiWithdraw(stakeId).then(function(r) {
-    if (r && r.success) console.log('[API] Withdraw synced:', r.stakeId);
-    else console.warn('[API] Withdraw sync failed:', r && r.error);
-  }).catch(function(e) { console.warn('[API] Withdraw sync error:', e.message); });
+  renderBalances(bals); updateTotalBalance(bals);
+  renderStakeSummary(); renderStakeList(); renderRecentStakes();
+  updateSupplyDisplay(); updateMaturedCount(); renderGenFlow();
+  showToast('\u2705 Withdrew ' + totalReturn.toFixed(2) + ' ' + asset + ' (offline)!', '#27ae60');
 }
 
 // Auto-withdraw matured stakes silently (called from auto-compound timer)
