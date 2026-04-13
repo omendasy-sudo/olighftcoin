@@ -297,7 +297,7 @@ impl OlighftP2P {
         };
 
         set_order(&env, &order);
-        push_id(&env, &DataKey::UserOrders(owner), id);
+        push_id(&env, &DataKey::UserOrders(owner.clone()), id);
 
         // Add to the correct side of the book
         match side {
@@ -310,7 +310,7 @@ impl OlighftP2P {
 
         env.events().publish(
             (symbol_short!("p2p"), symbol_short!("order")),
-            (id, owner.clone()),
+            (id, owner),
         );
 
         bump_instance(&env);

@@ -190,6 +190,7 @@ label{display:block;font-size:.72rem;color:rgba(255,255,255,.45);margin-bottom:6
 <option value="wETH">&#x1F48E; wETH</option>
 <option value="wBTC">&#x1F536; wBTC</option>
 <option value="EURC">&#x1F4B6; EURC</option>
+<option value="PI">&pi; PI</option>
 <option value="OLIGHFT">&#x1F4B0; OLIGHFT</option>
 </select>
 <input type="number" id="fromAmt" placeholder="0.0" step="any" min="0" oninput="calcSwap()">
@@ -208,6 +209,7 @@ label{display:block;font-size:.72rem;color:rgba(255,255,255,.45);margin-bottom:6
 <option value="wETH">&#x1F48E; wETH</option>
 <option value="wBTC">&#x1F536; wBTC</option>
 <option value="EURC">&#x1F4B6; EURC</option>
+<option value="PI">&pi; PI</option>
 <option value="OLIGHFT">&#x1F4B0; OLIGHFT</option>
 </select>
 <input type="number" id="toAmt" placeholder="0.0" readonly style="color:rgba(255,255,255,.5)">
@@ -259,6 +261,7 @@ label{display:block;font-size:.72rem;color:rgba(255,255,255,.45);margin-bottom:6
 <option value="wETH">&#x1F48E; wETH</option>
 <option value="wBTC">&#x1F536; wBTC</option>
 <option value="EURC">&#x1F4B6; EURC</option>
+<option value="PI">&pi; PI</option>
 <option value="OLIGHFT" selected>&#x1F4B0; OLIGHFT</option>
 </select>
 <span style="color:rgba(255,255,255,.3);font-size:1.2rem;align-self:center">/</span>
@@ -268,6 +271,7 @@ label{display:block;font-size:.72rem;color:rgba(255,255,255,.45);margin-bottom:6
 <option value="wETH">&#x1F48E; wETH</option>
 <option value="wBTC">&#x1F536; wBTC</option>
 <option value="EURC">&#x1F4B6; EURC</option>
+<option value="PI">&pi; PI</option>
 <option value="OLIGHFT">&#x1F4B0; OLIGHFT</option>
 </select>
 </div>
@@ -473,7 +477,7 @@ label{display:block;font-size:.72rem;color:rgba(255,255,255,.45);margin-bottom:6
 </div>
 
 <script>
-const prices={XLM:0.12,USDC:1,wETH:3200,wBTC:68000,EURC:1.08,OLIGHFT:0.50};
+const prices={XLM:0.12,USDC:1,wETH:3200,wBTC:68000,EURC:1.08,OLIGHFT:0.50,PI:0.71};
 
 // ── AMM Quoter Engine (Uniswap V4-style constant-product pools) ──
 var POOL_REGISTRY = {
@@ -484,7 +488,10 @@ var POOL_REGISTRY = {
   'wETH/USDC':    { currency0: 'wETH',    currency1: 'USDC',    fee: 3000, tickSpacing: 60,  hooks: '0x0000000000000000000000000000000000000000', reserve0: 500,      reserve1: 1600000 },
   'wBTC/USDC':    { currency0: 'wBTC',    currency1: 'USDC',    fee: 3000, tickSpacing: 60,  hooks: '0x0000000000000000000000000000000000000000', reserve0: 25,       reserve1: 1700000 },
   'wETH/OLIGHFT': { currency0: 'wETH',    currency1: 'OLIGHFT', fee: 3000, tickSpacing: 60,  hooks: '0x0000000000000000000000000000000000000000', reserve0: 200,      reserve1: 1280000 },
-  'wBTC/OLIGHFT': { currency0: 'wBTC',    currency1: 'OLIGHFT', fee: 3000, tickSpacing: 60,  hooks: '0x0000000000000000000000000000000000000000', reserve0: 10,       reserve1: 1360000 }
+  'wBTC/OLIGHFT': { currency0: 'wBTC',    currency1: 'OLIGHFT', fee: 3000, tickSpacing: 60,  hooks: '0x0000000000000000000000000000000000000000', reserve0: 10,       reserve1: 1360000 },
+  'PI/USDC':      { currency0: 'PI',      currency1: 'USDC',    fee: 3000, tickSpacing: 60,  hooks: '0x0000000000000000000000000000000000000000', reserve0: 1500000,  reserve1: 1065000 },
+  'PI/OLIGHFT':   { currency0: 'PI',      currency1: 'OLIGHFT', fee: 3000, tickSpacing: 60,  hooks: '0x0000000000000000000000000000000000000000', reserve0: 800000,   reserve1: 1136000 },
+  'PI/XLM':       { currency0: 'PI',      currency1: 'XLM',     fee: 3000, tickSpacing: 60,  hooks: '0x0000000000000000000000000000000000000000', reserve0: 1000000,  reserve1: 5916667 }
 };
 function findPool(a, b) { return POOL_REGISTRY[a+'/'+b] || POOL_REGISTRY[b+'/'+a] || null; }
 function _quoteSinglePool(pool, tokenIn, tokenOut, amountIn) {

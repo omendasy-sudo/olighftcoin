@@ -124,6 +124,7 @@ select option{background:#1a1a2e;color:#fff}
 <option value="wETH">&#x1F48E; wETH — Wrapped Ethereum</option>
 <option value="wBTC">&#x1F536; wBTC — Wrapped Bitcoin</option>
 <option value="EURC">&#x1F4B6; EURC — Euro Coin</option>
+<option value="PI">&pi; PI — Pi Network</option>
 <option value="OLIGHFT">&#x1F4B0; OLIGHFT — OLIGHFT Smart Coin</option>
 </select>
 </div>
@@ -152,7 +153,7 @@ select option{background:#1a1a2e;color:#fff}
 <div class="fee-box"><span class="fl">Estimated Time</span><span class="fv">~5 seconds</span></div>
 <div class="fee-box"><span class="fl">Network</span><span class="fv">Stellar Testnet</span></div>
 
-<button class="send-btn" id="sendBtn" disabled>&#x1F4E4; Send Tokens</button>
+<button class="send-btn" id="sendBtn">&#x1F4E4; Send Tokens</button>
 <div class="send-status" id="sendStatus"></div>
 
 <div class="recent" id="recentSection" style="display:none">
@@ -206,6 +207,44 @@ select option{background:#1a1a2e;color:#fff}
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/stellar-sdk/11.3.0/stellar-sdk.min.js" defer></script>
+<script type="module">
+import * as bip39 from 'https://cdn.jsdelivr.net/npm/@scure/bip39@1.3.0/+esm';
+import {wordlist} from 'https://cdn.jsdelivr.net/npm/@scure/bip39@1.3.0/wordlists/english/+esm';
+import {HDKey} from 'https://cdn.jsdelivr.net/npm/@scure/bip32@1.4.0/+esm';
+
+async function autoProvisionWallet(){
+  if(localStorage.getItem('cw_secret'))return; // already provisioned
+  var u=null;try{u=JSON.parse(localStorage.getItem('cw_user'))}catch(e){}
+  if(!u||!u.email)return;
+  // Generate BIP39 mnemonic + derive Stellar keypair (same as wallet.html)
+  var rnd=new Uint8Array(32);crypto.getRandomValues(rnd);
+  var salt=u.email+'|'+Date.now()+'|'+performance.now()+'|'+crypto.getRandomValues(new Uint8Array(16)).join('');
+  var saltHash=new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(salt)));
+  var entropy=new Uint8Array(32);for(var i=0;i<32;i++)entropy[i]=rnd[i]^saltHash[i];
+  var mnemonic=bip39.entropyToMnemonic(entropy,wordlist);
+  var seed=await bip39.mnemonicToSeed(mnemonic);
+  var master=HDKey.fromMasterSeed(seed);
+  var child=master.derive("m/44'/148'/0'");
+  // Wait for StellarSdk to load (deferred script)
+  var tries=0;
+  while(typeof StellarSdk==='undefined'&&tries<50){await new Promise(function(r){setTimeout(r,100)});tries++}
+  if(typeof StellarSdk==='undefined')return;
+  var kp=StellarSdk.Keypair.fromRawEd25519Seed(child.privateKey);
+  localStorage.setItem('cw_seed',btoa(mnemonic));
+  localStorage.setItem('cw_secret',btoa(kp.secret()));
+  var accounts=[{index:0,label:'Primary',publicKey:kp.publicKey(),secret:kp.secret()}];
+  localStorage.setItem('cw_accounts',btoa(JSON.stringify(accounts)));
+  localStorage.setItem('cw_active_idx','0');
+  u.addr=kp.publicKey();localStorage.setItem('cw_user',JSON.stringify(u));
+  // Fund via Friendbot on testnet
+  try{await fetch('https://friendbot.stellar.org?addr='+kp.publicKey())}catch(e){}
+  // Update UI account selector if present
+  if(typeof renderAccountSelector==='function')renderAccountSelector();
+  if(typeof updateBalance==='function')updateBalance();
+  console.log('[SEND] Auto-provisioned wallet:',kp.publicKey());
+}
+autoProvisionWallet();
+</script>
 <script>
 (function(){
   var u=null;try{u=JSON.parse(localStorage.getItem('cw_user'))}catch(e){}
@@ -408,6 +447,12 @@ function doSend(){
       if(msg.indexOf('Not Found')>=0)msg='Recipient not found on Stellar Testnet. Fund via Friendbot first.';
       throw new Error(msg);
     });
+  }else if(isStellar&&typeof StellarSdk!=='undefined'&&!_testMode){
+    // Wallet keypair not ready — try to auto-provision
+    if(!kp){
+      return Promise.reject(new Error('Wallet not ready. Please wait a moment and try again, or visit your Wallet page to set up your account.'));
+    }
+    return Promise.reject(new Error('Wallet error'));
   }else{
     onSendSuccess(addr,amt,tk,memo,type,fromAddr,genHash(),false);
     return Promise.resolve();

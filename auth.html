@@ -494,6 +494,51 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 /*  OLIGHFT SMART COIN — Auth Page Logic             */
 /* ═══════════════════════════════════════════════ */
 
+// ── Backend API Config ──
+var AUTH_BACKEND_URL = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+  ? 'http://localhost:3001'
+  : 'https://olighftcoin.com:3001';
+
+function _authApiPost(path, body) {
+  return fetch(AUTH_BACKEND_URL + path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+    .then(function(r) { return r.json(); })
+    .catch(function(e) { console.warn('[AUTH-API] ' + path + ' failed:', e.message); return null; });
+}
+
+// Register user with backend server (non-blocking, runs alongside localStorage flow)
+function _authBackendRegister(user) {
+  _authApiPost('/api/auth/register', {
+    email: user.email,
+    password: user.email,
+    username: user.username || '',
+    name: user.name || '',
+    sponsorUsername: user.sponsor || ''
+  }).then(function(r) {
+    if (r && r.token) {
+      localStorage.setItem('cw_jwt', r.token);
+      console.log('[AUTH-API] Backend register OK');
+    } else {
+      // Might already exist — try login
+      _authApiPost('/api/auth/login', { email: user.email, password: user.email }).then(function(lr) {
+        if (lr && lr.token) {
+          localStorage.setItem('cw_jwt', lr.token);
+          console.log('[AUTH-API] Backend login OK (existing)');
+        }
+      });
+    }
+  });
+}
+
+// Login user with backend server
+function _authBackendLogin(email) {
+  _authApiPost('/api/auth/login', { email: email, password: email }).then(function(r) {
+    if (r && r.token) {
+      localStorage.setItem('cw_jwt', r.token);
+      console.log('[AUTH-API] Backend login OK');
+    }
+  });
+}
+
 // ══════════════════════════════════════════════════════════
 //  EMAIL OTP SYSTEM — EmailJS Integration
 //  Sign up free at https://www.emailjs.com/
@@ -1049,6 +1094,9 @@ async function handleRegister(e) {
     // Also save as registered account for remember-after-logout
     localStorage.setItem('cw_registered_account', JSON.stringify(user));
 
+    // ── Backend sync: register with server ──
+    _authBackendRegister(user);
+
     // Save username to registry for uniqueness
     var uReg = [];
     try { uReg = JSON.parse(localStorage.getItem('cw_usernames') || '[]'); } catch(e) { uReg = []; }
@@ -1227,6 +1275,9 @@ async function handleVerify() {
             return;
         }
         // For login / forgot — cw_user already exists, just verify & redirect
+
+        // ── Backend sync: login with server ──
+        if (pending && pending.email) _authBackendLogin(pending.email);
 
         showAlert('success', 'Welcome to OLIGHFT SMART COIN!');
         window._pendingAuth = null;
@@ -1579,6 +1630,14 @@ function connectWallet(provider) {
                         const wcUser = JSON.parse(localStorage.getItem('cw_user') || 'null') || { name: 'Freighter User', email: '', created: Date.now(), seedHash: '' };
                         wcUser.addr = pubKey;
                         localStorage.setItem('cw_user', JSON.stringify(wcUser));
+                        // Register to wallet address registry for autopay
+                        try {
+                          var reg = JSON.parse(localStorage.getItem('cw_wallet_registry') || '{}');
+                          if (wcUser.username) reg[wcUser.username.toLowerCase()] = pubKey;
+                          if (wcUser.email) reg[wcUser.email.toLowerCase()] = pubKey;
+                          if (wcUser.name) reg[wcUser.name.toLowerCase()] = pubKey;
+                          localStorage.setItem('cw_wallet_registry', JSON.stringify(reg));
+                        } catch(e) {}
                         showAlert('success', 'Freighter connected: ' + pubKey.slice(0, 6) + '\u2026' + pubKey.slice(-4));
                         setTimeout(() => { window.location.href = 'dashboard.html'; }, 1200);
                     });
@@ -1810,6 +1869,7 @@ function completeGoogleAuth(mode, email, name, picture) {
         }
 
         showAlert('success', 'Welcome back, ' + name + '!');
+        _authBackendLogin(email);
         setTimeout(() => { window.location.href = 'dashboard.html'; }, 800);
 
     } else {
@@ -1845,6 +1905,9 @@ function completeGoogleAuth(mode, email, name, picture) {
             picture: picture || ''
         };
         localStorage.setItem('cw_user', JSON.stringify(newUser));
+
+        // ── Backend sync: register with server ──
+        _authBackendRegister(newUser);
 
         window._pendingAuth = {
             type: 'register',

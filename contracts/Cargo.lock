@@ -914,7 +914,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "olighft-escrow"
+version = "1.0.0"
+dependencies = [
+ "soroban-sdk",
+]
+
+[[package]]
 name = "olighft-invite"
+version = "1.0.0"
+dependencies = [
+ "soroban-sdk",
+]
+
+[[package]]
+name = "olighft-p2p"
 version = "1.0.0"
 dependencies = [
  "soroban-sdk",
