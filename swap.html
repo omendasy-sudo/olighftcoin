@@ -819,6 +819,9 @@ function executeSwap(){
     deadline:receipt.deadline
   });if(al.length>50)al.length=50;localStorage.setItem('cw_activity',JSON.stringify(al));}catch(e){}
 
+  // Transaction notification
+  try{var notifs=JSON.parse(localStorage.getItem('cw_tx_notifications')||'[]');notifs.unshift({type:'Swap',icon:'\uD83D\uDD04',detail:fAmt+' '+f+' \u2192 '+tAmt.toFixed(4)+' '+t,amt:'+'+tAmt.toFixed(4)+' '+t,cls:'green',ts:Date.now(),hash:receipt.transactionHash});if(notifs.length>50)notifs.length=50;localStorage.setItem('cw_tx_notifications',JSON.stringify(notifs));}catch(e){}
+
   document.getElementById('fromAmt').value='';
   document.getElementById('toAmt').value='';
   hideDetails();

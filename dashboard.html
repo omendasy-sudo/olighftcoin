@@ -116,6 +116,44 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);padding:12px 24px;border-radius:12px;font-size:.78rem;font-weight:600;color:#fff;z-index:9999;opacity:0;transition:.35s}
 .toast.show{transform:translateX(-50%) translateY(0);opacity:1}
 
+/* Notification Bell & Panel */
+.notif-bell{position:relative;cursor:pointer;padding:6px;border-radius:10px;border:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.02);transition:.25s;display:flex;align-items:center;gap:6px}
+.notif-bell:hover{border-color:rgba(108,92,231,.3);background:rgba(108,92,231,.06)}
+.notif-bell .bell-icon{font-size:1.15rem}
+.notif-bell .bell-count{position:absolute;top:-4px;right:-4px;min-width:18px;height:18px;border-radius:9px;background:#eb5757;color:#fff;font-size:.55rem;font-weight:800;display:flex;align-items:center;justify-content:center;padding:0 4px;box-shadow:0 2px 8px rgba(235,87,87,.4);transition:.2s}
+.notif-bell .bell-count.hidden{display:none}
+.notif-panel{position:fixed;top:0;right:-380px;width:360px;max-width:90vw;height:100vh;background:linear-gradient(180deg,#0e0e24,#111128);border-left:1px solid rgba(108,92,231,.15);z-index:10000;transition:right .35s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;box-shadow:-8px 0 40px rgba(0,0,0,.5)}
+.notif-panel.open{right:0}
+.notif-panel-header{display:flex;align-items:center;justify-content:space-between;padding:18px 20px 14px;border-bottom:1px solid rgba(108,92,231,.1)}
+.notif-panel-title{font-size:.88rem;font-weight:700;color:#a29bfe;display:flex;align-items:center;gap:8px}
+.notif-panel-close{background:none;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.4);padding:6px 12px;border-radius:8px;font-size:.7rem;cursor:pointer;transition:.2s}
+.notif-panel-close:hover{border-color:rgba(235,87,87,.3);color:#eb5757}
+.notif-clear-btn{background:none;border:1px solid rgba(108,92,231,.15);color:rgba(108,92,231,.6);padding:5px 12px;border-radius:8px;font-size:.6rem;font-weight:600;cursor:pointer;transition:.2s}
+.notif-clear-btn:hover{border-color:rgba(108,92,231,.4);color:#a29bfe}
+.notif-list{flex:1;overflow-y:auto;padding:10px 12px}
+.notif-item{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:12px;margin-bottom:6px;transition:.18s;cursor:default}
+.notif-item.unread{background:rgba(108,92,231,.06);border-color:rgba(108,92,231,.15)}
+.notif-item:hover{border-color:rgba(108,92,231,.2)}
+.notif-item .ni-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.05rem;flex-shrink:0}
+.ni-icon.ni-send{background:rgba(108,92,231,.12)}
+.ni-icon.ni-recv{background:rgba(39,174,96,.12)}
+.ni-icon.ni-swap{background:rgba(242,153,74,.12)}
+.ni-icon.ni-deposit{background:rgba(45,156,219,.12)}
+.ni-icon.ni-stake{background:rgba(245,197,24,.12)}
+.ni-icon.ni-default{background:rgba(255,255,255,.06)}
+.notif-item .ni-body{flex:1;min-width:0}
+.notif-item .ni-title{font-size:.72rem;font-weight:700;color:#fff}
+.notif-item .ni-detail{font-size:.62rem;color:rgba(255,255,255,.4);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.notif-item .ni-time{font-size:.55rem;color:rgba(255,255,255,.2);margin-top:3px}
+.notif-item .ni-amt{font-size:.75rem;font-weight:700;flex-shrink:0;margin-top:2px}
+.ni-amt.green{color:#27ae60}
+.ni-amt.red{color:#eb5757}
+.ni-amt.orange{color:#f2994a}
+.notif-empty{text-align:center;padding:40px 16px;color:rgba(255,255,255,.2);font-size:.75rem}
+.notif-empty .ne-icon{font-size:2rem;margin-bottom:8px}
+.notif-backdrop{position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,.4);z-index:9999;opacity:0;pointer-events:none;transition:opacity .3s}
+.notif-backdrop.show{opacity:1;pointer-events:auto}
+
 /* Staking Panel */
 .stake-panel{padding:24px 22px 22px;background:linear-gradient(160deg,rgba(242,153,74,.08) 0%,rgba(245,197,24,.04) 50%,rgba(242,153,74,.06) 100%);border:1px solid rgba(242,153,74,.18);border-radius:18px;margin-bottom:22px;position:relative;overflow:hidden}
 .stake-panel::before{content:'';position:absolute;top:-60px;right:-60px;width:140px;height:140px;background:radial-gradient(circle,rgba(245,197,24,.08),transparent 70%);border-radius:50%;pointer-events:none}
@@ -504,7 +542,13 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
     <div class="logo-icon">&#x2728;</div>
     <div class="logo-text">OLIGHFT</div>
   </div>
-  <div class="net-badge">&#x1F7E2; Testnet</div>
+  <div style="display:flex;align-items:center;gap:8px">
+    <div class="notif-bell" id="notifBell" onclick="toggleNotifPanel()">
+      <span class="bell-icon">&#x1F514;</span>
+      <span class="bell-count hidden" id="notifCount">0</span>
+    </div>
+    <div class="net-badge">&#x1F7E2; Testnet</div>
+  </div>
 </div>
 
 <!-- User Row (shown when logged in) -->
@@ -1058,6 +1102,19 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 </div><!-- /container -->
 
 <div class="toast" id="toast"></div>
+
+<!-- Notification Panel -->
+<div class="notif-backdrop" id="notifBackdrop" onclick="closeNotifPanel()"></div>
+<div class="notif-panel" id="notifPanel">
+  <div class="notif-panel-header">
+    <div class="notif-panel-title">&#x1F514; Notifications</div>
+    <div style="display:flex;gap:8px">
+      <button class="notif-clear-btn" onclick="clearAllNotifs()">Clear All</button>
+      <button class="notif-panel-close" onclick="closeNotifPanel()">&times; Close</button>
+    </div>
+  </div>
+  <div class="notif-list" id="notifList"></div>
+</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/stellar-sdk/11.3.0/stellar-sdk.min.js"></script>
 <script type="module">
@@ -2906,6 +2963,8 @@ function compoundStake(stakeId) {
     if (al.length > 50) al.length = 50;
     localStorage.setItem('cw_activity', JSON.stringify(al));
   } catch(e) {}
+  // Transaction notification
+  try{var notifs=JSON.parse(localStorage.getItem('cw_tx_notifications')||'[]');notifs.unshift({type:'Compounded',icon:'\uD83D\uDD04',detail:'Compounded +'+(accrued+netBoost).toFixed(4)+' OLIGHFT into '+tierName+' stake',amt:'+'+(accrued+netBoost).toFixed(4)+' OLIGHFT',cls:'green',ts:now});if(notifs.length>50)notifs.length=50;localStorage.setItem('cw_tx_notifications',JSON.stringify(notifs));updateNotifBadge();}catch(e){}
 
   // ── Backend sync: compound on server ──
   _apiCompound(stakeId).then(function(r) {
@@ -3037,6 +3096,8 @@ function _syncOnChainDeposits() {
         if (al.length > 50) al.length = 50;
         localStorage.setItem('cw_activity', JSON.stringify(al));
       } catch(e) {}
+      // Transaction notification
+      try{var notifs=JSON.parse(localStorage.getItem('cw_tx_notifications')||'[]');notifs.unshift({type:'Deposit',icon:'\uD83D\uDCE5',detail:'On-chain deposit: +'+deposit.toFixed(4)+' XLM',amt:'+'+deposit.toFixed(4)+' XLM',cls:'green',ts:Date.now()});if(notifs.length>50)notifs.length=50;localStorage.setItem('cw_tx_notifications',JSON.stringify(notifs));updateNotifBadge();}catch(e){}
       showToast('\uD83D\uDCE5 Deposit received: +' + deposit.toFixed(4) + ' XLM', '#27ae60');
     }
   }).catch(function(err) {
@@ -3098,6 +3159,8 @@ function _syncOLIGHFTBalance(addr) {
         if (al.length > 50) al.length = 50;
         localStorage.setItem('cw_activity', JSON.stringify(al));
       } catch(e) {}
+      // Transaction notification
+      try{var notifs=JSON.parse(localStorage.getItem('cw_tx_notifications')||'[]');notifs.unshift({type:'Deposit',icon:'\uD83D\uDCE5',detail:'On-chain deposit: +'+deposit.toFixed(2)+' OLIGHFT',amt:'+'+deposit.toFixed(2)+' OLIGHFT',cls:'green',ts:Date.now()});if(notifs.length>50)notifs.length=50;localStorage.setItem('cw_tx_notifications',JSON.stringify(notifs));updateNotifBadge();}catch(e){}
       showToast('\uD83D\uDCE5 Deposit received: +' + deposit.toFixed(2) + ' OLIGHFT', '#27ae60');
     }
   }).catch(function(err) {
@@ -3613,6 +3676,8 @@ function doStake() {
   // Activity log
   var genSummary = genCommissions.length > 0 ? ' \u00B7 ' + genCommissions.length + '-gen referral' : '';
   try { var al = JSON.parse(localStorage.getItem('cw_activity') || '[]'); al.unshift({ type: 'Staked', icon: '\uD83D\uDCC8', detail: amt + ' ' + asset + ' \u00B7 ' + (days > 0 ? days + 'd' : 'Flex') + ' \u00B7 ' + apy.total.toFixed(1) + '% APY \u00B7 ' + comp + ' compound' + genSummary, amt: '-' + amt + ' ' + asset, cls: 'red', time: 'Just now', ts: Date.now() }); if (al.length > 50) al.length = 50; localStorage.setItem('cw_activity', JSON.stringify(al)); } catch(e) {}
+  // Transaction notification
+  try{var notifs=JSON.parse(localStorage.getItem('cw_tx_notifications')||'[]');notifs.unshift({type:'Staked',icon:'\uD83D\uDCC8',detail:amt+' '+asset+' staked \u00B7 '+(days>0?days+'d':'Flex')+' \u00B7 '+apy.total.toFixed(1)+'% APY',amt:'-'+amt+' '+asset,cls:'red',ts:Date.now()});if(notifs.length>50)notifs.length=50;localStorage.setItem('cw_tx_notifications',JSON.stringify(notifs));updateNotifBadge();}catch(e){}
 
   // ── Backend sync: replicate stake on server ──
   _apiDoStake(cardTierName, days, comp).then(function(r) {
@@ -3827,6 +3892,8 @@ function withdrawStake(stakeId) {
 
   // Activity log
   try { var al = JSON.parse(localStorage.getItem('cw_activity') || '[]'); al.unshift({ type: 'Unstaked', icon: '\uD83D\uDCB0', detail: 'Withdrew ' + totalReturn.toFixed(2) + ' ' + asset + ' (reward: ' + rewardPortion.toFixed(2) + ' from supply' + (s.compound && s.compound !== 'none' ? ' \u00B7 ' + s.compound + ' compound' : '') + ')', amt: '+' + totalReturn.toFixed(2) + ' ' + asset, cls: 'green', time: 'Just now', ts: Date.now() }); if (al.length > 50) al.length = 50; localStorage.setItem('cw_activity', JSON.stringify(al)); } catch(e) {}
+  // Transaction notification
+  try{var notifs=JSON.parse(localStorage.getItem('cw_tx_notifications')||'[]');notifs.unshift({type:'Unstaked',icon:'\uD83D\uDCB0',detail:'Withdrew '+totalReturn.toFixed(2)+' '+asset,amt:'+'+totalReturn.toFixed(2)+' '+asset,cls:'green',ts:Date.now()});if(notifs.length>50)notifs.length=50;localStorage.setItem('cw_tx_notifications',JSON.stringify(notifs));updateNotifBadge();}catch(e){}
 
   renderBalances(bals);
   updateTotalBalance(bals);
@@ -5845,6 +5912,72 @@ function textAreaCopy(text) {
   document.body.removeChild(ta);
   showToast('\u2705 User invite link copied!', '#27ae60');
 }
+
+// ══════════════════════════════════════════════════════════════
+// TRANSACTION NOTIFICATION SYSTEM
+// ══════════════════════════════════════════════════════════════
+function _getNotifs(){
+  try{return JSON.parse(localStorage.getItem('cw_tx_notifications')||'[]');}catch(e){return[];}
+}
+function _saveNotifs(n){localStorage.setItem('cw_tx_notifications',JSON.stringify(n));}
+function _getLastReadTs(){return parseInt(localStorage.getItem('cw_notif_read_ts')||'0',10);}
+function _markAllRead(){localStorage.setItem('cw_notif_read_ts',String(Date.now()));updateNotifBadge();renderNotifList();}
+
+function updateNotifBadge(){
+  var notifs=_getNotifs();
+  var lastRead=_getLastReadTs();
+  var unread=notifs.filter(function(n){return n.ts>lastRead;}).length;
+  var badge=document.getElementById('notifCount');
+  if(!badge)return;
+  if(unread>0){badge.textContent=unread>99?'99+':unread;badge.classList.remove('hidden');}else{badge.classList.add('hidden');}
+}
+
+function renderNotifList(){
+  var list=document.getElementById('notifList');
+  if(!list)return;
+  var notifs=_getNotifs();
+  if(!notifs.length){list.innerHTML='<div class="notif-empty"><div class="ne-icon">&#x1F514;</div>No notifications yet<br><span style="font-size:.6rem;color:rgba(255,255,255,.15)">Transactions will appear here</span></div>';return;}
+  var lastRead=_getLastReadTs();
+  var iconMap={Sent:'ni-send',Received:'ni-recv',Deposit:'ni-deposit',Swap:'ni-swap',Staked:'ni-stake',Unstaked:'ni-stake',Compounded:'ni-stake'};
+  var html='';
+  for(var i=0;i<notifs.length;i++){
+    var n=notifs[i];
+    var isUnread=n.ts>lastRead;
+    var elapsed=Date.now()-(n.ts||0);
+    var timeAgo=elapsed<60000?'Just now':elapsed<3600000?Math.floor(elapsed/60000)+'m ago':elapsed<86400000?Math.floor(elapsed/3600000)+'h ago':Math.floor(elapsed/86400000)+'d ago';
+    var iconCls=iconMap[n.type]||'ni-default';
+    var amtCls=n.cls||'';
+    html+='<div class="notif-item'+(isUnread?' unread':'')+'">'+'<div class="ni-icon '+iconCls+'">'+(n.icon||'\u2139\uFE0F')+'</div>'+'<div class="ni-body">'+'<div class="ni-title">'+n.type+'</div>'+'<div class="ni-detail">'+(n.detail||'')+'</div>'+'<div class="ni-time">'+timeAgo+'</div>'+'</div>'+'<div class="ni-amt '+amtCls+'">'+(n.amt||'')+'</div>'+'</div>';
+  }
+  list.innerHTML=html;
+}
+
+function toggleNotifPanel(){
+  var panel=document.getElementById('notifPanel');
+  var backdrop=document.getElementById('notifBackdrop');
+  if(panel.classList.contains('open')){closeNotifPanel();return;}
+  renderNotifList();
+  panel.classList.add('open');
+  backdrop.classList.add('show');
+  _markAllRead();
+}
+function closeNotifPanel(){
+  document.getElementById('notifPanel').classList.remove('open');
+  document.getElementById('notifBackdrop').classList.remove('show');
+}
+function clearAllNotifs(){
+  _saveNotifs([]);
+  _markAllRead();
+  renderNotifList();
+  updateNotifBadge();
+  showToast('\u2705 All notifications cleared','#27ae60');
+}
+
+// Poll for new notifications (cross-page updates)
+var _notifPollTimer=setInterval(function(){updateNotifBadge();},3000);
+
+// Init notification badge on load
+updateNotifBadge();
 
 // Safety net: ensure quick actions work even if main init had partial failure
 document.addEventListener('DOMContentLoaded', function() {
