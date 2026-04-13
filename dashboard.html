@@ -112,14 +112,39 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 .sw-cell{text-align:center;padding:10px 4px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:10px}
 .sw-cell-val{font-size:.82rem;font-weight:700;color:#fff;font-family:'Courier New',monospace;margin-bottom:2px}
 .sw-cell-lbl{font-size:.52rem;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.4px}
+/* Compound Profit Section */
+.sw-compound-box{margin:12px 0;padding:12px;background:rgba(162,155,254,.06);border:1px solid rgba(162,155,254,.15);border-radius:12px}
+.sw-comp-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.sw-comp-title{font-size:.68rem;font-weight:700;color:#a29bfe;display:flex;align-items:center;gap:5px}
+.sw-comp-badge{font-size:.52rem;padding:2px 8px;border-radius:6px;font-weight:700}
+.sw-comp-split{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.sw-comp-col{padding:8px;border-radius:8px;text-align:center}
+.sw-comp-col.base{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)}
+.sw-comp-col.boost{background:rgba(162,155,254,.08);border:1px solid rgba(162,155,254,.15)}
+.sw-comp-col-val{font-size:.78rem;font-weight:700;font-family:'Courier New',monospace;margin-bottom:1px}
+.sw-comp-col-lbl{font-size:.48rem;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.3px}
+.sw-comp-bar-wrap{height:18px;background:rgba(255,255,255,.04);border-radius:9px;overflow:hidden;position:relative;margin-bottom:6px}
+.sw-comp-bar-base{height:100%;background:linear-gradient(90deg,#27ae60,#2ecc71);border-radius:9px;position:absolute;left:0;top:0;transition:width .3s}
+.sw-comp-bar-bonus{height:100%;background:linear-gradient(90deg,#6c5ce7,#a29bfe);border-radius:0 9px 9px 0;position:absolute;top:0;transition:width .3s,left .3s}
+.sw-comp-bar-labels{display:flex;justify-content:space-between;font-size:.48rem;color:rgba(255,255,255,.3);margin-top:2px}
+.sw-comp-events{display:flex;gap:8px;margin-top:8px}
+.sw-comp-evt{flex:1;text-align:center;padding:6px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px}
+.sw-comp-evt-val{font-size:.72rem;font-weight:700;font-family:'Courier New',monospace;color:#f5c518}
+.sw-comp-evt-lbl{font-size:.46rem;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.3px}
+/* Stake Breakdown */
 .sw-stakes{margin-top:10px;border-top:1px solid rgba(255,255,255,.06);padding-top:10px}
-.sw-stake-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;font-size:.68rem;border-bottom:1px solid rgba(255,255,255,.03)}
+.sw-stake-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;font-size:.68rem;border-bottom:1px solid rgba(255,255,255,.03)}
 .sw-stake-row:last-child{border-bottom:none}
 .sw-stake-tier{display:flex;align-items:center;gap:6px}
 .sw-stake-tier .sw-tier-dot{width:6px;height:6px;border-radius:50%}
-.sw-stake-rate{color:rgba(255,255,255,.4)}
+.sw-stake-info{display:flex;flex-direction:column;align-items:flex-end;gap:1px}
+.sw-stake-rate{color:rgba(255,255,255,.4);font-size:.56rem}
 .sw-stake-earned{font-weight:700;color:#27ae60;font-family:'Courier New',monospace}
-@media(max-width:400px){.sw-grid{grid-template-columns:repeat(2,1fr)}.sw-total-val{font-size:1.2rem}}
+.sw-stake-comp{font-size:.5rem;color:#a29bfe;font-style:italic}
+.sw-stake-countdown{font-size:.5rem;color:#f5c518;margin-top:1px}
+.sw-stake-minibar{width:100%;height:4px;background:rgba(255,255,255,.04);border-radius:2px;margin-top:3px;overflow:hidden}
+.sw-stake-minibar-fill{height:100%;border-radius:2px;transition:width .3s}
+@media(max-width:400px){.sw-grid{grid-template-columns:repeat(2,1fr)}.sw-total-val{font-size:1.2rem}.sw-comp-split{grid-template-columns:1fr}}
 
 /* Footer */
 .footer{text-align:center;padding:20px 0 8px;margin-top:8px}
@@ -921,6 +946,48 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
     <div class="sw-cell"><div class="sw-cell-val" id="swPerMth">0.0000</div><div class="sw-cell-lbl">/ Month</div></div>
     <div class="sw-cell"><div class="sw-cell-val" id="swPerYr">0.0000</div><div class="sw-cell-lbl">/ Year</div></div>
   </div>
+
+  <!-- Compound Profit Live -->
+  <div class="sw-compound-box" id="swCompBox">
+    <div class="sw-comp-head">
+      <div class="sw-comp-title">&#x1F504; Compound Profit</div>
+      <div class="sw-comp-badge" id="swCompBadge" style="background:rgba(162,155,254,.15);color:#a29bfe">0 stakes compounding</div>
+    </div>
+    <div class="sw-comp-split">
+      <div class="sw-comp-col base">
+        <div class="sw-comp-col-val" id="swBaseEarn" style="color:#27ae60">0.0000</div>
+        <div class="sw-comp-col-lbl">Base Earnings</div>
+      </div>
+      <div class="sw-comp-col boost">
+        <div class="sw-comp-col-val" id="swCompBonus" style="color:#a29bfe">+0.0000</div>
+        <div class="sw-comp-col-lbl">Compound Bonus</div>
+      </div>
+    </div>
+    <div class="sw-comp-bar-wrap">
+      <div class="sw-comp-bar-base" id="swBarBase" style="width:100%"></div>
+      <div class="sw-comp-bar-bonus" id="swBarBonus" style="width:0%;left:100%"></div>
+    </div>
+    <div class="sw-comp-bar-labels">
+      <span>Base</span>
+      <span id="swCompMulti">1.00x</span>
+      <span>Compound</span>
+    </div>
+    <div class="sw-comp-events">
+      <div class="sw-comp-evt">
+        <div class="sw-comp-evt-val" id="swCompTotal">0</div>
+        <div class="sw-comp-evt-lbl">Total Compounded</div>
+      </div>
+      <div class="sw-comp-evt">
+        <div class="sw-comp-evt-val" id="swCompCount">0</div>
+        <div class="sw-comp-evt-lbl">Compound Events</div>
+      </div>
+      <div class="sw-comp-evt">
+        <div class="sw-comp-evt-val" id="swNextComp">--:--</div>
+        <div class="sw-comp-evt-lbl">Next Compound</div>
+      </div>
+    </div>
+  </div>
+
   <div class="sw-stakes" id="swStakes"></div>
 </div>
 
@@ -1838,6 +1905,7 @@ function updateMaturedCount() {
 // ══════════════════════════════════════════════════════════════════
 // ── STAKING EARNINGS STOPWATCH ───────────────────────────────────
 // Real-time ticking display showing earnings per sec/min/hr/day/mo/yr
+// Shows live compound profit generation vs base earnings
 // Calculated from each user's actual staking history & card tiers
 // ══════════════════════════════════════════════════════════════════
 var _swTimer = null;
@@ -1848,41 +1916,87 @@ var TIER_COLORS = {
   Black: '#2c3e50', Amex: '#27ae60', Mastercard: '#e74c3c'
 };
 
-function _swCalcRatePerSec(stake) {
-  // Returns OLIGHFT earned per second for a single active stake
-  if (!stake || stake.withdrawn) return 0;
+// Compound interval in ms
+var _swCompIntervals = { daily: 86400000, weekly: 604800000, monthly: 2592000000 };
+
+function _swCalcStakeData(stake) {
+  // Returns full data for a single active stake: base rate, compound earned, etc.
+  if (!stake || stake.withdrawn) return null;
   var tierName = stake.cardTier || stake.card || '';
   var tier = tierName && CARD_TIERS[tierName] ? CARD_TIERS[tierName] : null;
   var price = OLIGHFT_PRICE || 0.50;
+  var compType = stake.compound || 'none';
+  var startTs = new Date(stake.lastCompound || stake.startDate || stake.date || 0).getTime();
+  if (isNaN(startTs) || startTs <= 0) startTs = Date.now();
+  var stakeStartTs = new Date(stake.startDate || stake.date || 0).getTime();
+  if (isNaN(stakeStartTs) || stakeStartTs <= 0) stakeStartTs = startTs;
+  var now = Date.now();
+  var elapsedDays = (now - stakeStartTs) / 86400000;
+  if (elapsedDays < 0) elapsedDays = 0;
+  var elapsedSinceComp = (now - startTs) / 86400000;
+  if (elapsedSinceComp < 0) elapsedSinceComp = 0;
+
+  var baseRatePerSec = 0; // simple earning rate (no compound)
+  var baseEarned = 0;     // total earned if NO compounding
+  var compEarned = 0;     // total earned WITH compounding
+  var cardDailyOLIGHFT = 0;
 
   if (tier) {
-    // Card stake: fixed daily USD payout → OLIGHFT per second
-    return (tier.daily / price) / 86400;
+    cardDailyOLIGHFT = tier.daily / price;
+    baseRatePerSec = cardDailyOLIGHFT / 86400;
+    baseEarned = cardDailyOLIGHFT * elapsedDays;
+    compEarned = calcCardDailyCompound(cardDailyOLIGHFT, elapsedDays, compType);
+  } else if (stake.dailyReward && stake.dailyReward > 0) {
+    baseRatePerSec = stake.dailyReward / 86400;
+    baseEarned = stake.dailyReward * elapsedDays;
+    compEarned = baseEarned; // no compound formula for basic daily
+  } else if (stake.apy && stake.amount) {
+    baseRatePerSec = (stake.amount * (stake.apy / 100)) / (365 * 86400);
+    baseEarned = stake.amount * (stake.apy / 100) * (elapsedDays / 365);
+    compEarned = calcCompoundReward(stake.amount, stake.apy, elapsedDays, compType);
   }
-  if (stake.dailyReward && stake.dailyReward > 0) {
-    return stake.dailyReward / 86400;
-  }
-  if (stake.apy && stake.amount) {
-    // APY-based: annual → per second
-    return (stake.amount * (stake.apy / 100)) / (365 * 86400);
-  }
-  return 0;
+
+  // Add already-accumulated reward (from prior compounds)
+  var priorReward = stake.reward || 0;
+  var totalCompounded = stake.totalCompounded || 0;
+
+  // Next compound countdown
+  var compInterval = _swCompIntervals[compType] || 0;
+  var lastCompTs = new Date(stake.lastCompound || stake.startDate || stake.date || 0).getTime();
+  if (isNaN(lastCompTs)) lastCompTs = stakeStartTs;
+  var nextCompMs = compInterval > 0 ? Math.max(0, (lastCompTs + compInterval) - now) : 0;
+
+  // Lock progress
+  var lockDays = stake.lockDays || 0;
+  var lockProgress = lockDays > 0 ? Math.min(1, elapsedDays / lockDays) : 1;
+
+  return {
+    id: stake.id,
+    tier: tierName || 'Stake',
+    amount: stake.amount || 0,
+    compType: compType,
+    baseRatePerSec: baseRatePerSec,
+    baseEarned: baseEarned + priorReward,
+    compEarned: compEarned + priorReward,
+    compBonus: Math.max(0, (compEarned + priorReward) - (baseEarned + priorReward)),
+    totalCompounded: totalCompounded,
+    nextCompMs: nextCompMs,
+    compInterval: compInterval,
+    lockProgress: lockProgress,
+    lockDays: lockDays,
+    startTs: stakeStartTs,
+    elapsedDays: elapsedDays
+  };
 }
 
-function _swGetActiveRates() {
+function _swGetAllData() {
   var stakes = getWalletStakes();
-  var rates = [];
+  var items = [];
   for (var i = 0; i < stakes.length; i++) {
-    var s = stakes[i];
-    if (s.withdrawn) continue;
-    var rps = _swCalcRatePerSec(s);
-    if (rps <= 0) continue;
-    var tierName = s.cardTier || s.card || 'Stake';
-    var startTs = new Date(s.startDate || s.date || 0).getTime();
-    if (isNaN(startTs) || startTs <= 0) startTs = Date.now();
-    rates.push({ id: s.id, tier: tierName, ratePerSec: rps, startTs: startTs, amount: s.amount || 0 });
+    var d = _swCalcStakeData(stakes[i]);
+    if (d && d.baseRatePerSec > 0) items.push(d);
   }
-  return rates;
+  return items;
 }
 
 function _swFmtNum(n) {
@@ -1899,63 +2013,136 @@ function _swFmtTime(ms) {
   return (h < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
 }
 
+function _swFmtCountdown(ms) {
+  if (ms <= 0) return 'Ready!';
+  var totalSec = Math.floor(ms / 1000);
+  var d = Math.floor(totalSec / 86400);
+  var h = Math.floor((totalSec % 86400) / 3600);
+  var m = Math.floor((totalSec % 3600) / 60);
+  var s = totalSec % 60;
+  if (d > 0) return d + 'd ' + h + 'h';
+  if (h > 0) return h + 'h ' + (m < 10 ? '0' : '') + m + 'm';
+  return (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+}
+
 function _swRender() {
-  var rates = _swGetActiveRates();
+  var items = _swGetAllData();
   var panel = document.getElementById('swPanel');
   if (!panel) return;
-  if (rates.length === 0) { panel.style.display = 'none'; return; }
+  if (items.length === 0) { panel.style.display = 'none'; return; }
   panel.style.display = 'block';
 
   var now = Date.now();
   var totalRatePerSec = 0;
-  var totalEarnedNow = 0;
+  var totalBaseEarned = 0;
+  var totalCompEarned = 0;
+  var totalCompBonus = 0;
+  var totalCompounded = 0;
+  var compoundingCount = 0;
+  var compoundEventCount = 0;
+  var nearestNextComp = Infinity;
 
-  for (var i = 0; i < rates.length; i++) {
-    totalRatePerSec += rates[i].ratePerSec;
-    // Total earned since each stake started
-    var elapsed = (now - rates[i].startTs) / 1000;
-    if (elapsed < 0) elapsed = 0;
-    totalEarnedNow += rates[i].ratePerSec * elapsed;
+  for (var i = 0; i < items.length; i++) {
+    var d = items[i];
+    totalRatePerSec += d.baseRatePerSec;
+    totalBaseEarned += d.baseEarned;
+    totalCompEarned += d.compEarned;
+    totalCompBonus += d.compBonus;
+    totalCompounded += d.totalCompounded;
+    if (d.compType !== 'none') {
+      compoundingCount++;
+      // Estimate compound events that have occurred
+      if (d.compInterval > 0 && d.elapsedDays > 0) {
+        compoundEventCount += Math.floor(d.elapsedDays / (d.compInterval / 86400000));
+      }
+      if (d.nextCompMs > 0 && d.nextCompMs < nearestNextComp) nearestNextComp = d.nextCompMs;
+    }
   }
 
   var price = OLIGHFT_PRICE || 0.50;
+  var totalEarned = totalCompEarned; // compound earnings are the real total
 
-  // Total earned value
-  document.getElementById('swTotalVal').textContent = _swFmtNum(totalEarnedNow) + ' OLIGHFT';
-  document.getElementById('swTotalUsd').textContent = '\u2248 $' + (totalEarnedNow * price).toFixed(2);
+  // ── Header totals ──
+  document.getElementById('swTotalVal').textContent = _swFmtNum(totalEarned) + ' OLIGHFT';
+  document.getElementById('swTotalUsd').textContent = '\u2248 $' + (totalEarned * price).toFixed(2);
 
-  // Rate per time unit
+  // ── Rate grid ──
   var perSec = totalRatePerSec;
-  var perMin = perSec * 60;
-  var perHr  = perMin * 60;
-  var perDay = perHr * 24;
-  var perMth = perDay * 30;
-  var perYr  = perDay * 365;
+  // If compounding, boost the displayed rate by the compound multiplier
+  var compMulti = totalBaseEarned > 0 ? totalCompEarned / totalBaseEarned : 1;
+  if (compMulti < 1) compMulti = 1;
+  var adjPerSec = perSec * compMulti;
+  document.getElementById('swPerSec').textContent = _swFmtNum(adjPerSec);
+  document.getElementById('swPerMin').textContent = _swFmtNum(adjPerSec * 60);
+  document.getElementById('swPerHr').textContent  = _swFmtNum(adjPerSec * 3600);
+  document.getElementById('swPerDay').textContent = _swFmtNum(adjPerSec * 86400);
+  document.getElementById('swPerMth').textContent = _swFmtNum(adjPerSec * 86400 * 30);
+  document.getElementById('swPerYr').textContent  = _swFmtNum(adjPerSec * 86400 * 365);
 
-  document.getElementById('swPerSec').textContent = _swFmtNum(perSec);
-  document.getElementById('swPerMin').textContent = _swFmtNum(perMin);
-  document.getElementById('swPerHr').textContent  = _swFmtNum(perHr);
-  document.getElementById('swPerDay').textContent = _swFmtNum(perDay);
-  document.getElementById('swPerMth').textContent = _swFmtNum(perMth);
-  document.getElementById('swPerYr').textContent  = _swFmtNum(perYr);
-
-  // Runtime clock (since page loaded)
+  // Runtime
   document.getElementById('swRuntime').textContent = _swFmtTime(now - _swStartTs);
 
-  // Per-stake breakdown rows
+  // ── Compound Profit Section ──
+  var compBox = document.getElementById('swCompBox');
+  if (compBox) {
+    if (compoundingCount > 0) {
+      compBox.style.display = 'block';
+      document.getElementById('swCompBadge').textContent = compoundingCount + ' stake' + (compoundingCount > 1 ? 's' : '') + ' compounding';
+      document.getElementById('swBaseEarn').textContent = _swFmtNum(totalBaseEarned);
+      document.getElementById('swCompBonus').textContent = '+' + _swFmtNum(totalCompBonus);
+
+      // Proportion bar
+      var totalAll = totalBaseEarned + totalCompBonus;
+      if (totalAll > 0) {
+        var basePct = Math.round((totalBaseEarned / totalAll) * 100);
+        var bonusPct = 100 - basePct;
+        document.getElementById('swBarBase').style.width = basePct + '%';
+        document.getElementById('swBarBonus').style.width = bonusPct + '%';
+        document.getElementById('swBarBonus').style.left = basePct + '%';
+      }
+      document.getElementById('swCompMulti').textContent = compMulti.toFixed(2) + 'x';
+
+      // Events
+      document.getElementById('swCompTotal').textContent = fmtBal(totalCompounded);
+      document.getElementById('swCompCount').textContent = compoundEventCount;
+      document.getElementById('swNextComp').textContent = nearestNextComp < Infinity ? _swFmtCountdown(nearestNextComp) : '--:--';
+    } else {
+      compBox.style.display = 'none';
+    }
+  }
+
+  // ── Per-stake breakdown ──
   var stakeDiv = document.getElementById('swStakes');
   var html = '<div style="font-size:.58rem;color:rgba(255,255,255,.35);margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px">Per Stake Breakdown</div>';
-  for (var j = 0; j < rates.length; j++) {
-    var r = rates[j];
-    var elSec = (now - r.startTs) / 1000;
-    if (elSec < 0) elSec = 0;
-    var earned = r.ratePerSec * elSec;
+  for (var j = 0; j < items.length; j++) {
+    var r = items[j];
     var color = TIER_COLORS[r.tier] || '#a29bfe';
-    html += '<div class="sw-stake-row">' +
-      '<div class="sw-stake-tier"><span class="sw-tier-dot" style="background:' + color + '"></span>' + r.tier +
-        ' <span style="color:rgba(255,255,255,.25)">' + fmtBal(r.amount) + '</span></div>' +
-      '<div class="sw-stake-rate">$' + (r.ratePerSec * 86400 * price).toFixed(2) + '/day</div>' +
-      '<div class="sw-stake-earned">+' + _swFmtNum(earned) + '</div>' +
+    var compLabel = r.compType !== 'none' ? r.compType : '';
+    var countdownHtml = '';
+    if (r.compType !== 'none' && r.nextCompMs > 0) {
+      countdownHtml = '<div class="sw-stake-countdown">\u23F1 Next: ' + _swFmtCountdown(r.nextCompMs) + '</div>';
+    } else if (r.compType !== 'none' && r.nextCompMs <= 0) {
+      countdownHtml = '<div class="sw-stake-countdown" style="color:#27ae60">\u2705 Ready to compound!</div>';
+    }
+    // Mini bar: green = base, purple = compound bonus
+    var miniTotal = r.compEarned > 0 ? r.compEarned : 1;
+    var miniBasePct = Math.round((r.baseEarned / miniTotal) * 100);
+    var miniBonusPct = 100 - miniBasePct;
+    if (r.compType === 'none') { miniBasePct = 100; miniBonusPct = 0; }
+
+    html += '<div class="sw-stake-row" style="flex-wrap:wrap">' +
+      '<div class="sw-stake-tier" style="flex:1;min-width:120px"><span class="sw-tier-dot" style="background:' + color + '"></span>' + r.tier +
+        ' <span style="color:rgba(255,255,255,.25)">' + fmtBal(r.amount) + '</span>' +
+        (compLabel ? ' <span style="font-size:.48rem;color:#a29bfe;background:rgba(162,155,254,.12);padding:1px 5px;border-radius:4px">' + compLabel + '</span>' : '') +
+      '</div>' +
+      '<div class="sw-stake-info">' +
+        '<div class="sw-stake-earned">+' + _swFmtNum(r.compEarned) + '</div>' +
+        '<div class="sw-stake-rate">$' + (r.baseRatePerSec * 86400 * price).toFixed(2) + '/day' +
+          (r.compBonus > 0 ? ' <span style="color:#a29bfe">+' + _swFmtNum(r.compBonus) + ' bonus</span>' : '') +
+        '</div>' +
+        countdownHtml +
+      '</div>' +
+      '<div style="width:100%"><div class="sw-stake-minibar"><div class="sw-stake-minibar-fill" style="width:' + miniBasePct + '%;background:#27ae60;display:inline-block;float:left"></div><div class="sw-stake-minibar-fill" style="width:' + miniBonusPct + '%;background:#a29bfe;display:inline-block;float:left"></div></div></div>' +
     '</div>';
   }
   stakeDiv.innerHTML = html;
