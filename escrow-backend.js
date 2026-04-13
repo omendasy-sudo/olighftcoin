@@ -251,6 +251,15 @@ const ESCROW_BACKEND = (function() {
     var kp = getWalletKeypair();
     if (!kp) throw new Error('Wallet not connected');
 
+    // Validate Stellar addresses
+    if (!sellerAddr || sellerAddr.length !== 56 || sellerAddr[0] !== 'G') {
+      throw new Error('Invalid seller address — must be a valid Stellar public key');
+    }
+    if (!arbiterAddr || arbiterAddr.length !== 56 || arbiterAddr[0] !== 'G') {
+      throw new Error('Invalid arbiter address — must be a valid Stellar public key');
+    }
+    if (amountOLIGHFT <= 0) throw new Error('Amount must be positive');
+
     var buyer = new StellarSdk.Address(kp.publicKey());
     var amount = toStroops(amountOLIGHFT);
 
@@ -287,6 +296,15 @@ const ESCROW_BACKEND = (function() {
   async function createAndFundEscrow(sellerAddr, arbiterAddr, amountOLIGHFT, deadlineDays, descriptionHash) {
     var kp = getWalletKeypair();
     if (!kp) throw new Error('Wallet not connected');
+
+    // Validate Stellar addresses
+    if (!sellerAddr || sellerAddr.length !== 56 || sellerAddr[0] !== 'G') {
+      throw new Error('Invalid seller address — must be a valid Stellar public key');
+    }
+    if (!arbiterAddr || arbiterAddr.length !== 56 || arbiterAddr[0] !== 'G') {
+      throw new Error('Invalid arbiter address — must be a valid Stellar public key');
+    }
+    if (amountOLIGHFT <= 0) throw new Error('Amount must be positive');
 
     var buyer = new StellarSdk.Address(kp.publicKey());
     var amount = toStroops(amountOLIGHFT);
@@ -327,6 +345,8 @@ const ESCROW_BACKEND = (function() {
    * @returns {Promise<{txHash: string}>}
    */
   async function releaseEscrow(escrowId) {
+    var kp = getWalletKeypair();
+    if (!kp) throw new Error('Wallet not connected');
     var result = await buildAndSubmitTx('release', [
       u64Val(escrowId),
     ]);
@@ -357,6 +377,8 @@ const ESCROW_BACKEND = (function() {
    * @returns {Promise<{txHash: string}>}
    */
   async function resolveEscrow(escrowId, releaseToSeller) {
+    var kp = getWalletKeypair();
+    if (!kp) throw new Error('Wallet not connected');
     var result = await buildAndSubmitTx('resolve', [
       u64Val(escrowId),
       boolVal(releaseToSeller),
@@ -370,6 +392,8 @@ const ESCROW_BACKEND = (function() {
    * @returns {Promise<{txHash: string}>}
    */
   async function refundExpired(escrowId) {
+    var kp = getWalletKeypair();
+    if (!kp) throw new Error('Wallet not connected');
     var result = await buildAndSubmitTx('refund_expired', [
       u64Val(escrowId),
     ]);
@@ -382,6 +406,8 @@ const ESCROW_BACKEND = (function() {
    * @returns {Promise<{txHash: string}>}
    */
   async function cancelEscrow(escrowId) {
+    var kp = getWalletKeypair();
+    if (!kp) throw new Error('Wallet not connected');
     var result = await buildAndSubmitTx('cancel', [
       u64Val(escrowId),
     ]);

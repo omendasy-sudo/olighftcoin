@@ -452,6 +452,7 @@ const STAKING_BACKEND = (function() {
           };
         });
     } catch(e) {
+      console.warn('getLocalStakes error for tier', tierName, e);
       return [];
     }
   }

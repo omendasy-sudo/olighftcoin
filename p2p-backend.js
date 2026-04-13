@@ -12,6 +12,15 @@ const P2P_BACKEND = (function() {
   const P2P_CONTRACT   = 'CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP2P';  // Replace after deploy
   const TOKEN_CONTRACT = 'CA5NW2ZJISLPTRRPEFY7XIKSB5CZ5XF2PIARJL2F37H7EPRAXXD34W6J';
   const USDC_CONTRACT  = 'CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUSDC'; // Replace after deploy
+
+  // Warn if placeholder contract IDs are still in use
+  var _p2pPlaceholderWarned = false;
+  function _warnPlaceholder() {
+    if (!_p2pPlaceholderWarned) {
+      _p2pPlaceholderWarned = true;
+      console.warn('[P2P_BACKEND] P2P_CONTRACT and USDC_CONTRACT are placeholder addresses. On-chain operations will fail until real contracts are deployed.');
+    }
+  }
   const SOROBAN_RPC_URL    = 'https://soroban-testnet.stellar.org';
   const NETWORK_PASSPHRASE = 'Test SDF Network ; September 2015';
   const DECIMALS = 7;
@@ -138,6 +147,7 @@ const P2P_BACKEND = (function() {
   // ── Soroban transaction builder ────────────────────────────
 
   async function buildAndSubmitTx(method, params) {
+    _warnPlaceholder();
     var kp = getWalletKeypair();
     if (!kp) throw new Error('Wallet not connected. Please log in first.');
 
@@ -727,9 +737,18 @@ const P2P_BACKEND = (function() {
   // ── Receipt code generator ─────────────────────────────────
 
   function generateReceiptCode() {
-    var ts = Date.now().toString(36).toUpperCase();
-    var rand = Math.random().toString(36).slice(2, 8).toUpperCase();
-    return 'OLI-' + ts.slice(-4) + '-' + rand;
+    var chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    var part1 = '', part2 = '';
+    if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+      var arr = new Uint8Array(10);
+      crypto.getRandomValues(arr);
+      for (var i = 0; i < 4; i++) part1 += chars[arr[i] % chars.length];
+      for (var j = 4; j < 10; j++) part2 += chars[arr[j] % chars.length];
+    } else {
+      for (var i = 0; i < 4; i++) part1 += chars[Math.floor(Math.random() * chars.length)];
+      for (var j = 0; j < 6; j++) part2 += chars[Math.floor(Math.random() * chars.length)];
+    }
+    return 'OLI-' + part1 + '-' + part2;
   }
 
   // ── Payment Proof Management ───────────────────────────────

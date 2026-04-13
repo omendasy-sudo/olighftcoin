@@ -21,7 +21,6 @@ ENDPOINTS:
   GET  /api/p2p/prices            — Get current coin prices
 
 SETUP:
-  pip install flask flask-cors
   python p2p-api-server.py
 
   Server runs on http://localhost:5000 by default.
@@ -33,7 +32,6 @@ import os
 import sys
 import re
 import time
-import uuid
 import hashlib
 import secrets
 import threading
@@ -58,6 +56,21 @@ ALLOWED_ORIGINS = [
     "http://127.0.0.1:5000",
     "null"  # for file:// protocol
 ]
+
+# Rate limiting: max requests per IP per window
+_rate_limit = {}  # { ip: [timestamp, ...] }
+RATE_LIMIT_MAX = 30       # max requests per window
+RATE_LIMIT_WINDOW = 60    # 1 minute
+
+def _check_rate_limit(ip):
+    now = time.time()
+    if ip not in _rate_limit:
+        _rate_limit[ip] = []
+    _rate_limit[ip] = [t for t in _rate_limit[ip] if now - t < RATE_LIMIT_WINDOW]
+    if len(_rate_limit[ip]) >= RATE_LIMIT_MAX:
+        return False
+    _rate_limit[ip].append(now)
+    return True
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 #  COIN PRICES & FEES
@@ -616,6 +629,12 @@ class P2PAPIHandler(SimpleHTTPRequestHandler):
 
     def do_POST(self):
         path = urlparse(self.path).path.rstrip("/")
+
+        # Rate limiting on POST endpoints
+        client_ip = self.client_address[0]
+        if not _check_rate_limit(client_ip):
+            self._error(429, "Too many requests. Try again in a minute.")
+            return
 
         try:
             body = self._read_body()

@@ -16,7 +16,9 @@ import json
 import smtplib
 import ssl
 import os
+import re
 import sys
+import time
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -33,6 +35,25 @@ DOMAIN              = "https://olighftcoin.com"
 SERVER_IP           = "109.199.109.143"
 ALLOWED_ORIGINS     = ["https://olighftcoin.com", "http://109.199.109.143:8080", "http://localhost:8080"]
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+# ── Rate limiting (IP-based, in-memory) ──────────────────
+_rate_limit = {}  # { ip: [timestamp, ...] }
+RATE_LIMIT_MAX = 5       # max OTP requests
+RATE_LIMIT_WINDOW = 300  # per 5 minutes (seconds)
+
+EMAIL_REGEX = re.compile(r'^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$')
+
+def _check_rate_limit(ip):
+    """Return True if under limit, False if exceeded."""
+    now = time.time()
+    if ip not in _rate_limit:
+        _rate_limit[ip] = []
+    # Prune old entries
+    _rate_limit[ip] = [t for t in _rate_limit[ip] if now - t < RATE_LIMIT_WINDOW]
+    if len(_rate_limit[ip]) >= RATE_LIMIT_MAX:
+        return False
+    _rate_limit[ip].append(now)
+    return True
 
 
 def build_html_email(to_name, otp_code, expire_minutes):
@@ -153,7 +174,21 @@ class OTPRequestHandler(SimpleHTTPRequestHandler):
         if not to_email or not otp_code:
             self._json_response(400, {"success": False, "error": "email and code are required."})
             return
+        # Validate email format
+        if not EMAIL_REGEX.match(to_email):
+            self._json_response(400, {"success": False, "error": "Invalid email address format."})
+            return
 
+        # Validate OTP format (4-8 digit/alphanumeric)
+        if not re.match(r'^[A-Za-z0-9]{4,8}$', otp_code):
+            self._json_response(400, {"success": False, "error": "Invalid OTP code format."})
+            return
+
+        # Rate limiting
+        client_ip = self.client_address[0]
+        if not _check_rate_limit(client_ip):
+            self._json_response(429, {"success": False, "error": "Too many OTP requests. Try again in a few minutes."})
+            return
         print(f"  📧 Sending OTP to {to_email}...")
         success, error = send_otp_email(to_email, to_name, otp_code, expire_minutes)
 
