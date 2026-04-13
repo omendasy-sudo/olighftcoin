@@ -3,6 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#6c5ce7">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="/icons/icon-192.svg">
 <title>Send Tokens &mdash; OLIGHFT SMART COIN</title>
 <meta name="description" content="Send OLIGHFT tokens securely on the Stellar network.">
 <link rel="canonical" href="https://olighftcoin.com/send.html">
@@ -158,8 +163,8 @@ select option{background:#1a1a2e;color:#fff}
 
 <div class="input-group" style="position:relative">
 <label>Recipient Address <span id="addrTypeBadge"></span></label>
-<input type="text" id="recipient" placeholder="G... (Stellar) or C... (Contract) address" maxlength="56" oninput="onRecipientInput()" onfocus="showContacts()" onblur="setTimeout(hideContacts,200)">
-<div class="addr-hint" id="addrHint">Accepts Stellar public keys (G...) and OLIGHFT addresses (C...)</div>
+<input type="text" id="recipient" placeholder="Enter any blockchain address" maxlength="128" oninput="onRecipientInput()" onfocus="showContacts()" onblur="setTimeout(hideContacts,200)">
+<div class="addr-hint" id="addrHint">Accepts Stellar, Bitcoin, Ethereum, Tron, Solana, XRP and more</div>
 <div class="contacts-dropdown" id="contactsDropdown"></div>
 </div>
 
@@ -176,7 +181,7 @@ select option{background:#1a1a2e;color:#fff}
 <input type="text" id="memo" placeholder="Payment reference or note" maxlength="28">
 </div>
 
-<div class="warning">&#x26A0;&#xFE0F; Always double-check the recipient address. Transactions on Stellar are irreversible.</div>
+<div class="warning" style="display:none">&#x26A0;&#xFE0F; Always double-check the recipient address. Transactions on Stellar are irreversible.</div>
 
 <div class="fee-box"><span class="fl">Network Fee</span><span class="fv">0.00001 XLM</span></div>
 <div class="fee-box"><span class="fl">Estimated Time</span><span class="fv">~5 seconds</span></div>
@@ -378,6 +383,7 @@ select option{background:#1a1a2e;color:#fff}
 </div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/stellar-sdk/11.3.0/stellar-sdk.min.js"></script>
 <script>
 // Auth guard — require login
 (function(){const u=JSON.parse(localStorage.getItem('cw_user')||'null');if(!u){window.location.href='auth.html';return;}})();
@@ -435,8 +441,29 @@ function detectAddrType(addr){
   addr=addr.trim();
   if(addr.length===56&&addr.startsWith('G')&&/^[A-Z2-7]+$/.test(addr))return'stellar';
   if(addr.length===56&&addr.startsWith('C')&&/^[A-Z2-7]+$/.test(addr))return'contract';
+  if(/^0x[0-9a-fA-F]{40}$/.test(addr))return'evm';
+  if(/^1[a-km-zA-HJ-NP-Z1-9]{25,34}$/.test(addr))return'btc-legacy';
+  if(/^bc1[a-zA-HJ-NP-Z0-9]{25,62}$/.test(addr))return'btc-segwit';
+  if(/^3[a-km-zA-HJ-NP-Z1-9]{25,34}$/.test(addr))return'btc-p2sh';
+  if(/^T[a-zA-HJ-NP-Z1-9]{33}$/.test(addr))return'tron';
+  if(/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(addr))return'solana';
+  if(/^r[a-zA-HJ-NP-Z1-9]{24,34}$/.test(addr))return'xrp';
   if(addr.length>0&&addr.length<56&&(addr.startsWith('G')||addr.startsWith('C')))return'partial';
   return'invalid';
+}
+var CHAIN_INFO={
+  stellar:{label:'STELLAR ACCOUNT',cls:'stellar',color:'#2ecc71',bg:'rgba(39,174,96,.15)'},
+  contract:{label:'OLIGHFT',cls:'contract',color:'#f2994a',bg:'rgba(242,153,74,.15)'},
+  evm:{label:'EVM (ETH/BSC/MATIC)',cls:'stellar',color:'#627eea',bg:'rgba(98,126,234,.15)'},
+  'btc-legacy':{label:'BITCOIN (LEGACY)',cls:'stellar',color:'#f7931a',bg:'rgba(247,147,26,.15)'},
+  'btc-segwit':{label:'BITCOIN (SEGWIT)',cls:'stellar',color:'#f7931a',bg:'rgba(247,147,26,.15)'},
+  'btc-p2sh':{label:'BITCOIN (P2SH)',cls:'stellar',color:'#f7931a',bg:'rgba(247,147,26,.15)'},
+  tron:{label:'TRON',cls:'stellar',color:'#eb0029',bg:'rgba(235,0,41,.15)'},
+  solana:{label:'SOLANA',cls:'stellar',color:'#9945ff',bg:'rgba(153,69,255,.15)'},
+  xrp:{label:'XRP LEDGER',cls:'stellar',color:'#23292f',bg:'rgba(255,255,255,.12)'}
+};
+function isValidAddrType(type){
+  return type&&type!=='invalid'&&type!=='partial';
 }
 function onRecipientInput(){
   const addr=document.getElementById('recipient').value.trim();
@@ -444,18 +471,16 @@ function onRecipientInput(){
   const hint=document.getElementById('addrHint');
   const type=detectAddrType(addr);
   if(!addr){
-    badge.innerHTML='';hint.textContent='Accepts Stellar public keys (G...) and OLIGHFT addresses (C...)';
-  }else if(type==='stellar'){
-    badge.innerHTML='<span class="addr-type-badge stellar">STELLAR ACCOUNT</span>';
-    hint.textContent='\u2705 Valid Stellar public key (G...)';hint.style.color='#2ecc71';
-  }else if(type==='contract'){
-    badge.innerHTML='<span class="addr-type-badge contract">OLIGHFT</span>';
-    hint.textContent='\u2705 Valid OLIGHFT address (C...)';hint.style.color='#f2994a';
+    badge.innerHTML='';hint.textContent='Accepts Stellar, Bitcoin, Ethereum, Tron, Solana, XRP and more';hint.style.color='rgba(255,255,255,.3)';
+  }else if(CHAIN_INFO[type]){
+    var ci=CHAIN_INFO[type];
+    badge.innerHTML='<span class="addr-type-badge" style="background:'+ci.bg+';color:'+ci.color+'">'+ci.label+'</span>';
+    hint.textContent='\u2705 Valid '+ci.label+' address';hint.style.color=ci.color;
   }else if(type==='partial'){
     badge.innerHTML='';hint.textContent='Typing... ('+(56-addr.length)+' characters remaining)';hint.style.color='rgba(255,255,255,.3)';
   }else{
     badge.innerHTML='<span class="addr-type-badge invalid">INVALID</span>';
-    hint.textContent='\u274C Must start with G (account) or C (contract), 56 characters, base32';hint.style.color='#eb5757';
+    hint.textContent='\u274C Unrecognized address format';hint.style.color='#eb5757';
   }
   validateForm();
 }
@@ -524,7 +549,7 @@ function validateForm(){
   const amt=parseFloat(document.getElementById('amount').value);
   const tk=document.getElementById('tokenSelect').value;
   const type=detectAddrType(addr);
-  const validAddr=(type==='stellar'||type==='contract');
+  const validAddr=isValidAddrType(type);
   const valid=validAddr&&amt>0&&amt<=balances[tk];
   document.getElementById('sendBtn').disabled=!valid;
 }
@@ -536,44 +561,147 @@ function sendTx(){
   const amt=parseFloat(document.getElementById('amount').value);
   const tk=document.getElementById('tokenSelect').value;
   const type=detectAddrType(addr);
-  if(type!=='stellar'&&type!=='contract')return;
+  if(!isValidAddrType(type))return;
   if(!amt||amt<=0||amt>(balances[tk]||0))return;
   requireSendVerify();
 }
 
-function _doSend(){
+var _sendTestMode=false;
+var OLIGHFT_TOKEN='CA5NW2ZJISLPTRRPEFY7XIKSB5CZ5XF2PIARJL2F37H7EPRAXXD34W6J';
+var HORIZON_URL='https://horizon-testnet.stellar.org';
+var SOROBAN_URL='https://soroban-testnet.stellar.org';
+var NETWORK_PASSPHRASE='Test SDF Network ; September 2015';
+
+function _getWalletKeypair(){
+  var encoded=localStorage.getItem('cw_secret');
+  if(!encoded)return null;
+  try{return StellarSdk.Keypair.fromSecret(atob(encoded));}catch(e){return null;}
+}
+
+async function _doSend(){
   const addr=document.getElementById('recipient').value.trim();
   const amt=parseFloat(document.getElementById('amount').value);
   const tk=document.getElementById('tokenSelect').value;
   const type=detectAddrType(addr);
-  if(type!=='stellar'&&type!=='contract')return;
+  if(!isValidAddrType(type))return;
   if(!amt||amt<=0||amt>(balances[tk]||0))return;
   const memo=document.getElementById('memo').value.trim();
-  const hash=genHash();
   const accounts=getAccounts();
   const activeIdx=getActiveIdx();
   const fromAcc=accounts.find(a=>a.index===activeIdx);
   const fromAddr=fromAcc?fromAcc.publicKey:(JSON.parse(localStorage.getItem('cw_user')||'{}').addr||'');
+
+  var hash='';
+  var realTx=false;
+  var sendBtn=document.getElementById('sendBtn');
+
+  // Real Stellar transaction for Stellar/Soroban addresses (skip in test mode)
+  if(!_sendTestMode&&(type==='stellar'||type==='contract')&&typeof StellarSdk!=='undefined'){
+    var kp=_getWalletKeypair();
+    if(!kp){alert('Wallet not connected. Open Wallet page to set up your account.');sendBtn.disabled=false;return;}
+
+    sendBtn.disabled=true;
+    sendBtn.innerHTML='&#x23F3; Submitting to Stellar...';
+
+    try{
+      if(tk==='XLM'&&type==='stellar'){
+        // Native XLM payment via Horizon
+        var server=new StellarSdk.Horizon.Server(HORIZON_URL);
+        var account=await server.loadAccount(kp.publicKey());
+        var txb=new StellarSdk.TransactionBuilder(account,{
+          fee:StellarSdk.BASE_FEE,
+          networkPassphrase:NETWORK_PASSPHRASE
+        })
+        .addOperation(StellarSdk.Operation.payment({
+          destination:addr,
+          asset:StellarSdk.Asset.native(),
+          amount:amt.toFixed(7)
+        }))
+        .setTimeout(30);
+        if(memo)txb.addMemo(StellarSdk.Memo.text(memo.slice(0,28)));
+        var built=txb.build();
+        built.sign(kp);
+        var result=await server.submitTransaction(built);
+        hash=result.hash;
+        realTx=true;
+
+      }else if(tk==='OLIGHFT'){
+        // Soroban token transfer
+        var rpc=new StellarSdk.SorobanRpc.Server(SOROBAN_URL);
+        var account=await rpc.getAccount(kp.publicKey());
+        var contract=new StellarSdk.Contract(OLIGHFT_TOKEN);
+        var stroops=BigInt(Math.round(amt*10000000));
+        var tx=new StellarSdk.TransactionBuilder(account,{
+          fee:'100000',
+          networkPassphrase:NETWORK_PASSPHRASE
+        })
+        .addOperation(contract.call('transfer',
+          StellarSdk.nativeToScVal(kp.publicKey(),{type:'address'}),
+          StellarSdk.nativeToScVal(addr,{type:'address'}),
+          StellarSdk.nativeToScVal(stroops,{type:'i128'})
+        ))
+        .setTimeout(120)
+        .build();
+        var sim=await rpc.simulateTransaction(tx);
+        if(StellarSdk.SorobanRpc.Api.isSimulationError(sim)){
+          throw new Error(sim.error||'Contract simulation failed');
+        }
+        var prepared=StellarSdk.SorobanRpc.assembleTransaction(tx,sim).build();
+        prepared.sign(kp);
+        var sendResult=await rpc.sendTransaction(prepared);
+        if(sendResult.status==='ERROR'){
+          throw new Error('Transaction submission rejected');
+        }
+        hash=sendResult.hash;
+        // Poll for confirmation
+        for(var i=0;i<30;i++){
+          await new Promise(function(r){setTimeout(r,2000);});
+          var gr=await rpc.getTransaction(hash);
+          if(gr.status==='SUCCESS'){realTx=true;break;}
+          if(gr.status==='FAILED')throw new Error('Transaction failed on-chain');
+        }
+        if(!realTx)throw new Error('Transaction not confirmed after 60s');
+
+      }else{
+        // Other tokens (USDC, wETH, etc.) — simulated on testnet
+        hash=genHash();
+      }
+    }catch(err){
+      sendBtn.disabled=false;
+      sendBtn.innerHTML='&#x1F4E4; Send Tokens';
+      var msg=err.message||String(err);
+      if(msg.includes('Not Found'))msg='Recipient account not found on Stellar Testnet. Fund it via Friendbot first.';
+      alert('Transaction failed: '+msg);
+      return;
+    }
+  }else{
+    // Non-Stellar chains or test mode — simulated
+    hash=genHash();
+  }
+
+  // Success — update balances & record transaction
   balances[tk]-=amt;
   saveSharedBalances(balances);
   updateBalance();
-  const typeBadge=type==='contract'?' (Contract)':' (Stellar)';
-  document.getElementById('successMsg').textContent='Sent '+amt+' '+tk+' to '+addr.slice(0,6)+'...'+addr.slice(-4)+typeBadge;
+  const chainLabel=CHAIN_INFO[type]?CHAIN_INFO[type].label:type;
+  var txLabel=realTx?'(on-chain)':'(simulated)';
+  document.getElementById('successMsg').textContent='Sent '+amt+' '+tk+' to '+addr.slice(0,6)+'...'+addr.slice(-4)+' '+txLabel;
   document.getElementById('txHash').textContent=hash;
   document.getElementById('successOverlay').classList.add('show');
   const txs=JSON.parse(localStorage.getItem('send_txs')||'[]');
-  txs.unshift({to:addr,from:fromAddr,amount:amt,token:tk,memo:memo,hash:hash,time:Date.now(),addrType:type});
+  txs.unshift({to:addr,from:fromAddr,amount:amt,token:tk,memo:memo,hash:hash,time:Date.now(),addrType:type,onChain:realTx});
   if(txs.length>20)txs.length=20;
   localStorage.setItem('send_txs',JSON.stringify(txs));
-  // Unified activity log
-  try{var al=JSON.parse(localStorage.getItem('cw_activity')||'[]');al.unshift({type:'Sent',icon:'\uD83D\uDCE4',detail:amt+' '+tk+' to '+addr.slice(0,6)+'...'+addr.slice(-4),amt:'-'+amt+' '+tk,cls:'red',time:'Just now',ts:Date.now()});if(al.length>50)al.length=50;localStorage.setItem('cw_activity',JSON.stringify(al));}catch(e){}
+  try{var rtxs=JSON.parse(localStorage.getItem('receive_txs')||'[]');rtxs.unshift({from:fromAddr,to:addr,amount:amt,token:tk,memo:memo,hash:hash,time:Date.now(),addrType:type,onChain:realTx});if(rtxs.length>20)rtxs.length=20;localStorage.setItem('receive_txs',JSON.stringify(rtxs));}catch(e){}
+  try{var al=JSON.parse(localStorage.getItem('cw_activity')||'[]');al.unshift({type:'Sent',icon:'\uD83D\uDCE4',detail:amt+' '+tk+' to '+addr.slice(0,6)+'...'+addr.slice(-4),amt:'-'+amt+' '+tk,cls:'red',time:'Just now',ts:Date.now(),onChain:realTx});al.unshift({type:'Received',icon:'\uD83D\uDCE5',detail:amt+' '+tk+' from '+fromAddr.slice(0,6)+'...'+fromAddr.slice(-4),amt:'+'+amt+' '+tk,cls:'green',time:'Just now',ts:Date.now(),onChain:realTx});if(al.length>50)al.length=50;localStorage.setItem('cw_activity',JSON.stringify(al));}catch(e){}
   document.getElementById('amount').value='';
   document.getElementById('recipient').value='';
   document.getElementById('memo').value='';
   document.getElementById('addrTypeBadge').innerHTML='';
-  document.getElementById('addrHint').textContent='Accepts Stellar public keys (G...) and OLIGHFT addresses (C...)';
+  document.getElementById('addrHint').textContent='Accepts Stellar, Bitcoin, Ethereum, Tron, Solana, XRP and more';
   document.getElementById('addrHint').style.color='rgba(255,255,255,.3)';
-  document.getElementById('sendBtn').disabled=true;
+  sendBtn.disabled=true;
+  sendBtn.innerHTML='&#x1F4E4; Send Tokens';
   renderRecent();
 }
 function closeSuccess(){document.getElementById('successOverlay').classList.remove('show')}
@@ -593,6 +721,7 @@ function renderRecent(){
 }
 renderRecent();
 renderAccountSelector();
+updateBalance();
 
 // ══════════════════════════════════════════
 // ══  TEST SEND ENGINE — All Blockchains ══
@@ -663,6 +792,7 @@ function runAllSendTests(){
 
   // Bypass 2FA during tests — swap requireSendVerify to call _doSend directly
   var _origVerify=requireSendVerify;
+  _sendTestMode=true;
   requireSendVerify=function(){_doSend();};
 
   // Snapshot balances to restore after test
@@ -673,8 +803,8 @@ function runAllSendTests(){
 
   // ═══ ADDRESS FORMAT TESTS ═══
   var addrCases=[
-    {addr:'GABCDEFGHIJKLMNOPQRSTUVWXYZ234567ABCDEFGHIJKLMNOPQRSTUV',expect:true,name:'Stellar (G...)'},
-    {addr:'CABCDEFGHIJKLMNOPQRSTUVWXYZ234567ABCDEFGHIJKLMNOPQRSTUV',expect:true,name:'Soroban (C...)'},
+    {addr:'GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',expect:true,name:'Stellar (G...)'},
+    {addr:'CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',expect:true,name:'Soroban (C...)'},
     {addr:'0x742d35Cc6634C0532925a3b844Bc9e7595f2bD18',expect:true,name:'Ethereum (0x...)'},
     {addr:'1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa',expect:true,name:'BTC Legacy (1...)'},
     {addr:'bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4',expect:true,name:'BTC SegWit (bc1...)'},
@@ -695,7 +825,7 @@ function runAllSendTests(){
   });
 
   // ═══ TOKEN TRANSFER TESTS ═══
-  var stellarAddr='GABCDEFGHIJKLMNOPQRSTUVWXYZ234567ABCDEFGHIJKLMNOPQRSTUV';
+  var stellarAddr='GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
   var tokenCases=[
     {token:'XLM',amount:100,name:'Send 100 XLM'},
     {token:'USDC',amount:50,name:'Send 50 USDC'},
@@ -826,6 +956,7 @@ function runAllSendTests(){
 
   // Restore original balances + 2FA gate
   requireSendVerify=_origVerify;
+  _sendTestMode=false;
   saveSharedBalances(snap);
   for(var k in snap)balances[k]=snap[k];
   updateBalance();
@@ -1026,5 +1157,6 @@ document.addEventListener('DOMContentLoaded',function(){
 </div>
 </div>
 </div>
+<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(function(){})}</script>
 </body>
 </html>

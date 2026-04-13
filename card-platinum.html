@@ -3,6 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#6c5ce7">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="/icons/icon-192.svg">
 <title>OLIGHFT SMART COIN &mdash; Platinum Tier</title>
 <meta name="description" content="OLIGHFT Platinum Tier — advanced staking on Stellar.">
 <link rel="canonical" href="https://olighftcoin.com/card-platinum.html">
@@ -234,6 +239,11 @@ h1{text-align:center;font-size:1.8rem;margin-bottom:6px;background:linear-gradie
 <div id="multiStakeContainer" style="display:flex;flex-direction:column;gap:10px;margin-bottom:14px"></div>
 <button id="activateBtn" onclick="activateStake()" style="width:100%;padding:14px;border:none;border-radius:12px;font-size:.92rem;font-weight:700;cursor:pointer;background:linear-gradient(135deg,#a0aec0,#6366f1);color:#fff;transition:.2s;display:flex;align-items:center;justify-content:center;gap:8px" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 25px rgba(160,174,192,.35)'" onmouseout="this.style.transform='';this.style.boxShadow=''">&#x26A1; Activate $300 Platinum Stake</button>
 <div style="text-align:center;font-size:.6rem;color:rgba(255,255,255,.25);margin-top:8px">Stellar Testnet &bull; Transaction requires wallet signature</div>
+</div>
+
+<div style="margin:18px 0">
+<div style="font-size:.68rem;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,.3);margin-bottom:8px">&#x1F4CB; Transaction History</div>
+<div id="cardTxHistory" style="max-height:260px;overflow-y:auto"></div>
 </div>
 
 <h3 style="font-size:.85rem;color:#a0aec0;margin-bottom:10px">&#x1F4CB; How It Works</h3>
@@ -672,6 +682,32 @@ function renderStakeStatus(){
   });
   container.innerHTML=html;
   loadPendingRewards();
+  renderCardTxHistory();
+}
+
+function renderCardTxHistory(){
+  var el=document.getElementById('cardTxHistory');
+  if(!el)return;
+  var all=[];
+  try{all=JSON.parse(localStorage.getItem('card_stakes')||'[]');}catch(e){}
+  var mine=all.filter(function(s){return s.card===CARD.name;});
+  if(!mine.length){el.innerHTML='<div style="text-align:center;padding:20px;font-size:.72rem;color:rgba(255,255,255,.25)">No transactions yet</div>';return;}
+  mine.sort(function(a,b){return (new Date(b.date||0).getTime())-(new Date(a.date||0).getTime());});
+  var html='';
+  for(var i=0;i<mine.length;i++){
+    var s=mine[i];
+    var d=s.date?new Date(s.date).toLocaleDateString():'\u2014';
+    var status=s.withdrawn?'Withdrawn':'Active';
+    var statusColor=s.withdrawn?'#f2994a':'#27ae60';
+    var ico=s.withdrawn?'\uD83D\uDCB0':'\u26CF\uFE0F';
+    var hashLine=s.txHash?'<div style="font-size:.48rem;color:rgba(108,92,231,.5);font-family:monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+s.txHash.slice(0,20)+'...</div>':'';
+    html+='<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:10px;margin-bottom:5px">'+
+      '<div style="width:30px;height:30px;border-radius:50%;background:rgba(245,197,24,.1);display:flex;align-items:center;justify-content:center;font-size:.8rem">'+ico+'</div>'+
+      '<div style="flex:1;min-width:0"><div style="font-size:.72rem;font-weight:700;color:rgba(255,255,255,.8)">'+s.card+' \u2014 $'+s.stake+' \u00B7 '+s.period+'d</div>'+
+      '<div style="font-size:.58rem;color:rgba(255,255,255,.35)">Sponsor: '+(s.sponsor||'\u2014')+' \u00B7 Paid: '+(s.paidOLIGHFT||0).toFixed(0)+' OLIGHFT</div>'+hashLine+'</div>'+
+      '<div style="text-align:right;flex-shrink:0"><div style="font-size:.72rem;font-weight:700;color:'+statusColor+'">'+status+'</div><div style="font-size:.5rem;color:rgba(255,255,255,.25)">'+d+'</div></div></div>';
+  }
+  el.innerHTML=html;
 }
 
 async function claimCardRewards(stakeDate, activeIdx){
@@ -934,5 +970,6 @@ document.addEventListener('DOMContentLoaded',function(){
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/stellar-sdk/11.3.0/stellar-sdk.min.js"></script>
 <script src="staking-backend.js"></script>
+<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(function(){})}</script>
 </body>
 </html>

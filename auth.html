@@ -4,6 +4,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#6c5ce7">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="/icons/icon-192.svg">
 <title>OLIGHFT SMART COIN &mdash; Login &amp; Register</title>
 <meta name="description" content="Login or register for OLIGHFT SMART COIN — secure authentication with OTP verification.">
 <link rel="canonical" href="https://olighftcoin.com/auth.html">
@@ -236,7 +241,6 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 <button type="button" class="toggle-pw" onclick="togglePw('login-pw',this)">&#x1F441;</button>
 </div>
 <div class="field-err">Password must be at least 8 characters.</div>
-<div style="text-align:right;margin-top:4px"><a href="#" onclick="showPanel('forgot');return false" style="font-size:.7rem;color:#818cf8;text-decoration:none">Forgot password?</a></div>
 </div>
 
 <div class="check-row">
@@ -370,7 +374,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 <div class="form-panel" id="panel-forgot">
 <form id="forgot-form" onsubmit="handleForgot(event)" novalidate>
 
-<p style="font-size:.78rem;color:rgba(255,255,255,.5);margin-bottom:18px;line-height:1.5">Enter your email address and we&rsquo;ll send you a reset code.</p>
+<p style="font-size:.78rem;color:rgba(255,255,255,.5);margin-bottom:18px;line-height:1.5">Enter your email address and we&rsquo;ll send you a reset link.</p>
 
 <div class="field" id="field-forgot-email">
 <label for="forgot-email">Email Address</label>
@@ -378,48 +382,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 <div class="field-err">Enter a valid email (e.g. name@domain.com)</div>
 </div>
 
-<button type="submit" class="btn-primary login-btn" id="forgot-btn">Send Reset Code</button>
-
-<div style="margin-top:16px;padding:12px;background:rgba(235,87,87,.06);border:1px solid rgba(235,87,87,.12);border-radius:10px">
-<div style="font-size:.72rem;font-weight:700;color:rgba(235,87,87,.7);margin-bottom:4px">&#x26A0;&#xFE0F; Can&rsquo;t remember anything?</div>
-<div style="font-size:.65rem;color:rgba(255,255,255,.4);margin-bottom:8px">If you forgot your email, password, and username &mdash; you can fully reset your account and register again.</div>
-<button type="button" onclick="resetFullAccount()" style="padding:8px 18px;border:1px solid rgba(235,87,87,.25);border-radius:8px;font-size:.68rem;font-weight:700;cursor:pointer;background:rgba(235,87,87,.08);color:#eb5757;transition:.2s">&#x1F5D1; Reset Entire Account</button>
-</div>
-
-<div class="form-links" style="margin-top:14px">
-<a href="#" onclick="showPanel('login');return false">&larr; Back to Login</a>
-</div>
-
-</form>
-</div>
-
-<!-- ═══════════════════════════════════════════ -->
-<!-- ═══ RESET PASSWORD PANEL ═══ -->
-<!-- ═══════════════════════════════════════════ -->
-<div class="form-panel" id="panel-reset-pw">
-<form id="reset-pw-form" onsubmit="handleResetPassword(event)" novalidate>
-
-<div style="text-align:center;margin-bottom:14px">
-<div style="font-size:2rem">&#x1F510;</div>
-<div style="font-size:.85rem;font-weight:700;color:rgba(255,255,255,.8)">Set New Password</div>
-<div style="font-size:.68rem;color:rgba(255,255,255,.35);margin-top:4px" id="reset-pw-email-hint"></div>
-</div>
-
-<div class="field" id="field-reset-pw">
-<label for="reset-new-pw">New Password</label>
-<input type="password" id="reset-new-pw" placeholder="Strong password required" required autocomplete="new-password" minlength="8" oninput="checkResetStrength(this.value)">
-<div class="pw-meter" id="reset-pw-meter"><div class="pw-bar" id="reset-pw-bar"></div></div>
-<div class="pw-hint" id="reset-pw-hint"></div>
-<div class="field-err">Password must have 8+ chars, uppercase, lowercase, number, special character.</div>
-</div>
-
-<div class="field" id="field-reset-pw2">
-<label for="reset-new-pw2">Confirm New Password</label>
-<input type="password" id="reset-new-pw2" placeholder="Re-enter new password" required autocomplete="new-password" minlength="8" oninput="checkResetMatch()">
-<div class="field-err">Passwords do not match.</div>
-</div>
-
-<button type="submit" class="btn-primary login-btn" id="reset-pw-btn">&#x2705; Save New Password</button>
+<button type="submit" class="btn-primary login-btn" id="forgot-btn">Send Reset Link</button>
 
 <div class="form-links" style="margin-top:14px">
 <a href="#" onclick="showPanel('login');return false">&larr; Back to Login</a>
@@ -1179,10 +1142,7 @@ async function handleForgot(e) {
 
     setLoading('forgot-btn', true);
 
-    var existingUser = JSON.parse(localStorage.getItem('cw_user') || 'null');
-    if (!existingUser) {
-        try { existingUser = JSON.parse(localStorage.getItem('cw_registered_account') || 'null'); } catch(e) {}
-    }
+    const existingUser = JSON.parse(localStorage.getItem('cw_user') || 'null');
     if (existingUser && existingUser.email === email) {
         window._pendingAuth = { type: 'forgot', email: email, name: existingUser.name || email };
         const result = await sendOtpEmail(email, existingUser.name || email);
@@ -1201,102 +1161,6 @@ async function handleForgot(e) {
         setLoading('forgot-btn', false);
         showAlert('success', 'If this email is registered, a reset code has been sent.');
     }
-}
-
-// ── Reset Password Helpers ──
-function checkResetStrength(pw) {
-    var bar = document.getElementById('reset-pw-bar');
-    var hint = document.getElementById('reset-pw-hint');
-    if (!bar) return;
-    var score = 0;
-    if (pw.length >= 8) score++;
-    if (/[A-Z]/.test(pw)) score++;
-    if (/[a-z]/.test(pw)) score++;
-    if (/[0-9]/.test(pw)) score++;
-    if (/[^A-Za-z0-9]/.test(pw)) score++;
-    var pct = (score / 5) * 100;
-    var col = score <= 2 ? '#eb5757' : score <= 3 ? '#f2994a' : '#27ae60';
-    bar.style.width = pct + '%';
-    bar.style.background = col;
-    hint.textContent = score <= 2 ? 'Weak' : score <= 3 ? 'Medium' : score >= 4 ? 'Strong' : '';
-    hint.style.color = col;
-}
-function checkResetMatch() {
-    var pw = document.getElementById('reset-new-pw').value;
-    var pw2 = document.getElementById('reset-new-pw2').value;
-    var field = document.getElementById('field-reset-pw2');
-    if (pw2 && pw !== pw2) { field.classList.add('has-error'); }
-    else { field.classList.remove('has-error'); }
-}
-
-// ── Handle Reset Password Form ──
-function handleResetPassword(e) {
-    e.preventDefault();
-    hideAlert();
-    var pw = document.getElementById('reset-new-pw').value;
-    var pw2 = document.getElementById('reset-new-pw2').value;
-
-    if (!isStrongPassword(pw)) {
-        showAlert('error', 'Password must have 8+ chars, uppercase, lowercase, number, special character.');
-        document.getElementById('field-reset-pw').classList.add('has-error');
-        return;
-    }
-    if (pw !== pw2) {
-        showAlert('error', 'Passwords do not match.');
-        document.getElementById('field-reset-pw2').classList.add('has-error');
-        return;
-    }
-
-    var resetEmail = window._resetEmail || '';
-    // Update password in cw_user
-    var user = JSON.parse(localStorage.getItem('cw_user') || 'null');
-    if (!user) {
-        try { user = JSON.parse(localStorage.getItem('cw_registered_account') || 'null'); } catch(e) {}
-    }
-    if (user && user.email === resetEmail) {
-        user.pwHash = btoa(pw);
-        localStorage.setItem('cw_user', JSON.stringify(user));
-        localStorage.setItem('cw_registered_account', JSON.stringify(user));
-    }
-
-    // Update Remember Me if it was saved
-    var saved = null;
-    try { saved = JSON.parse(localStorage.getItem('cw_remember') || 'null'); } catch(e) {}
-    if (saved && saved.email === resetEmail) {
-        saved.pw = btoa(pw);
-        localStorage.setItem('cw_remember', JSON.stringify(saved));
-    }
-
-    window._resetEmail = null;
-    showAlert('success', 'Password reset! Please log in with your new password.');
-    setTimeout(function() { showPanel('login'); }, 1000);
-}
-
-// ── Full Account Reset ──
-function resetFullAccount() {
-    if (!confirm('This will DELETE your account data on this device.\n\nYou will need to register again.\n\nAre you sure?')) return;
-    if (!confirm('FINAL WARNING: All wallet data, staking, and settings will be lost.\n\nContinue?')) return;
-
-    // Clear all user data
-    localStorage.removeItem('cw_user');
-    localStorage.removeItem('cw_registered_account');
-    localStorage.removeItem('cw_remember');
-    localStorage.removeItem('cw_seed');
-    localStorage.removeItem('cw_secret');
-    localStorage.removeItem('cw_accounts');
-    localStorage.removeItem('cw_active_idx');
-    localStorage.removeItem('cw_security');
-    localStorage.removeItem('cw_multisig');
-    localStorage.removeItem('cw_balances');
-    localStorage.removeItem('cw_google');
-    localStorage.removeItem('cw_2fa');
-    localStorage.removeItem('cw_credmgr');
-
-    showAlert('success', 'Account reset. You can now register a new account.');
-    setTimeout(function() {
-        showPanel('register');
-        document.getElementById('tab-login').style.opacity = '0.5';
-    }, 500);
 }
 
 // ── 2FA Verify Handler ──
@@ -1363,17 +1227,6 @@ async function handleVerify() {
             return;
         }
         // For login / forgot — cw_user already exists, just verify & redirect
-
-        if (pending.type === 'forgot') {
-            // After forgot OTP verified, go to reset password panel
-            window._resetEmail = pending.email;
-            window._pendingAuth = null;
-            var hint = document.getElementById('reset-pw-email-hint');
-            if (hint) hint.textContent = 'Resetting password for ' + pending.email;
-            showAlert('success', 'Verified! Set your new password.');
-            setTimeout(() => { showPanel('reset-pw'); }, 400);
-            return;
-        }
 
         showAlert('success', 'Welcome to OLIGHFT SMART COIN!');
         window._pendingAuth = null;
@@ -1753,7 +1606,7 @@ function connectWallet(provider) {
 // Google OAuth Client ID — replace with your Google Cloud Console client ID
 // Create one at https://console.cloud.google.com/apis/credentials
 // Authorized origins: https://olighftcoin.com (and http://localhost for dev)
-const GOOGLE_CLIENT_ID = '257484227840-3qnr8435gs732dl1cr2idnkj6er0p4p8.apps.googleusercontent.com';
+const GOOGLE_CLIENT_ID = '000000000000-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.apps.googleusercontent.com';
 const GOOGLE_CLIENT_ID_SET = !GOOGLE_CLIENT_ID.startsWith('000000000000');
 
 let _googleScriptLoaded = false;
@@ -2183,5 +2036,6 @@ async function autoFillFromCredManager() {
 })();
 </script>
 
+<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(function(){})}</script>
 </body>
 </html>

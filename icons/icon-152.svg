@@ -1,0 +1,12 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="152" height="152" viewBox="0 0 152 152">
+<defs>
+<linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a0a1a"/><stop offset=".5" stop-color="#111128"/><stop offset="1" stop-color="#0a0a1a"/></linearGradient>
+<linearGradient id="br" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6c5ce7"/><stop offset="1" stop-color="#a29bfe"/></linearGradient>
+<radialGradient id="cg" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#f5c518"/><stop offset="1" stop-color="#f2994a"/></radialGradient>
+</defs>
+<rect width="152" height="152" rx="23" fill="url(#bg)" stroke="url(#br)" stroke-width="2"/>
+<circle cx="76" cy="64" r="30" fill="url(#cg)"/>
+<text x="76" y="70" text-anchor="middle" font-family="Segoe UI,sans-serif" font-weight="bold" font-size="36px" fill="#0a0a1a">O</text>
+<text x="76" y="111" text-anchor="middle" font-family="Segoe UI,sans-serif" font-weight="bold" font-size="14px" fill="#fff">OLIGHFT</text>
+<text x="76" y="126" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="8px" fill="rgba(255,255,255,0.4)">SMART COIN</text>
+</svg>

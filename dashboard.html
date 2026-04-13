@@ -3,6 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#6c5ce7">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="/icons/icon-192.svg">
 <title>Dashboard &mdash; OLIGHFT SMART COIN</title>
 <meta name="description" content="OLIGHFT user dashboard — balances, prices, quick actions.">
 <link rel="canonical" href="https://olighftcoin.com/dashboard.html">
@@ -38,8 +43,8 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 .actions{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:22px}
 .act{display:flex;flex-direction:column;align-items:center;gap:6px;padding:16px 4px;background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.06);border-radius:14px;text-decoration:none;color:#fff;cursor:pointer;transition:.25s;overflow:visible;min-width:0}
 .act:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(0,0,0,.25)}
-.act .act-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.3rem}
-.act .act-label{font-size:.68rem;font-weight:600;letter-spacing:.3px;white-space:nowrap}
+.act .act-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;pointer-events:none}
+.act .act-label{font-size:.68rem;font-weight:600;letter-spacing:.3px;white-space:nowrap;pointer-events:none}
 .act-send .act-icon{background:rgba(108,92,231,.12)}.act-send:hover{border-color:rgba(108,92,231,.35)}
 .act-recv .act-icon{background:rgba(39,174,96,.12)}.act-recv:hover{border-color:rgba(39,174,96,.35)}
 .act-stake .act-icon{background:rgba(242,153,74,.12)}.act-stake:hover{border-color:rgba(242,153,74,.35)}
@@ -276,6 +281,23 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 .esc-empty{text-align:center;padding:24px;color:rgba(255,255,255,.25);font-size:.68rem}
 /* Escrow detail reuses .mm- styles from matured modal */
 /* Invite / Referral Panel */
+.dash-tx-flt{padding:5px 12px;border-radius:8px;font-size:.6rem;font-weight:600;cursor:pointer;border:1px solid rgba(255,255,255,.06);background:none;color:rgba(255,255,255,.4);transition:.2s}
+.dash-tx-flt.active{background:rgba(108,92,231,.15);border-color:rgba(108,92,231,.4);color:#a29bfe}
+.dash-tx-flt:hover{border-color:rgba(108,92,231,.25);color:rgba(255,255,255,.6)}
+.dtx-item{display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:10px;margin-bottom:5px;transition:.2s}
+.dtx-item:hover{border-color:rgba(108,92,231,.15)}
+.dtx-ico{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.8rem;flex-shrink:0}
+.dtx-ico-send{background:rgba(235,87,87,.1)}.dtx-ico-receive{background:rgba(39,174,96,.1)}
+.dtx-ico-swap{background:rgba(108,92,231,.1)}.dtx-ico-stake{background:rgba(245,197,24,.1)}
+.dtx-ico-card{background:rgba(242,153,74,.1)}.dtx-ico-lp{background:rgba(86,204,242,.1)}
+.dtx-info{flex:1;min-width:0}
+.dtx-label{font-size:.72rem;font-weight:700;color:rgba(255,255,255,.8)}
+.dtx-detail{font-size:.58rem;color:rgba(255,255,255,.35);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dtx-hash{font-size:.5rem;color:rgba(108,92,231,.5);font-family:monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dtx-right{text-align:right;flex-shrink:0}
+.dtx-amt{font-size:.72rem;font-weight:700}.dtx-amt.red{color:#eb5757}.dtx-amt.green{color:#27ae60}.dtx-amt.blue{color:#56ccf2}
+.dtx-time{font-size:.5rem;color:rgba(255,255,255,.25)}
+.dtx-empty{text-align:center;padding:24px;font-size:.72rem;color:rgba(255,255,255,.25)}
 .inv-panel{padding:18px;background:rgba(255,255,255,.02);border:1px solid rgba(39,174,96,.12);border-radius:16px;margin-bottom:18px}
 .inv-link-box{display:flex;gap:8px;align-items:center;margin-bottom:14px}
 .inv-link-input{flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(39,174,96,.12);border-radius:9px;padding:10px 12px;color:#27ae60;font-size:.72rem;font-weight:600;outline:none;font-family:monospace;letter-spacing:.3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -477,6 +499,26 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
   <a href="auth.html" class="lp-btn">Sign In</a>
 </div>
 
+<!-- Quick Actions (always visible when logged in) -->
+<div class="actions" id="quickActions" style="display:none">
+  <a href="send.html" class="act act-send">
+    <div class="act-icon">&#x1F4E4;</div>
+    <div class="act-label">Send</div>
+  </a>
+  <a href="receive.html" class="act act-recv">
+    <div class="act-icon">&#x1F4E5;</div>
+    <div class="act-label">Receive</div>
+  </a>
+  <a href="#swapPanel" class="act act-swap" onclick="document.getElementById('swapPanel').scrollIntoView({behavior:'smooth'});return false">
+    <div class="act-icon">&#x1F504;</div>
+    <div class="act-label">Swap</div>
+  </a>
+  <a href="wallet.html" class="act act-wallet">
+    <div class="act-icon">&#x1F4B3;</div>
+    <div class="act-label">Wallet</div>
+  </a>
+</div>
+
 <!-- Dashboard content (shown when logged in) -->
 <div id="dashContent" style="display:none">
 
@@ -501,26 +543,6 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
     <div class="wb-alloc-bar" id="wbAllocBar"></div>
   </div>
   <div class="wb-coins" id="wbCoins"></div>
-</div>
-
-<!-- Quick Actions -->
-<div class="actions">
-  <a href="send.html" class="act act-send">
-    <div class="act-icon">&#x1F4E4;</div>
-    <div class="act-label">Send</div>
-  </a>
-  <a href="receive.html" class="act act-recv">
-    <div class="act-icon">&#x1F4E5;</div>
-    <div class="act-label">Receive</div>
-  </a>
-  <a href="#swapPanel" class="act act-swap" onclick="document.getElementById('swapPanel').scrollIntoView({behavior:'smooth'});return false">
-    <div class="act-icon">&#x1F504;</div>
-    <div class="act-label">Swap</div>
-  </a>
-  <a href="wallet.html" class="act act-wallet">
-    <div class="act-icon">&#x1F4B3;</div>
-    <div class="act-label">Wallet</div>
-  </a>
 </div>
 
 <!-- Coin Prices -->
@@ -602,7 +624,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 <th style="text-align:right;padding:6px;color:rgba(255,255,255,.4)">Black $500</th>
 </tr></thead>
 <tbody>
-<tr style="background:rgba(245,197,24,.04)"><td style="padding:5px 6px;font-weight:700;color:#f5c518">&mdash;</td><td style="padding:5px 6px">Admin Wallet</td><td style="text-align:center;padding:5px 6px;color:#f2994a">60%</td><td style="text-align:right;padding:5px 6px;font-weight:700;color:#f2994a">$30</td><td style="text-align:right;padding:5px 6px;font-weight:700;color:#f2994a">$60</td><td style="text-align:right;padding:5px 6px;font-weight:700;color:#f2994a">$300</td></tr>
+<tr style="background:rgba(245,197,24,.04)"><td style="padding:5px 6px;font-weight:700;color:#f5c518">&mdash;</td><td style="padding:5px 6px">Wallet Activator</td><td style="text-align:center;padding:5px 6px;color:#f2994a">60%</td><td style="text-align:right;padding:5px 6px;font-weight:700;color:#f2994a">$30</td><td style="text-align:right;padding:5px 6px;font-weight:700;color:#f2994a">$60</td><td style="text-align:right;padding:5px 6px;font-weight:700;color:#f2994a">$300</td></tr>
 <tr><td style="padding:5px 6px;font-weight:700">1</td><td style="padding:5px 6px">Direct Inviter</td><td style="text-align:center;padding:5px 6px;color:#27ae60">10%</td><td style="text-align:right;padding:5px 6px;color:#27ae60">$5</td><td style="text-align:right;padding:5px 6px;color:#27ae60">$10</td><td style="text-align:right;padding:5px 6px;color:#27ae60">$50</td></tr>
 <tr><td style="padding:5px 6px;font-weight:700">2</td><td style="padding:5px 6px">Inviter&rsquo;s Inviter</td><td style="text-align:center;padding:5px 6px;color:#27ae60">6%</td><td style="text-align:right;padding:5px 6px;color:#27ae60">$3</td><td style="text-align:right;padding:5px 6px;color:#27ae60">$6</td><td style="text-align:right;padding:5px 6px;color:#27ae60">$30</td></tr>
 <tr><td style="padding:5px 6px;font-weight:700">3</td><td style="padding:5px 6px">Upline Lvl 3</td><td style="text-align:center;padding:5px 6px;color:#27ae60">4%</td><td style="text-align:right;padding:5px 6px;color:#27ae60">$2</td><td style="text-align:right;padding:5px 6px;color:#27ae60">$4</td><td style="text-align:right;padding:5px 6px;color:#27ae60">$20</td></tr>
@@ -804,6 +826,19 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 <div class="section-label">&#x1F55C; Recent Staking</div>
 <div id="recentStakeFeed" style="margin-bottom:18px"></div>
 
+<!-- Full Transaction History -->
+<div class="section-label">&#x1F4CB; Transaction History</div>
+<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">
+  <button class="dash-tx-flt active" data-f="all" onclick="setDashTxFilter('all')">All</button>
+  <button class="dash-tx-flt" data-f="send" onclick="setDashTxFilter('send')">Sent</button>
+  <button class="dash-tx-flt" data-f="receive" onclick="setDashTxFilter('receive')">Received</button>
+  <button class="dash-tx-flt" data-f="swap" onclick="setDashTxFilter('swap')">Swaps</button>
+  <button class="dash-tx-flt" data-f="stake" onclick="setDashTxFilter('stake')">Stakes</button>
+  <button class="dash-tx-flt" data-f="card" onclick="setDashTxFilter('card')">Cards</button>
+  <button class="dash-tx-flt" data-f="lp" onclick="setDashTxFilter('lp')">LP</button>
+</div>
+<div id="dashTxList" style="max-height:340px;overflow-y:auto;margin-bottom:18px"></div>
+
 <!-- Quick Swap -->
 <div class="section-label">&#x1F504; Quick Swap</div>
 <div class="swap-panel" id="swapPanel">
@@ -986,6 +1021,7 @@ var ADMIN_WALLET_USERNAME = 'OLIGHFTCOIN';
   document.getElementById('loginPrompt').style.display = 'none';
   document.getElementById('userRow').style.display = 'flex';
   document.getElementById('dashContent').style.display = 'block';
+  document.getElementById('quickActions').style.display = 'grid';
   document.getElementById('dName').textContent = user.name || 'User';
   document.getElementById('dEmail').textContent = user.email;
   document.getElementById('dAvatar').textContent = (user.name || 'U').charAt(0).toUpperCase();
@@ -1004,11 +1040,11 @@ var ADMIN_WALLET_USERNAME = 'OLIGHFTCOIN';
   localStorage.setItem('cw_balances', JSON.stringify(bals));
 
   // Refresh dynamic OLIGHFT price before rendering
-  refreshOLIGHFTPrice();
+  try { refreshOLIGHFTPrice(); } catch(e) { console.warn('refreshPrice:', e); }
 
-  renderPrices();
-  renderBalances(bals);
-  updateTotalBalance(bals);
+  try { renderPrices(); } catch(e) { console.warn('renderPrices:', e); }
+  try { renderBalances(bals); } catch(e) { console.warn('renderBalances:', e); }
+  try { updateTotalBalance(bals); } catch(e) { console.warn('updateTotalBalance:', e); }
   try { renderStakeSummary(); } catch(e) { console.warn('stakeSummary:', e); }
   try { renderStakeList(); } catch(e) { console.warn('stakeList:', e); }
   try { renderRecentStakes(); } catch(e) { console.warn('recentStakes:', e); }
@@ -4407,15 +4443,103 @@ function cancelEscrowAction(id) {
 try { renderEscrowCount(); } catch(e) { console.warn('escrow init:', e); }
 
 // ══════════════════════════════════════════════════════════════════
+// ── Dashboard Transaction History ────────────────────────────
+// ══════════════════════════════════════════════════════════════════
+
+var _dashTxFilter = 'all';
+function setDashTxFilter(f) {
+  _dashTxFilter = f;
+  document.querySelectorAll('.dash-tx-flt').forEach(function(b) {
+    b.classList.toggle('active', b.getAttribute('data-f') === f);
+  });
+  renderDashTxList();
+}
+
+function loadDashTxItems() {
+  var items = [];
+  function sa(a,l) { return a && a.length > l ? a.slice(0,6)+'...'+a.slice(-4) : (a||'—'); }
+  // Sends
+  try {
+    var txs = JSON.parse(localStorage.getItem('send_txs') || '[]');
+    for (var i = 0; i < txs.length; i++) {
+      var t = txs[i];
+      items.push({ type:'send', ico:'\uD83D\uDCE4', icoCls:'dtx-ico-send', label:'Sent', detail:t.amount+' '+t.token+' to '+sa(t.to,12), hash:t.hash||'', amt:'-'+t.amount+' '+t.token, amtCls:'red', ts:t.time||0 });
+    }
+  } catch(e) {}
+  // Receives
+  try {
+    var rxs = JSON.parse(localStorage.getItem('receive_txs') || '[]');
+    for (var i = 0; i < rxs.length; i++) {
+      var r = rxs[i];
+      items.push({ type:'receive', ico:'\uD83D\uDCE5', icoCls:'dtx-ico-receive', label:'Received', detail:r.amount+' '+r.token+' from '+sa(r.from,12), hash:r.hash||'', amt:'+'+r.amount+' '+r.token, amtCls:'green', ts:r.time||0 });
+    }
+  } catch(e) {}
+  // Swaps
+  try {
+    var sxs = JSON.parse(localStorage.getItem('swap_txs') || '[]');
+    for (var i = 0; i < sxs.length; i++) {
+      var s = sxs[i];
+      items.push({ type:'swap', ico:'\uD83D\uDD04', icoCls:'dtx-ico-swap', label:'Swap', detail:s.fromAmt+' '+s.from+' \u2192 '+s.toAmt+' '+s.to, hash:s.hash||'', amt:'+'+s.toAmt+' '+s.to, amtCls:'green', ts:s.time||0 });
+    }
+  } catch(e) {}
+  // Wallet stakes
+  try {
+    var ws = JSON.parse(localStorage.getItem('wallet_stakes') || '[]');
+    for (var i = 0; i < ws.length; i++) {
+      var w = ws[i];
+      var a = w.asset||'OLIGHFT';
+      items.push({ type:'stake', ico:'\u26CF\uFE0F', icoCls:'dtx-ico-stake', label:w.withdrawn?'Unstaked':'Staked', detail:w.amount+' '+a+' \u00B7 '+(w.apy?w.apy.toFixed(1)+'% APY':'')+(w.lockDays?' \u00B7 '+w.lockDays+'d':''), hash:w.txHash||'', amt:(w.withdrawn?'+':'-')+w.amount+' '+a, amtCls:w.withdrawn?'green':'red', ts:w.startDate?new Date(w.startDate).getTime():0 });
+    }
+  } catch(e) {}
+  // Card stakes
+  try {
+    var cs = JSON.parse(localStorage.getItem('card_stakes') || '[]');
+    for (var i = 0; i < cs.length; i++) {
+      var c = cs[i];
+      items.push({ type:'card', ico:'\uD83D\uDCB3', icoCls:'dtx-ico-card', label:c.card+' Card', detail:'$'+c.stake+' stake \u00B7 '+c.period+'d \u00B7 $'+c.daily+'/day', hash:c.txHash||'', amt:'-'+(c.paidOLIGHFT||0).toFixed(0)+' OLIGHFT', amtCls:'red', ts:c.date?new Date(c.date).getTime():0 });
+    }
+  } catch(e) {}
+  // LP positions
+  try {
+    var lps = JSON.parse(localStorage.getItem('lp_positions') || '[]');
+    for (var i = 0; i < lps.length; i++) {
+      var lp = lps[i];
+      items.push({ type:'lp', ico:'\uD83D\uDCA7', icoCls:'dtx-ico-lp', label:'LP Mint', detail:(lp.amount0||0)+' '+(lp.currency0||'T0')+' + '+(lp.amount1||0)+' '+(lp.currency1||'T1'), hash:lp.txHash||'', amt:'LP #'+(lp.tokenId||i), amtCls:'blue', ts:lp.mintedAt?new Date(lp.mintedAt).getTime():0 });
+    }
+  } catch(e) {}
+  items.sort(function(a,b){ return b.ts - a.ts; });
+  return items;
+}
+
+function renderDashTxList() {
+  var items = loadDashTxItems();
+  if (_dashTxFilter !== 'all') items = items.filter(function(it){ return it.type === _dashTxFilter; });
+  var el = document.getElementById('dashTxList');
+  if (!items.length) { el.innerHTML = '<div class="dtx-empty">No transactions yet</div>'; return; }
+  var html = '';
+  for (var i = 0; i < Math.min(items.length, 50); i++) {
+    var it = items[i];
+    var ago = it.ts ? Math.round((Date.now() - it.ts) / 60000) : 0;
+    var tStr = ago < 1 ? 'just now' : ago < 60 ? ago + 'm ago' : ago < 1440 ? Math.round(ago/60) + 'h ago' : Math.round(ago/1440) + 'd ago';
+    var hashLine = it.hash ? '<div class="dtx-hash" title="'+escapeHtml(it.hash)+'">'+it.hash.slice(0,16)+'...</div>' : '';
+    html += '<div class="dtx-item"><div class="dtx-ico '+it.icoCls+'">'+it.ico+'</div><div class="dtx-info"><div class="dtx-label">'+escapeHtml(it.label)+'</div><div class="dtx-detail">'+escapeHtml(it.detail)+'</div>'+hashLine+'</div><div class="dtx-right"><div class="dtx-amt '+it.amtCls+'">'+escapeHtml(it.amt)+'</div><div class="dtx-time">'+tStr+'</div></div></div>';
+  }
+  el.innerHTML = html;
+}
+renderDashTxList();
+
+// ══════════════════════════════════════════════════════════════════
 // ── Invite & Referral Panel ─────────────────────────────────
 // ══════════════════════════════════════════════════════════════════
 
 (function initInvitePanel() {
   try {
     var user = JSON.parse(localStorage.getItem('cw_user') || 'null');
-    if (!user || !user.name) return;
+    if (!user) return;
+    var uname = user.username || user.name || '';
+    if (!uname) return;
 
-    var refCode = encodeURIComponent(user.name);
+    var refCode = encodeURIComponent(uname);
     var baseUrl = window.location.origin || 'https://olighftcoin.com';
     var fullLink = baseUrl + '/auth.html?ref=' + refCode;
 
@@ -4436,7 +4560,8 @@ try { renderEscrowCount(); } catch(e) { console.warn('escrow init:', e); }
     var allInvites = [];
     try { allInvites = JSON.parse(localStorage.getItem('cw_invites') || '[]'); } catch(e) {}
     var myInvites = allInvites.filter(function(inv) {
-      return inv.inviterName && inv.inviterName.toLowerCase() === user.name.toLowerCase();
+      var n = (inv.inviterName || '').toLowerCase();
+      return n === uname.toLowerCase() || (user.name && n === user.name.toLowerCase());
     });
 
     // Stats
@@ -4500,7 +4625,18 @@ try { renderEscrowCount(); } catch(e) { console.warn('escrow init:', e); }
 
 function copyInviteLink() {
   var inp = document.getElementById('invLinkInput');
-  if (!inp || !inp.value) return;
+  // Build link on the fly if input is empty
+  if (!inp.value) {
+    try {
+      var u = JSON.parse(localStorage.getItem('cw_user') || 'null');
+      var uname = u && (u.username || u.name);
+      if (uname) {
+        var base = window.location.origin || 'https://olighftcoin.com';
+        inp.value = base + '/auth.html?ref=' + encodeURIComponent(uname);
+      }
+    } catch(e) {}
+  }
+  if (!inp || !inp.value) { showToast('\u26A0\uFE0F Log in first to get your invite link', '#f5c518'); return; }
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(inp.value).then(function() {
       showToast('\u2705 Invite link copied!', '#27ae60');
@@ -4552,6 +4688,17 @@ function textAreaCopy(text) {
   showToast('\u2705 User invite link copied!', '#27ae60');
 }
 
+// Safety net: ensure quick actions work even if main init had partial failure
+document.addEventListener('DOMContentLoaded', function() {
+  try {
+    var u = JSON.parse(localStorage.getItem('cw_user') || 'null');
+    if (u && u.email) {
+      var qa = document.getElementById('quickActions');
+      if (qa) qa.style.display = 'grid';
+    }
+  } catch(e) {}
+});
 </script>
+<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(function(){})}</script>
 </body>
 </html>

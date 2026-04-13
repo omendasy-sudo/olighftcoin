@@ -3,6 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#6c5ce7">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="/icons/icon-192.svg">
 <title>OLIGHFT SMART COIN &mdash; Stellar Testnet</title>
 <meta name="description" content="OLIGHFT SMART COIN — Secure, decentralized crypto wallet on Stellar. Send, receive, swap & stake tokens.">
 <link rel="canonical" href="https://olighftcoin.com/">
@@ -117,3 +122,6 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 <div class="qa-desc">Share link &amp; earn 8-gen commissions</div>
 </a>
 </div>
+<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(function(){})}</script>
+</body>
+</html>

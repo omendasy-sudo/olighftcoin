@@ -3,6 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#6c5ce7">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="/icons/icon-192.svg">
 <title>Swap Tokens &mdash; OLIGHFT SMART COIN</title>
 <meta name="description" content="Swap tokens on OLIGHFT — instant decentralized exchange on Stellar.">
 <link rel="canonical" href="https://olighftcoin.com/swap.html">
@@ -2271,5 +2276,6 @@ function resetTests(){
   document.querySelectorAll('.tst-badge').forEach(function(b){b.textContent='pending';b.style.color='rgba(255,255,255,.35)';b.style.borderColor='rgba(255,255,255,.08)';b.style.background='none';});
 }
 </script>
+<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(function(){})}</script>
 </body>
 </html>

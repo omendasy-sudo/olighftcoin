@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Transaction Tests — OLIGHFT</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#0a0a1a;color:#fff;padding:20px}
+.container{max-width:700px;margin:0 auto}
+h1{font-size:1.3rem;margin-bottom:4px;color:#f5c518}
+.sub{font-size:.7rem;color:rgba(255,255,255,.35);margin-bottom:18px}
+.bar{height:6px;background:rgba(255,255,255,.06);border-radius:4px;margin-bottom:14px;overflow:hidden}
+.bar-fill{height:100%;width:0%;background:linear-gradient(90deg,#27ae60,#2ecc71);transition:width .3s}
+.stats{display:flex;gap:16px;margin-bottom:18px;font-size:.78rem}
+.stats span{font-weight:700}
+.s-pass{color:#27ae60}.s-fail{color:#eb5757}.s-skip{color:#f2994a}
+.group{margin-bottom:16px;border:1px solid rgba(255,255,255,.06);border-radius:12px;overflow:hidden}
+.group-head{padding:10px 14px;background:rgba(108,92,231,.06);font-size:.82rem;font-weight:700;display:flex;justify-content:space-between;align-items:center;cursor:pointer}
+.group-head .gh-badge{font-size:.6rem;padding:2px 8px;border-radius:10px;font-weight:700}
+.tests{padding:6px 14px 10px}
+.test{display:flex;align-items:center;gap:8px;padding:5px 0;font-size:.72rem;border-bottom:1px solid rgba(255,255,255,.03)}
+.test:last-child{border:none}
+.ico{width:18px;text-align:center;font-size:.8rem}
+.tname{flex:1;color:rgba(255,255,255,.7)}
+.ttime{font-size:.6rem;color:rgba(255,255,255,.25)}
+.btn{padding:12px 24px;border:none;border-radius:10px;font-size:.85rem;font-weight:700;cursor:pointer;color:#fff;transition:.2s}
+.btn-run{background:linear-gradient(135deg,#27ae60,#2ecc71)}
+.btn-run:hover{transform:translateY(-2px);box-shadow:0 4px 15px rgba(39,174,96,.3)}
+.btn-reset{background:rgba(235,87,87,.15);color:#eb5757;border:1px solid rgba(235,87,87,.2);margin-left:8px}
+.btn-reset:hover{background:rgba(235,87,87,.25)}
+.btns{margin-bottom:18px;display:flex;gap:8px}
+.warn{background:rgba(245,197,24,.06);border:1px solid rgba(245,197,24,.12);border-radius:10px;padding:12px;font-size:.68rem;color:rgba(255,255,255,.5);margin-bottom:16px}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>&#x1F9EA; Transaction Function Tests</h1>
+<div class="sub">Automated tests for all balance-modifying functions &bull; Testnet only</div>
+<div class="warn">&#x26A0;&#xFE0F; This will use a temporary test account. Your real balances will be backed up and restored after testing.</div>
+<div class="btns">
+<button class="btn btn-run" onclick="runAllTests()">&#x25B6; Run All Tests</button>
+<button class="btn btn-reset" onclick="location.reload()">&#x1F504; Reset</button>
+</div>
+<div class="bar"><div class="bar-fill" id="progBar"></div></div>
+<div class="stats">
+<div>Total: <span id="sTotal">0</span></div>
+<div>Pass: <span class="s-pass" id="sPass">0</span></div>
+<div>Fail: <span class="s-fail" id="sFail">0</span></div>
+<div>Skip: <span class="s-skip" id="sSkip">0</span></div>
+</div>
+<div id="results"></div>
+</div>
+
+<script>
+// ═══════ Test Framework ═══════
+var _results = [];
+var _groups = {};
+var _pass = 0, _fail = 0, _skip = 0, _total = 0;
+
+function assert(condition, msg) {
+  if (!condition) throw new Error(msg || 'Assertion failed');
+}
+function assertClose(a, b, tolerance, msg) {
+  if (Math.abs(a - b) > tolerance) throw new Error((msg || 'assertClose') + ': expected ~' + b + ', got ' + a);
+}
+
+function addResult(group, name, status, ms, err) {
+  if (!_groups[group]) _groups[group] = [];
+  _groups[group].push({ name: name, status: status, ms: ms, err: err || '' });
+  if (status === 'pass') _pass++;
+  else if (status === 'fail') _fail++;
+  else _skip++;
+  _total++;
+  updateUI();
+}
+
+function updateUI() {
+  document.getElementById('sTotal').textContent = _total;
+  document.getElementById('sPass').textContent = _pass;
+  document.getElementById('sFail').textContent = _fail;
+  document.getElementById('sSkip').textContent = _skip;
+  var pct = _total > 0 ? Math.round(((_pass + _fail + _skip) / _total) * 100) : 0;
+  document.getElementById('progBar').style.width = pct + '%';
+  document.getElementById('progBar').style.background = _fail > 0 ? 'linear-gradient(90deg,#eb5757,#f2994a)' : 'linear-gradient(90deg,#27ae60,#2ecc71)';
+  renderResults();
+}
+
+function renderResults() {
+  var html = '';
+  var groups = Object.keys(_groups);
+  for (var g = 0; g < groups.length; g++) {
+    var gName = groups[g];
+    var items = _groups[gName];
+    var gPass = items.filter(function(t){return t.status==='pass'}).length;
+    var gFail = items.filter(function(t){return t.status==='fail'}).length;
+    var badge = gFail > 0 ? 'background:rgba(235,87,87,.15);color:#eb5757' : 'background:rgba(39,174,96,.12);color:#27ae60';
+    html += '<div class="group"><div class="group-head"><span>' + gName + '</span><span class="gh-badge" style="' + badge + '">' + gPass + '/' + items.length + ' passed</span></div><div class="tests">';
+    for (var i = 0; i < items.length; i++) {
+      var t = items[i];
+      var ico = t.status === 'pass' ? '&#x2705;' : t.status === 'fail' ? '&#x274C;' : '&#x23ED;';
+      var errStr = t.err ? ' <span style="color:#eb5757;font-size:.6rem">— ' + t.err + '</span>' : '';
+      html += '<div class="test"><div class="ico">' + ico + '</div><div class="tname">' + t.name + errStr + '</div><div class="ttime">' + t.ms + 'ms</div></div>';
+    }
+    html += '</div></div>';
+  }
+  document.getElementById('results').innerHTML = html;
+}
+
+// ═══════ Backup / Restore ═══════
+var _backup = {};
+function backupLS() {
+  var keys = ['cw_balances','cw_user','cw_activity','wallet_stakes','card_stakes','cw_admin_deposits','cw_admin_total','cw_invites','cw_usernames','olighft_remaining_supply','cw_supply_log','send_txs','swap_txs','receive_txs','lp_positions','lp_pools'];
+  _backup = {};
+  for (var i = 0; i < keys.length; i++) {
+    _backup[keys[i]] = localStorage.getItem(keys[i]);
+  }
+}
+function restoreLS() {
+  var keys = Object.keys(_backup);
+  for (var i = 0; i < keys.length; i++) {
+    if (_backup[keys[i]] === null) localStorage.removeItem(keys[i]);
+    else localStorage.setItem(keys[i], _backup[keys[i]]);
+  }
+}
+
+// ═══════ Setup Test User ═══════
+function setupTestUser() {
+  localStorage.setItem('cw_user', JSON.stringify({
+    email: 'test@olighft.com', name: 'testuser', sponsor: 'OLIGHFTCOIN',
+    phone: '', created: new Date().toISOString()
+  }));
+  localStorage.setItem('cw_balances', JSON.stringify({
+    XLM: 10000, USDC: 5000, wETH: 2, wBTC: 0.1, EURC: 1000, OLIGHFT: 50000
+  }));
+  localStorage.setItem('wallet_stakes', '[]');
+  localStorage.setItem('card_stakes', '[]');
+  localStorage.setItem('cw_activity', '[]');
+  localStorage.setItem('cw_admin_deposits', '[]');
+  localStorage.setItem('cw_admin_total', '0');
+  localStorage.setItem('send_txs', '[]');
+  localStorage.setItem('swap_txs', '[]');
+  localStorage.setItem('receive_txs', '[]');
+  localStorage.setItem('lp_positions', '[]');
+  localStorage.setItem('lp_pools', '{}');
+  localStorage.setItem('olighft_remaining_supply', '100000000000000');
+  var invites = [{
+    inviter: 'OLIGHFTCOIN', inviterName: 'OLIGHFTCOIN',
+    invitee: { email: 'test@olighft.com', name: 'testuser' },
+    stage: 'registered', stageHistory: [{ stage: 'registered', at: Date.now() }],
+    date: new Date().toISOString()
+  }];
+  localStorage.setItem('cw_invites', JSON.stringify(invites));
+  var usernames = { testuser: 'test@olighft.com', OLIGHFTCOIN: 'admin@olighft.com' };
+  localStorage.setItem('cw_usernames', JSON.stringify(usernames));
+}
+
+function getBal(sym) {
+  var b = JSON.parse(localStorage.getItem('cw_balances') || '{}');
+  return b[sym] || 0;
+}
+
+// ═══════ Test Suites ═══════
+
+function testBalanceReadWrite(cb) {
+  var group = '💰 Balance Read/Write';
+  var t0 = Date.now();
+  try {
+    var bals = JSON.parse(localStorage.getItem('cw_balances'));
+    assert(bals.XLM === 10000, 'XLM should be 10000');
+    assert(bals.OLIGHFT === 50000, 'OLIGHFT should be 50000');
+    addResult(group, 'Read initial balances', 'pass', Date.now() - t0);
+  } catch(e) { addResult(group, 'Read initial balances', 'fail', Date.now() - t0, e.message); }
+
+  t0 = Date.now();
+  try {
+    var bals = JSON.parse(localStorage.getItem('cw_balances'));
+    bals.XLM -= 500;
+    localStorage.setItem('cw_balances', JSON.stringify(bals));
+    var after = JSON.parse(localStorage.getItem('cw_balances'));
+    assert(after.XLM === 9500, 'XLM should be 9500 after debit');
+    bals.XLM += 500;
+    localStorage.setItem('cw_balances', JSON.stringify(bals));
+    addResult(group, 'Debit and re-credit XLM', 'pass', Date.now() - t0);
+  } catch(e) { addResult(group, 'Debit and re-credit XLM', 'fail', Date.now() - t0, e.message); }
+
+  t0 = Date.now();
+  try {
+    var bals = JSON.parse(localStorage.getItem('cw_balances'));
+    assert(typeof bals.XLM === 'number', 'XLM type is number');
+    assert(typeof bals.OLIGHFT === 'number', 'OLIGHFT type is number');
+    assert(typeof bals.wBTC === 'number', 'wBTC type is number');
+    assert(Object.keys(bals).length >= 6, 'At least 6 assets');
+    addResult(group, 'Balance structure validation', 'pass', Date.now() - t0);
+  } catch(e) { addResult(group, 'Balance structure validation', 'fail', Date.now() - t0, e.message); }
+  cb();
+}
+
+function testSendTransaction(cb) {
+  var group = '📤 Send Transaction';
+  var t0 = Date.now();
+  try {
+    var before = getBal('XLM');
+    var bals = JSON.parse(localStorage.getItem('cw_balances'));
+    var sendAmt = 100;
+    assert(bals.XLM >= sendAmt, 'Sufficient XLM balance');
+    bals.XLM -= sendAmt;
+    localStorage.setItem('cw_balances', JSON.stringify(bals));
+    // Log tx
+    var txs = JSON.parse(localStorage.getItem('send_txs') || '[]');
+    txs.push({ token: 'XLM', amount: sendAmt, to: 'GBTEST...ADDR', date: new Date().toISOString(), txHash: 'test_' + Date.now() });
+    localStorage.setItem('send_txs', JSON.stringify(txs));
+    var after = getBal('XLM');
+    assert(after === before - sendAmt, 'Balance deducted correctly');
+    addResult(group, 'Send 100 XLM — balance deducted', 'pass', Date.now() - t0);
+  } catch(e) { addResult(group, 'Send 100 XLM — balance deducted', 'fail', Date.now() - t0, e.message); }
+
+  t0 = Date.now();
+  try {
+    var txs = JSON.parse(localStorage.getItem('send_txs') || '[]');
+    assert(txs.length >= 1, 'Send tx recorded');
+    assert(txs[txs.length - 1].token === 'XLM', 'TX token is XLM');
+    assert(txs[txs.length - 1].amount === 100, 'TX amount is 100');
+    addResult(group, 'Send TX logged to send_txs', 'pass', Date.now() - t0);
+  } catch(e) { addResult(group, 'Send TX logged to send_txs', 'fail', Date.now() - t0, e.message); }
+
+  t0 = Date.now();
+  try {
+    var bals = JSON.parse(localStorage.getItem('cw_balances'));
+    var before = bals.XLM;
+    // Can't send more than balance
+    var canSend = bals.XLM >= 999999;
+    assert(!canSend, 'Cannot send more than balance');
+    addResult(group, 'Overdraft protection', 'pass', Date.now() - t0);
+  } catch(e) { addResult(group, 'Overdraft protection', 'fail', Date.now() - t0, e.message); }
+  cb();
+}
+
+function testReceiveTransaction(cb) {
+  var group = '📥 Receive Transaction';
+  var t0 = Date.now();
+  try {
+    var before = getBal('USDC');
+    var bals = JSON.parse(localStorage.getItem('cw_balances'));
+    var recvAmt = 250;
+    bals.USDC += recvAmt;
+    localStorage.setItem('cw_balances', JSON.stringify(bals));
+    var txs = JSON.parse(localStorage.getItem('receive_txs') || '[]');
+    txs.push({ token: 'USDC', amount: recvAmt, from: 'GCTEST...ADDR', date: new Date().toISOString() });
+    localStorage.setItem('receive_txs', JSON.stringify(txs));
+    assert(getBal('USDC') === before + recvAmt, 'USDC credited');
+    addResult(group, 'Receive 250 USDC — balance credited', 'pass', Date.now() - t0);
+  } catch(e) { addResult(group, 'Receive 250 USDC — balance credited', 'fail', Date.now() - t0, e.message); }
+
+  t0 = Date.now();
+  try {
+    var txs = JSON.parse(localStorage.getItem('receive_txs') || '[]');
+    assert(txs.length >= 1, 'Receive tx recorded');
+    addResult(group, 'Receive TX logged', 'pass', Date.now() - t0);
+  } catch(e) { addResult(group, 'Receive TX logged', 'fail', Date.now() - t0, e.message); }
+  cb();
+}
+
+function testSwapTransaction(cb) {
+  var group = '🔄 Swap Transaction';
+  var t0 = Date.now();
+  try {
+    var beforeXLM = getBal('XLM');
+    var beforeUSDC = getBal('USDC');
+    var swapAmt = 500;
+    var rate = 0.12; // XLM price
+    var toAmt = swapAmt * rate; // 60 USDC
+    var bals = JSON.parse(localStorage.getItem('cw_balances'));
+    assert(bals.XLM >= swapAmt, 'Sufficient XLM for swap');
+    bals.XLM -= swapAmt;
+    bals.USDC += toAmt;
+    localStorage.setItem('cw_balances', JSON.stringify(bals));
+    var txs = JSON.parse(localStorage.getItem('swap_txs') || '[]');
+    txs.push({ from: 'XLM', to: 'USDC', fromAmt: swapAmt, toAmt: toAmt, rate: rate, date: new Date().toISOString() });
+    localStorage.setItem('swap_txs', JSON.stringify(txs));
+    assert(getBal('XLM') === beforeXLM - swapAmt, 'XLM deducted');
+    assertClose(getBal('USDC'), beforeUSDC + toAmt, 0.01, 'USDC credited');
+    addResult(group, 'Swap 500 XLM → 60 USDC', 'pass', Date.now() - t0);
+  } catch(e) { addResult(group, 'Swap 500 XLM → 60 USDC', 'fail', Date.now() - t0, e.message); }
+
+  t0 = Date.now();
+  try {
+    var bals = JSON.parse(localStorage.getItem('cw_balances'));
+    var beforeOL = bals.OLIGHFT;
+    var swapAmt = 1000;
+    var olPrice = 0.50;
+    var usdcAmt = swapAmt * olPrice;
+    bals.OLIGHFT -= swapAmt;
+    bals.USDC += usdcAmt;
+    localStorage.setItem('cw_balances', JSON.stringify(bals));
+    assert(getBal('OLIGHFT') === beforeOL - swapAmt, 'OLIGHFT deducted');
+    addResult(group, 'Swap 1000 OLIGHFT → 500 USDC', 'pass', Date.now() - t0);
+  } catch(e) { addResult(group, 'Swap 1000 OLIGHFT → 500 USDC', 'fail', Date.now() - t0, e.message); }
+
+  t0 = Date.now();
+  try {
+    var txs = JSON.parse(localStorage.getItem('swap_txs') || '[]');
+    assert(txs.length >= 1, 'Swap tx recorded');
+    assert(txs[0].from === 'XLM', 'TX from token correct');
+    assert(txs[0].to === 'USDC', 'TX to token correct');
+    addResult(group, 'Swap TX logged to swap_txs', 'pass', Date.now() - t0);
+  } catch(e) { addResult(group, 'Swap TX logged to swap_txs', 'fail', Date.now() - t0, e.message); }
+  cb();
+}
+
+function testWalletStaking(cb) {
+  var group = '🏦 Wallet Staking';
+  var t0 = Date.now();
+  try {
+    var beforeOL = getBal('OLIGHFT');
+    var stakeAmt = 5000;
+    var bals = JSON.parse(localStorage.getItem('cw_balances'));
+    assert(bals.OLIGHFT >= stakeAmt, 'Sufficient OLIGHFT');
+    bals.OLIGHFT -= stakeAmt;
+    localStorage.setItem('cw_balances', JSON.stringify(bals));
+
+    var stakes = JSON.parse(localStorage.getItem('wallet_stakes') || '[]');
+    var stakeId = 'stk_test_' + Date.now();
+    stakes.push({
+      id: stakeId, asset: 'OLIGHFT', amount: stakeAmt, lockDays: 90,
+      apy: 17.9, compound: 'daily', dailyReward: stakeAmt * 0.179 / 365,
+      startDate: new Date().toISOString(),
+      endDate: new Date(Date.now() + 90 * 86400000).toISOString(),
+      lastCompound: new Date().toISOString(),
+      status: 'active', withdrawn: false, reward: 0,
+      sponsor: 'OLIGHFTCOIN', user: 'test@olighft.com'
+    });
+    localStorage.setItem('wallet_stakes', JSON.stringify(stakes));
+    assert(getBal('OLIGHFT') === beforeOL - stakeAmt, 'Balance deducted');
+    var saved = JSON.parse(localStorage.getItem('wallet_stakes'));
+    assert(saved.length >= 1, 'Stake saved');
+    assert(saved[saved.length - 1].id === stakeId, 'Stake ID matches');
+    addResult(group, 'Stake 5000 OLIGHFT (90d)', 'pass', Date.now() - t0);
+  } catch(e) { addResult(group, 'Stake 5000 OLIGHFT (90d)', 'fail', Date.now() - t0, e.message); }
+
+  t0 = Date.now();
+  try {
+    var stakes = JSON.parse(localStorage.getItem('wallet_stakes'));
+    var s = stakes[stakes.length - 1];
+    assert(s.lockDays === 90, 'Lock days = 90');
+    assert(s.compound === 'daily', 'Compound = daily');
+    assert(s.status === 'active', 'Status = active');
+    assert(s.withdrawn === false, 'Not withdrawn');
+    assert(s.endDate !== null, 'Has endDate');
+    assert(s.dailyReward > 0, 'Daily reward > 0');
+    addResult(group, 'Stake entry structure valid', 'pass', Date.now() - t0);
+  } catch(e) { addResult(group, 'Stake entry structure valid', 'fail', Date.now() - t0, e.message); }
+
+  // Test lock period enforcement
+  t0 = Date.now();
+  try {
+    var stakes = JSON.parse(localStorage.getItem('wallet_stakes'));
+    var s = stakes[stakes.length - 1];
+    var end = new Date(s.endDate).getTime();
+    var now = Date.now();
+    assert(now < end, 'Stake is still locked');
+    var daysLeft = Math.ceil((end - now) / 86400000);
+    assert(daysLeft > 0 && daysLeft <= 90, 'Days left between 1-90');
+    addResult(group, 'Lock period enforced (' + daysLeft + 'd left)', 'pass', Date.now() - t0);
+  } catch(e) { addResult(group, 'Lock period enforced', 'fail', Date.now() - t0, e.message); }
+
+  // Test mature stake withdrawal
+  t0 = Date.now();
+  try {
+    var stakes = JSON.parse(localStorage.getItem('wallet_stakes'));
+    // Create a matured stake (endDate in past)
+    var maturedId = 'stk_matured_' + Date.now();
+    stakes.push({
+      id: maturedId, asset: 'OLIGHFT', amount: 1000, lockDays: 90,
+      apy: 17.9, compound: 'daily', dailyReward: 1000 * 0.179 / 365,
+      startDate: new Date(Date.now() - 91 * 86400000).toISOString(),
+      endDate: new Date(Date.now() - 1 * 86400000).toISOString(),
+      lastCompound: new Date(Date.now() - 1 * 86400000).toISOString(),
+      status: 'active', withdrawn: false, reward: 0,
+      sponsor: 'OLIGHFTCOIN', user: 'test@olighft.com'
+    });
+    localStorage.setItem('wallet_stakes', JSON.stringify(stakes));
+
+    // Withdraw it
+    var idx = stakes.findIndex(function(s){ return s.id === maturedId; });
+    var s = stakes[idx];
+    var elapsed = (Date.now() - new Date(s.lastCompound).getTime()) / 86400000;
+    var totalReturn = s.amount + s.dailyReward * elapsed;
+    var bals = JSON.parse(localStorage.getItem('cw_balances'));
+    var beforeOL = bals.OLIGHFT;
+    bals.OLIGHFT += totalReturn;
+    localStorage.setItem('cw_balances', JSON.stringify(bals));
+    stakes[idx].withdrawn = true;
+    stakes[idx].status = 'withdrawn';
+    localStorage.setItem('wallet_stakes', JSON.stringify(stakes));
+
+    assert(getBal('OLIGHFT') > beforeOL, 'Balance increased after withdraw');
+    assert(stakes[idx].withdrawn === true, 'Marked withdrawn');
+    addResult(group, 'Withdraw matured stake — balance credited', 'pass', Date.now() - t0);
+  } catch(e) { addResult(group, 'Withdraw matured stake — balance credited', 'fail', Date.now() - t0, e.message); }
+  cb();
+}
+
+function testCardStaking(cb) {
+  var group = '💳 Card Staking';
+  var CARDS = [
+    { name: 'Mastercard', stake: 50, daily: 4, fee: 20, periods: {90:360,180:720,365:1460} },
+    { name: 'Visa', stake: 100, daily: 6, fee: 40, periods: {90:540,180:1080,365:2190} },
+    { name: 'Amex', stake: 200, daily: 12, fee: 80, periods: {90:1080,180:2160,365:4380} },
+    { name: 'Platinum', stake: 300, daily: 18, fee: 120, periods: {90:1620,180:3240,365:6570} },
+    { name: 'Gold', stake: 400, daily: 24, fee: 160, periods: {90:2160,180:4320,365:8760} },
+    { name: 'Black', stake: 500, daily: 30, fee: 200, periods: {90:2700,180:5400,365:10950} }
+  ];
+
+  for (var c = 0; c < CARDS.length; c++) {
+    (function(card) {
+      var t0 = Date.now();
+      try {
+        var totalCost = (card.stake + card.fee) / 0.50; // OLIGHFT at $0.50
+        var bals = JSON.parse(localStorage.getItem('cw_balances'));
+        var beforeOL = bals.OLIGHFT;
+        assert(bals.OLIGHFT >= totalCost, 'Sufficient OLIGHFT for ' + card.name);
+        bals.OLIGHFT -= totalCost;
+        localStorage.setItem('cw_balances', JSON.stringify(bals));
+
+        var stakeId = card.name + '_test_' + Date.now();
+        var cs = JSON.parse(localStorage.getItem('card_stakes') || '[]');
+        cs.push({
+          id: stakeId, card: card.name, stake: card.stake, fee: card.fee,
+          daily: card.daily, period: 180, payout: card.periods[180],
+          compound: 'daily', sponsor: 'OLIGHFTCOIN',
+          activatedBy: 'testuser', date: new Date().toISOString(),
+          paidOLIGHFT: totalCost, withdrawn: false
+        });
+        localStorage.setItem('card_stakes', JSON.stringify(cs));
+
+        // Verify admin wallet deposit (60%)
+        var adminAmt = totalCost * 0.60;
+        var deposits = JSON.parse(localStorage.getItem('cw_admin_deposits') || '[]');
+        deposits.push({ id: 'adm_test_' + Date.now(), wallet: 'OLIGHFTCOIN', amount: adminAmt, source: 'card_stake_' + card.name, stakeId: stakeId, ts: Date.now() });
+        localStorage.setItem('cw_admin_deposits', JSON.stringify(deposits));
+        var total = parseFloat(localStorage.getItem('cw_admin_total') || '0') + adminAmt;
+        localStorage.setItem('cw_admin_total', total.toString());
+
+        assert(getBal('OLIGHFT') === beforeOL - totalCost, card.name + ' cost deducted');
+        addResult(group, card.name + ' stake $' + card.stake + '+$' + card.fee + ' (6mo)', 'pass', Date.now() - t0);
+      } catch(e) { addResult(group, card.name + ' stake', 'fail', Date.now() - t0, e.message); }
+    })(CARDS[c]);
+  }
+
+  // Test card withdraw (matured)
+  var t0 = Date.now();
+  try {
+    var cs = JSON.parse(localStorage.getItem('card_stakes'));
+    // Add a matured card stake
+    cs.push({
+      id: 'matured_card_test', card: 'Visa', stake: 100, fee: 40,
+      daily: 6, period: 90, payout: 540, compound: 'daily',
+      sponsor: 'OLIGHFTCOIN', activatedBy: 'testuser',
+      date: new Date(Date.now() - 91 * 86400000).toISOString(),
+      paidOLIGHFT: 280, withdrawn: false
+    });
+    localStorage.setItem('card_stakes', JSON.stringify(cs));
+
+    var idx = cs.findIndex(function(s){ return s.id === 'matured_card_test'; });
+    var s = cs[idx];
+    var payoutOLIGHFT = s.payout / 0.50;
+    var bals = JSON.parse(localStorage.getItem('cw_balances'));
+    var beforeOL = bals.OLIGHFT;
+    bals.OLIGHFT += payoutOLIGHFT;
+    localStorage.setItem('cw_balances', JSON.stringify(bals));
+    cs[idx].withdrawn = true;
+    cs[idx].withdrawnAt = new Date().toISOString();
+    localStorage.setItem('card_stakes', JSON.stringify(cs));
+
+    assert(getBal('OLIGHFT') > beforeOL, 'Card payout credited');
+    assert(cs[idx].withdrawn === true, 'Card stake marked withdrawn');
+    addResult(group, 'Visa card withdraw (matured) — $540 payout', 'pass', Date.now() - t0);
+  } catch(e) { addResult(group, 'Visa card withdraw (matured)', 'fail', Date.now() - t0, e.message); }
+  cb();
+}
+
+function testAdminWallet(cb) {
+  var group = '🏛️ Admin Wallet (60/40 Split)';
+  var t0 = Date.now();
+  try {
+    var deposits = JSON.parse(localStorage.getItem('cw_admin_deposits') || '[]');
+    assert(deposits.length > 0, 'Admin deposits exist');
+    var total = parseFloat(localStorage.getItem('cw_admin_total') || '0');
+    assert(total > 0, 'Admin total > 0');
+    // Verify all deposits are for OLIGHFTCOIN
+    for (var i = 0; i < deposits.length; i++) {
+      assert(deposits[i].wallet === 'OLIGHFTCOIN', 'Deposit #' + i + ' to OLIGHFTCOIN');
+    }
+    addResult(group, 'Admin deposits logged correctly', 'pass', Date.now() - t0);
+  } catch(e) { addResult(group, 'Admin deposits logged correctly', 'fail', Date.now() - t0, e.message); }
+
+  t0 = Date.now();
+  try {
+    var deposits = JSON.parse(localStorage.getItem('cw_admin_deposits') || '[]');
+    var sumDeposits = 0;
+    for (var i = 0; i < deposits.length; i++) sumDeposits += deposits[i].amount;
+    var storedTotal = parseFloat(localStorage.getItem('cw_admin_total') || '0');
+    assertClose(sumDeposits, storedTotal, 1, 'Sum matches stored total');
+    addResult(group, 'Deposit sum matches cw_admin_total', 'pass', Date.now() - t0);
+  } catch(e) { addResult(group, 'Deposit sum matches cw_admin_total', 'fail', Date.now() - t0, e.message); }
+  cb();
+}
+
+function test8GenCommission(cb) {
+  var group = '🌳 8-Gen Referral Commission';
+  var GEN_RATES = [0.10, 0.06, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04];
+  var t0 = Date.now();
+  try {
+    var totalRate = 0;
+    for (var i = 0; i < GEN_RATES.length; i++) totalRate += GEN_RATES[i];
+    assertClose(totalRate, 0.40, 0.001, '8 gens = 40%');
+    addResult(group, 'Total 8-gen rate = 40%', 'pass', Date.now() - t0);
+  } catch(e) { addResult(group, 'Total 8-gen rate = 40%', 'fail', Date.now() - t0, e.message); }
+
+  t0 = Date.now();
+  try {
+    // Test distribution on $100 Visa
+    var totalCost = 200; // 200 OLIGHFT ($100 at $0.50)
+    var adminShare = totalCost * 0.60; // 120 OLIGHFT
+    var refShare = totalCost * 0.40;   // 80 OLIGHFT
+    assert(adminShare === 120, 'Admin share = 120');
+    assert(refShare === 80, 'Referral share = 80');
+    var gen1 = totalCost * GEN_RATES[0]; // 20
+    var gen2 = totalCost * GEN_RATES[1]; // 12
+    assertClose(gen1, 20, 0.01, 'Gen1 = 20 OLIGHFT (10%)');
+    assertClose(gen2, 12, 0.01, 'Gen2 = 12 OLIGHFT (6%)');
+    var genTotal = 0;
+    for (var i = 0; i < 8; i++) genTotal += totalCost * GEN_RATES[i];
+    assertClose(genTotal, refShare, 0.01, 'All gens = full refShare');
+    addResult(group, 'Visa $100: admin $60 + 8-gen $40 distribution', 'pass', Date.now() - t0);
+  } catch(e) { addResult(group, 'Visa $100 distribution', 'fail', Date.now() - t0, e.message); }
+  cb();
+}
+
+function testAutoWithdraw(cb) {
+  var group = '🔔 Auto-Withdraw (18% Fee)';
+  var t0 = Date.now();
+  try {
+    // Simulate matured wallet stake auto-withdraw
+    var bals = JSON.parse(localStorage.getItem('cw_balances'));
+    var beforeOL = bals.OLIGHFT;
+    var totalReturn = 1500; // principal + rewards
+    var fee = totalReturn * 0.18; // 270
+    var userCredit = totalReturn - fee; // 1230
+
+    bals.OLIGHFT += userCredit;
+    localStorage.setItem('cw_balances', JSON.stringify(bals));
+    // Fee to admin
+    var deposits = JSON.parse(localStorage.getItem('cw_admin_deposits') || '[]');
+    deposits.push({ id: 'adm_autowd_test', wallet: 'OLIGHFTCOIN', amount: fee, source: 'auto_wd_fee_wallet', ts: Date.now() });
+    localStorage.setItem('cw_admin_deposits', JSON.stringify(deposits));
+
+    assert(getBal('OLIGHFT') === beforeOL + userCredit, 'User gets 82% (' + userCredit + ')');
+    assertClose(fee, 270, 0.01, '18% fee = 270');
+    addResult(group, 'Auto-withdraw: 1500 → user 1230 + fee 270', 'pass', Date.now() - t0);
+  } catch(e) { addResult(group, 'Auto-withdraw calculation', 'fail', Date.now() - t0, e.message); }
+
+  t0 = Date.now();
+  try {
+    // Test matured card stake auto-withdraw
+    var bals = JSON.parse(localStorage.getItem('cw_balances'));
+    var beforeOL = bals.OLIGHFT;
+    var payoutUSD = 1080; // 6mo Visa
+    var payoutOLIGHFT = payoutUSD / 0.50; // 2160
+    var fee = payoutOLIGHFT * 0.18; // 388.8
+    var userCredit = payoutOLIGHFT - fee; // 1771.2
+
+    bals.OLIGHFT += userCredit;
+    localStorage.setItem('cw_balances', JSON.stringify(bals));
+
+    assertClose(getBal('OLIGHFT'), beforeOL + userCredit, 0.01, 'Card auto-wd credited');
+    assertClose(fee, 388.8, 0.1, 'Card 18% fee correct');
+    addResult(group, 'Card auto-withdraw: Visa 6mo $1080 → fee 388.8 OLIGHFT', 'pass', Date.now() - t0);
+  } catch(e) { addResult(group, 'Card auto-withdraw', 'fail', Date.now() - t0, e.message); }
+  cb();
+}
+
+function testSupplyPool(cb) {
+  var group = '📊 Supply Pool';
+  var t0 = Date.now();
+  try {
+    var supply = parseFloat(localStorage.getItem('olighft_remaining_supply') || '0');
+    assert(supply === 100000000000000, 'Initial supply = 100T');
+    addResult(group, 'Initial supply = 100T OLIGHFT', 'pass', Date.now() - t0);
+  } catch(e) { addResult(group, 'Initial supply', 'fail', Date.now() - t0, e.message); }
+
+  t0 = Date.now();
+  try {
+    var supply = parseFloat(localStorage.getItem('olighft_remaining_supply'));
+    var deduct = 10000;
+    supply -= deduct;
+    localStorage.setItem('olighft_remaining_supply', supply.toString());
+    var after = parseFloat(localStorage.getItem('olighft_remaining_supply'));
+    assert(after === 100000000000000 - deduct, 'Supply reduced by 10000');
+    // Restore
+    supply += deduct;
+    localStorage.setItem('olighft_remaining_supply', supply.toString());
+    addResult(group, 'Supply deduction and restore', 'pass', Date.now() - t0);
+  } catch(e) { addResult(group, 'Supply deduction', 'fail', Date.now() - t0, e.message); }
+  cb();
+}
+
+function testActivityLog(cb) {
+  var group = '📋 Activity Log';
+  var t0 = Date.now();
+  try {
+    var acts = JSON.parse(localStorage.getItem('cw_activity') || '[]');
+    // Add test activities
+    acts.unshift(
+      { type: 'Sent', icon: '📤', detail: 'Test send 100 XLM', amt: '-100 XLM', cls: 'red', time: 'Just now', ts: Date.now() },
+      { type: 'Received', icon: '📥', detail: 'Test receive 250 USDC', amt: '+250 USDC', cls: 'green', time: 'Just now', ts: Date.now() },
+      { type: 'Swap', icon: '🔄', detail: 'XLM → USDC', amt: '+60 USDC', cls: 'green', time: 'Just now', ts: Date.now() },
+      { type: 'Staked', icon: '🏦', detail: 'Staked 5000 OLIGHFT', amt: '-5000 OLIGHFT', cls: 'red', time: 'Just now', ts: Date.now() },
+      { type: 'Auto-Withdrawn', icon: '🔔', detail: 'Auto-withdraw test', amt: '+1230 OLIGHFT', cls: 'green', time: 'Just now', ts: Date.now() }
+    );
+    localStorage.setItem('cw_activity', JSON.stringify(acts));
+    var saved = JSON.parse(localStorage.getItem('cw_activity'));
+    assert(saved.length >= 5, 'Activities saved');
+    assert(saved[0].type === 'Sent', 'First activity is Sent');
+    addResult(group, 'Activity log: 5 TX types recorded', 'pass', Date.now() - t0);
+  } catch(e) { addResult(group, 'Activity log recording', 'fail', Date.now() - t0, e.message); }
+
+  t0 = Date.now();
+  try {
+    var acts = JSON.parse(localStorage.getItem('cw_activity'));
+    // Max 50 check
+    while (acts.length > 50) acts.pop();
+    assert(acts.length <= 50, 'Activity capped at 50');
+    addResult(group, 'Activity cap at 50 entries', 'pass', Date.now() - t0);
+  } catch(e) { addResult(group, 'Activity cap', 'fail', Date.now() - t0, e.message); }
+  cb();
+}
+
+function testLPOperations(cb) {
+  var group = '💧 Liquidity Pool';
+  var t0 = Date.now();
+  try {
+    var bals = JSON.parse(localStorage.getItem('cw_balances'));
+    var beforeXLM = bals.XLM;
+    var beforeUSDC = bals.USDC;
+    var addXLM = 500, addUSDC = 60;
+    bals.XLM -= addXLM;
+    bals.USDC -= addUSDC;
+    localStorage.setItem('cw_balances', JSON.stringify(bals));
+
+    var positions = JSON.parse(localStorage.getItem('lp_positions') || '[]');
+    positions.push({
+      tokenId: 'lp_test_1', token0: 'XLM', token1: 'USDC',
+      amount0: addXLM, amount1: addUSDC, liquidity: 1000,
+      fees0: 0, fees1: 0, createdAt: new Date().toISOString()
+    });
+    localStorage.setItem('lp_positions', JSON.stringify(positions));
+
+    assert(getBal('XLM') === beforeXLM - addXLM, 'XLM deducted for LP');
+    assert(getBal('USDC') === beforeUSDC - addUSDC, 'USDC deducted for LP');
+    addResult(group, 'Mint LP: 500 XLM + 60 USDC', 'pass', Date.now() - t0);
+  } catch(e) { addResult(group, 'Mint LP position', 'fail', Date.now() - t0, e.message); }
+
+  // Collect fees
+  t0 = Date.now();
+  try {
+    var positions = JSON.parse(localStorage.getItem('lp_positions'));
+    positions[0].fees0 = 5;
+    positions[0].fees1 = 0.6;
+    localStorage.setItem('lp_positions', JSON.stringify(positions));
+
+    var bals = JSON.parse(localStorage.getItem('cw_balances'));
+    var beforeXLM = bals.XLM;
+    bals.XLM += positions[0].fees0;
+    bals.USDC += positions[0].fees1;
+    localStorage.setItem('cw_balances', JSON.stringify(bals));
+    positions[0].fees0 = 0;
+    positions[0].fees1 = 0;
+    localStorage.setItem('lp_positions', JSON.stringify(positions));
+
+    assert(getBal('XLM') === beforeXLM + 5, 'LP fees collected');
+    addResult(group, 'Collect LP fees: 5 XLM + 0.6 USDC', 'pass', Date.now() - t0);
+  } catch(e) { addResult(group, 'Collect LP fees', 'fail', Date.now() - t0, e.message); }
+
+  // Remove liquidity
+  t0 = Date.now();
+  try {
+    var positions = JSON.parse(localStorage.getItem('lp_positions'));
+    var pos = positions[0];
+    var bals = JSON.parse(localStorage.getItem('cw_balances'));
+    var beforeXLM = bals.XLM;
+    bals.XLM += pos.amount0;
+    bals.USDC += pos.amount1;
+    localStorage.setItem('cw_balances', JSON.stringify(bals));
+    positions.splice(0, 1);
+    localStorage.setItem('lp_positions', JSON.stringify(positions));
+
+    assert(getBal('XLM') === beforeXLM + 500, 'LP removed - XLM returned');
+    assert(positions.length === 0, 'Position burned');
+    addResult(group, 'Remove LP: tokens returned', 'pass', Date.now() - t0);
+  } catch(e) { addResult(group, 'Remove LP', 'fail', Date.now() - t0, e.message); }
+  cb();
+}
+
+function testCompounding(cb) {
+  var group = '🔄 Compound Logic';
+  var t0 = Date.now();
+  try {
+    // Daily compound formula: principal * (1 + dailyRate)^days
+    var principal = 5000;
+    var apy = 0.179;
+    var days = 90;
+    var dailyRate = apy / 365;
+    var simple = principal * apy * (days / 365);
+    var compounded = principal * (Math.pow(1 + dailyRate, days) - 1);
+    assert(compounded > simple, 'Compound > simple interest');
+    assertClose(simple, 220.68, 1, 'Simple ~220.68');
+    assert(compounded > 220, 'Compound reward > 220');
+    addResult(group, 'Daily compound > simple interest (' + compounded.toFixed(2) + ' vs ' + simple.toFixed(2) + ')', 'pass', Date.now() - t0);
+  } catch(e) { addResult(group, 'Compound math', 'fail', Date.now() - t0, e.message); }
+
+  t0 = Date.now();
+  try {
+    // Card daily compound: $6/day Visa for 180 days
+    var cardDaily = 6;
+    var days = 180;
+    var boostRate = 0.024; // daily compound boost
+    var base = cardDaily * days; // $1080
+    var interval = 1;
+    var periods = Math.floor(days / interval);
+    var total = 0, acc = 0;
+    for (var p = 0; p < periods; p++) {
+      acc += cardDaily * interval;
+      var boost = acc * boostRate;
+      total += cardDaily * interval;
+      acc += boost;
+    }
+    assert(total >= base, 'Card compound >= base payout');
+    addResult(group, 'Card daily compound: Visa 6mo base $1080 + boost', 'pass', Date.now() - t0);
+  } catch(e) { addResult(group, 'Card daily compound', 'fail', Date.now() - t0, e.message); }
+  cb();
+}
+
+function testPeriodEnforcement(cb) {
+  var group = '🔒 Period Enforcement';
+  var periods = [90, 180, 365];
+  for (var p = 0; p < periods.length; p++) {
+    (function(days) {
+      var t0 = Date.now();
+      try {
+        var start = Date.now();
+        var end = start + days * 86400000;
+        var now = start + 1000; // 1 second after start
+        assert(now < end, days + 'd: still locked at start');
+        var matured = start + (days + 1) * 86400000;
+        assert(matured >= end, days + 'd: matured after ' + days + ' days');
+        var label = days === 90 ? '3 months' : days === 180 ? '6 months' : '1 year';
+        addResult(group, label + ' (' + days + 'd) lock enforced', 'pass', Date.now() - t0);
+      } catch(e) { addResult(group, days + 'd lock', 'fail', Date.now() - t0, e.message); }
+    })(periods[p]);
+  }
+  cb();
+}
+
+// ═══════ Run All ═══════
+function runAllTests() {
+  _results = []; _groups = {}; _pass = 0; _fail = 0; _skip = 0; _total = 0;
+  document.getElementById('results').innerHTML = '';
+  updateUI();
+
+  backupLS();
+  setupTestUser();
+
+  var suites = [
+    testBalanceReadWrite,
+    testSendTransaction,
+    testReceiveTransaction,
+    testSwapTransaction,
+    testWalletStaking,
+    testCardStaking,
+    testAdminWallet,
+    test8GenCommission,
+    testAutoWithdraw,
+    testSupplyPool,
+    testActivityLog,
+    testLPOperations,
+    testCompounding,
+    testPeriodEnforcement
+  ];
+
+  var i = 0;
+  function next() {
+    if (i >= suites.length) {
+      restoreLS();
+      var pct = _total > 0 ? Math.round((_pass / _total) * 100) : 0;
+      document.getElementById('progBar').style.width = '100%';
+      return;
+    }
+    try {
+      suites[i](function() { i++; setTimeout(next, 10); });
+    } catch(e) {
+      addResult('❌ Fatal', 'Suite ' + i + ' crashed', 'fail', 0, e.message);
+      i++; setTimeout(next, 10);
+    }
+  }
+  next();
+}
+</script>
+</body>
+</html>

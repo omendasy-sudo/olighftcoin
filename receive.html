@@ -3,6 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#6c5ce7">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="/icons/icon-192.svg">
 <title>Receive Tokens &mdash; OLIGHFT SMART COIN</title>
 <meta name="description" content="Receive OLIGHFT tokens — share your address or QR code.">
 <link rel="canonical" href="https://olighftcoin.com/receive.html">
@@ -349,8 +354,13 @@ function renderRecentReceives(){
   sec.style.display='block';
   list.innerHTML=txs.map(function(tx){
     var ago=Math.round((Date.now()-tx.time)/60000);
-    var t=ago<1?'just now':ago+'m ago';
-    return '<div class="rx-item"><div><div class="rx-from">'+tx.from.slice(0,5)+'...'+tx.from.slice(-4)+'</div><div class="rx-time">'+t+'</div></div><div class="rx-amt">+'+tx.amount+' '+tx.token+'</div></div>';
+    var t=ago<1?'just now':ago<60?ago+'m ago':Math.round(ago/60)+'h ago';
+    var fromFull=tx.from||'unknown';
+    var fromShort=fromFull.length>12?fromFull.slice(0,8)+'...'+fromFull.slice(-4):fromFull;
+    var senderName='';
+    try{var unames=JSON.parse(localStorage.getItem('cw_usernames')||'{}');if(typeof unames==='object'&&!Array.isArray(unames)){for(var u in unames){if(unames[u]===fromFull||u===fromFull){senderName=u;break;}}}}catch(e){}
+    var nameLabel=senderName?'<div style="font-size:.62rem;color:#a29bfe;font-weight:600">@'+senderName+'</div>':'';
+    return '<div class="rx-item"><div style="flex:1;min-width:0"><div class="rx-from" title="'+fromFull+'">From: '+fromShort+'</div>'+nameLabel+'<div class="rx-time">'+t+'</div></div><div class="rx-amt">+'+tx.amount+' '+tx.token+'</div></div>';
   }).join('');
 }
 
@@ -573,5 +583,6 @@ function resetReceiveTests(){
   document.querySelectorAll('.tst-badge').forEach(function(b){b.textContent='pending';b.style.color='rgba(255,255,255,.35)';b.style.borderColor='rgba(255,255,255,.08)';b.style.background='none';});
 }
 </script>
+<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(function(){})}</script>
 </body>
 </html>
