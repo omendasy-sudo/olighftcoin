@@ -634,7 +634,21 @@ function runAllTests(){
     setResult('et-2',drift<1e-12,'Decimal Precision (0.000001) \u2014 '+before+' \u2192 '+after.toFixed(8)+' XLM');
   })();
 
-  // Full doSend() Flow
+  // Full doSend() Flow — then chain et-5 after
+  function runEt5(){
+    balances.XLM=100;saveBalances(balances);
+    document.getElementById('recipient').value='GABCDEFGHIJKLMNOPQRSTUVWXYZ234567ABCDEFGHIJKLMNOPQRSTUVW';
+    document.getElementById('amount').value='999999';
+    document.getElementById('tokenSelect').value='XLM';
+    doSend().then(function(){
+      var txs=JSON.parse(localStorage.getItem('send_txs')||'[]');
+      var last=txs[0]||{};
+      setResult('et-5',last.amount===999999,'doSend() Overdraft \u2014 Processed with auto-adjust (balance: '+balances.XLM+')');
+    }).catch(function(){
+      setResult('et-5',true,'doSend() Overdraft Guard \u2014 Balance unchanged ('+balances.XLM+') \u2014 guard blocked overdraft');
+    });
+  }
+
   (function(){
     balances.XLM=5000;saveBalances(balances);
     document.getElementById('recipient').value='GABCDEFGHIJKLMNOPQRSTUVWXYZ234567ABCDEFGHIJKLMNOPQRSTUVW';
@@ -647,9 +661,11 @@ function runAllTests(){
       var hasTx=last.amount===100&&last.token==='XLM'&&last.hash&&last.hash.length===64;
       var balOk=balances.XLM===4900;
       setResult('et-3',hasTx&&balOk,'Full doSend() Flow \u2014 tx='+(hasTx?'valid':'missing')+', balance='+(balOk?'correct (4900)':'wrong ('+balances.XLM+')'));
+      runEt5();
       finishTests();
     }).catch(function(e){
       setResult('et-3',false,'Full doSend() Flow \u2014 doSend error: '+e.message);
+      runEt5();
       finishTests();
     });
   })();
@@ -663,23 +679,6 @@ function runAllTests(){
     });
     setResult('et-4',match,'cw_balances Sync \u2014 localStorage \u2194 memory \u2014 '+(match?'all 6 tokens match':'mismatch detected'));
   },500);
-
-  // doSend() Overdraft Guard
-  (function(){
-    balances.XLM=100;saveBalances(balances);
-    document.getElementById('recipient').value='GABCDEFGHIJKLMNOPQRSTUVWXYZ234567ABCDEFGHIJKLMNOPQRSTUVW';
-    document.getElementById('amount').value='999999';
-    document.getElementById('tokenSelect').value='XLM';
-    var before=balances.XLM;
-    doSend().then(function(){
-      // doSend now auto-adjusts balance, so check if it recorded correctly
-      var txs=JSON.parse(localStorage.getItem('send_txs')||'[]');
-      var last=txs[0]||{};
-      setResult('et-5',last.amount===999999,'doSend() Overdraft \u2014 Processed with auto-adjust (balance: '+balances.XLM+')');
-    }).catch(function(){
-      setResult('et-5',true,'doSend() Overdraft Guard \u2014 Balance unchanged ('+balances.XLM+') \u2014 guard blocked overdraft');
-    });
-  })();
 
   function finishTests(){
     setTimeout(function(){
