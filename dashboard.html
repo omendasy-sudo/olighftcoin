@@ -98,6 +98,29 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 .stake-summary .ss-lbl{color:rgba(255,255,255,.4)}
 .stake-summary .ss-val{font-weight:600}
 
+/* Staking Earnings Stopwatch */
+.sw-panel{padding:18px;background:linear-gradient(135deg,rgba(39,174,96,.06),rgba(108,92,231,.06));border:1px solid rgba(39,174,96,.18);border-radius:14px;margin-bottom:22px;display:none}
+.sw-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.sw-head-title{font-size:.74rem;font-weight:700;color:#27ae60;display:flex;align-items:center;gap:6px}
+.sw-head-title .sw-dot{width:8px;height:8px;border-radius:50%;background:#27ae60;animation:swPulse 1.2s infinite}
+@keyframes swPulse{0%,100%{opacity:1}50%{opacity:.3}}
+.sw-total-box{text-align:center;padding:14px 0 10px}
+.sw-total-lbl{font-size:.62rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px}
+.sw-total-val{font-size:1.5rem;font-weight:800;background:linear-gradient(135deg,#27ae60,#f5c518);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-family:'Courier New',monospace}
+.sw-total-usd{font-size:.68rem;color:rgba(255,255,255,.35);margin-top:2px}
+.sw-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.sw-cell{text-align:center;padding:10px 4px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:10px}
+.sw-cell-val{font-size:.82rem;font-weight:700;color:#fff;font-family:'Courier New',monospace;margin-bottom:2px}
+.sw-cell-lbl{font-size:.52rem;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.4px}
+.sw-stakes{margin-top:10px;border-top:1px solid rgba(255,255,255,.06);padding-top:10px}
+.sw-stake-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;font-size:.68rem;border-bottom:1px solid rgba(255,255,255,.03)}
+.sw-stake-row:last-child{border-bottom:none}
+.sw-stake-tier{display:flex;align-items:center;gap:6px}
+.sw-stake-tier .sw-tier-dot{width:6px;height:6px;border-radius:50%}
+.sw-stake-rate{color:rgba(255,255,255,.4)}
+.sw-stake-earned{font-weight:700;color:#27ae60;font-family:'Courier New',monospace}
+@media(max-width:400px){.sw-grid{grid-template-columns:repeat(2,1fr)}.sw-total-val{font-size:1.2rem}}
+
 /* Footer */
 .footer{text-align:center;padding:20px 0 8px;margin-top:8px}
 .footer p{font-size:.6rem;color:rgba(255,255,255,.2)}
@@ -879,6 +902,28 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 </div>
 <div class="stake-list" id="stakeList"></div>
 
+<!-- Staking Earnings Stopwatch -->
+<div class="sw-panel" id="swPanel">
+  <div class="sw-head">
+    <div class="sw-head-title"><span class="sw-dot"></span> Live Earnings</div>
+    <div style="font-size:.58rem;color:rgba(255,255,255,.3)" id="swRuntime">00:00:00</div>
+  </div>
+  <div class="sw-total-box">
+    <div class="sw-total-lbl">Total Earned Right Now</div>
+    <div class="sw-total-val" id="swTotalVal">0.0000</div>
+    <div class="sw-total-usd" id="swTotalUsd">&asymp; $0.00</div>
+  </div>
+  <div class="sw-grid">
+    <div class="sw-cell"><div class="sw-cell-val" id="swPerSec">0.0000</div><div class="sw-cell-lbl">/ Second</div></div>
+    <div class="sw-cell"><div class="sw-cell-val" id="swPerMin">0.0000</div><div class="sw-cell-lbl">/ Minute</div></div>
+    <div class="sw-cell"><div class="sw-cell-val" id="swPerHr">0.0000</div><div class="sw-cell-lbl">/ Hour</div></div>
+    <div class="sw-cell"><div class="sw-cell-val" id="swPerDay">0.0000</div><div class="sw-cell-lbl">/ Day</div></div>
+    <div class="sw-cell"><div class="sw-cell-val" id="swPerMth">0.0000</div><div class="sw-cell-lbl">/ Month</div></div>
+    <div class="sw-cell"><div class="sw-cell-val" id="swPerYr">0.0000</div><div class="sw-cell-lbl">/ Year</div></div>
+  </div>
+  <div class="sw-stakes" id="swStakes"></div>
+</div>
+
 <!-- Matured Stakes Modal -->
 <div class="matured-modal-overlay" id="maturedModal">
   <div class="matured-modal">
@@ -1362,7 +1407,7 @@ function _apiFullSync() {
       if (bals) { try { renderBalances(bals); updateTotalBalance(bals); } catch(e) {} }
     }),
     _apiSyncStakes().then(function() {
-      try { renderStakeSummary(); renderStakeList(); renderRecentStakes(); updateMaturedCount(); } catch(e) {}
+      try { renderStakeSummary(); renderStakeList(); renderRecentStakes(); updateMaturedCount(); _swRender(); } catch(e) {}
     }),
     _apiSyncActivity().then(function() {
       try { renderRecentStakes(); } catch(e) {}
@@ -1509,6 +1554,8 @@ function _sendOLIGHFTOnChain(destAddr, amountOLIGHFT, label, callback) {
   } catch(e) { console.warn('cleanup:', e); }
   // Start auto-compound timer
   try { startAutoCompound(); } catch(e) { console.warn('autoCompound:', e); }
+  // Start staking earnings stopwatch
+  try { startStopwatch(); } catch(e) { console.warn('stopwatch:', e); }
   // Start OLIGHFT price chart
   try { startPriceChartUpdater(); } catch(e) { console.warn('priceChart:', e); }
 
@@ -1786,6 +1833,143 @@ function updateMaturedCount() {
   var btn = document.getElementById('maturedBtn');
   if (badge) badge.textContent = items.length;
   if (btn) btn.style.display = items.length > 0 ? 'inline-flex' : 'none';
+}
+
+// ══════════════════════════════════════════════════════════════════
+// ── STAKING EARNINGS STOPWATCH ───────────────────────────────────
+// Real-time ticking display showing earnings per sec/min/hr/day/mo/yr
+// Calculated from each user's actual staking history & card tiers
+// ══════════════════════════════════════════════════════════════════
+var _swTimer = null;
+var _swStartTs = 0;
+
+var TIER_COLORS = {
+  Visa: '#3498db', Gold: '#f5c518', Platinum: '#bdc3c7',
+  Black: '#2c3e50', Amex: '#27ae60', Mastercard: '#e74c3c'
+};
+
+function _swCalcRatePerSec(stake) {
+  // Returns OLIGHFT earned per second for a single active stake
+  if (!stake || stake.withdrawn) return 0;
+  var tierName = stake.cardTier || stake.card || '';
+  var tier = tierName && CARD_TIERS[tierName] ? CARD_TIERS[tierName] : null;
+  var price = OLIGHFT_PRICE || 0.50;
+
+  if (tier) {
+    // Card stake: fixed daily USD payout → OLIGHFT per second
+    return (tier.daily / price) / 86400;
+  }
+  if (stake.dailyReward && stake.dailyReward > 0) {
+    return stake.dailyReward / 86400;
+  }
+  if (stake.apy && stake.amount) {
+    // APY-based: annual → per second
+    return (stake.amount * (stake.apy / 100)) / (365 * 86400);
+  }
+  return 0;
+}
+
+function _swGetActiveRates() {
+  var stakes = getWalletStakes();
+  var rates = [];
+  for (var i = 0; i < stakes.length; i++) {
+    var s = stakes[i];
+    if (s.withdrawn) continue;
+    var rps = _swCalcRatePerSec(s);
+    if (rps <= 0) continue;
+    var tierName = s.cardTier || s.card || 'Stake';
+    var startTs = new Date(s.startDate || s.date || 0).getTime();
+    if (isNaN(startTs) || startTs <= 0) startTs = Date.now();
+    rates.push({ id: s.id, tier: tierName, ratePerSec: rps, startTs: startTs, amount: s.amount || 0 });
+  }
+  return rates;
+}
+
+function _swFmtNum(n) {
+  if (n >= 1000) return n.toLocaleString('en', { maximumFractionDigits: 2 });
+  if (n >= 1) return n.toFixed(4);
+  if (n >= 0.0001) return n.toFixed(6);
+  return n.toFixed(8);
+}
+
+function _swFmtTime(ms) {
+  var s = Math.floor(ms / 1000);
+  var h = Math.floor(s / 3600); s %= 3600;
+  var m = Math.floor(s / 60); s %= 60;
+  return (h < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+}
+
+function _swRender() {
+  var rates = _swGetActiveRates();
+  var panel = document.getElementById('swPanel');
+  if (!panel) return;
+  if (rates.length === 0) { panel.style.display = 'none'; return; }
+  panel.style.display = 'block';
+
+  var now = Date.now();
+  var totalRatePerSec = 0;
+  var totalEarnedNow = 0;
+
+  for (var i = 0; i < rates.length; i++) {
+    totalRatePerSec += rates[i].ratePerSec;
+    // Total earned since each stake started
+    var elapsed = (now - rates[i].startTs) / 1000;
+    if (elapsed < 0) elapsed = 0;
+    totalEarnedNow += rates[i].ratePerSec * elapsed;
+  }
+
+  var price = OLIGHFT_PRICE || 0.50;
+
+  // Total earned value
+  document.getElementById('swTotalVal').textContent = _swFmtNum(totalEarnedNow) + ' OLIGHFT';
+  document.getElementById('swTotalUsd').textContent = '\u2248 $' + (totalEarnedNow * price).toFixed(2);
+
+  // Rate per time unit
+  var perSec = totalRatePerSec;
+  var perMin = perSec * 60;
+  var perHr  = perMin * 60;
+  var perDay = perHr * 24;
+  var perMth = perDay * 30;
+  var perYr  = perDay * 365;
+
+  document.getElementById('swPerSec').textContent = _swFmtNum(perSec);
+  document.getElementById('swPerMin').textContent = _swFmtNum(perMin);
+  document.getElementById('swPerHr').textContent  = _swFmtNum(perHr);
+  document.getElementById('swPerDay').textContent = _swFmtNum(perDay);
+  document.getElementById('swPerMth').textContent = _swFmtNum(perMth);
+  document.getElementById('swPerYr').textContent  = _swFmtNum(perYr);
+
+  // Runtime clock (since page loaded)
+  document.getElementById('swRuntime').textContent = _swFmtTime(now - _swStartTs);
+
+  // Per-stake breakdown rows
+  var stakeDiv = document.getElementById('swStakes');
+  var html = '<div style="font-size:.58rem;color:rgba(255,255,255,.35);margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px">Per Stake Breakdown</div>';
+  for (var j = 0; j < rates.length; j++) {
+    var r = rates[j];
+    var elSec = (now - r.startTs) / 1000;
+    if (elSec < 0) elSec = 0;
+    var earned = r.ratePerSec * elSec;
+    var color = TIER_COLORS[r.tier] || '#a29bfe';
+    html += '<div class="sw-stake-row">' +
+      '<div class="sw-stake-tier"><span class="sw-tier-dot" style="background:' + color + '"></span>' + r.tier +
+        ' <span style="color:rgba(255,255,255,.25)">' + fmtBal(r.amount) + '</span></div>' +
+      '<div class="sw-stake-rate">$' + (r.ratePerSec * 86400 * price).toFixed(2) + '/day</div>' +
+      '<div class="sw-stake-earned">+' + _swFmtNum(earned) + '</div>' +
+    '</div>';
+  }
+  stakeDiv.innerHTML = html;
+}
+
+function startStopwatch() {
+  if (_swTimer) return;
+  _swStartTs = Date.now();
+  _swRender();
+  _swTimer = setInterval(_swRender, 100);
+}
+
+function stopStopwatch() {
+  if (_swTimer) { clearInterval(_swTimer); _swTimer = null; }
 }
 
 function showMaturedStakes() {
