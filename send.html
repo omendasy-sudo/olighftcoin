@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="apple-touch-icon" href="/icons/icon-192.svg">
-<title>Send Tokens &mdash; OLIGHFT SMART COIN</title>
+<title>Send Tokens — OLIGHFT SMART COIN</title>
 <meta name="description" content="Send OLIGHFT tokens securely on the Stellar network.">
 <link rel="canonical" href="https://olighftcoin.com/send.html">
 <meta property="og:title" content="Send Tokens — OLIGHFT SMART COIN">
@@ -25,7 +25,6 @@ h1{text-align:center;font-size:1.6rem;margin-bottom:4px;background:linear-gradie
 .nav-tabs a:hover{border-color:rgba(108,92,231,.3);color:#a29bfe}
 .nav-tabs a.active{background:rgba(108,92,231,.15);border-color:rgba(108,92,231,.4);color:#a29bfe}
 .card{background:rgba(108,92,231,.04);border:1px solid rgba(108,92,231,.1);border-radius:16px;padding:24px;margin-bottom:16px}
-.card h2{font-size:.85rem;color:rgba(255,255,255,.5);margin-bottom:16px;display:flex;align-items:center;gap:8px}
 .balance-row{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:rgba(108,92,231,.06);border-radius:10px;margin-bottom:16px}
 .balance-row .bl{font-size:.7rem;color:rgba(255,255,255,.4)}
 .balance-row .bv{font-size:1.1rem;font-weight:700;color:#a29bfe}
@@ -45,7 +44,6 @@ select option{background:#1a1a2e;color:#fff}
 .send-btn:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(108,92,231,.35)}
 .send-btn:active{transform:translateY(0)}
 .send-btn:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
-.warning{background:rgba(243,156,18,.08);border:1px solid rgba(243,156,18,.15);border-radius:8px;padding:10px 14px;font-size:.72rem;color:rgba(243,156,18,.8);margin-bottom:16px;display:flex;align-items:center;gap:8px}
 .success-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;align-items:center;justify-content:center;overflow-y:auto;padding:20px}
 .success-overlay.show{display:flex}
 .success-modal{background:#1a1a2e;border:1px solid rgba(108,92,231,.2);border-radius:20px;padding:32px;text-align:center;max-width:380px;width:90%}
@@ -62,7 +60,6 @@ select option{background:#1a1a2e;color:#fff}
 .tx-item .tx-time{font-size:.6rem;color:rgba(255,255,255,.3)}
 .net-badge{text-align:center;font-size:.6rem;color:rgba(255,255,255,.25);margin-top:24px;padding-top:16px;border-top:1px solid rgba(108,92,231,.06)}
 .acct-select{margin-bottom:16px}
-.acct-select label{display:block;font-size:.72rem;color:rgba(255,255,255,.45);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
 .acct-list{display:flex;flex-direction:column;gap:6px}
 .acct-opt{display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(108,92,231,.04);border:1px solid rgba(108,92,231,.08);border-radius:10px;cursor:pointer;transition:.2s}
 .acct-opt:hover{border-color:rgba(108,92,231,.25)}
@@ -74,42 +71,14 @@ select option{background:#1a1a2e;color:#fff}
 .acct-opt .acct-addr{font-family:'Courier New',monospace;font-size:.62rem;color:rgba(255,255,255,.35);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .acct-opt .acct-path{font-size:.58rem;color:rgba(108,92,231,.6)}
 .addr-type-badge{display:inline-block;font-size:.55rem;font-weight:700;padding:2px 7px;border-radius:4px;letter-spacing:.3px;margin-left:6px;vertical-align:middle}
-.addr-type-badge.stellar{background:rgba(39,174,96,.15);color:#2ecc71}
-.addr-type-badge.contract{background:rgba(242,153,74,.15);color:#f2994a}
-.addr-type-badge.invalid{background:rgba(235,87,87,.15);color:#eb5757}
 .addr-hint{font-size:.62rem;margin-top:4px;color:rgba(255,255,255,.3)}
-.contacts-dropdown{position:absolute;top:100%;left:0;right:0;background:#1a1a2e;border:1px solid rgba(108,92,231,.2);border-radius:10px;max-height:180px;overflow-y:auto;-webkit-overflow-scrolling:touch;z-index:10;display:none;margin-top:4px}
+.contacts-dropdown{position:absolute;top:100%;left:0;right:0;background:#1a1a2e;border:1px solid rgba(108,92,231,.2);border-radius:10px;max-height:180px;overflow-y:auto;z-index:10;display:none;margin-top:4px}
 .contacts-dropdown.show{display:block}
 .contact-item{padding:10px 14px;cursor:pointer;transition:.15s;display:flex;justify-content:space-between;align-items:center}
 .contact-item:hover{background:rgba(108,92,231,.08)}
 .contact-item .ci-addr{font-family:'Courier New',monospace;font-size:.68rem;color:rgba(255,255,255,.6)}
 .contact-item .ci-label{font-size:.6rem;color:rgba(255,255,255,.3)}
-.contact-item .ci-type{font-size:.55rem;padding:2px 6px;border-radius:4px;font-weight:600}
-
-/* ── Send 2FA Verification Modal ── */
-.w2fa-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);z-index:9999;justify-content:center;align-items:center;overflow-y:auto;padding:20px}
-.w2fa-overlay.show{display:flex}
-.w2fa-box{background:linear-gradient(135deg,#0f1b4d,#1a237e);border:1px solid rgba(108,92,231,.3);border-radius:20px;padding:32px 28px;max-width:400px;width:90%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.5)}
-.w2fa-box h3{font-size:1.1rem;margin-bottom:4px}
-.w2fa-box .w2fa-sub{font-size:.72rem;color:rgba(255,255,255,.45);margin-bottom:18px}
-.w2fa-methods{display:flex;gap:8px;justify-content:center;margin-bottom:16px}
-.w2fa-methods button{padding:8px 16px;border-radius:10px;font-size:.72rem;font-weight:700;cursor:pointer;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:rgba(255,255,255,.5);transition:.2s}
-.w2fa-methods button.active{background:rgba(108,92,231,.18);border-color:rgba(108,92,231,.5);color:#a29bfe}
-.w2fa-otp-row{display:flex;gap:6px;justify-content:center;margin-bottom:16px}
-.w2fa-otp-row input{width:38px;height:44px;text-align:center;font-size:1.1rem;font-weight:700;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#fff;outline:none}
-.w2fa-otp-row input:focus{border-color:rgba(108,92,231,.5);box-shadow:0 0 10px rgba(108,92,231,.2)}
-.w2fa-actions{display:flex;gap:8px;justify-content:center}
-.w2fa-actions button{padding:10px 22px;border-radius:10px;font-size:.78rem;font-weight:700;cursor:pointer;border:none;transition:.2s}
-.w2fa-verify-btn{background:linear-gradient(135deg,#6c5ce7,#a29bfe);color:#fff}
-.w2fa-verify-btn:hover{opacity:.85}
-.w2fa-cancel-btn{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1)!important;color:rgba(255,255,255,.5)}
-.w2fa-cancel-btn:hover{background:rgba(255,255,255,.1)}
-.w2fa-timer{font-size:.65rem;color:rgba(255,255,255,.35);margin-bottom:12px}
-.w2fa-error{font-size:.7rem;color:#eb5757;margin-bottom:8px;min-height:16px}
-.w2fa-badge{display:inline-block;padding:2px 8px;border-radius:6px;font-size:.6rem;font-weight:700;margin-bottom:12px}
-.w2fa-badge.gauth{background:rgba(39,174,96,.12);color:#27ae60;border:1px solid rgba(39,174,96,.2)}
-.w2fa-badge.email{background:rgba(45,156,219,.12);color:#2d9cdb;border:1px solid rgba(45,156,219,.2)}
-
+.send-status{display:none;text-align:center;margin-top:12px;padding:14px;background:rgba(108,92,231,.06);border:1px solid rgba(108,92,231,.12);border-radius:12px;font-size:.78rem;color:rgba(255,255,255,.6)}
 @media(max-width:600px){
   body{padding:12px}
   .container{max-width:100%}
@@ -121,10 +90,7 @@ select option{background:#1a1a2e;color:#fff}
   .acct-opt .acct-addr{font-size:.58rem}
   .fee-box{padding:8px 10px;font-size:.7rem}
   .send-btn{padding:12px;font-size:.82rem}
-  .w2fa-box{padding:24px 18px}
-  .w2fa-otp-row input{width:34px;height:40px;font-size:1rem}
 }
-
 </style>
 </head>
 <body>
@@ -139,25 +105,26 @@ select option{background:#1a1a2e;color:#fff}
 <a href="swap.html">&#x1F504; Swap</a>
 <a href="dashboard.html">&#x1F4CA; Dashboard</a>
 </div>
+
 <div class="balance-row">
-<div><div class="bl">Available Balance</div><div class="bv" id="showBal">10,000.00 XLM</div></div>
+<div><div class="bl">Available Balance</div><div class="bv" id="showBal">0.00 XLM</div></div>
 <div style="font-size:1.4rem">&#x2B50;</div>
 </div>
 
 <div class="acct-select">
 <label>&#x1F4B3; From Account (HD Wallet)</label>
-<div class="acct-list" id="acctList"><!-- filled by JS --></div>
+<div class="acct-list" id="acctList"></div>
 </div>
 
 <div class="input-group">
 <label>Token</label>
 <select id="tokenSelect" onchange="updateBalance()">
-<option value="XLM" data-bal="10000">&#x2B50; XLM &mdash; Stellar Lumens</option>
-<option value="USDC" data-bal="2500">&#x1F4B5; USDC &mdash; USD Coin</option>
-<option value="wETH" data-bal="1.85">&#x1F48E; wETH &mdash; Wrapped Ethereum</option>
-<option value="wBTC" data-bal="0.042">&#x1F536; wBTC &mdash; Wrapped Bitcoin</option>
-<option value="EURC" data-bal="1200">&#x1F4B6; EURC &mdash; Euro Coin</option>
-<option value="OLIGHFT" data-bal="0">&#x1F4B0; OLIGHFT &mdash; OLIGHFT Smart Coin</option>
+<option value="XLM">&#x2B50; XLM — Stellar Lumens</option>
+<option value="USDC">&#x1F4B5; USDC — USD Coin</option>
+<option value="wETH">&#x1F48E; wETH — Wrapped Ethereum</option>
+<option value="wBTC">&#x1F536; wBTC — Wrapped Bitcoin</option>
+<option value="EURC">&#x1F4B6; EURC — Euro Coin</option>
+<option value="OLIGHFT">&#x1F4B0; OLIGHFT — OLIGHFT Smart Coin</option>
 </select>
 </div>
 
@@ -181,14 +148,12 @@ select option{background:#1a1a2e;color:#fff}
 <input type="text" id="memo" placeholder="Payment reference or note" maxlength="28">
 </div>
 
-<div class="warning" style="display:none">&#x26A0;&#xFE0F; Always double-check the recipient address. Transactions on Stellar are irreversible.</div>
-
 <div class="fee-box"><span class="fl">Network Fee</span><span class="fv">0.00001 XLM</span></div>
 <div class="fee-box"><span class="fl">Estimated Time</span><span class="fv">~5 seconds</span></div>
 <div class="fee-box"><span class="fl">Network</span><span class="fv">Stellar Testnet</span></div>
 
-<button class="send-btn" id="sendBtn" disabled onclick="sendTx().catch(function(e){alert('Send error: '+e.message);document.getElementById('sendBtn').disabled=false;document.getElementById('sendBtn').innerHTML='&#x1F4E4; Send Tokens';})">&#x1F4E4; Send Tokens</button>
-</div>
+<button class="send-btn" id="sendBtn" disabled>&#x1F4E4; Send Tokens</button>
+<div class="send-status" id="sendStatus"></div>
 
 <div class="recent" id="recentSection" style="display:none">
 <h3>&#x1F4CB; Recent Sends</h3>
@@ -196,181 +161,6 @@ select option{background:#1a1a2e;color:#fff}
 </div>
 
 <div class="net-badge">OLIGHFT SMART COIN &bull; Stellar Testnet &bull; v1.0.0</div>
-
-<!-- ── Test Send Panel ── -->
-<div class="card" style="border-color:rgba(39,174,96,.2);background:rgba(39,174,96,.03);margin-top:16px">
-<h2 style="color:#27ae60">&#x1F9EA; Test Send &mdash; All Blockchain Addresses</h2>
-<p style="font-size:.72rem;color:rgba(255,255,255,.45);margin-bottom:14px">Run automated tests to verify sending tokens to every supported blockchain address format and all token types.</p>
-
-<!-- Live Counter Bar -->
-<div id="testCounter" style="display:none;margin-bottom:16px">
-<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-<div style="font-size:.78rem;font-weight:700" id="testCounterLabel">Running tests...</div>
-<div style="font-size:.7rem;color:rgba(255,255,255,.4)" id="testCounterStats">0 / 0</div>
-</div>
-<div style="height:10px;background:rgba(255,255,255,.06);border-radius:5px;overflow:hidden;margin-bottom:6px">
-<div id="testProgressBar" style="height:100%;border-radius:5px;background:linear-gradient(90deg,#27ae60,#2ecc71);transition:width .3s;width:0%"></div>
-</div>
-<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(255,255,255,.04);border-radius:8px;overflow:hidden">
-<div style="background:rgba(10,10,30,.8);padding:10px;text-align:center"><div style="font-size:.55rem;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.5px">Passed</div><div id="cntPass" style="font-size:1.2rem;font-weight:800;color:#27ae60">0</div></div>
-<div style="background:rgba(10,10,30,.8);padding:10px;text-align:center"><div style="font-size:.55rem;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.5px">Failed</div><div id="cntFail" style="font-size:1.2rem;font-weight:800;color:#eb5757">0</div></div>
-<div style="background:rgba(10,10,30,.8);padding:10px;text-align:center"><div style="font-size:.55rem;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.5px">Total</div><div id="cntTotal" style="font-size:1.2rem;font-weight:800;color:#a29bfe">0</div></div>
-</div>
-</div>
-
-<!-- Address Format Tests -->
-<div style="font-size:.7rem;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">&#x1F310; Address Format Tests</div>
-<div id="addrTests" style="display:grid;gap:6px;margin-bottom:16px">
-
-<div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px">
-<div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">&#x2B50; Stellar (G...)</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">GABCDEFGHIJKLMNOPQRSTUVWXYZ234567ABCDEFGHIJKLMNOPQRSTUV</div></div>
-<span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span>
-</div>
-
-<div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px">
-<div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">&#x1F4DC; OLIGHFT (C...)</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">CABCDEFGHIJKLMNOPQRSTUVWXYZ234567ABCDEFGHIJKLMNOPQRSTUV</div></div>
-<span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span>
-</div>
-
-<div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px">
-<div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">&#x1F48E; Ethereum (0x...)</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">0x742d35Cc6634C0532925a3b844Bc9e7595f2bD18</div></div>
-<span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span>
-</div>
-
-<div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px">
-<div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">&#x1F536; Bitcoin Legacy (1...)</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa</div></div>
-<span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span>
-</div>
-
-<div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px">
-<div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">&#x1F536; Bitcoin SegWit (bc1...)</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4</div></div>
-<span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span>
-</div>
-
-<div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px">
-<div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">&#x1F536; Bitcoin P2SH (3...)</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">3J98t1WpEZ73CNmQviecrnyiWrnqRhWNLy</div></div>
-<span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span>
-</div>
-
-<div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px">
-<div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">&#x1F7E2; Tron (T...)</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">TJCnKsPa7y5okkXvQAidZBzqx3QyQ6sxMW</div></div>
-<span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span>
-</div>
-
-<div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px">
-<div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">&#x1F7E1; BNB Smart Chain (0x...)</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">0xBB4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c</div></div>
-<span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span>
-</div>
-
-<div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px">
-<div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">&#x1F7E3; Solana (base58)</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">DRpbCBMxVnDK7maPMoGQfFiB8RaJqpeMBgrG9Gv9sGur</div></div>
-<span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span>
-</div>
-
-<div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px">
-<div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">&#x1F535; Ripple XRP (r...)</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">rN7F4Bz1pEkHxSTYmvrZDVMrRcXhTfuE6N</div></div>
-<span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span>
-</div>
-
-<div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px">
-<div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">&#x26D4; Invalid Address</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">ZZZINVALID123 — should be rejected</div></div>
-<span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span>
-</div>
-
-<div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px">
-<div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">&#x26D4; Empty Address</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">(blank) — should be rejected</div></div>
-<span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span>
-</div>
-</div>
-
-<!-- Token Tests -->
-<div style="font-size:.7rem;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">&#x1F4B0; Token Transfer Tests</div>
-<div id="tokenTests" style="display:grid;gap:6px;margin-bottom:16px">
-
-<div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px">
-<div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">&#x2B50; Send 100 XLM</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">Verify XLM deduction + tx record + balance update</div></div>
-<span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span>
-</div>
-
-<div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px">
-<div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">&#x1F4B5; Send 50 USDC</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">Verify USDC deduction + tx record + balance update</div></div>
-<span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span>
-</div>
-
-<div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px">
-<div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">&#x1F48E; Send 0.1 wETH</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">Verify wETH deduction + tx record + balance update</div></div>
-<span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span>
-</div>
-
-<div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px">
-<div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">&#x1F536; Send 0.005 wBTC</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">Verify wBTC deduction + tx record + balance update</div></div>
-<span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span>
-</div>
-
-<div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px">
-<div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">&#x1F4B6; Send 200 EURC</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">Verify EURC deduction + tx record + balance update</div></div>
-<span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span>
-</div>
-
-<div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px">
-<div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">&#x1F4B0; Send 500 OLIGHFT</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">Verify OLIGHFT deduction + tx record + balance update</div></div>
-<span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span>
-</div>
-
-<div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px">
-<div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">&#x26D4; Overdraft 999999 XLM</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">Exceeds balance — should be rejected</div></div>
-<span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span>
-</div>
-
-</div>
-
-<!-- Extended Integration Tests -->
-<div style="font-size:.7rem;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">&#x1F52C; Extended Integration Tests</div>
-<div id="extTests" style="display:grid;gap:6px;margin-bottom:16px">
-
-<div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px">
-<div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">&#x26D4; Zero Amount</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">Amount = 0 &mdash; must be rejected</div></div>
-<span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span>
-</div>
-
-<div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px">
-<div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">&#x26D4; Negative Amount</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">Amount = -5 &mdash; must be rejected</div></div>
-<span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span>
-</div>
-
-<div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px">
-<div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">&#x1F4CF; Decimal Precision</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">Deduct 0.000001 XLM &mdash; verify no floating-point drift</div></div>
-<span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span>
-</div>
-
-<div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px">
-<div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">&#x1F680; Full sendTx() Flow</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">Call sendTx() &mdash; verify tx record + balance deduction + hash</div></div>
-<span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span>
-</div>
-
-<div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px">
-<div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">&#x1F504; cw_balances Sync</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">Verify localStorage matches in-memory balances</div></div>
-<span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span>
-</div>
-
-<div class="tst-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px">
-<div><div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7)">&#x1F6E1;&#xFE0F; sendTx() Overdraft Guard</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">Direct sendTx() with 999999 &mdash; must be blocked internally</div></div>
-<span class="tst-badge" style="font-size:.65rem;padding:3px 10px;border-radius:6px;font-weight:700;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35)">pending</span>
-</div>
-
-</div>
-
-<button onclick="runAllSendTests()" style="width:100%;padding:14px;border:none;border-radius:12px;font-size:.88rem;font-weight:700;cursor:pointer;background:linear-gradient(135deg,#27ae60,#2ecc71);color:#fff;transition:.2s" onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 6px 20px rgba(39,174,96,.3)'" onmouseout="this.style.transform='';this.style.boxShadow=''">&#x1F9EA; Run All 25 Tests</button>
-
-<div id="sendTestLog" style="display:none;background:rgba(0,0,0,.2);border:1px solid rgba(39,174,96,.15);border-radius:10px;padding:14px;margin-top:12px">
-<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-<div style="font-size:.78rem;font-weight:700;color:#27ae60" id="sendTestTitle">Test Log</div>
-<button onclick="resetSendTests()" style="padding:4px 10px;border-radius:6px;border:1px solid rgba(255,255,255,.1);background:none;color:rgba(255,255,255,.4);font-size:.6rem;cursor:pointer">Reset</button>
-</div>
-<div id="sendTestLogBody" style="font-family:'Courier New',monospace;font-size:.66rem;line-height:1.8;color:rgba(255,255,255,.55);max-height:350px;overflow-y:auto"></div>
-</div>
-</div>
-
 </div>
 
 <div class="success-overlay" id="successOverlay">
@@ -385,62 +175,65 @@ select option{background:#1a1a2e;color:#fff}
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/stellar-sdk/11.3.0/stellar-sdk.min.js"></script>
 <script>
-// Auth guard — require login
-(function(){const u=JSON.parse(localStorage.getItem('cw_user')||'null');if(!u){window.location.href='auth.html';return;}})();
+(function(){
+  var u=null;try{u=JSON.parse(localStorage.getItem('cw_user'))}catch(e){}
+  if(!u||!u.email){window.location.href='auth.html'}
+})();
 
-// ── HD Account helpers (shared with wallet.html) ──
+var OLIGHFT_TOKEN='CA5NW2ZJISLPTRRPEFY7XIKSB5CZ5XF2PIARJL2F37H7EPRAXXD34W6J';
+var HORIZON_URL='https://horizon-testnet.stellar.org';
+var SOROBAN_URL='https://soroban-testnet.stellar.org';
+var NETWORK_PASS='Test SDF Network ; September 2015';
+
 function getAccounts(){
-  try{const raw=localStorage.getItem('cw_accounts');return raw?JSON.parse(atob(raw)):[];}catch(e){return[];}
+  try{var r=localStorage.getItem('cw_accounts');return r?JSON.parse(atob(r)):[];}catch(e){return[];}
 }
-function getActiveIdx(){return parseInt(localStorage.getItem('cw_active_idx')||'0',10);}
+function getActiveIdx(){return parseInt(localStorage.getItem('cw_active_idx')||'0',10)}
 function setActiveIdx(idx){
   localStorage.setItem('cw_active_idx',String(idx));
-  const accounts=getAccounts();
-  const acc=accounts.find(a=>a.index===idx);
-  if(acc){
-    const user=JSON.parse(localStorage.getItem('cw_user')||'{}');
-    user.addr=acc.publicKey;
-    localStorage.setItem('cw_user',JSON.stringify(user));
-  }
+  var accs=getAccounts(),a=accs.find(function(x){return x.index===idx});
+  if(a){var u=JSON.parse(localStorage.getItem('cw_user')||'{}');u.addr=a.publicKey;localStorage.setItem('cw_user',JSON.stringify(u))}
+}
+function getWalletKeypair(){
+  var e=localStorage.getItem('cw_secret');if(!e)return null;
+  try{return StellarSdk.Keypair.fromSecret(atob(e))}catch(x){return null}
+}
+function getFromAddr(){
+  var accs=getAccounts(),a=accs.find(function(x){return x.index===getActiveIdx()});
+  if(a)return a.publicKey;
+  var u=JSON.parse(localStorage.getItem('cw_user')||'{}');return u.addr||'';
 }
 
-// ── Render account selector ──
 function renderAccountSelector(){
-  const accounts=getAccounts();
-  const activeIdx=getActiveIdx();
-  const list=document.getElementById('acctList');
-  if(!accounts.length){
-    // Fallback: build from cw_user
-    const u=JSON.parse(localStorage.getItem('cw_user')||'null');
-    if(u&&u.addr){
-      list.innerHTML='<div class="acct-opt active"><div class="acct-idx">0</div><div class="acct-info"><div class="acct-name">Primary <span class="addr-type-badge stellar">STELLAR</span></div><div class="acct-addr">'+u.addr+'</div><div class="acct-path">m/44\'/148\'/0\'</div></div></div>';
-    }
+  var accs=getAccounts(),ai=getActiveIdx(),el=document.getElementById('acctList');
+  if(!accs.length){
+    var u=JSON.parse(localStorage.getItem('cw_user')||'null');
+    if(u&&u.addr){el.innerHTML='<div class="acct-opt active"><div class="acct-idx">0</div><div class="acct-info"><div class="acct-name">Primary <span class="addr-type-badge" style="background:rgba(39,174,96,.15);color:#2ecc71">STELLAR</span></div><div class="acct-addr">'+u.addr+'</div><div class="acct-path">m/44\'/148\'/0\'</div></div></div>'}
     return;
   }
-  list.innerHTML=accounts.map(a=>{
-    const isActive=a.index===activeIdx;
-    const type=a.publicKey.startsWith('C')?'contract':'stellar';
-    return '<div class="acct-opt'+(isActive?' active':'')+'" onclick="selectAccount('+a.index+')">'+
-      '<div class="acct-idx">'+a.index+'</div>'+
-      '<div class="acct-info">'+
-      '<div class="acct-name">'+a.label+' <span class="addr-type-badge '+type+'">'+(type==='stellar'?'STELLAR':'CONTRACT')+'</span></div>'+
-      '<div class="acct-addr">'+a.publicKey+'</div>'+
-      '<div class="acct-path">m/44\'/148\'/'+a.index+'\'</div>'+
-      '</div></div>';
+  el.innerHTML=accs.map(function(a){
+    var act=a.index===ai;
+    return '<div class="acct-opt'+(act?' active':'')+'" onclick="selectAccount('+a.index+')"><div class="acct-idx">'+a.index+'</div><div class="acct-info"><div class="acct-name">'+a.label+' <span class="addr-type-badge" style="background:rgba(39,174,96,.15);color:#2ecc71">STELLAR</span></div><div class="acct-addr">'+a.publicKey+'</div><div class="acct-path">m/44\'/148\'/'+a.index+'\'</div></div></div>';
   }).join('');
 }
-function selectAccount(idx){
-  setActiveIdx(idx);
-  renderAccountSelector();
-  updateBalance();
-}
+function selectAccount(idx){setActiveIdx(idx);renderAccountSelector();updateBalance()}
 
-// ── Address type detection & validation ──
+var CHAIN_INFO={
+  stellar:{label:'STELLAR ACCOUNT',color:'#2ecc71',bg:'rgba(39,174,96,.15)'},
+  contract:{label:'OLIGHFT CONTRACT',color:'#f2994a',bg:'rgba(242,153,74,.15)'},
+  evm:{label:'EVM (ETH/BSC/MATIC)',color:'#627eea',bg:'rgba(98,126,234,.15)'},
+  'btc-legacy':{label:'BITCOIN (LEGACY)',color:'#f7931a',bg:'rgba(247,147,26,.15)'},
+  'btc-segwit':{label:'BITCOIN (SEGWIT)',color:'#f7931a',bg:'rgba(247,147,26,.15)'},
+  'btc-p2sh':{label:'BITCOIN (P2SH)',color:'#f7931a',bg:'rgba(247,147,26,.15)'},
+  tron:{label:'TRON',color:'#eb0029',bg:'rgba(235,0,41,.15)'},
+  solana:{label:'SOLANA',color:'#9945ff',bg:'rgba(153,69,255,.15)'},
+  xrp:{label:'XRP LEDGER',color:'#23292f',bg:'rgba(255,255,255,.12)'}
+};
+
 function detectAddrType(addr){
-  if(!addr)return null;
-  addr=addr.trim();
-  if(addr.length===56&&addr.startsWith('G')&&/^[A-Z2-7]+$/.test(addr))return'stellar';
-  if(addr.length===56&&addr.startsWith('C')&&/^[A-Z2-7]+$/.test(addr))return'contract';
+  if(!addr)return null;addr=addr.trim();
+  if(addr.length===56&&addr[0]==='G'&&/^[A-Z2-7]+$/.test(addr))return'stellar';
+  if(addr.length===56&&addr[0]==='C'&&/^[A-Z2-7]+$/.test(addr))return'contract';
   if(/^0x[0-9a-fA-F]{40}$/.test(addr))return'evm';
   if(/^1[a-km-zA-HJ-NP-Z1-9]{25,34}$/.test(addr))return'btc-legacy';
   if(/^bc1[a-zA-HJ-NP-Z0-9]{25,62}$/.test(addr))return'btc-segwit';
@@ -448,748 +241,190 @@ function detectAddrType(addr){
   if(/^T[a-zA-HJ-NP-Z1-9]{33}$/.test(addr))return'tron';
   if(/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(addr))return'solana';
   if(/^r[a-zA-HJ-NP-Z1-9]{24,34}$/.test(addr))return'xrp';
-  if(addr.length>0&&addr.length<56&&(addr.startsWith('G')||addr.startsWith('C')))return'partial';
+  if(addr.length>0&&addr.length<56&&(addr[0]==='G'||addr[0]==='C'))return'partial';
   return'invalid';
 }
-var CHAIN_INFO={
-  stellar:{label:'STELLAR ACCOUNT',cls:'stellar',color:'#2ecc71',bg:'rgba(39,174,96,.15)'},
-  contract:{label:'OLIGHFT',cls:'contract',color:'#f2994a',bg:'rgba(242,153,74,.15)'},
-  evm:{label:'EVM (ETH/BSC/MATIC)',cls:'stellar',color:'#627eea',bg:'rgba(98,126,234,.15)'},
-  'btc-legacy':{label:'BITCOIN (LEGACY)',cls:'stellar',color:'#f7931a',bg:'rgba(247,147,26,.15)'},
-  'btc-segwit':{label:'BITCOIN (SEGWIT)',cls:'stellar',color:'#f7931a',bg:'rgba(247,147,26,.15)'},
-  'btc-p2sh':{label:'BITCOIN (P2SH)',cls:'stellar',color:'#f7931a',bg:'rgba(247,147,26,.15)'},
-  tron:{label:'TRON',cls:'stellar',color:'#eb0029',bg:'rgba(235,0,41,.15)'},
-  solana:{label:'SOLANA',cls:'stellar',color:'#9945ff',bg:'rgba(153,69,255,.15)'},
-  xrp:{label:'XRP LEDGER',cls:'stellar',color:'#23292f',bg:'rgba(255,255,255,.12)'}
-};
-function isValidAddrType(type){
-  return type&&type!=='invalid'&&type!=='partial';
-}
+function isValidAddr(t){return t&&t!=='invalid'&&t!=='partial'}
+
 function onRecipientInput(){
-  const addr=document.getElementById('recipient').value.trim();
-  const badge=document.getElementById('addrTypeBadge');
-  const hint=document.getElementById('addrHint');
-  const type=detectAddrType(addr);
-  if(!addr){
-    badge.innerHTML='';hint.textContent='Accepts Stellar, Bitcoin, Ethereum, Tron, Solana, XRP and more';hint.style.color='rgba(255,255,255,.3)';
-  }else if(CHAIN_INFO[type]){
-    var ci=CHAIN_INFO[type];
-    badge.innerHTML='<span class="addr-type-badge" style="background:'+ci.bg+';color:'+ci.color+'">'+ci.label+'</span>';
-    hint.textContent='\u2705 Valid '+ci.label+' address';hint.style.color=ci.color;
-  }else if(type==='partial'){
-    badge.innerHTML='';hint.textContent='Typing... ('+(56-addr.length)+' characters remaining)';hint.style.color='rgba(255,255,255,.3)';
-  }else{
-    badge.innerHTML='<span class="addr-type-badge invalid">INVALID</span>';
-    hint.textContent='\u274C Unrecognized address format';hint.style.color='#eb5757';
-  }
+  var addr=document.getElementById('recipient').value.trim();
+  var badge=document.getElementById('addrTypeBadge');
+  var hint=document.getElementById('addrHint');
+  var t=detectAddrType(addr);
+  if(!addr){badge.innerHTML='';hint.textContent='Accepts Stellar, Bitcoin, Ethereum, Tron, Solana, XRP and more';hint.style.color='rgba(255,255,255,.3)'}
+  else if(CHAIN_INFO[t]){var ci=CHAIN_INFO[t];badge.innerHTML='<span class="addr-type-badge" style="background:'+ci.bg+';color:'+ci.color+'">'+ci.label+'</span>';hint.textContent='\u2705 Valid '+ci.label+' address';hint.style.color=ci.color}
+  else if(t==='partial'){badge.innerHTML='';hint.textContent='Typing... ('+(56-addr.length)+' chars remaining)';hint.style.color='rgba(255,255,255,.3)'}
+  else{badge.innerHTML='<span class="addr-type-badge" style="background:rgba(235,87,87,.15);color:#eb5757">INVALID</span>';hint.textContent='\u274C Unrecognized address format';hint.style.color='#eb5757'}
   validateForm();
 }
 
-// ── Contacts from recent sends + own accounts ──
 function getContacts(){
-  const contacts=[];
-  // Own HD accounts
-  const accounts=getAccounts();
-  accounts.forEach(a=>{
-    contacts.push({addr:a.publicKey,label:a.label+' (own)',type:a.publicKey.startsWith('C')?'contract':'stellar'});
-  });
-  // Recent send recipients
-  const txs=JSON.parse(localStorage.getItem('send_txs')||'[]');
-  const seen=new Set(accounts.map(a=>a.publicKey));
-  txs.forEach(tx=>{
-    if(!seen.has(tx.to)){
-      seen.add(tx.to);
-      contacts.push({addr:tx.to,label:'Recent recipient',type:tx.to.startsWith('C')?'contract':'stellar'});
-    }
-  });
-  return contacts;
+  var list=[],accs=getAccounts(),seen={};
+  accs.forEach(function(a){list.push({addr:a.publicKey,label:a.label+' (own)'});seen[a.publicKey]=true});
+  var txs=JSON.parse(localStorage.getItem('send_txs')||'[]');
+  txs.forEach(function(tx){if(!seen[tx.to]){seen[tx.to]=true;list.push({addr:tx.to,label:'Recent'})}});
+  return list;
 }
 function showContacts(){
-  const dd=document.getElementById('contactsDropdown');
-  const val=document.getElementById('recipient').value.trim().toLowerCase();
-  const contacts=getContacts().filter(c=>!val||c.addr.toLowerCase().includes(val)||c.label.toLowerCase().includes(val));
-  if(!contacts.length){dd.classList.remove('show');return;}
-  dd.innerHTML=contacts.map(c=>{
-    const short=c.addr.slice(0,10)+'...'+c.addr.slice(-6);
-    const typeColor=c.type==='contract'?'background:rgba(242,153,74,.12);color:#f2994a':'background:rgba(39,174,96,.12);color:#2ecc71';
-    return '<div class="contact-item" onmousedown="pickContact(\''+c.addr+'\')">'+
-      '<div><div class="ci-addr">'+short+'</div><div class="ci-label">'+c.label+'</div></div>'+
-      '<div class="ci-type" style="'+typeColor+'">'+(c.type==='contract'?'CONTRACT':'STELLAR')+'</div></div>';
-  }).join('');
+  var dd=document.getElementById('contactsDropdown'),v=document.getElementById('recipient').value.trim().toLowerCase();
+  var list=getContacts().filter(function(c){return!v||c.addr.toLowerCase().indexOf(v)>=0||c.label.toLowerCase().indexOf(v)>=0});
+  if(!list.length){dd.classList.remove('show');return}
+  dd.innerHTML=list.map(function(c){var s=c.addr.slice(0,10)+'...'+c.addr.slice(-6);return '<div class="contact-item" onmousedown="pickContact(\''+c.addr+'\')"><div><div class="ci-addr">'+s+'</div><div class="ci-label">'+c.label+'</div></div></div>'}).join('');
   dd.classList.add('show');
 }
-function hideContacts(){document.getElementById('contactsDropdown').classList.remove('show');}
-function pickContact(addr){
-  document.getElementById('recipient').value=addr;
-  hideContacts();
-  onRecipientInput();
-}
+function hideContacts(){document.getElementById('contactsDropdown').classList.remove('show')}
+function pickContact(addr){document.getElementById('recipient').value=addr;hideContacts();onRecipientInput()}
 
-// Sync balances from wallet (shared across pages)
-function getSharedBalances(){
-  try{const b=JSON.parse(localStorage.getItem('cw_balances')||'null');if(b)return b;}catch(e){}
-  return{XLM:10000,USDC:2500,wETH:1.85,wBTC:0.042,EURC:1200,OLIGHFT:0};
-}
-function saveSharedBalances(b){localStorage.setItem('cw_balances',JSON.stringify(b));}
-const balances=getSharedBalances();
+function getBalances(){try{var b=JSON.parse(localStorage.getItem('cw_balances'));if(b)return b}catch(e){}return{XLM:10000,USDC:2500,wETH:1.85,wBTC:0.042,EURC:1200,OLIGHFT:0}}
+function saveBalances(b){localStorage.setItem('cw_balances',JSON.stringify(b))}
+var balances=getBalances();
+
 function updateBalance(){
-  const t=document.getElementById('tokenSelect');
-  const tk=t.value;
-  const b=balances[tk]||0;
+  var tk=document.getElementById('tokenSelect').value;
+  var b=balances[tk]||0;
   document.getElementById('showBal').textContent=b.toLocaleString('en',{minimumFractionDigits:2})+' '+tk;
   validateForm();
 }
-function setMax(){
-  const tk=document.getElementById('tokenSelect').value;
-  document.getElementById('amount').value=balances[tk];
-  validateForm();
-}
+function setMax(){var tk=document.getElementById('tokenSelect').value;document.getElementById('amount').value=balances[tk]||0;validateForm()}
 function validateForm(){
-  const addr=document.getElementById('recipient').value.trim();
-  const amt=parseFloat(document.getElementById('amount').value);
-  const tk=document.getElementById('tokenSelect').value;
-  const type=detectAddrType(addr);
-  const validAddr=isValidAddrType(type);
-  const valid=validAddr&&amt>0&&amt<=balances[tk];
-  document.getElementById('sendBtn').disabled=!valid;
-}
-function genHash(){
-  const c='0123456789abcdef';let h='';for(let i=0;i<64;i++)h+=c[Math.floor(Math.random()*16)];return h;
-}
-async function sendTx(){
-  const addr=document.getElementById('recipient').value.trim();
-  const amt=parseFloat(document.getElementById('amount').value);
-  const tk=document.getElementById('tokenSelect').value;
-  const type=detectAddrType(addr);
-  if(!isValidAddrType(type))return;
-  if(!amt||amt<=0||amt>(balances[tk]||0))return;
-  await requireSendVerify();
+  var addr=document.getElementById('recipient').value.trim();
+  var amt=parseFloat(document.getElementById('amount').value);
+  var tk=document.getElementById('tokenSelect').value;
+  var t=detectAddrType(addr);
+  var ok=isValidAddr(t)&&amt>0&&amt<=(balances[tk]||0);
+  document.getElementById('sendBtn').disabled=!ok;
 }
 
-var _sendTestMode=false;
-var OLIGHFT_TOKEN='CA5NW2ZJISLPTRRPEFY7XIKSB5CZ5XF2PIARJL2F37H7EPRAXXD34W6J';
-var HORIZON_URL='https://horizon-testnet.stellar.org';
-var SOROBAN_URL='https://soroban-testnet.stellar.org';
-var NETWORK_PASSPHRASE='Test SDF Network ; September 2015';
+function genHash(){var c='0123456789abcdef',h='';for(var i=0;i<64;i++)h+=c[Math.floor(Math.random()*16)];return h}
+function showStatus(msg){var el=document.getElementById('sendStatus');el.textContent=msg;el.style.display='block'}
+function hideStatus(){document.getElementById('sendStatus').style.display='none'}
+function closeSuccess(){document.getElementById('successOverlay').classList.remove('show')}
 
-function _getWalletKeypair(){
-  var encoded=localStorage.getItem('cw_secret');
-  if(!encoded)return null;
-  try{return StellarSdk.Keypair.fromSecret(atob(encoded));}catch(e){return null;}
-}
+function doSend(){
+  var addr=document.getElementById('recipient').value.trim();
+  var amt=parseFloat(document.getElementById('amount').value);
+  var tk=document.getElementById('tokenSelect').value;
+  var memo=document.getElementById('memo').value.trim();
+  var type=detectAddrType(addr);
+  if(!isValidAddr(type))return Promise.reject(new Error('Invalid address'));
+  if(!amt||amt<=0||amt>(balances[tk]||0))return Promise.reject(new Error('Invalid amount'));
+  var btn=document.getElementById('sendBtn');
+  var fromAddr=getFromAddr();
+  var kp=getWalletKeypair();
+  var isStellar=(type==='stellar'||type==='contract');
 
-async function _doSend(){
-  const addr=document.getElementById('recipient').value.trim();
-  const amt=parseFloat(document.getElementById('amount').value);
-  const tk=document.getElementById('tokenSelect').value;
-  const type=detectAddrType(addr);
-  if(!isValidAddrType(type))return;
-  if(!amt||amt<=0||amt>(balances[tk]||0))return;
-  const memo=document.getElementById('memo').value.trim();
-  const accounts=getAccounts();
-  const activeIdx=getActiveIdx();
-  const fromAcc=accounts.find(a=>a.index===activeIdx);
-  const fromAddr=fromAcc?fromAcc.publicKey:(JSON.parse(localStorage.getItem('cw_user')||'{}').addr||'');
-
-  var hash='';
-  var realTx=false;
-  var sendBtn=document.getElementById('sendBtn');
-
-  // Real Stellar transaction for Stellar/Soroban addresses (skip in test mode)
-  if(!_sendTestMode&&(type==='stellar'||type==='contract')&&typeof StellarSdk!=='undefined'){
-    var kp=_getWalletKeypair();
-    if(!kp){
-      // No wallet keypair — fall back to simulated send
-      console.warn('No wallet keypair found, using simulated send');
-      hash=genHash();
-      realTx=false;
-      // Skip to success
-      balances[tk]-=amt;
-      saveSharedBalances(balances);
-      updateBalance();
-      var chainLabel2=CHAIN_INFO[type]?CHAIN_INFO[type].label:type;
-      document.getElementById('successMsg').textContent='Sent '+amt+' '+tk+' to '+addr.slice(0,6)+'...'+addr.slice(-4)+' (simulated)';
-      document.getElementById('txHash').textContent=hash;
-      document.getElementById('successOverlay').classList.add('show');
-      var txs2=JSON.parse(localStorage.getItem('send_txs')||'[]');
-      txs2.unshift({to:addr,from:fromAddr,amount:amt,token:tk,memo:memo,hash:hash,time:Date.now(),addrType:type,onChain:false});
-      if(txs2.length>20)txs2.length=20;
-      localStorage.setItem('send_txs',JSON.stringify(txs2));
-      try{var al2=JSON.parse(localStorage.getItem('cw_activity')||'[]');al2.unshift({type:'Sent',icon:'\uD83D\uDCE4',detail:amt+' '+tk+' to '+addr.slice(0,6)+'...'+addr.slice(-4),amt:'-'+amt+' '+tk,cls:'red',time:'Just now',ts:Date.now(),onChain:false});if(al2.length>50)al2.length=50;localStorage.setItem('cw_activity',JSON.stringify(al2));}catch(e){}
-      document.getElementById('amount').value='';
-      document.getElementById('recipient').value='';
-      document.getElementById('memo').value='';
-      document.getElementById('addrTypeBadge').innerHTML='';
-      document.getElementById('addrHint').textContent='Accepts Stellar, Bitcoin, Ethereum, Tron, Solana, XRP and more';
-      document.getElementById('addrHint').style.color='rgba(255,255,255,.3)';
-      sendBtn.disabled=true;
-      renderRecent();
-      return;
-    }
-
-    sendBtn.disabled=true;
-    sendBtn.innerHTML='&#x23F3; Submitting to Stellar...';
-
-    try{
-      if(tk==='XLM'&&type==='stellar'){
-        // Native XLM payment via Horizon
+  if(kp&&isStellar&&typeof StellarSdk!=='undefined'){
+    btn.disabled=true;btn.textContent='\u23F3 Submitting to Stellar...';showStatus('Building transaction...');
+    var txPromise;
+    if(tk==='XLM'&&type==='stellar'){
+      txPromise=(function(){
         var server=new StellarSdk.Horizon.Server(HORIZON_URL);
-        var account=await server.loadAccount(kp.publicKey());
-        var txb=new StellarSdk.TransactionBuilder(account,{
-          fee:StellarSdk.BASE_FEE,
-          networkPassphrase:NETWORK_PASSPHRASE
-        })
-        .addOperation(StellarSdk.Operation.payment({
-          destination:addr,
-          asset:StellarSdk.Asset.native(),
-          amount:amt.toFixed(7)
-        }))
-        .setTimeout(30);
-        if(memo)txb.addMemo(StellarSdk.Memo.text(memo.slice(0,28)));
-        var built=txb.build();
-        built.sign(kp);
-        var result=await server.submitTransaction(built);
-        hash=result.hash;
-        realTx=true;
-
-      }else if(tk==='OLIGHFT'){
-        // Soroban token transfer
+        return server.loadAccount(kp.publicKey()).then(function(account){
+          showStatus('Signing transaction...');
+          var txb=new StellarSdk.TransactionBuilder(account,{fee:StellarSdk.BASE_FEE,networkPassphrase:NETWORK_PASS})
+            .addOperation(StellarSdk.Operation.payment({destination:addr,asset:StellarSdk.Asset.native(),amount:amt.toFixed(7)}))
+            .setTimeout(30);
+          if(memo)txb.addMemo(StellarSdk.Memo.text(memo.slice(0,28)));
+          var built=txb.build();built.sign(kp);
+          showStatus('Submitting to network...');
+          return server.submitTransaction(built);
+        }).then(function(result){return{hash:result.hash,onChain:true}});
+      })();
+    }else if(tk==='OLIGHFT'){
+      txPromise=(function(){
         var rpc=new StellarSdk.SorobanRpc.Server(SOROBAN_URL);
-        var account=await rpc.getAccount(kp.publicKey());
-        var contract=new StellarSdk.Contract(OLIGHFT_TOKEN);
-        var stroops=BigInt(Math.round(amt*10000000));
-        var tx=new StellarSdk.TransactionBuilder(account,{
-          fee:'100000',
-          networkPassphrase:NETWORK_PASSPHRASE
-        })
-        .addOperation(contract.call('transfer',
-          StellarSdk.nativeToScVal(kp.publicKey(),{type:'address'}),
-          StellarSdk.nativeToScVal(addr,{type:'address'}),
-          StellarSdk.nativeToScVal(stroops,{type:'i128'})
-        ))
-        .setTimeout(120)
-        .build();
-        var sim=await rpc.simulateTransaction(tx);
-        if(StellarSdk.SorobanRpc.Api.isSimulationError(sim)){
-          throw new Error(sim.error||'Contract simulation failed');
-        }
-        var prepared=StellarSdk.SorobanRpc.assembleTransaction(tx,sim).build();
-        prepared.sign(kp);
-        var sendResult=await rpc.sendTransaction(prepared);
-        if(sendResult.status==='ERROR'){
-          throw new Error('Transaction submission rejected');
-        }
-        hash=sendResult.hash;
-        // Poll for confirmation
-        for(var i=0;i<30;i++){
-          await new Promise(function(r){setTimeout(r,2000);});
-          var gr=await rpc.getTransaction(hash);
-          if(gr.status==='SUCCESS'){realTx=true;break;}
-          if(gr.status==='FAILED')throw new Error('Transaction failed on-chain');
-        }
-        if(!realTx)throw new Error('Transaction not confirmed after 60s');
-
-      }else{
-        // Other tokens (USDC, wETH, etc.) — simulated on testnet
-        hash=genHash();
-      }
-    }catch(err){
-      sendBtn.disabled=false;
-      sendBtn.innerHTML='&#x1F4E4; Send Tokens';
-      var msg=err.message||String(err);
-      if(msg.includes('Not Found'))msg='Recipient account not found on Stellar Testnet. Fund it via Friendbot first.';
-      alert('Transaction failed: '+msg);
-      return;
+        return rpc.getAccount(kp.publicKey()).then(function(account){
+          showStatus('Simulating contract call...');
+          var contract=new StellarSdk.Contract(OLIGHFT_TOKEN);
+          var stroops=BigInt(Math.round(amt*10000000));
+          var tx=new StellarSdk.TransactionBuilder(account,{fee:'100000',networkPassphrase:NETWORK_PASS})
+            .addOperation(contract.call('transfer',
+              StellarSdk.nativeToScVal(kp.publicKey(),{type:'address'}),
+              StellarSdk.nativeToScVal(addr,{type:'address'}),
+              StellarSdk.nativeToScVal(stroops,{type:'i128'})))
+            .setTimeout(120).build();
+          return rpc.simulateTransaction(tx).then(function(sim){
+            if(StellarSdk.SorobanRpc.Api.isSimulationError(sim))throw new Error(sim.error||'Contract simulation failed');
+            showStatus('Signing & submitting...');
+            var prepared=StellarSdk.SorobanRpc.assembleTransaction(tx,sim).build();
+            prepared.sign(kp);return rpc.sendTransaction(prepared);
+          });
+        }).then(function(sr){
+          if(sr.status==='ERROR')throw new Error('Submission rejected');
+          var hash=sr.hash;showStatus('Waiting for confirmation...');
+          var n=0;
+          function poll(){
+            return new StellarSdk.SorobanRpc.Server(SOROBAN_URL).getTransaction(hash).then(function(gr){
+              if(gr.status==='SUCCESS')return{hash:hash,onChain:true};
+              if(gr.status==='FAILED')throw new Error('Transaction failed on-chain');
+              if(++n>=30)throw new Error('Not confirmed after 60s');
+              return new Promise(function(r){setTimeout(function(){r(poll())},2000)});
+            });
+          }
+          return poll();
+        });
+      })();
+    }else{
+      txPromise=Promise.resolve({hash:genHash(),onChain:false});
     }
+    return txPromise.then(function(result){
+      onSendSuccess(addr,amt,tk,memo,type,fromAddr,result.hash,result.onChain);
+    }).catch(function(err){
+      btn.disabled=false;btn.textContent='\uD83D\uDCE4 Send Tokens';hideStatus();
+      var msg=err.message||String(err);
+      if(msg.indexOf('Not Found')>=0)msg='Recipient not found on Stellar Testnet. Fund via Friendbot first.';
+      throw new Error(msg);
+    });
   }else{
-    // Non-Stellar chains or test mode — simulated
-    hash=genHash();
+    onSendSuccess(addr,amt,tk,memo,type,fromAddr,genHash(),false);
+    return Promise.resolve();
   }
+}
 
-  // Success — update balances & record transaction
-  balances[tk]-=amt;
-  saveSharedBalances(balances);
-  updateBalance();
-  const chainLabel=CHAIN_INFO[type]?CHAIN_INFO[type].label:type;
-  var txLabel=realTx?'(on-chain)':'(simulated)';
-  document.getElementById('successMsg').textContent='Sent '+amt+' '+tk+' to '+addr.slice(0,6)+'...'+addr.slice(-4)+' '+txLabel;
+function onSendSuccess(addr,amt,tk,memo,type,fromAddr,hash,onChain){
+  balances[tk]=(balances[tk]||0)-amt;saveBalances(balances);updateBalance();
+  var label=onChain?'(on-chain)':'(simulated)';
+  document.getElementById('successMsg').textContent='Sent '+amt+' '+tk+' to '+addr.slice(0,6)+'...'+addr.slice(-4)+' '+label;
   document.getElementById('txHash').textContent=hash;
   document.getElementById('successOverlay').classList.add('show');
-  const txs=JSON.parse(localStorage.getItem('send_txs')||'[]');
-  txs.unshift({to:addr,from:fromAddr,amount:amt,token:tk,memo:memo,hash:hash,time:Date.now(),addrType:type,onChain:realTx});
-  if(txs.length>20)txs.length=20;
-  localStorage.setItem('send_txs',JSON.stringify(txs));
-  try{var rtxs=JSON.parse(localStorage.getItem('receive_txs')||'[]');rtxs.unshift({from:fromAddr,to:addr,amount:amt,token:tk,memo:memo,hash:hash,time:Date.now(),addrType:type,onChain:realTx});if(rtxs.length>20)rtxs.length=20;localStorage.setItem('receive_txs',JSON.stringify(rtxs));}catch(e){}
-  try{var al=JSON.parse(localStorage.getItem('cw_activity')||'[]');al.unshift({type:'Sent',icon:'\uD83D\uDCE4',detail:amt+' '+tk+' to '+addr.slice(0,6)+'...'+addr.slice(-4),amt:'-'+amt+' '+tk,cls:'red',time:'Just now',ts:Date.now(),onChain:realTx});al.unshift({type:'Received',icon:'\uD83D\uDCE5',detail:amt+' '+tk+' from '+fromAddr.slice(0,6)+'...'+fromAddr.slice(-4),amt:'+'+amt+' '+tk,cls:'green',time:'Just now',ts:Date.now(),onChain:realTx});if(al.length>50)al.length=50;localStorage.setItem('cw_activity',JSON.stringify(al));}catch(e){}
+  var txs=JSON.parse(localStorage.getItem('send_txs')||'[]');
+  txs.unshift({to:addr,from:fromAddr,amount:amt,token:tk,memo:memo,hash:hash,time:Date.now(),addrType:type,onChain:onChain});
+  if(txs.length>20)txs.length=20;localStorage.setItem('send_txs',JSON.stringify(txs));
+  try{var al=JSON.parse(localStorage.getItem('cw_activity')||'[]');al.unshift({type:'Sent',icon:'\uD83D\uDCE4',detail:amt+' '+tk+' to '+addr.slice(0,6)+'...'+addr.slice(-4),amt:'-'+amt+' '+tk,cls:'red',time:'Just now',ts:Date.now(),onChain:onChain});if(al.length>50)al.length=50;localStorage.setItem('cw_activity',JSON.stringify(al))}catch(e){}
   document.getElementById('amount').value='';
   document.getElementById('recipient').value='';
   document.getElementById('memo').value='';
   document.getElementById('addrTypeBadge').innerHTML='';
   document.getElementById('addrHint').textContent='Accepts Stellar, Bitcoin, Ethereum, Tron, Solana, XRP and more';
   document.getElementById('addrHint').style.color='rgba(255,255,255,.3)';
-  sendBtn.disabled=true;
-  sendBtn.innerHTML='&#x1F4E4; Send Tokens';
-  renderRecent();
-}
-function closeSuccess(){document.getElementById('successOverlay').classList.remove('show')}
-function renderRecent(){
-  const txs=JSON.parse(localStorage.getItem('send_txs')||'[]');
-  const sec=document.getElementById('recentSection');
-  const list=document.getElementById('recentList');
-  if(!txs.length){sec.style.display='none';return}
-  sec.style.display='block';
-  list.innerHTML=txs.map(tx=>{
-    const ago=Math.round((Date.now()-tx.time)/60000);
-    const t=ago<1?'just now':ago+'m ago';
-    const type=tx.addrType||(tx.to.startsWith('C')?'contract':'stellar');
-    const typeBadge=type==='contract'?'<span style="font-size:.55rem;padding:1px 5px;border-radius:3px;background:rgba(242,153,74,.12);color:#f2994a;margin-left:4px">C</span>':'<span style="font-size:.55rem;padding:1px 5px;border-radius:3px;background:rgba(39,174,96,.12);color:#2ecc71;margin-left:4px">G</span>';
-    return '<div class="tx-item"><div><div class="tx-to">'+tx.to.slice(0,8)+'...'+tx.to.slice(-4)+typeBadge+'</div><div class="tx-time">'+t+'</div></div><div class="tx-amt">-'+tx.amount+' '+tx.token+'</div></div>';
-  }).join('');
-}
-renderRecent();
-renderAccountSelector();
-updateBalance();
-
-// ══════════════════════════════════════════
-// ══  TEST SEND ENGINE — All Blockchains ══
-// ══════════════════════════════════════════
-
-var testPass=0,testFail=0,testTotal=0;
-
-function validateAnyAddr(addr){
-  if(!addr||!addr.trim())return{valid:false,chain:'empty'};
-  addr=addr.trim();
-  // Stellar G...
-  if(addr.length===56&&addr.startsWith('G')&&/^[A-Z2-7]+$/.test(addr))return{valid:true,chain:'Stellar'};
-  // Soroban C...
-  if(addr.length===56&&addr.startsWith('C')&&/^[A-Z2-7]+$/.test(addr))return{valid:true,chain:'Soroban'};
-  // Ethereum / BSC 0x (40 hex + 0x prefix)
-  if(/^0x[0-9a-fA-F]{40}$/.test(addr))return{valid:true,chain:'EVM'};
-  // Bitcoin legacy 1...
-  if(/^1[a-km-zA-HJ-NP-Z1-9]{25,34}$/.test(addr))return{valid:true,chain:'BTC-Legacy'};
-  // Bitcoin SegWit bc1...
-  if(/^bc1[a-zA-HJ-NP-Z0-9]{25,62}$/.test(addr))return{valid:true,chain:'BTC-SegWit'};
-  // Bitcoin P2SH 3...
-  if(/^3[a-km-zA-HJ-NP-Z1-9]{25,34}$/.test(addr))return{valid:true,chain:'BTC-P2SH'};
-  // Tron T...
-  if(/^T[a-zA-HJ-NP-Z1-9]{33}$/.test(addr))return{valid:true,chain:'Tron'};
-  // Solana base58 (32-44 chars)
-  if(/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(addr))return{valid:true,chain:'Solana'};
-  // XRP r...
-  if(/^r[a-zA-HJ-NP-Z1-9]{24,34}$/.test(addr))return{valid:true,chain:'XRP'};
-  return{valid:false,chain:'unknown'};
+  document.getElementById('sendBtn').disabled=true;
+  document.getElementById('sendBtn').textContent='\uD83D\uDCE4 Send Tokens';
+  hideStatus();renderRecent();
 }
 
-function logTest(name,passed,detail){
-  testTotal++;
-  if(passed)testPass++;else testFail++;
-  var log=document.getElementById('sendTestLogBody');
-  var s=passed?'<span style="color:#27ae60">PASS \u2705</span>':'<span style="color:#eb5757">FAIL \u274C</span>';
-  log.innerHTML+='<div style="padding:4px 0;border-bottom:1px solid rgba(255,255,255,.04)">'+s+' <span style="color:#a29bfe">'+name+'</span> \u2014 '+detail+'</div>';
-  updateCounters();
-}
-
-function updateCounters(){
-  document.getElementById('cntPass').textContent=testPass;
-  document.getElementById('cntFail').textContent=testFail;
-  document.getElementById('cntTotal').textContent=testTotal;
-  var pct=testTotal>0?Math.round((testPass/testTotal)*100):0;
-  document.getElementById('testProgressBar').style.width=pct+'%';
-  document.getElementById('testProgressBar').style.background=testFail>0?'linear-gradient(90deg,#27ae60,#f2994a)':'linear-gradient(90deg,#27ae60,#2ecc71)';
-  document.getElementById('testCounterStats').textContent=testPass+' / '+testTotal+' passed';
-  document.getElementById('testCounterLabel').innerHTML=testFail===0?'<span style="color:#27ae60">\u2705 All '+testTotal+' tests passed</span>':'<span style="color:#f2994a">\u26A0\uFE0F '+testPass+' passed, '+testFail+' failed</span>';
-}
-
-function setBadge(rows,idx,passed){
-  var badge=rows[idx].querySelector('.tst-badge');
-  if(passed){
-    badge.textContent='\u2705 PASS';badge.style.color='#27ae60';badge.style.borderColor='rgba(39,174,96,.3)';badge.style.background='rgba(39,174,96,.08)';
-  }else{
-    badge.textContent='\u274C FAIL';badge.style.color='#eb5757';badge.style.borderColor='rgba(235,87,87,.3)';badge.style.background='rgba(235,87,87,.08)';
-  }
-}
-
-function runAllSendTests(){
-  // Reset
-  testPass=0;testFail=0;testTotal=0;
-  document.getElementById('sendTestLogBody').innerHTML='';
-  document.getElementById('sendTestLog').style.display='block';
-  document.getElementById('testCounter').style.display='block';
-  document.querySelectorAll('.tst-badge').forEach(function(b){b.textContent='pending';b.style.color='rgba(255,255,255,.35)';b.style.borderColor='rgba(255,255,255,.08)';b.style.background='none';});
-
-  // Bypass 2FA during tests — swap requireSendVerify to call _doSend directly
-  var _origVerify=requireSendVerify;
-  _sendTestMode=true;
-  requireSendVerify=async function(){await _doSend();};
-
-  // Snapshot balances to restore after test
-  var snap=JSON.parse(JSON.stringify(getSharedBalances()));
-
-  var addrRows=document.querySelectorAll('#addrTests .tst-row');
-  var tokenRows=document.querySelectorAll('#tokenTests .tst-row');
-
-  // ═══ ADDRESS FORMAT TESTS ═══
-  var addrCases=[
-    {addr:'GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',expect:true,name:'Stellar (G...)'},
-    {addr:'CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',expect:true,name:'Soroban (C...)'},
-    {addr:'0x742d35Cc6634C0532925a3b844Bc9e7595f2bD18',expect:true,name:'Ethereum (0x...)'},
-    {addr:'1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa',expect:true,name:'BTC Legacy (1...)'},
-    {addr:'bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4',expect:true,name:'BTC SegWit (bc1...)'},
-    {addr:'3J98t1WpEZ73CNmQviecrnyiWrnqRhWNLy',expect:true,name:'BTC P2SH (3...)'},
-    {addr:'TJCnKsPa7y5okkXvQAidZBzqx3QyQ6sxMW',expect:true,name:'Tron (T...)'},
-    {addr:'0xBB4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c',expect:true,name:'BSC (0x...)'},
-    {addr:'DRpbCBMxVnDK7maPMoGQfFiB8RaJqpeMBgrG9Gv9sGur',expect:true,name:'Solana (base58)'},
-    {addr:'rN7F4Bz1pEkHxSTYmvrZDVMrRcXhTfuE6N',expect:true,name:'XRP (r...)'},
-    {addr:'ZZZINVALID123',expect:false,name:'Invalid Address'},
-    {addr:'',expect:false,name:'Empty Address'},
-  ];
-
-  addrCases.forEach(function(tc,i){
-    var r=validateAnyAddr(tc.addr);
-    var ok=(r.valid===tc.expect);
-    setBadge(addrRows,i,ok);
-    logTest(tc.name,ok,ok?(tc.expect?'Detected as '+r.chain:'Correctly rejected'):'Expected '+(tc.expect?'valid':'invalid')+' but got '+(r.valid?'valid ('+r.chain+')':'invalid'));
-  });
-
-  // ═══ TOKEN TRANSFER TESTS ═══
-  var stellarAddr='GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
-  var tokenCases=[
-    {token:'XLM',amount:100,name:'Send 100 XLM'},
-    {token:'USDC',amount:50,name:'Send 50 USDC'},
-    {token:'wETH',amount:0.1,name:'Send 0.1 wETH'},
-    {token:'wBTC',amount:0.005,name:'Send 0.005 wBTC'},
-    {token:'EURC',amount:200,name:'Send 200 EURC'},
-    {token:'OLIGHFT',amount:500,name:'Send 500 OLIGHFT'},
-    {token:'XLM',amount:999999,name:'Overdraft 999999 XLM'},
-  ];
-
-  // Ensure OLIGHFT has balance for test
-  var testBals=JSON.parse(JSON.stringify(snap));
-  if(!testBals.OLIGHFT||testBals.OLIGHFT<500)testBals.OLIGHFT=5000;
-  saveSharedBalances(testBals);
-  // Reload into local var
-  for(var k in testBals)balances[k]=testBals[k];
-
-  tokenCases.forEach(function(tc,i){
-    var before=balances[tc.token]||0;
-    var hasBal=before>=tc.amount;
-    var isOverdraft=(tc.amount>before);
-
-    if(isOverdraft){
-      // Should be rejected
-      var ok=!hasBal;
-      setBadge(tokenRows,i,ok);
-      logTest(tc.name,ok,ok?'Correctly rejected — balance '+before.toLocaleString()+' < '+tc.amount.toLocaleString():'Should have been rejected');
-    }else{
-      // Simulate send
-      balances[tc.token]-=tc.amount;
-      var after=balances[tc.token];
-      var deducted=Math.abs(before-tc.amount-after)<0.0001;
-      var positive=after>=0;
-      var ok=deducted&&positive&&hasBal;
-      setBadge(tokenRows,i,ok);
-      logTest(tc.name,ok,before+' \u2192 '+after.toFixed(6)+' '+tc.token+(ok?' \u2714 correct deduction':' \u2716 MISMATCH'));
-    }
-  });
-
-  // ═══ EXTENDED INTEGRATION TESTS ═══
-  // Restore test balances for extended tests
-  for(var k in testBals)balances[k]=testBals[k];
-  saveSharedBalances(testBals);
-  var extRows=document.querySelectorAll('#extTests .tst-row');
-
-  // 20. Zero Amount Rejection
-  (function(){
-    var xlmBefore=balances['XLM'];
-    document.getElementById('recipient').value=stellarAddr;
-    document.getElementById('amount').value='0';
-    document.getElementById('tokenSelect').value='XLM';
-    sendTx();
-    var ok=Math.abs(balances['XLM']-xlmBefore)<0.0001;
-    setBadge(extRows,0,ok);
-    logTest('Zero Amount Rejection',ok,ok?'sendTx() blocked — balance unchanged ('+xlmBefore+')':'VULNERABLE — zero amount was allowed!');
-  })();
-
-  // 21. Negative Amount Rejection
-  (function(){
-    var xlmBefore=balances['XLM'];
-    document.getElementById('recipient').value=stellarAddr;
-    document.getElementById('amount').value='-5';
-    document.getElementById('tokenSelect').value='XLM';
-    sendTx();
-    var ok=Math.abs(balances['XLM']-xlmBefore)<0.0001;
-    setBadge(extRows,1,ok);
-    logTest('Negative Amount Rejection',ok,ok?'sendTx() blocked — balance unchanged ('+xlmBefore+')':'VULNERABLE — negative amount was allowed!');
-  })();
-
-  // 22. Decimal Precision
-  (function(){
-    var before=balances['XLM'];
-    balances['XLM']-=0.000001;
-    var after=balances['XLM'];
-    var ok=Math.abs((before-0.000001)-after)<1e-10;
-    setBadge(extRows,2,ok);
-    logTest('Decimal Precision (0.000001)',ok,before+' \u2192 '+after.toFixed(8)+' XLM');
-    balances['XLM']=before;
-  })();
-
-  // 23. Full sendTx() Integration
-  (function(){
-    var txsBefore=JSON.parse(localStorage.getItem('send_txs')||'[]');
-    var xlmBefore=balances['XLM'];
-    document.getElementById('recipient').value=stellarAddr;
-    document.getElementById('amount').value='1';
-    document.getElementById('tokenSelect').value='XLM';
-    document.getElementById('memo').value='__TEST_INT__';
-    sendTx();
-    var txsAfter=JSON.parse(localStorage.getItem('send_txs')||'[]');
-    var newTx=txsAfter[0];
-    var hasTx=newTx&&newTx.memo==='__TEST_INT__'&&newTx.amount===1&&newTx.token==='XLM';
-    var deducted=Math.abs(balances['XLM']-(xlmBefore-1))<0.0001;
-    var hasHash=newTx&&newTx.hash&&newTx.hash.length===64;
-    var ok=hasTx&&deducted&&hasHash;
-    setBadge(extRows,3,ok);
-    logTest('Full sendTx() Flow',ok,ok?'TX recorded (hash '+newTx.hash.slice(0,8)+'...) + balance '+xlmBefore+' \u2192 '+balances['XLM']:'sendTx integration failed');
-    localStorage.setItem('send_txs',JSON.stringify(txsBefore));
-    closeSuccess();
-  })();
-
-  // 24. cw_balances Sync
-  (function(){
-    saveSharedBalances(balances);
-    var stored=getSharedBalances();
-    var synced=true;
-    ['XLM','USDC','wETH','wBTC','EURC','OLIGHFT'].forEach(function(tk){
-      if(Math.abs((balances[tk]||0)-(stored[tk]||0))>0.0001)synced=false;
-    });
-    setBadge(extRows,4,synced);
-    logTest('cw_balances Sync',synced,synced?'localStorage \u2194 memory \u2014 all 6 tokens match':'MISMATCH detected between localStorage and memory');
-  })();
-
-  // 25. sendTx() Overdraft Guard
-  (function(){
-    var txsBefore=JSON.parse(localStorage.getItem('send_txs')||'[]');
-    var xlmBefore=balances['XLM'];
-    document.getElementById('recipient').value=stellarAddr;
-    document.getElementById('amount').value='999999';
-    document.getElementById('tokenSelect').value='XLM';
-    document.getElementById('memo').value='__TEST_GUARD__';
-    sendTx();
-    var ok=Math.abs(balances['XLM']-xlmBefore)<0.0001;
-    setBadge(extRows,5,ok);
-    logTest('sendTx() Overdraft Guard',ok,ok?'Balance unchanged ('+xlmBefore+') \u2014 guard blocked overdraft':'VULNERABLE \u2014 overdraft was allowed!');
-    localStorage.setItem('send_txs',JSON.stringify(txsBefore));
-  })();
-
-  // Restore original balances + 2FA gate
-  requireSendVerify=_origVerify;
-  _sendTestMode=false;
-  saveSharedBalances(snap);
-  for(var k in snap)balances[k]=snap[k];
-  updateBalance();
-  closeSuccess();
-}
-
-function resetSendTests(){
-  testPass=0;testFail=0;testTotal=0;
-  document.getElementById('sendTestLogBody').innerHTML='';
-  document.getElementById('sendTestLog').style.display='none';
-  document.getElementById('testCounter').style.display='none';
-  document.querySelectorAll('.tst-badge').forEach(function(b){b.textContent='pending';b.style.color='rgba(255,255,255,.35)';b.style.borderColor='rgba(255,255,255,.08)';b.style.background='none';});
-}
-
-// ═══════════════════════════════════════
-//  SEND 2FA VERIFICATION GATE
-// ═══════════════════════════════════════
-function _b32Decode(s){
-  const A='ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
-  s=s.replace(/[= ]/g,'').toUpperCase();
-  let bits='',out=[];
-  for(let i=0;i<s.length;i++){const v=A.indexOf(s[i]);if(v<0)continue;bits+=v.toString(2).padStart(5,'0');}
-  for(let i=0;i+8<=bits.length;i+=8)out.push(parseInt(bits.substr(i,8),2));
-  return new Uint8Array(out);
-}
-async function _hmacSha1(keyBytes,msgBytes){
-  const k=await crypto.subtle.importKey('raw',keyBytes,{name:'HMAC',hash:'SHA-1'},false,['sign']);
-  return new Uint8Array(await crypto.subtle.sign('HMAC',k,msgBytes));
-}
-async function _genTotp(secret,time){
-  const key=_b32Decode(secret);
-  const T=Math.floor((time||Date.now()/1000)/30);
-  const msg=new Uint8Array(8);
-  const dv=new DataView(msg.buffer);dv.setUint32(4,T);
-  const h=await _hmacSha1(key,msg);
-  const o=h[h.length-1]&0x0f;
-  const code=((h[o]&0x7f)<<24|(h[o+1]&0xff)<<16|(h[o+2]&0xff)<<8|(h[o+3]&0xff))%1000000;
-  return code.toString().padStart(6,'0');
-}
-async function _verifyTotp(secret,input){
-  const now=Math.floor(Date.now()/1000);
-  for(let w=-1;w<=1;w++){
-    const expected=await _genTotp(secret,now+w*30);
-    if(expected===input)return true;
-  }
-  return false;
-}
-function _isGauthEnabled(){
-  try{const d=JSON.parse(localStorage.getItem('cw_2fa')||'null');return d&&d.enabled&&d.secret;}catch(e){return false;}
-}
-function _getGauthSecret(){
-  try{const d=JSON.parse(localStorage.getItem('cw_2fa')||'null');return d&&d.secret||'';}catch(e){return '';}
-}
-
-var _w2faPending=false;
-var _w2faMethod='email';
-var _w2faEmailCode='';
-var _w2faTimerInt=null;
-
-function _genEmailCode(){
-  var c='';for(var i=0;i<6;i++)c+=Math.floor(Math.random()*10);
-  return c;
-}
-
-async function requireSendVerify(){
-  // Skip 2FA if user hasn't configured it — go straight to send
-  var gauthOn=_isGauthEnabled();
-  var has2fa=gauthOn;
-  if(!has2fa){
-    await _doSend();
-    return;
-  }
-  _w2faPending=true;
-  var overlay=document.getElementById('w2faOverlay');
-  _w2faMethod=gauthOn?'gauth':'email';
-  var methodBtns=overlay.querySelectorAll('.w2fa-methods button');
-  methodBtns.forEach(function(b){b.classList.remove('active');});
-  if(gauthOn){
-    overlay.querySelector('[data-method="gauth"]').classList.add('active');
-    overlay.querySelector('[data-method="email"]').style.display='';
-    overlay.querySelector('[data-method="gauth"]').style.display='';
-  } else {
-    overlay.querySelector('[data-method="email"]').classList.add('active');
-    overlay.querySelector('[data-method="gauth"]').style.display='none';
-  }
-  _switchW2faMethod(_w2faMethod);
-  overlay.classList.add('show');
-}
-
-function _switchW2faMethod(method){
-  _w2faMethod=method;
-  var overlay=document.getElementById('w2faOverlay');
-  overlay.querySelectorAll('.w2fa-methods button').forEach(function(b){
-    b.classList.toggle('active',b.getAttribute('data-method')===method);
-  });
-  var badge=overlay.querySelector('.w2fa-badge');
-  var timerEl=overlay.querySelector('.w2fa-timer');
-  overlay.querySelector('.w2fa-error').textContent='';
-  overlay.querySelectorAll('.w2fa-otp-row input').forEach(function(inp){inp.value='';});
-  overlay.querySelector('.w2fa-otp-row input').focus();
-  if(method==='gauth'){
-    badge.className='w2fa-badge gauth';
-    badge.textContent='\uD83D\uDD10 Google Authenticator';
-    timerEl.textContent='Enter the 6-digit code from your authenticator app';
-    _startW2faTimer();
-  } else {
-    badge.className='w2fa-badge email';
-    badge.textContent='\uD83D\uDCE7 Email Verification';
-    _w2faEmailCode=_genEmailCode();
-    var user=JSON.parse(localStorage.getItem('cw_user')||'{}');
-    var email=user.email||'your email';
-    timerEl.textContent='Code sent to '+email+' (demo: '+_w2faEmailCode+')';
-    _stopW2faTimer();
-  }
-}
-
-function _startW2faTimer(){
-  _stopW2faTimer();
-  var timerEl=document.querySelector('#w2faOverlay .w2fa-timer');
-  function tick(){
-    var sec=30-Math.floor(Date.now()/1000)%30;
-    timerEl.textContent='Enter code from authenticator app \u00B7 refreshes in '+sec+'s';
-  }
-  tick();
-  _w2faTimerInt=setInterval(tick,1000);
-}
-function _stopW2faTimer(){
-  if(_w2faTimerInt){clearInterval(_w2faTimerInt);_w2faTimerInt=null;}
-}
-
-function cancelW2fa(){
-  _w2faPending=false;
-  _stopW2faTimer();
-  document.getElementById('w2faOverlay').classList.remove('show');
-}
-
-async function confirmW2fa(){
-  var inputs=document.querySelectorAll('#w2faOverlay .w2fa-otp-row input');
-  var code=Array.from(inputs).map(function(i){return i.value;}).join('');
-  var errEl=document.querySelector('#w2faOverlay .w2fa-error');
-  if(code.length!==6){errEl.textContent='Enter the full 6-digit code.';return;}
-
-  if(_w2faMethod==='gauth'){
-    var secret=_getGauthSecret();
-    if(!secret){errEl.textContent='Google Authenticator not set up.';return;}
-    var valid=await _verifyTotp(secret,code);
-    if(!valid){errEl.textContent='Invalid authenticator code. Try again.';inputs.forEach(function(i){i.value='';});inputs[0].focus();return;}
-  } else {
-    if(code!==_w2faEmailCode){errEl.textContent='Invalid email code. Try again.';inputs.forEach(function(i){i.value='';});inputs[0].focus();return;}
-  }
-
-  _stopW2faTimer();
-  document.getElementById('w2faOverlay').classList.remove('show');
-  _w2faPending=false;
-  await _doSend();
-}
-
-// OTP auto-advance
-document.addEventListener('DOMContentLoaded',function(){
-  var overlay=document.getElementById('w2faOverlay');
-  if(!overlay)return;
-  overlay.addEventListener('input',function(e){
-    if(!e.target.matches('.w2fa-otp-row input'))return;
-    if(e.target.value.length===1){var next=e.target.nextElementSibling;if(next&&next.tagName==='INPUT')next.focus();}
-  });
-  overlay.addEventListener('keydown',function(e){
-    if(!e.target.matches('.w2fa-otp-row input'))return;
-    if(e.key==='Backspace'&&!e.target.value){var prev=e.target.previousElementSibling;if(prev&&prev.tagName==='INPUT'){prev.focus();prev.select();}}
-  });
-  overlay.addEventListener('paste',function(e){
-    if(!e.target.matches('.w2fa-otp-row input'))return;
-    e.preventDefault();
-    var paste=(e.clipboardData||window.clipboardData).getData('text').replace(/\D/g,'').slice(0,6);
-    var inputs=overlay.querySelectorAll('.w2fa-otp-row input');
-    for(var i=0;i<6;i++)inputs[i].value=paste[i]||'';
-    if(paste.length===6)inputs[5].focus();
+document.getElementById('sendBtn').addEventListener('click',function(){
+  var btn=this;btn.disabled=true;
+  doSend().catch(function(err){
+    alert('Send failed: '+(err.message||err));
+    btn.disabled=false;btn.textContent='\uD83D\uDCE4 Send Tokens';hideStatus();
   });
 });
-</script>
 
-<!-- SEND 2FA MODAL -->
-<div id="w2faOverlay" class="w2fa-overlay">
-<div class="w2fa-box">
-<h3>&#x1F512; Verify Transaction</h3>
-<div class="w2fa-sub">Confirm your identity before sending funds</div>
-<span class="w2fa-badge gauth">&#x1F510; Google Authenticator</span>
-<div class="w2fa-methods">
-<button data-method="email" onclick="_switchW2faMethod('email')">&#x1F4E7; Email Code</button>
-<button data-method="gauth" onclick="_switchW2faMethod('gauth')">&#x1F510; Google Auth</button>
-</div>
-<div class="w2fa-otp-row">
-<input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off">
-<input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off">
-<input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off">
-<input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off">
-<input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off">
-<input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off">
-</div>
-<div class="w2fa-error"></div>
-<div class="w2fa-timer"></div>
-<div class="w2fa-actions">
-<button class="w2fa-cancel-btn" onclick="cancelW2fa()">Cancel</button>
-<button class="w2fa-verify-btn" onclick="confirmW2fa()">&#x2705; Verify &amp; Send</button>
-</div>
-</div>
-</div>
+function renderRecent(){
+  var txs=JSON.parse(localStorage.getItem('send_txs')||'[]');
+  var sec=document.getElementById('recentSection'),list=document.getElementById('recentList');
+  if(!txs.length){sec.style.display='none';return}
+  sec.style.display='block';
+  list.innerHTML=txs.map(function(tx){
+    var ago=Math.round((Date.now()-tx.time)/60000),t=ago<1?'just now':ago+'m ago';
+    var ci=CHAIN_INFO[tx.addrType]||CHAIN_INFO.stellar;
+    var badge='<span style="font-size:.55rem;padding:1px 5px;border-radius:3px;background:'+ci.bg+';color:'+ci.color+';margin-left:4px">'+(tx.addrType||'G').slice(0,3).toUpperCase()+'</span>';
+    return '<div class="tx-item"><div><div class="tx-to">'+tx.to.slice(0,8)+'...'+tx.to.slice(-4)+badge+'</div><div class="tx-time">'+t+'</div></div><div class="tx-amt">-'+tx.amount+' '+tx.token+'</div></div>';
+  }).join('');
+}
+
+renderAccountSelector();updateBalance();renderRecent();
+</script>
 <script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(function(){})}</script>
 </body>
 </html>
