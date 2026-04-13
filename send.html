@@ -187,7 +187,7 @@ select option{background:#1a1a2e;color:#fff}
 <div class="fee-box"><span class="fl">Estimated Time</span><span class="fv">~5 seconds</span></div>
 <div class="fee-box"><span class="fl">Network</span><span class="fv">Stellar Testnet</span></div>
 
-<button class="send-btn" id="sendBtn" disabled onclick="sendTx()">&#x1F4E4; Send Tokens</button>
+<button class="send-btn" id="sendBtn" disabled onclick="sendTx().catch(function(e){alert('Send error: '+e.message);document.getElementById('sendBtn').disabled=false;document.getElementById('sendBtn').innerHTML='&#x1F4E4; Send Tokens';})">&#x1F4E4; Send Tokens</button>
 </div>
 
 <div class="recent" id="recentSection" style="display:none">
@@ -556,14 +556,14 @@ function validateForm(){
 function genHash(){
   const c='0123456789abcdef';let h='';for(let i=0;i<64;i++)h+=c[Math.floor(Math.random()*16)];return h;
 }
-function sendTx(){
+async function sendTx(){
   const addr=document.getElementById('recipient').value.trim();
   const amt=parseFloat(document.getElementById('amount').value);
   const tk=document.getElementById('tokenSelect').value;
   const type=detectAddrType(addr);
   if(!isValidAddrType(type))return;
   if(!amt||amt<=0||amt>(balances[tk]||0))return;
-  requireSendVerify();
+  await requireSendVerify();
 }
 
 var _sendTestMode=false;
@@ -820,7 +820,7 @@ function runAllSendTests(){
   // Bypass 2FA during tests — swap requireSendVerify to call _doSend directly
   var _origVerify=requireSendVerify;
   _sendTestMode=true;
-  requireSendVerify=function(){_doSend();};
+  requireSendVerify=async function(){await _doSend();};
 
   // Snapshot balances to restore after test
   var snap=JSON.parse(JSON.stringify(getSharedBalances()));
@@ -1048,12 +1048,12 @@ function _genEmailCode(){
   return c;
 }
 
-function requireSendVerify(){
+async function requireSendVerify(){
   // Skip 2FA if user hasn't configured it — go straight to send
   var gauthOn=_isGauthEnabled();
   var has2fa=gauthOn;
   if(!has2fa){
-    _doSend();
+    await _doSend();
     return;
   }
   _w2faPending=true;
