@@ -191,6 +191,7 @@ label{display:block;font-size:.72rem;color:rgba(255,255,255,.45);margin-bottom:6
 <option value="wBTC">&#x1F536; wBTC</option>
 <option value="EURC">&#x1F4B6; EURC</option>
 <option value="PI">&pi; PI</option>
+<option value="BNB">&#x1F538; BNB</option>
 <option value="OLIGHFT">&#x1F4B0; OLIGHFT</option>
 </select>
 <input type="number" id="fromAmt" placeholder="0.0" step="any" min="0" oninput="calcSwap()">
@@ -210,6 +211,7 @@ label{display:block;font-size:.72rem;color:rgba(255,255,255,.45);margin-bottom:6
 <option value="wBTC">&#x1F536; wBTC</option>
 <option value="EURC">&#x1F4B6; EURC</option>
 <option value="PI">&pi; PI</option>
+<option value="BNB">&#x1F538; BNB</option>
 <option value="OLIGHFT">&#x1F4B0; OLIGHFT</option>
 </select>
 <input type="number" id="toAmt" placeholder="0.0" readonly style="color:rgba(255,255,255,.5)">
@@ -262,6 +264,7 @@ label{display:block;font-size:.72rem;color:rgba(255,255,255,.45);margin-bottom:6
 <option value="wBTC">&#x1F536; wBTC</option>
 <option value="EURC">&#x1F4B6; EURC</option>
 <option value="PI">&pi; PI</option>
+<option value="BNB">&#x1F538; BNB</option>
 <option value="OLIGHFT" selected>&#x1F4B0; OLIGHFT</option>
 </select>
 <span style="color:rgba(255,255,255,.3);font-size:1.2rem;align-self:center">/</span>
@@ -272,6 +275,7 @@ label{display:block;font-size:.72rem;color:rgba(255,255,255,.45);margin-bottom:6
 <option value="wBTC">&#x1F536; wBTC</option>
 <option value="EURC">&#x1F4B6; EURC</option>
 <option value="PI">&pi; PI</option>
+<option value="BNB">&#x1F538; BNB</option>
 <option value="OLIGHFT">&#x1F4B0; OLIGHFT</option>
 </select>
 </div>
@@ -477,7 +481,7 @@ label{display:block;font-size:.72rem;color:rgba(255,255,255,.45);margin-bottom:6
 </div>
 
 <script>
-const prices={XLM:0.12,USDC:1,wETH:3200,wBTC:68000,EURC:1.08,OLIGHFT:0.50,PI:0.71};
+const prices={XLM:0.12,USDC:1,wETH:3200,wBTC:68000,EURC:1.08,OLIGHFT:0.50,PI:0.71,BNB:598};
 
 // ── AMM Quoter Engine (Uniswap V4-style constant-product pools) ──
 var POOL_REGISTRY = {
@@ -491,7 +495,10 @@ var POOL_REGISTRY = {
   'wBTC/OLIGHFT': { currency0: 'wBTC',    currency1: 'OLIGHFT', fee: 3000, tickSpacing: 60,  hooks: '0x0000000000000000000000000000000000000000', reserve0: 10,       reserve1: 1360000 },
   'PI/USDC':      { currency0: 'PI',      currency1: 'USDC',    fee: 3000, tickSpacing: 60,  hooks: '0x0000000000000000000000000000000000000000', reserve0: 1500000,  reserve1: 1065000 },
   'PI/OLIGHFT':   { currency0: 'PI',      currency1: 'OLIGHFT', fee: 3000, tickSpacing: 60,  hooks: '0x0000000000000000000000000000000000000000', reserve0: 800000,   reserve1: 1136000 },
-  'PI/XLM':       { currency0: 'PI',      currency1: 'XLM',     fee: 3000, tickSpacing: 60,  hooks: '0x0000000000000000000000000000000000000000', reserve0: 1000000,  reserve1: 5916667 }
+  'PI/XLM':       { currency0: 'PI',      currency1: 'XLM',     fee: 3000, tickSpacing: 60,  hooks: '0x0000000000000000000000000000000000000000', reserve0: 1000000,  reserve1: 5916667 },
+  'BNB/USDC':     { currency0: 'BNB',     currency1: 'USDC',    fee: 3000, tickSpacing: 60,  hooks: '0x0000000000000000000000000000000000000000', reserve0: 2500,     reserve1: 1495000 },
+  'BNB/OLIGHFT':  { currency0: 'BNB',     currency1: 'OLIGHFT', fee: 3000, tickSpacing: 60,  hooks: '0x0000000000000000000000000000000000000000', reserve0: 1500,     reserve1: 1794000 },
+  'BNB/XLM':      { currency0: 'BNB',     currency1: 'XLM',     fee: 3000, tickSpacing: 60,  hooks: '0x0000000000000000000000000000000000000000', reserve0: 2000,     reserve1: 9966667 }
 };
 function findPool(a, b) { return POOL_REGISTRY[a+'/'+b] || POOL_REGISTRY[b+'/'+a] || null; }
 function _quoteSinglePool(pool, tokenIn, tokenOut, amountIn) {
@@ -922,7 +929,7 @@ function runAllTests(){
   for(var pk in INITIAL_POOLS){if(POOL_REGISTRY[pk]){POOL_REGISTRY[pk].reserve0=INITIAL_POOLS[pk].reserve0;POOL_REGISTRY[pk].reserve1=INITIAL_POOLS[pk].reserve1;}}
 
   // Set guaranteed test balances BEFORE all tests (calc + integration)
-  var testBals={XLM:10000,USDC:2500,wETH:1.85,wBTC:0.042,EURC:1200,OLIGHFT:5000,PI:500};
+  var testBals={XLM:10000,USDC:2500,wETH:1.85,wBTC:0.042,EURC:1200,OLIGHFT:5000,PI:500,BNB:0.5};
   saveSharedBalances(testBals);
   for(var k in testBals)bals[k]=testBals[k];
 

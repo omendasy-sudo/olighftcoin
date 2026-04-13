@@ -125,6 +125,7 @@ select option{background:#1a1a2e;color:#fff}
 <option value="wBTC">&#x1F536; wBTC — Wrapped Bitcoin</option>
 <option value="EURC">&#x1F4B6; EURC — Euro Coin</option>
 <option value="PI">&pi; PI — Pi Network</option>
+<option value="BNB">&#x1F538; BNB — BNB</option>
 <option value="OLIGHFT">&#x1F4B0; OLIGHFT — OLIGHFT Smart Coin</option>
 </select>
 </div>
@@ -347,7 +348,7 @@ function showContacts(){
 function hideContacts(){document.getElementById('contactsDropdown').classList.remove('show')}
 function pickContact(addr){document.getElementById('recipient').value=addr;hideContacts();onRecipientInput()}
 
-function getBalances(){try{var b=JSON.parse(localStorage.getItem('cw_balances'));if(b)return b}catch(e){}return{XLM:10000,USDC:2500,wETH:1.85,wBTC:0.042,EURC:1200,OLIGHFT:0}}
+function getBalances(){try{var b=JSON.parse(localStorage.getItem('cw_balances'));if(b)return b}catch(e){}return{XLM:10000,USDC:2500,wETH:1.85,wBTC:0.042,EURC:1200,OLIGHFT:0,PI:500,BNB:0.5}}
 function saveBalances(b){localStorage.setItem('cw_balances',JSON.stringify(b))}
 var balances=getBalances();
 

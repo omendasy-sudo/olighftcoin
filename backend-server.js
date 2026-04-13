@@ -53,7 +53,7 @@ const BASE_APY = 12.0;
 const FEE_WALLET_ADDRESS     = 'GBLEKKQNHKVE7NIOOPY7CQ6SJ4BQCGHD3O5FCPB2B47X2ERKSJGSMWCP';
 const OLIGHFT_TOKEN_CONTRACT = 'CA5NW2ZJISLPTRRPEFY7XIKSB5CZ5XF2PIARJL2F37H7EPRAXXD34W6J';
 
-const DEFAULT_BALS = { XLM: 10000, USDC: 2500, wETH: 1.85, wBTC: 0.042, EURC: 1200, OLIGHFT: 10000, PI: 500 };
+const DEFAULT_BALS = { XLM: 10000, USDC: 2500, wETH: 1.85, wBTC: 0.042, EURC: 1200, OLIGHFT: 10000, PI: 500, BNB: 0.5 };
 
 // ── Database Setup ──────────────────────────────────────────────────────────
 const db = new Database(DB_PATH);
@@ -1141,7 +1141,10 @@ const POOL_REGISTRY = {
   'wBTC/OLIGHFT': { currency0: 'wBTC', currency1: 'OLIGHFT', fee: 3000, reserve0: 10, reserve1: 1360000 },
   'PI/USDC':      { currency0: 'PI', currency1: 'USDC', fee: 3000, reserve0: 1500000, reserve1: 1065000 },
   'PI/OLIGHFT':   { currency0: 'PI', currency1: 'OLIGHFT', fee: 3000, reserve0: 800000, reserve1: 1136000 },
-  'PI/XLM':       { currency0: 'PI', currency1: 'XLM', fee: 3000, reserve0: 1000000, reserve1: 5916667 }
+  'PI/XLM':       { currency0: 'PI', currency1: 'XLM', fee: 3000, reserve0: 1000000, reserve1: 5916667 },
+  'BNB/USDC':     { currency0: 'BNB', currency1: 'USDC', fee: 3000, reserve0: 2500, reserve1: 1495000 },
+  'BNB/OLIGHFT':  { currency0: 'BNB', currency1: 'OLIGHFT', fee: 3000, reserve0: 1500, reserve1: 1794000 },
+  'BNB/XLM':      { currency0: 'BNB', currency1: 'XLM', fee: 3000, reserve0: 2000, reserve1: 9966667 }
 };
 
 function findPool(a, b) {
