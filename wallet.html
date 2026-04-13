@@ -1004,6 +1004,12 @@ function hashSeed(mnemonic){
   return h.toString(16);
 }
 
+async function hashPassword(pw, salt) {
+  var data = new TextEncoder().encode(salt + ':' + pw);
+  var buf = await crypto.subtle.digest('SHA-256', data);
+  return Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');
+}
+
 // ── Assets & Activity Data ──
 const assets=[
   {sym:'XLM',name:'Stellar Lumens',icon:'\u2B50',bal:10000,price:0.12,pct:3.2,bg:'bg-xlm'},
@@ -1112,7 +1118,9 @@ async function register(){
   // Derive Stellar keypair via SEP-0005 path m/44'/148'/0'
   const keyPair = await deriveKeypair(mnemonic, 0);
 
-  const user={name:name, email:email, addr:keyPair.publicKey, sponsor:sponsor, created:Date.now(), seedHash:hashSeed(mnemonic)};
+  var pwSalt = crypto.getRandomValues(new Uint8Array(16)).reduce(function(s,b){return s+b.toString(16).padStart(2,'0');},'');
+  var pwHash = await hashPassword(pass, pwSalt);
+  const user={name:name, email:email, addr:keyPair.publicKey, sponsor:sponsor, created:Date.now(), seedHash:hashSeed(mnemonic), pwSalt:pwSalt, pwHash:pwHash};
   localStorage.setItem('cw_user', JSON.stringify(user));
   // Base64 encode seed for local storage (user's responsibility to back up)
   localStorage.setItem('cw_seed', btoa(mnemonic));
@@ -1121,7 +1129,7 @@ async function register(){
   localStorage.setItem('cw_accounts', btoa(JSON.stringify(accounts)));
   localStorage.setItem('cw_active_idx', '0');
   localStorage.setItem('cw_secret', btoa(keyPair.secret));
-  if(!localStorage.getItem('cw_balances'))localStorage.setItem('cw_balances',JSON.stringify({XLM:10000,USDC:500,wETH:0.5,wBTC:0.02,EURC:200,OLIGHFT:10000}));
+  if(!localStorage.getItem('cw_balances'))localStorage.setItem('cw_balances',JSON.stringify({XLM:10000,USDC:2500,wETH:1.85,wBTC:0.042,EURC:1200,OLIGHFT:10000,PI:500,BNB:0.5}));
 
   checkAndAdvanceOwnStage('wallet_created');
   showToast('Wallet created! Save your recovery phrase!','#27ae60');
@@ -1145,17 +1153,28 @@ async function login(){
     showToast('Generating secure wallet...','#6c5ce7');
     const mnemonic = await generateMnemonic24(email);
     const keyPair = await deriveKeypair(mnemonic, 0);
-    user={name:email.split('@')[0], email:email, addr:keyPair.publicKey, created:Date.now(), seedHash:hashSeed(mnemonic)};
+    var pwSalt2 = crypto.getRandomValues(new Uint8Array(16)).reduce(function(s,b){return s+b.toString(16).padStart(2,'0');},'');
+    var pwHash2 = await hashPassword(pass, pwSalt2);
+    user={name:email.split('@')[0], email:email, addr:keyPair.publicKey, created:Date.now(), seedHash:hashSeed(mnemonic), pwSalt:pwSalt2, pwHash:pwHash2};
     localStorage.setItem('cw_user', JSON.stringify(user));
     localStorage.setItem('cw_seed', btoa(mnemonic));
     const accounts=[{index:0, label:'Primary', publicKey:keyPair.publicKey, secret:keyPair.secret}];
     localStorage.setItem('cw_accounts', btoa(JSON.stringify(accounts)));
     localStorage.setItem('cw_active_idx', '0');
     localStorage.setItem('cw_secret', btoa(keyPair.secret));
-    if(!localStorage.getItem('cw_balances'))localStorage.setItem('cw_balances',JSON.stringify({XLM:10000,USDC:500,wETH:0.5,wBTC:0.02,EURC:200,OLIGHFT:10000}));
+    if(!localStorage.getItem('cw_balances'))localStorage.setItem('cw_balances',JSON.stringify({XLM:10000,USDC:2500,wETH:1.85,wBTC:0.042,EURC:1200,OLIGHFT:10000,PI:500,BNB:0.5}));
     showToast('Wallet created!','#27ae60');
     showSeedScreen(mnemonic);
     return;
+  }
+  // Verify password against stored hash
+  if(user.pwHash && user.pwSalt){
+    var loginHash = await hashPassword(pass, user.pwSalt);
+    if(loginHash !== user.pwHash){
+      document.getElementById('fg-loginPass').classList.add('has-error');
+      showToast('Incorrect password','#eb5757');
+      return;
+    }
   }
   showToast('Welcome back!','#27ae60');
   setTimeout(()=>loadDashboard(),500);
@@ -1350,7 +1369,29 @@ function updateStakeSummary() {
 }
 
 function getWalletStakes() {
-  try { return JSON.parse(localStorage.getItem('wallet_stakes') || '[]'); } catch(e) { return []; }
+  var ws = [];
+  try { ws = JSON.parse(localStorage.getItem('wallet_stakes') || '[]'); } catch(e) {}
+  var cs = [];
+  try { cs = JSON.parse(localStorage.getItem('card_stakes') || '[]'); } catch(e) {}
+  // Merge card_stakes not already in wallet_stakes
+  var ids = {};
+  for (var i = 0; i < ws.length; i++) ids[ws[i].id] = true;
+  for (var j = 0; j < cs.length; j++) {
+    var c = cs[j];
+    if (!c.id) c.id = 'cs_' + j + '_' + new Date(c.date || 0).getTime();
+    if (!ids[c.id]) {
+      c.asset = c.asset || 'OLIGHFT';
+      c.amount = c.amount || c.paidOLIGHFT || 0;
+      c.cardTier = c.cardTier || c.card || '';
+      c.startDate = c.startDate || c.date;
+      c.endDate = c.endDate || (c.period > 0 ? new Date(new Date(c.date || 0).getTime() + c.period * 86400000).toISOString() : null);
+      c.lockDays = c.lockDays || c.period || 0;
+      c.compound = c.compound || 'none';
+      c.withdrawn = c.withdrawn || false;
+      ws.push(c);
+    }
+  }
+  return ws;
 }
 
 function stakeMax() {
