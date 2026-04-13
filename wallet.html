@@ -728,11 +728,25 @@ For <strong>OLIGHFTs</strong>, your single master key signs all <code style="col
 </div>
 <div class="sec-row">
 <div class="sr-left"><div class="sr-icon">&#x1F4F1;</div><div><div class="sr-name">SMS Alerts</div><div class="sr-desc">Get notified on large transactions</div></div></div>
-<button class="toggle" id="togSms" onclick="toggleSec(this)"><div class="dot"></div></button>
+<button class="toggle" id="togSms" onclick="toggleSmsSec(this)"><div class="dot"></div></button>
+</div>
+<div id="smsPhoneRow" style="display:none;padding:6px 16px 10px;background:rgba(255,255,255,.02);border-radius:0 0 10px 10px;margin-top:-8px;margin-bottom:8px">
+<div style="display:flex;gap:6px;align-items:center">
+<input type="tel" id="smsPhoneInput" placeholder="+1234567890" style="flex:1;padding:8px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:#fff;font-size:.72rem;outline:none" maxlength="16">
+<button onclick="savePhone()" style="padding:8px 12px;border:none;border-radius:8px;background:#27ae60;color:#fff;font-size:.65rem;font-weight:700;cursor:pointer">Save</button>
+</div>
+<div style="font-size:.52rem;color:rgba(255,255,255,.3);margin-top:4px">Alerts sent for withdrawals &gt; $100</div>
 </div>
 <div class="sec-row">
 <div class="sr-left"><div class="sr-icon">&#x26A0;&#xFE0F;</div><div><div class="sr-name">Withdrawal Whitelist</div><div class="sr-desc">Only send to approved addresses</div></div></div>
 <button class="toggle" id="togWhitelist" onclick="toggleSec(this)"><div class="dot"></div></button>
+</div>
+<div id="whitelistRow" style="display:none;padding:6px 16px 10px;background:rgba(255,255,255,.02);border-radius:0 0 10px 10px;margin-top:-8px;margin-bottom:8px">
+<div style="display:flex;gap:6px;align-items:center;margin-bottom:6px">
+<input type="text" id="wlAddrInput" placeholder="G... Stellar address" style="flex:1;padding:8px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:#fff;font-size:.68rem;outline:none;font-family:monospace" maxlength="56">
+<button onclick="addWhitelistAddr()" style="padding:8px 12px;border:none;border-radius:8px;background:#6c5ce7;color:#fff;font-size:.65rem;font-weight:700;cursor:pointer">Add</button>
+</div>
+<div id="wlList" style="font-size:.55rem;color:rgba(255,255,255,.4)"></div>
 </div>
 <div class="sec-row">
 <div class="sr-left"><div class="sr-icon">&#x23F3;</div><div><div class="sr-name">24h Withdrawal Lock</div><div class="sr-desc">Delay on new withdrawal addresses</div></div></div>
@@ -1004,12 +1018,6 @@ function hashSeed(mnemonic){
   return h.toString(16);
 }
 
-async function hashPassword(pw, salt) {
-  var data = new TextEncoder().encode(salt + ':' + pw);
-  var buf = await crypto.subtle.digest('SHA-256', data);
-  return Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');
-}
-
 // ── Assets & Activity Data ──
 const assets=[
   {sym:'XLM',name:'Stellar Lumens',icon:'\u2B50',bal:10000,price:0.12,pct:3.2,bg:'bg-xlm'},
@@ -1118,9 +1126,7 @@ async function register(){
   // Derive Stellar keypair via SEP-0005 path m/44'/148'/0'
   const keyPair = await deriveKeypair(mnemonic, 0);
 
-  var pwSalt = crypto.getRandomValues(new Uint8Array(16)).reduce(function(s,b){return s+b.toString(16).padStart(2,'0');},'');
-  var pwHash = await hashPassword(pass, pwSalt);
-  const user={name:name, email:email, addr:keyPair.publicKey, sponsor:sponsor, created:Date.now(), seedHash:hashSeed(mnemonic), pwSalt:pwSalt, pwHash:pwHash};
+  const user={name:name, email:email, addr:keyPair.publicKey, sponsor:sponsor, created:Date.now(), seedHash:hashSeed(mnemonic)};
   localStorage.setItem('cw_user', JSON.stringify(user));
   // Base64 encode seed for local storage (user's responsibility to back up)
   localStorage.setItem('cw_seed', btoa(mnemonic));
@@ -1129,7 +1135,7 @@ async function register(){
   localStorage.setItem('cw_accounts', btoa(JSON.stringify(accounts)));
   localStorage.setItem('cw_active_idx', '0');
   localStorage.setItem('cw_secret', btoa(keyPair.secret));
-  if(!localStorage.getItem('cw_balances'))localStorage.setItem('cw_balances',JSON.stringify({XLM:10000,USDC:2500,wETH:1.85,wBTC:0.042,EURC:1200,OLIGHFT:10000,PI:500,BNB:0.5}));
+  if(!localStorage.getItem('cw_balances'))localStorage.setItem('cw_balances',JSON.stringify({XLM:10000,USDC:500,wETH:0.5,wBTC:0.02,EURC:200,OLIGHFT:10000}));
 
   checkAndAdvanceOwnStage('wallet_created');
   showToast('Wallet created! Save your recovery phrase!','#27ae60');
@@ -1153,28 +1159,17 @@ async function login(){
     showToast('Generating secure wallet...','#6c5ce7');
     const mnemonic = await generateMnemonic24(email);
     const keyPair = await deriveKeypair(mnemonic, 0);
-    var pwSalt2 = crypto.getRandomValues(new Uint8Array(16)).reduce(function(s,b){return s+b.toString(16).padStart(2,'0');},'');
-    var pwHash2 = await hashPassword(pass, pwSalt2);
-    user={name:email.split('@')[0], email:email, addr:keyPair.publicKey, created:Date.now(), seedHash:hashSeed(mnemonic), pwSalt:pwSalt2, pwHash:pwHash2};
+    user={name:email.split('@')[0], email:email, addr:keyPair.publicKey, created:Date.now(), seedHash:hashSeed(mnemonic)};
     localStorage.setItem('cw_user', JSON.stringify(user));
     localStorage.setItem('cw_seed', btoa(mnemonic));
     const accounts=[{index:0, label:'Primary', publicKey:keyPair.publicKey, secret:keyPair.secret}];
     localStorage.setItem('cw_accounts', btoa(JSON.stringify(accounts)));
     localStorage.setItem('cw_active_idx', '0');
     localStorage.setItem('cw_secret', btoa(keyPair.secret));
-    if(!localStorage.getItem('cw_balances'))localStorage.setItem('cw_balances',JSON.stringify({XLM:10000,USDC:2500,wETH:1.85,wBTC:0.042,EURC:1200,OLIGHFT:10000,PI:500,BNB:0.5}));
+    if(!localStorage.getItem('cw_balances'))localStorage.setItem('cw_balances',JSON.stringify({XLM:10000,USDC:500,wETH:0.5,wBTC:0.02,EURC:200,OLIGHFT:10000}));
     showToast('Wallet created!','#27ae60');
     showSeedScreen(mnemonic);
     return;
-  }
-  // Verify password against stored hash
-  if(user.pwHash && user.pwSalt){
-    var loginHash = await hashPassword(pass, user.pwSalt);
-    if(loginHash !== user.pwHash){
-      document.getElementById('fg-loginPass').classList.add('has-error');
-      showToast('Incorrect password','#eb5757');
-      return;
-    }
   }
   showToast('Welcome back!','#27ae60');
   setTimeout(()=>loadDashboard(),500);
@@ -1369,29 +1364,7 @@ function updateStakeSummary() {
 }
 
 function getWalletStakes() {
-  var ws = [];
-  try { ws = JSON.parse(localStorage.getItem('wallet_stakes') || '[]'); } catch(e) {}
-  var cs = [];
-  try { cs = JSON.parse(localStorage.getItem('card_stakes') || '[]'); } catch(e) {}
-  // Merge card_stakes not already in wallet_stakes
-  var ids = {};
-  for (var i = 0; i < ws.length; i++) ids[ws[i].id] = true;
-  for (var j = 0; j < cs.length; j++) {
-    var c = cs[j];
-    if (!c.id) c.id = 'cs_' + j + '_' + new Date(c.date || 0).getTime();
-    if (!ids[c.id]) {
-      c.asset = c.asset || 'OLIGHFT';
-      c.amount = c.amount || c.paidOLIGHFT || 0;
-      c.cardTier = c.cardTier || c.card || '';
-      c.startDate = c.startDate || c.date;
-      c.endDate = c.endDate || (c.period > 0 ? new Date(new Date(c.date || 0).getTime() + c.period * 86400000).toISOString() : null);
-      c.lockDays = c.lockDays || c.period || 0;
-      c.compound = c.compound || 'none';
-      c.withdrawn = c.withdrawn || false;
-      ws.push(c);
-    }
-  }
-  return ws;
+  try { return JSON.parse(localStorage.getItem('wallet_stakes') || '[]'); } catch(e) { return []; }
 }
 
 function stakeMax() {
@@ -1607,6 +1580,30 @@ function withdrawStake(stakeId) {
   var s = stakes[idx];
   var now = Date.now();
 
+  // ── 24h Withdrawal Lock check ──
+  var sec = JSON.parse(localStorage.getItem('cw_security') || '{}');
+  if (sec.togLock) {
+    var lockTs = parseInt(localStorage.getItem('cw_wd_lock_until') || '0');
+    if (now < lockTs) {
+      var mins = Math.ceil((lockTs - now) / 60000);
+      var hrs = Math.floor(mins / 60);
+      var m = mins % 60;
+      showToast('Withdrawal locked! ' + (hrs > 0 ? hrs + 'h ' : '') + m + 'm remaining.', '#eb5757');
+      return;
+    }
+  }
+
+  // ── Address Whitelist check ──
+  if (sec.togWhitelist) {
+    var whitelist = JSON.parse(localStorage.getItem('cw_whitelist') || '[]');
+    var user = JSON.parse(localStorage.getItem('cw_user') || 'null');
+    var myAddr = user && user.addr ? user.addr : '';
+    if (whitelist.length > 0 && myAddr && whitelist.indexOf(myAddr) < 0) {
+      showToast('Withdrawal blocked — address not in whitelist.', '#eb5757');
+      return;
+    }
+  }
+
   // Lock period check (flexible stakes have no endDate)
   if (s.endDate) {
     var end = new Date(s.endDate).getTime();
@@ -1685,17 +1682,15 @@ function _trySendWdEmail(code) {
       }).then(function() {
         document.getElementById('wd-timer').textContent = 'Code sent to ' + u.email;
       }).catch(function() {
-        // Auto-fill if email fails
-        _autoFillWdOtp(code);
-        document.getElementById('wd-timer').textContent = 'Code auto-filled (email unavailable)';
+        document.getElementById('wd-timer').textContent = 'Email failed — check your email settings';
+        document.getElementById('wd-error').textContent = 'Could not send OTP, try again or switch method';
       });
     } else {
-      // No email service — auto-fill
-      _autoFillWdOtp(code);
-      document.getElementById('wd-timer').textContent = 'Code auto-filled — tap Verify';
+      document.getElementById('wd-timer').textContent = 'Email service unavailable — switch to Google Auth';
+      document.getElementById('wd-error').textContent = 'Email not configured. Use Google Authenticator instead.';
     }
   } catch(e) {
-    _autoFillWdOtp(code);
+    document.getElementById('wd-timer').textContent = 'Email error — switch to another method';
   }
 }
 
@@ -1811,6 +1806,12 @@ function _executeWithdraw(stakeId, totalReturn, asset) {
   var idx = stakes.findIndex(function(s) { return s.id === stakeId; });
   if (idx < 0) { showToast('Stake not found.', '#eb5757'); return; }
   var s = stakes[idx];
+
+  // ── Set 24h withdrawal lock cooldown (if togLock enabled) ──
+  var sec = JSON.parse(localStorage.getItem('cw_security') || '{}');
+  if (sec.togLock) {
+    localStorage.setItem('cw_wd_lock_until', String(Date.now() + 24 * 60 * 60 * 1000));
+  }
 
   // On-chain Soroban withdraw (async, non-blocking)
   if (typeof STAKING_BACKEND !== 'undefined' && STAKING_BACKEND.isWalletConnected() && asset === 'OLIGHFT') {
@@ -2365,8 +2366,77 @@ function toggleSec(el){
   sec[id]=isOn;
   localStorage.setItem('cw_security',JSON.stringify(sec));
   showToast(el.closest('.sec-row').querySelector('.sr-name').textContent+': '+(isOn?'Enabled':'Disabled'),'#6c5ce7');
+  // Show/hide whitelist panel
+  if(id==='togWhitelist'){
+    var wlRow=document.getElementById('whitelistRow');
+    if(wlRow) wlRow.style.display=isOn?'block':'none';
+    if(isOn) renderWhitelist();
+  }
 }
 window.toggleSec=toggleSec;
+
+// ── SMS Alerts Toggle (with phone input) ──
+function toggleSmsSec(el){
+  el.classList.toggle('on');
+  var isOn=el.classList.contains('on');
+  var sec=JSON.parse(localStorage.getItem('cw_security')||'{}');
+  sec.togSms=isOn;
+  localStorage.setItem('cw_security',JSON.stringify(sec));
+  var phoneRow=document.getElementById('smsPhoneRow');
+  if(phoneRow) phoneRow.style.display=isOn?'block':'none';
+  if(isOn){
+    var u=JSON.parse(localStorage.getItem('cw_user')||'{}');
+    var inp=document.getElementById('smsPhoneInput');
+    if(inp&&u.phone) inp.value=u.phone;
+  }
+  showToast('SMS Alerts: '+(isOn?'Enabled':'Disabled'),'#6c5ce7');
+}
+window.toggleSmsSec=toggleSmsSec;
+
+function savePhone(){
+  var phone=document.getElementById('smsPhoneInput').value.trim();
+  if(!phone||phone.length<8){showToast('Enter a valid phone number','#eb5757');return;}
+  var u=JSON.parse(localStorage.getItem('cw_user')||'{}');
+  u.phone=phone;
+  localStorage.setItem('cw_user',JSON.stringify(u));
+  showToast('Phone saved: '+phone,'#27ae60');
+}
+window.savePhone=savePhone;
+
+// ── Withdrawal Whitelist Management ──
+function addWhitelistAddr(){
+  var addr=document.getElementById('wlAddrInput').value.trim();
+  if(!addr||addr.length!==56||addr[0]!=='G'){showToast('Invalid Stellar address (must start with G, 56 chars)','#eb5757');return;}
+  var list=JSON.parse(localStorage.getItem('cw_whitelist')||'[]');
+  if(list.indexOf(addr)>=0){showToast('Address already whitelisted','#f2994a');return;}
+  list.push(addr);
+  localStorage.setItem('cw_whitelist',JSON.stringify(list));
+  document.getElementById('wlAddrInput').value='';
+  renderWhitelist();
+  showToast('Address added to whitelist','#27ae60');
+}
+window.addWhitelistAddr=addWhitelistAddr;
+
+function removeWhitelistAddr(addr){
+  var list=JSON.parse(localStorage.getItem('cw_whitelist')||'[]');
+  list=list.filter(function(a){return a!==addr;});
+  localStorage.setItem('cw_whitelist',JSON.stringify(list));
+  renderWhitelist();
+  showToast('Address removed','#f2994a');
+}
+window.removeWhitelistAddr=removeWhitelistAddr;
+
+function renderWhitelist(){
+  var list=JSON.parse(localStorage.getItem('cw_whitelist')||'[]');
+  var el=document.getElementById('wlList');
+  if(!el)return;
+  if(list.length===0){el.innerHTML='<div style="padding:4px 0">No addresses whitelisted yet</div>';return;}
+  el.innerHTML=list.map(function(a){
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.04)">'+
+      '<span style="font-family:monospace">'+a.slice(0,8)+'...'+a.slice(-4)+'</span>'+
+      '<button onclick="removeWhitelistAddr(\''+a+'\')" style="border:none;background:none;color:#eb5757;cursor:pointer;font-size:.6rem">\u2716</button></div>';
+  }).join('');
+}
 
 // Restore security toggles from localStorage
 function restoreSecToggles(){
@@ -2375,6 +2445,20 @@ function restoreSecToggles(){
     const el=document.getElementById(id);
     if(el){if(sec[id])el.classList.add('on');else el.classList.remove('on');}
   });
+  // Show/hide conditional panels
+  var phoneRow=document.getElementById('smsPhoneRow');
+  if(phoneRow) phoneRow.style.display=sec.togSms?'block':'none';
+  var wlRow=document.getElementById('whitelistRow');
+  if(wlRow){
+    wlRow.style.display=sec.togWhitelist?'block':'none';
+    if(sec.togWhitelist) renderWhitelist();
+  }
+  // Restore saved phone
+  if(sec.togSms){
+    var u=JSON.parse(localStorage.getItem('cw_user')||'{}');
+    var inp=document.getElementById('smsPhoneInput');
+    if(inp&&u.phone) inp.value=u.phone;
+  }
 }
 
 function showToast(msg,color){
@@ -2461,16 +2545,48 @@ function msBuildSetoptPreview(){
 }
 
 function msCreateTx(){
-  const accounts=getAccounts();
+  var accounts=getAccounts();
   if(accounts.length===0){showToast('Create a wallet first','#eb5757');return;}
-  const txId='TX-'+Date.now().toString(36).toUpperCase();
-  const tx={id:txId, type:'Payment', detail:'Single-signer authorized transaction', created:Date.now()};
-  var txs=JSON.parse(localStorage.getItem('cw_single_txs')||'[]');
-  txs.unshift(tx);
-  if(txs.length>10) txs=txs.slice(0,10);
-  localStorage.setItem('cw_single_txs',JSON.stringify(txs));
-  showToast('Transaction '+txId+' created, signed & submitted (master key: weight 255)','#27ae60');
-  msRender();
+  var pk=accounts[0].publicKey;
+  var sk=null;
+  try{var raw=localStorage.getItem('cw_secret');if(raw)sk=atob(raw);}catch(e){}
+  if(!sk){showToast('Secret key not available — cannot sign','#eb5757');return;}
+
+  var txId='TX-'+Date.now().toString(36).toUpperCase();
+  var tx={id:txId, type:'SetOptions', detail:'Single-signer authorization (weight 255, thresholds 1/1/1)', created:Date.now(), status:'building'};
+
+  // Attempt real Stellar Testnet SetOptions transaction
+  (async function(){
+    try{
+      var server=new StellarSdk.Horizon.Server('https://horizon-testnet.stellar.org');
+      var account=await server.loadAccount(pk);
+      var setOptOp=StellarSdk.Operation.setOptions({
+        masterWeight:255,
+        lowThreshold:1,
+        medThreshold:1,
+        highThreshold:1
+      });
+      var built=new StellarSdk.TransactionBuilder(account,{
+        fee:'100',
+        networkPassphrase:StellarSdk.Networks.TESTNET
+      }).addOperation(setOptOp).setTimeout(300).build();
+      built.sign(StellarSdk.Keypair.fromSecret(sk));
+      var result=await server.submitTransaction(built);
+      tx.status='confirmed';
+      tx.txHash=result.hash;
+      tx.detail='SetOptions confirmed — master weight 255, thresholds 1/1/1';
+      showToast('\u2705 TX '+txId+' confirmed on Testnet!','#27ae60');
+    }catch(e){
+      tx.status='local-only';
+      tx.detail='Single-signer authorized (off-chain) — '+e.message;
+      showToast('TX '+txId+' saved locally (network: '+e.message+')','#f2994a');
+    }
+    var txs=JSON.parse(localStorage.getItem('cw_single_txs')||'[]');
+    txs.unshift(tx);
+    if(txs.length>10) txs=txs.slice(0,10);
+    localStorage.setItem('cw_single_txs',JSON.stringify(txs));
+    msRender();
+  })();
 }
 window.msCreateTx=msCreateTx;
 
