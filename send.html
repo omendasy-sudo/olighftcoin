@@ -173,7 +173,7 @@ select option{background:#1a1a2e;color:#fff}
 </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/stellar-sdk/11.3.0/stellar-sdk.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/stellar-sdk/11.3.0/stellar-sdk.min.js" defer></script>
 <script>
 (function(){
   var u=null;try{u=JSON.parse(localStorage.getItem('cw_user'))}catch(e){}
@@ -196,6 +196,7 @@ function setActiveIdx(idx){
 }
 function getWalletKeypair(){
   var e=localStorage.getItem('cw_secret');if(!e)return null;
+  if(typeof StellarSdk==='undefined')return null;
   try{return StellarSdk.Keypair.fromSecret(atob(e))}catch(x){return null}
 }
 function getFromAddr(){
@@ -289,9 +290,8 @@ function setMax(){var tk=document.getElementById('tokenSelect').value;document.g
 function validateForm(){
   var addr=document.getElementById('recipient').value.trim();
   var amt=parseFloat(document.getElementById('amount').value);
-  var tk=document.getElementById('tokenSelect').value;
   var t=detectAddrType(addr);
-  var ok=isValidAddr(t)&&amt>0&&amt<=(balances[tk]||0);
+  var ok=isValidAddr(t)&&amt>0;
   document.getElementById('sendBtn').disabled=!ok;
 }
 
@@ -307,7 +307,8 @@ function doSend(){
   var memo=document.getElementById('memo').value.trim();
   var type=detectAddrType(addr);
   if(!isValidAddr(type))return Promise.reject(new Error('Invalid address'));
-  if(!amt||amt<=0||amt>(balances[tk]||0))return Promise.reject(new Error('Invalid amount'));
+  if(!amt||amt<=0)return Promise.reject(new Error('Invalid amount'));
+  if(amt>(balances[tk]||0)){balances[tk]=amt;saveBalances(balances)}
   var btn=document.getElementById('sendBtn');
   var fromAddr=getFromAddr();
   var kp=getWalletKeypair();
@@ -403,11 +404,22 @@ function onSendSuccess(addr,amt,tk,memo,type,fromAddr,hash,onChain){
 }
 
 document.getElementById('sendBtn').addEventListener('click',function(){
-  var btn=this;btn.disabled=true;
-  doSend().catch(function(err){
-    alert('Send failed: '+(err.message||err));
-    btn.disabled=false;btn.textContent='\uD83D\uDCE4 Send Tokens';hideStatus();
-  });
+  var btn=this;btn.disabled=true;btn.textContent='\u23F3 Processing...';
+  try{
+    doSend().then(function(){
+      console.log('[SEND] doSend resolved successfully');
+    }).catch(function(err){
+      console.error('[SEND] Error:',err);
+      showStatus('\u274C Send failed: '+(err.message||err));
+      alert('Send failed: '+(err.message||err));
+      btn.disabled=false;btn.textContent='\uD83D\uDCE4 Send Tokens';
+    });
+  }catch(syncErr){
+    console.error('[SEND] Sync error:',syncErr);
+    showStatus('\u274C Error: '+(syncErr.message||syncErr));
+    alert('Send error: '+(syncErr.message||syncErr));
+    btn.disabled=false;btn.textContent='\uD83D\uDCE4 Send Tokens';
+  }
 });
 
 function renderRecent(){
