@@ -735,7 +735,10 @@ function renderCardTxHistory(){
   el.innerHTML=html;
 }
 
+var _claimBusy=false;
 async function claimCardRewards(stakeDate, activeIdx){
+  if(_claimBusy){return;} _claimBusy=true;
+  try{
   if(typeof STAKING_BACKEND==='undefined'||!STAKING_BACKEND.isWalletConnected()){
     alert('\u26A0\uFE0F Wallet not connected. Please log in from Wallet page first.');return;
   }
@@ -756,6 +759,7 @@ async function claimCardRewards(stakeDate, activeIdx){
     console.warn('On-chain claim failed:',e.message);
     alert('\u26A0\uFE0F Claim failed: '+e.message);
   }
+  }finally{ _claimBusy=false; }
 }
 
 async function loadPendingRewards(){

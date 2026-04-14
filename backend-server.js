@@ -37,11 +37,11 @@ const GEN_RATES                = [0.10, 0.06, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04
 const OLIGHFT_PRICE_VAR        = { current: 0.50 };
 
 const CARD_TIERS = {
-  Visa:       { min: 100, daily: 8,  fee: 40,  boost: 1.0 },
-  Gold:       { min: 400, daily: 32, fee: 160, boost: 2.0 },
-  Platinum:   { min: 300, daily: 24, fee: 120, boost: 1.5 },
-  Black:      { min: 500, daily: 40, fee: 200, boost: 3.0 },
-  Amex:       { min: 200, daily: 16, fee: 80,  boost: 1.2 },
+  Visa:       { min: 100, daily: 6,  fee: 40,  boost: 1.0 },
+  Gold:       { min: 400, daily: 24, fee: 160, boost: 2.0 },
+  Platinum:   { min: 300, daily: 18, fee: 120, boost: 1.5 },
+  Black:      { min: 500, daily: 30, fee: 200, boost: 3.0 },
+  Amex:       { min: 200, daily: 12, fee: 80,  boost: 1.2 },
   Mastercard: { min: 50,  daily: 4,  fee: 20,  boost: 0.5 }
 };
 

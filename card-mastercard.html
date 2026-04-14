@@ -482,11 +482,11 @@ h1{text-align:center;font-size:1.8rem;margin-bottom:6px;background:linear-gradie
 
 const ALL_CARDS={
   Mastercard:{name:'Mastercard',stake:50,daily:4,fee:20,color:'#f2994a',periods:{30:120,90:360,180:720,365:1460}},
-  Visa:{name:'Visa',stake:100,daily:8,fee:40,color:'#f5c518',periods:{30:240,90:720,180:1440,365:2920}},
-  Amex:{name:'Amex',stake:200,daily:16,fee:80,color:'#2d9cdb',periods:{30:480,90:1440,180:2880,365:5840}},
-  Platinum:{name:'Platinum',stake:300,daily:24,fee:120,color:'#a0aec0',periods:{30:720,90:2160,180:4320,365:8760}},
-  Gold:{name:'Gold',stake:400,daily:32,fee:160,color:'#daa520',periods:{30:960,90:2880,180:5760,365:11680}},
-  Black:{name:'Black',stake:500,daily:40,fee:200,color:'#e2e8f0',periods:{30:1200,90:3600,180:7200,365:14600}}
+  Visa:{name:'Visa',stake:100,daily:6,fee:40,color:'#f5c518',periods:{30:180,90:540,180:1080,365:2190}},
+  Amex:{name:'Amex',stake:200,daily:12,fee:80,color:'#2d9cdb',periods:{30:360,90:1080,180:2160,365:4380}},
+  Platinum:{name:'Platinum',stake:300,daily:18,fee:120,color:'#a0aec0',periods:{30:540,90:1620,180:3240,365:6570}},
+  Gold:{name:'Gold',stake:400,daily:24,fee:160,color:'#daa520',periods:{30:720,90:2160,180:4320,365:8760}},
+  Black:{name:'Black',stake:500,daily:30,fee:200,color:'#e2e8f0',periods:{30:900,90:2700,180:5400,365:10950}}
 };
 let CARD={name:'Mastercard',stake:50,daily:4,fee:20,color:'#f2994a'};
 let PERIODS={30:{payout:120},90:{payout:360},180:{payout:720},365:{payout:1460}};
@@ -890,7 +890,10 @@ function renderCardTxHistory(){
   el.innerHTML=html;
 }
 
+var _claimBusy=false;
 async function claimCardRewards(stakeDate, activeIdx){
+  if(_claimBusy){return;} _claimBusy=true;
+  try{
   if(typeof STAKING_BACKEND==='undefined'||!STAKING_BACKEND.isWalletConnected()){
     alert('\u26A0\uFE0F Wallet not connected. Please log in from Wallet page first.');return;
   }
@@ -911,6 +914,7 @@ async function claimCardRewards(stakeDate, activeIdx){
     console.warn('On-chain claim failed:',e.message);
     alert('\u26A0\uFE0F Claim failed: '+e.message);
   }
+  }finally{ _claimBusy=false; }
 }
 
 async function loadPendingRewards(){
