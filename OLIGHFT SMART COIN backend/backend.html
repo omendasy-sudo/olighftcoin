@@ -133,6 +133,7 @@ table tr:hover td{background:rgba(99,102,241,.03)}
 <a href="#" onclick="showTab('transactions',this)"><span class="s-icon">&#x1F4CB;</span> Transactions</a>
 <a href="#" onclick="showTab('referrals',this)"><span class="s-icon">&#x1F333;</span> Referral Tree</a>
 <a href="#" onclick="showTab('supply',this)"><span class="s-icon">&#x1F4E6;</span> Supply</a>
+<a href="#" onclick="showTab('fees',this)"><span class="s-icon">&#x1F4B8;</span> Fees</a>
 <div class="sep"></div>
 <a href="#" onclick="showTab('wallets',this)"><span class="s-icon">&#x1F4B3;</span> Wallets</a>
 <a href="#" onclick="showTab('settings',this)"><span class="s-icon">&#x2699;&#xFE0F;</span> Settings</a>
@@ -179,7 +180,7 @@ table tr:hover td{background:rgba(99,102,241,.03)}
 <div class="stats" id="stakeStats"></div>
 <div class="table-card">
 <div class="table-head"><h3>Stake Records</h3><div class="badge" id="stakeCount">0</div></div>
-<table><thead><tr><th>Card</th><th>Stake</th><th>Daily</th><th>Period</th><th>Payout</th><th>Sponsor</th><th>Status</th><th>Date</th></tr></thead><tbody id="stakesBody"></tbody></table>
+<table><thead><tr><th>Card</th><th>Stake</th><th>Fee</th><th>Daily</th><th>Period</th><th>Payout</th><th>Sponsor</th><th>Status</th><th>Date</th></tr></thead><tbody id="stakesBody"></tbody></table>
 </div>
 </div>
 
@@ -195,6 +196,31 @@ table tr:hover td{background:rgba(99,102,241,.03)}
 <div class="table-head"><h3>&#x1F504; Swap Transactions</h3><div class="badge" id="swapTxCount">0</div></div>
 <table><thead><tr><th>From</th><th>To</th><th>Amount</th><th>Hash</th><th>Time</th></tr></thead><tbody id="swapTxBody"></tbody></table>
 </div>
+</div>
+</div>
+
+<!-- ═══ FEES ═══ -->
+<div class="panel" id="panel-fees">
+<h2>&#x1F4B8; Fee Overview</h2>
+<div class="stats" id="feeStats"></div>
+
+<div class="table-card">
+<div class="table-head"><h3>&#x1F4B3; Card Tier Fee Schedule</h3></div>
+<table><thead><tr><th>Card Tier</th><th>Stake</th><th>Fee</th><th>Total Cost</th><th>Daily Earning</th><th>Fee %</th></tr></thead><tbody id="feeScheduleBody"></tbody></table>
+</div>
+
+<div class="table-card">
+<div class="table-head"><h3>&#x1F4CA; Fees Collected by Card</h3><div class="badge" id="feeByCardBadge">LIVE</div></div>
+<table><thead><tr><th>Card Tier</th><th>Stakes</th><th>Fee per Stake</th><th>Total Fees</th><th>Admin 60%</th><th>Referral 40%</th></tr></thead><tbody id="feeByCardBody"></tbody></table>
+<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 18px;border-top:1px solid rgba(255,255,255,.04)">
+<div style="font-size:.75rem;font-weight:700;color:#818cf8">Grand Total Fees</div>
+<div style="font-size:.95rem;font-weight:800;color:#eb5757" id="grandTotalFees">$0</div>
+</div>
+</div>
+
+<div class="table-card">
+<div class="table-head"><h3>&#x1F4CB; All Stake Fee Records</h3><div class="badge" id="feeRecordCount">0</div></div>
+<table><thead><tr><th>Card</th><th>Stake</th><th>Fee</th><th>Total Paid</th><th>Admin Share</th><th>Referral Pool</th><th>Sponsor</th><th>Date</th></tr></thead><tbody id="feeRecordsBody"></tbody></table>
 </div>
 </div>
 
@@ -367,6 +393,7 @@ function refreshTab(id){
     case 'transactions': renderTransactions(); break;
     case 'referrals': renderReferrals(); break;
     case 'supply': renderSupply(); break;
+    case 'fees': renderFees(); break;
     case 'wallets': renderWallets(); break;
     case 'settings': renderSettings(); break;
   }
@@ -487,8 +514,8 @@ function renderStakes(){
     const end=start+((s.period||0)*86400000);
     const isActive=Date.now()<end;
     const d=new Date(s.date).toLocaleDateString();
-    return '<tr><td style="font-weight:600">'+s.card+'</td><td>$'+s.stake+'</td><td>$'+s.daily+'/day</td><td>'+s.period+' days</td><td style="font-weight:700;color:#27ae60">$'+s.payout+'</td><td>'+(s.sponsor||'-')+'</td><td>'+(isActive?'<span class="badge-active">Active</span>':'<span class="badge-expired">Expired</span>')+'</td><td>'+d+'</td></tr>';
-  }).join('')||'<tr><td colspan="8" style="text-align:center;color:rgba(255,255,255,.2)">No stakes yet</td></tr>';
+    return '<tr><td style="font-weight:600">'+s.card+'</td><td>$'+s.stake+'</td><td style="font-weight:700;color:#eb5757">$'+(s.fee||0)+'</td><td>$'+s.daily+'/day</td><td>'+s.period+' days</td><td style="font-weight:700;color:#27ae60">$'+s.payout+'</td><td>'+(s.sponsor||'-')+'</td><td>'+(isActive?'<span class="badge-active">Active</span>':'<span class="badge-expired">Expired</span>')+'</td><td>'+d+'</td></tr>';
+  }).join('')||'<tr><td colspan="9" style="text-align:center;color:rgba(255,255,255,.2)">No stakes yet</td></tr>';
 }
 
 // ── Transactions ──
@@ -745,6 +772,72 @@ function drawDashChart(){
 }
 
 // ── Settings ──
+// ── Fees ──
+function renderFees(){
+  const stakes=getStakes();
+  const CARD_TIERS={
+    Mastercard:{stake:50,fee:20,daily:4},
+    Visa:{stake:100,fee:40,daily:6},
+    Amex:{stake:200,fee:80,daily:12},
+    Platinum:{stake:300,fee:120,daily:18},
+    Gold:{stake:400,fee:160,daily:24},
+    Black:{stake:500,fee:200,daily:30}
+  };
+
+  // Fee schedule
+  document.getElementById('feeScheduleBody').innerHTML=Object.keys(CARD_TIERS).map(c=>{
+    const t=CARD_TIERS[c];
+    const pct=(t.fee/(t.stake+t.fee)*100).toFixed(1);
+    return '<tr><td style="font-weight:600">'+c+'</td><td>$'+t.stake+'</td><td style="font-weight:700;color:#eb5757">$'+t.fee+'</td><td>$'+(t.stake+t.fee)+'</td><td style="color:#27ae60">$'+t.daily+'/day</td><td>'+pct+'%</td></tr>';
+  }).join('');
+
+  // Aggregate by card
+  let grandTotal=0,grandAdmin=0,grandRef=0,totalStakeCount=0;
+  const byCard={};
+  stakes.forEach(s=>{
+    const fee=s.fee||0;
+    if(!byCard[s.card])byCard[s.card]={count:0,totalFees:0,feeEach:fee};
+    byCard[s.card].count++;
+    byCard[s.card].totalFees+=fee;
+    grandTotal+=fee;
+    totalStakeCount++;
+    const adminShare=s.split&&s.split.adminUSD?s.split.adminUSD:(fee*0.6);
+    const refShare=fee-adminShare;
+    if(!byCard[s.card].admin)byCard[s.card].admin=0;
+    if(!byCard[s.card].ref)byCard[s.card].ref=0;
+    byCard[s.card].admin+=adminShare;
+    byCard[s.card].ref+=refShare;
+    grandAdmin+=adminShare;
+    grandRef+=refShare;
+  });
+
+  // Fee stats
+  document.getElementById('feeStats').innerHTML=
+    '<div class="stat-card"><div class="sc-label">Total Fees Collected</div><div class="sc-val sc-red">$'+grandTotal.toLocaleString()+'</div><div class="sc-sub">from '+totalStakeCount+' stakes</div></div>'+
+    '<div class="stat-card"><div class="sc-label">Admin Revenue (60%)</div><div class="sc-val sc-gold">$'+grandAdmin.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})+'</div><div class="sc-sub">Platform wallet</div></div>'+
+    '<div class="stat-card"><div class="sc-label">Referral Pool (40%)</div><div class="sc-val sc-green">$'+grandRef.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})+'</div><div class="sc-sub">8-gen distribution</div></div>'+
+    '<div class="stat-card"><div class="sc-label">Avg Fee per Stake</div><div class="sc-val sc-purple">$'+(totalStakeCount>0?(grandTotal/totalStakeCount).toFixed(2):'0')+'</div><div class="sc-sub">across all tiers</div></div>';
+
+  // Fees by card table
+  const cards=Object.keys(byCard).sort();
+  document.getElementById('feeByCardBody').innerHTML=cards.map(c=>{
+    const d=byCard[c];
+    return '<tr><td style="font-weight:600">'+c+'</td><td>'+d.count+'</td><td style="color:#eb5757">$'+d.feeEach+'</td><td style="font-weight:700;color:#eb5757">$'+d.totalFees.toLocaleString()+'</td><td style="color:#f5c518">$'+d.admin.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})+'</td><td style="color:#27ae60">$'+d.ref.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})+'</td></tr>';
+  }).join('')||'<tr><td colspan="6" style="text-align:center;color:rgba(255,255,255,.2)">No fee data yet</td></tr>';
+  document.getElementById('grandTotalFees').textContent='$'+grandTotal.toLocaleString();
+
+  // Individual fee records
+  document.getElementById('feeRecordCount').textContent=stakes.length;
+  document.getElementById('feeRecordsBody').innerHTML=stakes.map(s=>{
+    const fee=s.fee||0;
+    const totalPaid=s.stake+fee;
+    const adminUSD=s.split&&s.split.adminUSD?s.split.adminUSD.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2}):(fee*0.6).toFixed(2);
+    const refPool=s.split&&s.split.referralPool?s.split.referralPool.toFixed(2):(fee*0.4).toFixed(2);
+    const d=new Date(s.date).toLocaleDateString();
+    return '<tr><td style="font-weight:600">'+s.card+'</td><td>$'+s.stake+'</td><td style="font-weight:700;color:#eb5757">$'+fee+'</td><td>$'+totalPaid+'</td><td style="color:#f5c518">$'+adminUSD+'</td><td style="color:#27ae60">'+refPool+' OLI</td><td>'+(s.sponsor||'-')+'</td><td>'+d+'</td></tr>';
+  }).join('')||'<tr><td colspan="8" style="text-align:center;color:rgba(255,255,255,.2)">No stake records</td></tr>';
+}
+
 function renderSettings(){
   const sec=getSecSettings();
   const ms=getMsConfig();
