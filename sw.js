@@ -1,4 +1,4 @@
-const CACHE_NAME = 'olighft-v2';
+const CACHE_NAME = 'olighft-v3';
 const PRECACHE = [
   '/',
   '/dashboard.html',
@@ -17,6 +17,7 @@ const PRECACHE = [
   '/card-black.html',
   '/staking-backend.js',
   '/escrow-backend.js',
+  '/p2p-backend.js',
   '/manifest.json'
 ];
 

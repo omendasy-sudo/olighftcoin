@@ -1764,7 +1764,7 @@ var P2P_API = (function() {
   'use strict';
 
   // ── Config ─────────────────────────────────────────────────
-  var API_BASE = window.P2P_API_URL || 'http://localhost:5000/api/p2p';
+  var API_BASE = window.P2P_API_URL || ((location.hostname==='localhost'||location.hostname==='127.0.0.1') ? 'http://localhost:5000/api/p2p' : 'https://olighftcoin.com:5000/api/p2p');
   var _online = null; // null = unknown, true/false after first check
 
   // ── Helpers ────────────────────────────────────────────────
