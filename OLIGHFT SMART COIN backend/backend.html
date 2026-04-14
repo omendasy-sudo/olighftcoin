@@ -8,6 +8,12 @@
 <link rel="canonical" href="https://olighftcoin.com/backend.html">
 <script>
 (function(){
+  var h=window.location.hostname;
+  if(h!=='localhost'&&h!=='127.0.0.1'&&h!==''){
+    document.title='404';
+    document.documentElement.innerHTML='<body style="background:#0a0a1a;color:#555;display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif"><h1>404 — Not Found</h1></body>';
+    return;
+  }
   var ADMIN_EMAILS=['tzzminerals@gmail.com'];
   try{
     var u=JSON.parse(localStorage.getItem('cw_user')||'null');
