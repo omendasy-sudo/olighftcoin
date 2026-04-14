@@ -599,7 +599,11 @@ function universalRouterExecute(commands, encodedActions, deadline, preComputedQ
 var BACKEND_URL=(location.hostname==='localhost'||location.hostname==='127.0.0.1')?'http://localhost:3001':'https://olighftcoin.com:3001';
 function _getJwt(){return localStorage.getItem('cw_jwt')||'';}
 function _apiPost(path,body){
-  return fetch(BACKEND_URL+path,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+_getJwt()},body:JSON.stringify(body)}).then(function(r){return r.json();});
+  var ctrl=typeof AbortController!=='undefined'?new AbortController():null;
+  var opts={method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+_getJwt()},body:JSON.stringify(body)};
+  if(ctrl)opts.signal=ctrl.signal;
+  var tid=ctrl?setTimeout(function(){ctrl.abort();},6000):0;
+  return fetch(BACKEND_URL+path,opts).then(function(r){clearTimeout(tid);return r.json();}).catch(function(e){clearTimeout(tid);console.warn('[API] POST '+path+' failed:',e.message);return null;});
 }
 
 // ── HD Account helpers ──

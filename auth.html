@@ -516,9 +516,13 @@ var AUTH_BACKEND_URL = (location.hostname === 'localhost' || location.hostname =
   : 'https://olighftcoin.com:3001';
 
 function _authApiPost(path, body) {
-  return fetch(AUTH_BACKEND_URL + path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
-    .then(function(r) { return r.json(); })
-    .catch(function(e) { console.warn('[AUTH-API] ' + path + ' failed:', e.message); return null; });
+  var ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
+  var opts = { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) };
+  if (ctrl) opts.signal = ctrl.signal;
+  var tid = ctrl ? setTimeout(function() { ctrl.abort(); }, 6000) : 0;
+  return fetch(AUTH_BACKEND_URL + path, opts)
+    .then(function(r) { clearTimeout(tid); return r.json(); })
+    .catch(function(e) { clearTimeout(tid); console.warn('[AUTH-API] ' + path + ' failed:', e.message); return null; });
 }
 
 // Register user with backend server (non-blocking, runs alongside localStorage flow)

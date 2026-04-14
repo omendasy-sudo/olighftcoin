@@ -1317,14 +1317,22 @@ function _apiHeaders() {
   return h;
 }
 
+function _apiFetch(url, opts) {
+  var ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
+  if (ctrl) opts.signal = ctrl.signal;
+  var tid = ctrl ? setTimeout(function() { ctrl.abort(); }, 6000) : 0;
+  return fetch(url, opts).then(function(r) { clearTimeout(tid); return r; })
+    .catch(function(e) { clearTimeout(tid); throw e; });
+}
+
 function _apiGet(path) {
-  return fetch(BACKEND_URL + path, { headers: _apiHeaders() })
+  return _apiFetch(BACKEND_URL + path, { headers: _apiHeaders() })
     .then(function(r) { return r.json(); })
     .catch(function(e) { console.warn('[API] GET ' + path + ' failed:', e.message); return null; });
 }
 
 function _apiPost(path, body) {
-  return fetch(BACKEND_URL + path, { method: 'POST', headers: _apiHeaders(), body: JSON.stringify(body) })
+  return _apiFetch(BACKEND_URL + path, { method: 'POST', headers: _apiHeaders(), body: JSON.stringify(body) })
     .then(function(r) { return r.json(); })
     .catch(function(e) { console.warn('[API] POST ' + path + ' failed:', e.message); return null; });
 }
