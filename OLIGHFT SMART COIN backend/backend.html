@@ -8,12 +8,21 @@
 <link rel="canonical" href="https://olighftcoin.com/backend.html">
 <script>
 (function(){
-  var h=window.location.hostname;
-  if(h!=='localhost'&&h!=='127.0.0.1'&&h!==''){
-    document.title='404';
-    document.documentElement.innerHTML='<body style="background:#0a0a1a;color:#555;display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif"><h1>404 — Not Found</h1></body>';
-    return;
+  // Device lock — only the computer with the correct token can open this page
+  var ADMIN_PIN_HASH='ec42e8fd-4c8a4ede'; // PIN: OLIGHFT2026
+  var DEVICE_KEY='olighft_admin_device';
+  var token=localStorage.getItem(DEVICE_KEY);
+  function hash(s){var h=0;for(var i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h|=0;}return (h>>>0).toString(16).padStart(8,'0')+(h>>>0^0x5f3759df).toString(16).padStart(8,'0');}
+  if(!token||token!==ADMIN_PIN_HASH){
+    var pin=prompt('🔐 Admin Device Lock\nEnter admin PIN to authorize this computer:');
+    if(!pin||hash(pin)!==ADMIN_PIN_HASH){
+      document.title='404';
+      document.documentElement.innerHTML='<body style="background:#0a0a1a;color:#555;display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif"><h1>404 — Not Found</h1></body>';
+      return;
+    }
+    localStorage.setItem(DEVICE_KEY,ADMIN_PIN_HASH);
   }
+  // Admin email check
   var ADMIN_EMAILS=['tzzminerals@gmail.com'];
   try{
     var u=JSON.parse(localStorage.getItem('cw_user')||'null');
