@@ -585,6 +585,22 @@ function resetReceiveTests(){
   document.querySelectorAll('.tst-badge').forEach(function(b){b.textContent='pending';b.style.color='rgba(255,255,255,.35)';b.style.borderColor='rgba(255,255,255,.08)';b.style.background='none';});
 }
 </script>
-<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(function(){})}</script>
+<script>
+(function(){
+  var V='20260414a';
+  if(localStorage.getItem('olighft_v')!==V){
+    if('caches' in window) caches.keys().then(function(k){k.forEach(function(n){caches.delete(n)})});
+    if(navigator.serviceWorker) navigator.serviceWorker.getRegistrations().then(function(r){r.forEach(function(w){w.unregister()})});
+    localStorage.setItem('olighft_v',V);
+    location.reload(true); return;
+  }
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.register('/sw.js').then(function(reg){
+      reg.addEventListener('updatefound',function(){var nw=reg.installing;if(nw)nw.addEventListener('statechange',function(){if(nw.state==='activated')location.reload()})});
+      reg.update();
+    }).catch(function(){});
+  }
+})();
+</script>
 </body>
 </html>

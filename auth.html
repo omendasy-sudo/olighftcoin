@@ -2100,17 +2100,21 @@ async function autoFillFromCredManager() {
 </script>
 
 <script>
-if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('/sw.js').then(function(reg){
-    reg.addEventListener('updatefound',function(){
-      var nw=reg.installing;
-      if(nw) nw.addEventListener('statechange',function(){
-        if(nw.state==='activated') window.location.reload();
-      });
-    });
-    reg.update().catch(function(){});
-  }).catch(function(){});
-}
+(function(){
+  var V='20260414a';
+  if(localStorage.getItem('olighft_v')!==V){
+    if('caches' in window) caches.keys().then(function(k){k.forEach(function(n){caches.delete(n)})});
+    if(navigator.serviceWorker) navigator.serviceWorker.getRegistrations().then(function(r){r.forEach(function(w){w.unregister()})});
+    localStorage.setItem('olighft_v',V);
+    location.reload(true); return;
+  }
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.register('/sw.js').then(function(reg){
+      reg.addEventListener('updatefound',function(){var nw=reg.installing;if(nw)nw.addEventListener('statechange',function(){if(nw.state==='activated')location.reload()})});
+      reg.update();
+    }).catch(function(){});
+  }
+})();
 </script>
 </body>
 </html>

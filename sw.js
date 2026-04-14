@@ -1,4 +1,5 @@
-const CACHE_NAME = 'olighft-v5';
+const CACHE_VERSION = '20260414a';
+const CACHE_NAME = 'olighft-' + CACHE_VERSION;
 const PRECACHE = [
   '/',
   '/dashboard.html',
@@ -21,14 +22,14 @@ const PRECACHE = [
   '/manifest.json'
 ];
 
-// Install — cache core shell
+// Install — cache core shell, skip waiting immediately
 self.addEventListener('install', e => {
   e.waitUntil(
     caches.open(CACHE_NAME).then(cache => cache.addAll(PRECACHE)).then(() => self.skipWaiting())
   );
 });
 
-// Activate — clean old caches
+// Activate — nuke ALL old caches, claim all clients
 self.addEventListener('activate', e => {
   e.waitUntil(
     caches.keys().then(keys =>
@@ -37,15 +38,20 @@ self.addEventListener('activate', e => {
   );
 });
 
+// Listen for cache-clear message from pages
+self.addEventListener('message', e => {
+  if (e.data && e.data.type === 'CLEAR_ALL_CACHES') {
+    caches.keys().then(keys => Promise.all(keys.map(k => caches.delete(k))));
+  }
+});
+
 // Fetch — network first, fallback to cache
 self.addEventListener('fetch', e => {
-  // Skip non-GET and cross-origin
   if (e.request.method !== 'GET') return;
   if (!e.request.url.startsWith(self.location.origin)) return;
 
   e.respondWith(
     fetch(e.request).then(res => {
-      // Cache successful responses
       if (res.ok) {
         const clone = res.clone();
         caches.open(CACHE_NAME).then(cache => cache.put(e.request, clone));

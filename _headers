@@ -18,6 +18,39 @@
 /wallet.html
   Cache-Control: no-cache, no-store, must-revalidate
 
+/index.html
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/activity.html
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/receive.html
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/swap.html
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/invite.html
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/card-visa.html
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/card-gold.html
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/card-platinum.html
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/card-black.html
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/card-amex.html
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/card-mastercard.html
+  Cache-Control: no-cache, no-store, must-revalidate
+
 /sw.js
   Cache-Control: no-cache, no-store, must-revalidate
   Service-Worker-Allowed: /
