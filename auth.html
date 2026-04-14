@@ -559,8 +559,8 @@ let _resendTimer   = null;
 let _otpCountdown  = null;
 
 // ── Initialize EmailJS ──
-if (EMAILJS_PUBLIC_KEY) {
-    emailjs.init(EMAILJS_PUBLIC_KEY);
+if (EMAILJS_PUBLIC_KEY && typeof emailjs !== 'undefined') {
+    try { emailjs.init(EMAILJS_PUBLIC_KEY); } catch(e) { console.warn('[OTP] EmailJS init failed:', e.message); }
 }
 
 // ── Generate Cryptographically Random OTP ──
@@ -584,7 +584,7 @@ async function sendOtpEmail(email, name) {
     };
 
     // Method 1: EmailJS (primary for production)
-    if (EMAILJS_PUBLIC_KEY && EMAILJS_SERVICE_ID && EMAILJS_TEMPLATE_ID) {
+    if (EMAILJS_PUBLIC_KEY && EMAILJS_SERVICE_ID && EMAILJS_TEMPLATE_ID && typeof emailjs !== 'undefined') {
         try {
             await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
                 name: name || email.split('@')[0],
