@@ -1,4 +1,4 @@
-const CACHE_NAME = 'olighft-v3';
+const CACHE_NAME = 'olighft-v4';
 const PRECACHE = [
   '/',
   '/dashboard.html',
