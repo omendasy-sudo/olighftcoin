@@ -17,6 +17,8 @@
 <meta property="og:site_name" content="OLIGHFT SMART COIN">
 <!-- Pre-load Google Identity Services SDK -->
 <script src="https://accounts.google.com/gsi/client" async defer></script>
+<!-- Cloudflare Turnstile (anti-bot) -->
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135deg,#0a0a2e,#0d0937,#0a0a12);color:#fff;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px}
@@ -27,6 +29,8 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 .logo-icon{font-size:2.4rem;margin-bottom:6px}
 .logo h1{font-size:1.4rem;background:linear-gradient(90deg,#6366f1,#818cf8,#06b6d4);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 .logo p{font-size:.75rem;color:rgba(255,255,255,.4);margin-top:4px}
+/* Anti-bot honeypot — hidden from humans */
+.hp-field{position:absolute;left:-9999px;top:-9999px;opacity:0;height:0;width:0;overflow:hidden;pointer-events:none;tab-index:-1}
 
 /* ── Tabs ── */
 .tabs{display:flex;gap:2px;background:rgba(255,255,255,.04);border-radius:12px;padding:3px;margin-bottom:24px}
@@ -248,6 +252,12 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 <label for="remember-me">Remember me</label>
 </div>
 
+<!-- Honeypot — bots fill this, humans never see it -->
+<div class="hp-field" aria-hidden="true"><label for="hp-login-website">Website</label><input type="text" id="hp-login-website" name="website" autocomplete="off" tabindex="-1"></div>
+
+<!-- Cloudflare Turnstile -->
+<div class="cf-turnstile" data-sitekey="1x00000000000000000000AA" data-callback="onLoginTurnstile" data-theme="dark" style="margin:12px 0"></div>
+
 <button type="submit" class="btn-primary login-btn" id="login-btn">Sign In</button>
 
 <div class="divider"><span>or continue with</span></div>
@@ -348,6 +358,12 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 <input type="checkbox" id="agree-terms" required>
 <label for="agree-terms">I agree to the <a href="FUTURE%20CTPTO%20CARD%20SMART%20CONTRACT%20.html/terms.html" target="_blank">Terms &amp; Conditions</a> and Privacy Policy</label>
 </div>
+
+<!-- Honeypot — bots fill this, humans never see it -->
+<div class="hp-field" aria-hidden="true"><label for="hp-reg-company">Company</label><input type="text" id="hp-reg-company" name="company" autocomplete="off" tabindex="-1"></div>
+
+<!-- Cloudflare Turnstile -->
+<div class="cf-turnstile" data-sitekey="1x00000000000000000000AA" data-callback="onRegisterTurnstile" data-theme="dark" style="margin:12px 0"></div>
 
 <button type="submit" class="btn-primary register-btn" id="register-btn">Create Account</button>
 
@@ -862,10 +878,31 @@ function setLoading(btnId, loading) {
     }
 }
 
+// ── Anti-bot state ──
+var _formLoadedAt = Date.now();
+var _loginTurnstileToken = '';
+var _registerTurnstileToken = '';
+function onLoginTurnstile(token) { _loginTurnstileToken = token; }
+function onRegisterTurnstile(token) { _registerTurnstileToken = token; }
+
+function _isBot(formId) {
+    // Honeypot check: if hidden field is filled, it's a bot
+    var hp = document.getElementById(formId === 'login' ? 'hp-login-website' : 'hp-reg-company');
+    if (hp && hp.value) { console.warn('Bot detected: honeypot filled'); return true; }
+    // Time check: if submitted < 2 seconds after page load, likely bot
+    if (Date.now() - _formLoadedAt < 2000) { console.warn('Bot detected: too fast'); return true; }
+    return false;
+}
+
 // ── Login Handler ──
 async function handleLogin(e) {
     e.preventDefault();
     hideAlert();
+
+    // Anti-bot checks
+    if (_isBot('login')) { showAlert('error', 'Verification failed. Please try again.'); return; }
+    if (!_loginTurnstileToken) { showAlert('error', 'Please complete the human verification.'); return; }
+
     var email = '';
     var phone = '';
     const pw    = document.getElementById('login-pw').value;
@@ -1005,6 +1042,11 @@ function checkUsernameAvail() {
 async function handleRegister(e) {
     e.preventDefault();
     hideAlert();
+
+    // Anti-bot checks
+    if (_isBot('register')) { showAlert('error', 'Verification failed. Please try again.'); return; }
+    if (!_registerTurnstileToken) { showAlert('error', 'Please complete the human verification.'); return; }
+
     const name    = document.getElementById('reg-name').value.trim();
     const username = document.getElementById('reg-username').value.trim().toLowerCase().replace(/[^a-z0-9_]/g, '');
     const email   = document.getElementById('reg-email').value.trim();
