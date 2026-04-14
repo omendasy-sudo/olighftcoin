@@ -2099,6 +2099,18 @@ async function autoFillFromCredManager() {
 })();
 </script>
 
-<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(function(){})}</script>
+<script>
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('/sw.js').then(function(reg){
+    reg.addEventListener('updatefound',function(){
+      var nw=reg.installing;
+      if(nw) nw.addEventListener('statechange',function(){
+        if(nw.state==='activated') window.location.reload();
+      });
+    });
+    reg.update().catch(function(){});
+  }).catch(function(){});
+}
+</script>
 </body>
 </html>

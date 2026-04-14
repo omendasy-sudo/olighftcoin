@@ -12,11 +12,12 @@
 /dashboard.html
   Cache-Control: no-cache, no-store, must-revalidate
 
-/sw.js
-  Cache-Control: no-cache, max-age=0
-
 /send.html
   Cache-Control: no-cache, no-store, must-revalidate
 
+/wallet.html
+  Cache-Control: no-cache, no-store, must-revalidate
+
 /sw.js
   Cache-Control: no-cache, no-store, must-revalidate
+  Service-Worker-Allowed: /
