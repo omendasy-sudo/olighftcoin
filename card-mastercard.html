@@ -723,6 +723,10 @@ async function _doWithdraw(stakeDate){
   all[idx].withdrawnOLIGHFT=payoutOLIGHFT;
   if(txHash)all[idx].txHash=txHash;
   localStorage.setItem('card_stakes',JSON.stringify(all));
+  // Activity log
+  try{var al=JSON.parse(localStorage.getItem('cw_activity')||'[]');al.unshift({type:CARD.name+' Withdraw',icon:'\uD83D\uDCB0',detail:CARD.name+' '+s.period+'d stake withdrawn \u00B7 +'+payoutOLIGHFT.toLocaleString()+' OLIGHFT',amt:'+'+payoutOLIGHFT.toFixed(0)+' OLIGHFT',cls:'green',time:'Just now',ts:Date.now()});if(al.length>50)al.length=50;localStorage.setItem('cw_activity',JSON.stringify(al));}catch(e){}
+  // Notification
+  try{var notifs=JSON.parse(localStorage.getItem('cw_tx_notifications')||'[]');notifs.unshift({type:CARD.name+' Withdraw',msg:'\uD83D\uDCB0 '+CARD.name+' stake withdrawn \u00B7 +'+payoutOLIGHFT.toLocaleString()+' OLIGHFT credited',ts:Date.now(),read:false});if(notifs.length>50)notifs.length=50;localStorage.setItem('cw_tx_notifications',JSON.stringify(notifs));}catch(e){}
   alert('\u2705 Withdrawn Successfully!'+(onChainOk?'\n\uD83D\uDD17 On-chain TX: '+txHash.slice(0,12)+'...':'')+'\n\n\uD83D\uDCB0 +'+payoutOLIGHFT.toLocaleString()+' OLIGHFT credited to wallet\n\uD83D\uDCB3 OLIGHFT Balance: '+cwBals.OLIGHFT.toLocaleString());
   renderStakeStatus();
 }
@@ -759,6 +763,10 @@ async function _doRestake(stakeDate){
   all[idx].restaked=true;
   if(txHash)all[idx].txHash=txHash;
   localStorage.setItem('card_stakes',JSON.stringify(all));
+  // Activity log
+  try{var al=JSON.parse(localStorage.getItem('cw_activity')||'[]');al.unshift({type:CARD.name+' Restake',icon:'\uD83D\uDD04',detail:CARD.name+' stake closed for restaking',amt:'',cls:'blue',time:'Just now',ts:Date.now()});if(al.length>50)al.length=50;localStorage.setItem('cw_activity',JSON.stringify(al));}catch(e){}
+  // Notification
+  try{var notifs=JSON.parse(localStorage.getItem('cw_tx_notifications')||'[]');notifs.unshift({type:CARD.name+' Restake',msg:'\uD83D\uDD04 '+CARD.name+' stake closed \u00B7 Select new period to restake',ts:Date.now(),read:false});if(notifs.length>50)notifs.length=50;localStorage.setItem('cw_tx_notifications',JSON.stringify(notifs));}catch(e){}
   renderStakeStatus();
   alert('\u2705 Stake closed.'+(onChainOk?'\n\uD83D\uDD17 On-chain TX: '+txHash.slice(0,12)+'...':'')+' Select a new period and click Activate to restake.');
 }
@@ -856,6 +864,8 @@ function autoWithdrawFinished(){
   }
   if(changed){
     localStorage.setItem('card_stakes',JSON.stringify(all));
+    // Notification
+    try{var notifs=JSON.parse(localStorage.getItem('cw_tx_notifications')||'[]');notifs.unshift({type:'Auto-Withdraw',msg:'\uD83D\uDCB0 '+count+' '+CARD.name+' stake'+(count>1?'s':'')+' auto-withdrawn \u00B7 +'+totalCredited.toLocaleString()+' OLIGHFT',ts:Date.now(),read:false});if(notifs.length>50)notifs.length=50;localStorage.setItem('cw_tx_notifications',JSON.stringify(notifs));}catch(e){}
     showAutoWithdrawToast(count,totalCredited);
   }
 }
