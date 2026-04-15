@@ -244,7 +244,9 @@ var TOKEN_META={OLIGHFT:{name:'OLIGHFT Smart Coin',icon:'\u2728',price:0.50},XLM
 var DEFAULT_BALS={XLM:10000,USDC:500,wETH:0.5,wBTC:0.02,EURC:200,OLIGHFT:10000};
 
 function getUser(){return JSON.parse(localStorage.getItem('cw_user')||'null');}
-function getStakes(){return JSON.parse(localStorage.getItem('card_stakes')||'[]');}
+function getCardStakes(){return JSON.parse(localStorage.getItem('card_stakes')||'[]');}
+function getWalletStakes(){return JSON.parse(localStorage.getItem('wallet_stakes')||'[]');}
+function getStakes(){return getCardStakes().concat(getWalletStakes());}
 function getBalances(){try{return JSON.parse(localStorage.getItem('cw_balances')||'null')||DEFAULT_BALS;}catch(e){return DEFAULT_BALS;}}
 function getAccounts(){try{var r=localStorage.getItem('cw_accounts');return r?JSON.parse(atob(r)):[];}catch(e){return[];}}
 function getSecSettings(){return JSON.parse(localStorage.getItem('cw_security')||'{}');}
@@ -337,14 +339,32 @@ function init(){
   document.getElementById('pOLI').textContent=fmtBal(bals.OLIGHFT||0);
   document.getElementById('pHD').textContent=accounts.length;
 
-  // Staking
-  var totalStaked=0,totalPayout=0,totalFees=0,activeStakes=0;
-  stakes.forEach(function(s){
+  // Staking — combine card_stakes + wallet_stakes
+  var cardSt=getCardStakes(),walletSt=getWalletStakes();
+  var totalStaked=0,totalPayout=0,totalFees=0,activeStakes=0,allStakeCount=0;
+  var now=Date.now();
+  // Card stakes
+  cardSt.forEach(function(s){
+    if(s.withdrawn)return;
+    allStakeCount++;
     totalStaked+=s.stake||0;totalPayout+=s.payout||0;totalFees+=s.fee||0;
     var end=new Date(s.date).getTime()+((s.period||0)*86400000);
-    if(Date.now()<end)activeStakes++;
+    if(now<end)activeStakes++;
   });
-  document.getElementById('dStakeCount').textContent=stakes.length;
+  // Wallet stakes
+  walletSt.forEach(function(s){
+    if(s.withdrawn)return;
+    allStakeCount++;
+    var amt=parseFloat(s.amount)||0;
+    var lockDays=parseInt(s.lockDays)||0;
+    var startTs=new Date(s.startDate||s.date||0).getTime();
+    var endTs=startTs+(lockDays*86400000);
+    var usdVal=amt*0.50;
+    totalStaked+=usdVal;
+    totalPayout+=(s.estimatedReward?parseFloat(s.estimatedReward)*0.50:usdVal);
+    if(lockDays>0&&now<endTs)activeStakes++;
+  });
+  document.getElementById('dStakeCount').textContent=allStakeCount;
   document.getElementById('dActiveStakes').textContent=activeStakes;
   document.getElementById('dStakedVal').textContent='$'+totalStaked.toLocaleString();
   document.getElementById('dPayout').textContent='$'+totalPayout.toLocaleString();
@@ -366,9 +386,9 @@ function init(){
   var notifications=[];try{notifications=JSON.parse(localStorage.getItem('cw_tx_notifications')||'[]');}catch(e){}
   document.getElementById('accountStats').innerHTML=
     '<div class="stat"><div class="s-label">Portfolio</div><div class="s-val gold">$'+portfolioVal.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})+'</div><div class="s-sub">'+Object.keys(bals).length+' tokens</div></div>'+
-    '<div class="stat"><div class="s-label">Active Stakes</div><div class="s-val green">'+activeStakes+'</div><div class="s-sub">of '+stakes.length+' total</div></div>'+
+    '<div class="stat"><div class="s-label">Active Stakes</div><div class="s-val green">'+activeStakes+'</div><div class="s-sub">of '+allStakeCount+' total</div></div>'+
     '<div class="stat"><div class="s-label">Fee Revenue</div><div class="s-val gold">$'+feeTotal.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})+'</div><div class="s-sub">'+deps.length+' deposits</div></div>'+
-    '<div class="stat"><div class="s-label">Transactions</div><div class="s-val purple">'+(sends.length+swaps.length+stakes.length)+'</div><div class="s-sub">'+sends.length+' sends · '+swaps.length+' swaps</div></div>'+
+    '<div class="stat"><div class="s-label">Transactions</div><div class="s-val purple">'+(sends.length+swaps.length+allStakeCount)+'</div><div class="s-sub">'+sends.length+' sends · '+swaps.length+' swaps</div></div>'+
     '<div class="stat"><div class="s-label">HD Accounts</div><div class="s-val blue">'+accounts.length+'</div><div class="s-sub">SEP-0005 derived</div></div>'+
     '<div class="stat"><div class="s-label">Security</div><div class="s-val '+(sec.tog2fa?'green':'red')+'">'+(sec.tog2fa?'HIGH':'STANDARD')+'</div><div class="s-sub">2FA '+(sec.tog2fa?'enabled':'disabled')+'</div></div>';
 
