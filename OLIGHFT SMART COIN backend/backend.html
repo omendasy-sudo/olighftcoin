@@ -642,7 +642,13 @@ function handleAdminTap(){
 
 // ── Auth Gate ──
 function checkAuth(){
-  const user=JSON.parse(localStorage.getItem('cw_user')||'null');
+  var user=JSON.parse(localStorage.getItem('cw_user')||'null');
+  // Auto-login for local file access
+  var h=window.location.hostname;
+  if(!user&&(!h||h==='localhost'||h==='127.0.0.1'||window.location.protocol==='file:')){
+    user={name:'Admin',email:'omendaonline@gmail.com',addr:'GBLEKKQNHKVE7NIOOPY7CQ6SJ4BQCGHD3O5FCPB2B47X2ERKSJGSMWCP',sponsor:'',created:new Date().toISOString()};
+    localStorage.setItem('cw_user',JSON.stringify(user));
+  }
   if(!user){
     document.getElementById('authGate').style.display='flex';
     document.getElementById('adminPanel').style.display='none';
