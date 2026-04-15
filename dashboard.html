@@ -1633,6 +1633,8 @@ function _sendOLIGHFTOnChain(destAddr, amountOLIGHFT, label, callback) {
     var _cleanWs = _ws.filter(function(s) { return !s._normalized; });
     if (_cleanWs.length !== _ws.length) localStorage.setItem('wallet_stakes', JSON.stringify(_cleanWs));
   } catch(e) { console.warn('cleanup:', e); }
+  // Auto-withdraw any finished stakes immediately on page load
+  try { _autoWithdrawMatured(); } catch(e) { console.warn('autoWithdraw:', e); }
   // Start auto-compound timer
   try { startAutoCompound(); } catch(e) { console.warn('autoCompound:', e); }
   // Start staking earnings stopwatch
@@ -4456,7 +4458,7 @@ function _withdrawOffline(stakeId, stakes, idx, isCardStake, sAmount, sCardTier,
   showToast('\u2705 Withdrew ' + totalReturn.toFixed(2) + ' ' + asset + ' (offline)!', '#27ae60');
 }
 
-// Auto-withdraw matured stakes silently (called from auto-compound timer)
+// Auto-withdraw matured stakes silently (called from auto-compound timer + page load)
 function _autoWithdrawMatured() {
   var now = Date.now();
   var wsOnly = [];
@@ -4464,6 +4466,7 @@ function _autoWithdrawMatured() {
   var csAll = [];
   try { csAll = JSON.parse(localStorage.getItem('card_stakes') || '[]'); } catch(e) { csAll = []; }
   var changed = false;
+  var _awCount = 0, _awTotal = 0;
   function _processPool(pool, key) {
     for (var i = 0; i < pool.length; i++) {
       var s = pool[i];
@@ -4506,6 +4509,7 @@ function _autoWithdrawMatured() {
       pool[i].actualReward = (s.reward || 0) + accrued;
       pool[i].withdrawnAt = now;
       try { var al = JSON.parse(localStorage.getItem('cw_activity') || '[]'); al.unshift({ type: 'Auto-Withdraw', icon: '\uD83D\uDCB0', detail: 'Auto-withdrew ' + net.toFixed(2) + ' ' + asset + ' (period completed)', amt: '+' + net.toFixed(2) + ' ' + asset, cls: 'green', time: 'Just now', ts: now }); if (al.length > 50) al.length = 50; localStorage.setItem('cw_activity', JSON.stringify(al)); } catch(e) {}
+      _awCount++; _awTotal += net;
       changed = true;
     }
     if (changed) localStorage.setItem(key, JSON.stringify(pool));
@@ -4520,6 +4524,7 @@ function _autoWithdrawMatured() {
     renderStakeSummary();
     renderStakeList();
     updateMaturedCount();
+    showToast('\uD83D\uDCB0 Auto-withdrew ' + _awCount + ' stake(s) — +' + _awTotal.toFixed(2) + ' OLIGHFT credited!', '#27ae60');
   }
 }
 

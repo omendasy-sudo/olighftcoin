@@ -645,7 +645,47 @@ async function activateStake(){
   renderStakeStatus();
 }
 
+// ── Auto-Withdraw: automatically credit finished stakes ──
+function autoWithdrawFinished(){
+  const all=JSON.parse(localStorage.getItem('card_stakes')||'[]');
+  const now=Date.now();
+  const OLIGHFT_PRICE=0.50;
+  let changed=false,totalCredited=0,count=0;
+  for(let i=0;i<all.length;i++){
+    const s=all[i];
+    if(s.card!==CARD.name||s.withdrawn)continue;
+    const end=new Date(s.date).getTime()+(s.period*86400000);
+    if(now>=end){
+      const payoutOLIGHFT=s.payout/OLIGHFT_PRICE;
+      const cwBals=JSON.parse(localStorage.getItem('cw_balances')||'{}');
+      cwBals.OLIGHFT=(cwBals.OLIGHFT||0)+payoutOLIGHFT;
+      localStorage.setItem('cw_balances',JSON.stringify(cwBals));
+      all[i].withdrawn=true;
+      all[i].autoWithdrawn=true;
+      all[i].withdrawnAt=new Date().toISOString();
+      all[i].withdrawnOLIGHFT=payoutOLIGHFT;
+      totalCredited+=payoutOLIGHFT;
+      count++;
+      changed=true;
+      // Activity log
+      try{var al=JSON.parse(localStorage.getItem('cw_activity')||'[]');al.unshift({type:'Auto-Withdraw',icon:'\uD83D\uDCB0',detail:s.card+' '+s.period+'d stake auto-withdrawn \u00B7 $'+s.payout,amt:'+'+payoutOLIGHFT.toFixed(0)+' OLIGHFT',cls:'green',time:'Just now',ts:Date.now()});if(al.length>50)al.length=50;localStorage.setItem('cw_activity',JSON.stringify(al));}catch(e){}
+    }
+  }
+  if(changed){
+    localStorage.setItem('card_stakes',JSON.stringify(all));
+    showAutoWithdrawToast(count,totalCredited);
+  }
+}
+function showAutoWithdrawToast(count,olighft){
+  var t=document.createElement('div');
+  t.style.cssText='position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:99999;background:linear-gradient(135deg,#27ae60,#2ecc71);color:#fff;padding:14px 24px;border-radius:14px;font-size:.82rem;font-weight:700;box-shadow:0 8px 32px rgba(39,174,96,.4);display:flex;align-items:center;gap:10px;animation:slideDown .4s ease';
+  t.innerHTML='\uD83D\uDCB0 Auto-Withdrawn: '+count+' stake'+(count>1?'s':'')+' \u2022 +'+olighft.toLocaleString()+' OLIGHFT credited';
+  document.body.appendChild(t);
+  setTimeout(function(){t.style.transition='opacity .5s';t.style.opacity='0';setTimeout(function(){t.remove();},500);},5000);
+}
+
 function renderStakeStatus(){
+  autoWithdrawFinished();
   const container=document.getElementById('multiStakeContainer');
   const counter=document.getElementById('stakeSlotCounter');
   const btn=document.getElementById('activateBtn');
