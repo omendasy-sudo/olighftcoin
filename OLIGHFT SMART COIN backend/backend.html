@@ -202,6 +202,34 @@ table tr:hover td{background:rgba(99,102,241,.03)}
 <!-- ═══ DASHBOARD ═══ -->
 <div class="panel active" id="panel-dashboard">
 <h2>&#x1F4CA; Dashboard Overview</h2>
+
+<!-- Admin Account Card -->
+<div class="table-card" style="margin-bottom:20px;overflow:hidden">
+<div style="background:linear-gradient(135deg,rgba(99,102,241,.12),rgba(129,140,248,.06));padding:20px 22px;border-bottom:1px solid rgba(99,102,241,.1)">
+<div style="display:flex;align-items:center;gap:16px">
+<div style="width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#818cf8);display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:800;color:#fff;flex-shrink:0" id="acctAvatar">A</div>
+<div style="flex:1;min-width:0">
+<div style="font-size:1rem;font-weight:800;color:#fff" id="acctName">Admin</div>
+<div style="font-size:.72rem;color:rgba(255,255,255,.4)" id="acctEmail">—</div>
+<div style="font-size:.68rem;font-family:monospace;color:#818cf8;margin-top:2px;overflow:hidden;text-overflow:ellipsis" id="acctAddr">—</div>
+</div>
+<div style="text-align:right">
+<div style="font-size:.65rem;color:rgba(255,255,255,.35)">Session Status</div>
+<div style="font-size:.78rem;font-weight:700;color:#27ae60">&#x1F7E2; Active</div>
+<div style="font-size:.6rem;color:rgba(255,255,255,.25);margin-top:2px" id="acctLoginTime">—</div>
+</div>
+</div>
+</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1px;background:rgba(255,255,255,.02)">
+<div style="padding:14px 18px;text-align:center"><div style="font-size:.65rem;color:rgba(255,255,255,.35)">Wallet Balance</div><div style="font-size:1rem;font-weight:800;color:#f5c518" id="acctBalance">$0</div></div>
+<div style="padding:14px 18px;text-align:center"><div style="font-size:.65rem;color:rgba(255,255,255,.35)">OLIGHFT Tokens</div><div style="font-size:1rem;font-weight:800;color:#818cf8" id="acctOLI">0</div></div>
+<div style="padding:14px 18px;text-align:center"><div style="font-size:.65rem;color:rgba(255,255,255,.35)">Active Stakes</div><div style="font-size:1rem;font-weight:800;color:#6c5ce7" id="acctStakes">0</div></div>
+<div style="padding:14px 18px;text-align:center"><div style="font-size:.65rem;color:rgba(255,255,255,.35)">HD Accounts</div><div style="font-size:1rem;font-weight:800;color:#27ae60" id="acctHD">0</div></div>
+<div style="padding:14px 18px;text-align:center"><div style="font-size:.65rem;color:rgba(255,255,255,.35)">Fee Revenue</div><div style="font-size:1rem;font-weight:800;color:#f5c518" id="acctFeeRev">$0</div></div>
+<div style="padding:14px 18px;text-align:center"><div style="font-size:.65rem;color:rgba(255,255,255,.35)">Sponsor</div><div style="font-size:1rem;font-weight:800;color:#ff9f43" id="acctSponsor">—</div></div>
+</div>
+</div>
+
 <div class="stats" id="dashStats"></div>
 <div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:12px;padding:16px;margin-bottom:20px">
 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
@@ -697,6 +725,21 @@ function renderDashboard(){
   var adminFeeTotal=adminDeps.reduce(function(s,d){return s+(d.usd||0);},0);
   var adminFeeOLI=adminDeps.reduce(function(s,d){return s+(d.amount||0);},0);
   var adminFeeOnChain=adminDeps.filter(function(d){return d.onChain;}).length;
+
+  // ── Admin Account Card ──
+  if(user){
+    document.getElementById('acctAvatar').textContent=(user.name||'A').charAt(0).toUpperCase();
+    document.getElementById('acctName').textContent=user.name||'Admin';
+    document.getElementById('acctEmail').textContent=user.email||'—';
+    document.getElementById('acctAddr').textContent=user.addr||'No wallet address';
+    document.getElementById('acctSponsor').textContent=user.sponsor||'None';
+    document.getElementById('acctLoginTime').textContent=user.created?'Joined '+new Date(user.created).toLocaleDateString():'—';
+  }
+  document.getElementById('acctBalance').textContent='$'+portfolioVal.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2});
+  document.getElementById('acctOLI').textContent=fmtBal(bals.OLIGHFT||0);
+  document.getElementById('acctStakes').textContent=activeStakes;
+  document.getElementById('acctHD').textContent=accounts.length;
+  document.getElementById('acctFeeRev').textContent='$'+adminFeeTotal.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2});
 
   document.getElementById('dashStats').innerHTML=
     '<div class="stat-card"><div class="sc-label">Total Supply</div><div class="sc-val sc-gold">'+TOTAL_SUPPLY.toLocaleString()+'</div><div class="sc-sub">OLIGHFT tokens</div></div>'+
