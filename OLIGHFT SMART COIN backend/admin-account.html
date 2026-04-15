@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OLIGHFT SMART COIN &mdash; Admin Account</title>
+<meta name="robots" content="noindex, nofollow">
+<script>
+(function(){
+  var h=window.location.hostname;
+  if(h&&h!=='localhost'&&h!=='127.0.0.1'){
+    var ADMIN_PIN_HASH='ec42e8fd-4c8a4ede';
+    var DEVICE_KEY='olighft_admin_device';
+    var token=localStorage.getItem(DEVICE_KEY);
+    function hash(s){var h=0;for(var i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h|=0;}return (h>>>0).toString(16).padStart(8,'0')+(h>>>0^0x5f3759df).toString(16).padStart(8,'0');}
+    if(!token||token!==ADMIN_PIN_HASH){
+      var pin=prompt('Enter admin PIN:');
+      if(!pin||hash(pin)!==ADMIN_PIN_HASH){
+        document.title='404';
+        document.documentElement.innerHTML='<body style="background:#0a0a1a;color:#555;display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif"><h1>404 — Not Found</h1></body>';
+        return;
+      }
+      localStorage.setItem(DEVICE_KEY,ADMIN_PIN_HASH);
+    }
+    var ADMIN_EMAILS=['tzzminerals@gmail.com','omendaonline@gmail.com'];
+    try{
+      var u=JSON.parse(localStorage.getItem('cw_user')||'null');
+      if(!u||ADMIN_EMAILS.indexOf((u.email||'').toLowerCase())===-1){
+        window.location.replace('../dashboard.html');
+      }
+    }catch(e){window.location.replace('../dashboard.html');}
+  }
+})();
+</script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135deg,#0a0a1a,#111128,#0a0a1a);color:#fff;min-height:100vh}
+
+.top-bar{display:flex;justify-content:space-between;align-items:center;padding:14px 24px;background:rgba(0,0,0,.3);border-bottom:1px solid rgba(99,102,241,.1)}
+.top-bar .brand{display:flex;align-items:center;gap:10px}
+.top-bar .brand .logo{font-size:1.3rem}
+.top-bar .brand h1{font-size:1rem;background:linear-gradient(90deg,#6366f1,#818cf8);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.top-bar .brand span{font-size:.6rem;background:rgba(99,102,241,.15);color:#818cf8;padding:2px 8px;border-radius:6px;font-weight:600}
+.back-btn{background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.2);color:#818cf8;padding:8px 16px;border-radius:8px;font-size:.75rem;font-weight:600;cursor:pointer;transition:.2s;text-decoration:none;display:flex;align-items:center;gap:6px}
+.back-btn:hover{background:rgba(99,102,241,.2)}
+
+.container{max-width:800px;margin:0 auto;padding:24px 20px}
+
+/* Profile Header */
+.profile-header{text-align:center;padding:40px 24px 30px;position:relative}
+.profile-avatar{width:100px;height:100px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#818cf8);display:flex;align-items:center;justify-content:center;font-size:2.5rem;font-weight:800;color:#fff;margin:0 auto 16px;box-shadow:0 8px 32px rgba(99,102,241,.3);border:3px solid rgba(129,140,248,.3)}
+.profile-name{font-size:1.4rem;font-weight:800}
+.profile-email{font-size:.82rem;color:rgba(255,255,255,.4);margin-top:4px}
+.profile-role{display:inline-block;margin-top:8px;font-size:.65rem;background:linear-gradient(135deg,#6366f1,#818cf8);padding:4px 14px;border-radius:6px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.profile-joined{font-size:.68rem;color:rgba(255,255,255,.25);margin-top:8px}
+
+/* Cards */
+.card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:14px;margin-bottom:16px;overflow:hidden}
+.card-head{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid rgba(255,255,255,.04)}
+.card-head h3{font-size:.85rem;color:rgba(255,255,255,.6);display:flex;align-items:center;gap:8px}
+.card-head .badge{font-size:.6rem;background:rgba(99,102,241,.12);color:#818cf8;padding:3px 10px;border-radius:6px;font-weight:600}
+
+/* Info rows */
+.info-row{display:flex;justify-content:space-between;align-items:center;padding:14px 20px;border-bottom:1px solid rgba(255,255,255,.02)}
+.info-row:last-child{border-bottom:none}
+.info-label{font-size:.72rem;color:rgba(255,255,255,.35)}
+.info-value{font-size:.78rem;font-weight:600;color:#fff;text-align:right;max-width:60%;overflow:hidden;text-overflow:ellipsis}
+.info-value.mono{font-family:'Courier New',monospace;color:#818cf8;font-size:.72rem}
+.info-value.green{color:#27ae60}.info-value.gold{color:#f5c518}.info-value.red{color:#eb5757}.info-value.purple{color:#818cf8}
+
+/* Stats grid */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:20px}
+.stat{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:16px;text-align:center}
+.stat .s-label{font-size:.6rem;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.5px}
+.stat .s-val{font-size:1.3rem;font-weight:800;margin-top:4px}
+.stat .s-sub{font-size:.62rem;color:rgba(255,255,255,.25);margin-top:3px}
+.purple{color:#818cf8}.green{color:#27ae60}.gold{color:#f5c518}.red{color:#eb5757}.blue{color:#2d9cdb}
+
+/* Actions */
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:20px}
+.act-btn{padding:10px 18px;border-radius:10px;font-size:.72rem;font-weight:600;cursor:pointer;transition:.2s;border:1px solid rgba(255,255,255,.08);background:none;color:rgba(255,255,255,.5);text-decoration:none;display:flex;align-items:center;gap:6px}
+.act-btn:hover{border-color:rgba(99,102,241,.3);color:#818cf8}
+.act-btn.primary{background:linear-gradient(135deg,#6366f1,#818cf8);border:none;color:#fff}
+.act-btn.primary:hover{opacity:.9}
+.act-btn.danger{border-color:rgba(235,87,87,.2);color:#eb5757}
+.act-btn.danger:hover{background:rgba(235,87,87,.1)}
+
+/* Security */
+.sec-item{display:flex;align-items:center;gap:14px;padding:14px 20px;border-bottom:1px solid rgba(255,255,255,.02)}
+.sec-item:last-child{border-bottom:none}
+.sec-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0}
+.sec-item .sec-info{flex:1}
+.sec-item .sec-label{font-size:.78rem;font-weight:600}
+.sec-item .sec-desc{font-size:.65rem;color:rgba(255,255,255,.3);margin-top:2px}
+.sec-status{font-size:.68rem;font-weight:700;padding:4px 10px;border-radius:6px}
+.sec-on{background:rgba(39,174,96,.12);color:#27ae60}
+.sec-off{background:rgba(235,87,87,.12);color:#eb5757}
+
+/* Toast */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(80px);background:#1a1a2e;border:1px solid rgba(99,102,241,.2);color:#fff;padding:12px 24px;border-radius:10px;font-size:.78rem;transition:.3s;opacity:0;z-index:999}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+
+@media(max-width:600px){
+  .stats{grid-template-columns:1fr 1fr}
+  .profile-avatar{width:80px;height:80px;font-size:2rem}
+  .container{padding:16px 12px}
+}
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+<div class="brand">
+<div class="logo">&#x2699;&#xFE0F;</div>
+<h1>OLIGHFT SMART COIN</h1>
+<span>ACCOUNT</span>
+</div>
+<a href="backend.html" class="back-btn">&#x2190; Back to Admin</a>
+</div>
+
+<div class="container">
+
+<!-- Profile Header -->
+<div class="profile-header">
+<div class="profile-avatar" id="pAvatar">A</div>
+<div class="profile-name" id="pName">Admin</div>
+<div class="profile-email" id="pEmail">—</div>
+<div class="profile-role">Platform Administrator</div>
+<div class="profile-joined" id="pJoined">—</div>
+</div>
+
+<!-- Quick Stats -->
+<div class="stats" id="accountStats"></div>
+
+<!-- Account Details -->
+<div class="card">
+<div class="card-head"><h3>&#x1F464; Account Details</h3></div>
+<div class="info-row"><div class="info-label">Full Name</div><div class="info-value" id="dName">—</div></div>
+<div class="info-row"><div class="info-label">Email Address</div><div class="info-value" id="dEmail">—</div></div>
+<div class="info-row"><div class="info-label">Sponsor / Referrer</div><div class="info-value" id="dSponsor">—</div></div>
+<div class="info-row"><div class="info-label">Registration Date</div><div class="info-value" id="dRegistered">—</div></div>
+<div class="info-row"><div class="info-label">Admin Status</div><div class="info-value green">&#x1F7E2; Active</div></div>
+</div>
+
+<!-- Wallet Info -->
+<div class="card">
+<div class="card-head"><h3>&#x1F4B3; Wallet Information</h3><div class="badge" id="wAccountCount">0 accounts</div></div>
+<div class="info-row"><div class="info-label">Primary Address</div><div class="info-value mono" id="dAddr" onclick="copyAddr()" style="cursor:pointer" title="Click to copy">—</div></div>
+<div class="info-row"><div class="info-label">Active Account</div><div class="info-value purple" id="dActiveAcc">#0</div></div>
+<div class="info-row"><div class="info-label">HD Derivation</div><div class="info-value" style="color:rgba(255,255,255,.4)">SEP-0005 (m/44'/148'/n')</div></div>
+<div class="info-row"><div class="info-label">Portfolio Value</div><div class="info-value gold" id="dPortfolio">$0.00</div></div>
+<div class="info-row"><div class="info-label">OLIGHFT Balance</div><div class="info-value purple" id="dOLI">0</div></div>
+</div>
+
+<!-- Token Balances -->
+<div class="card">
+<div class="card-head"><h3>&#x1F4B0; Token Balances</h3><div class="badge">LIVE</div></div>
+<div id="tokenRows"></div>
+</div>
+
+<!-- Staking Summary -->
+<div class="card">
+<div class="card-head"><h3>&#x1F4C8; Staking Summary</h3></div>
+<div class="info-row"><div class="info-label">Total Stakes</div><div class="info-value purple" id="dStakeCount">0</div></div>
+<div class="info-row"><div class="info-label">Active Stakes</div><div class="info-value green" id="dActiveStakes">0</div></div>
+<div class="info-row"><div class="info-label">Total Staked Value</div><div class="info-value gold" id="dStakedVal">$0</div></div>
+<div class="info-row"><div class="info-label">Expected Payout</div><div class="info-value green" id="dPayout">$0</div></div>
+<div class="info-row"><div class="info-label">Total Fees Paid</div><div class="info-value red" id="dFees">$0</div></div>
+</div>
+
+<!-- Security -->
+<div class="card">
+<div class="card-head"><h3>&#x1F6E1;&#xFE0F; Security Settings</h3></div>
+<div class="sec-item">
+<div class="sec-icon" style="background:rgba(99,102,241,.1)">&#x1F510;</div>
+<div class="sec-info"><div class="sec-label">Two-Factor Authentication</div><div class="sec-desc">Extra layer of security for your account</div></div>
+<div class="sec-status" id="sec2fa">OFF</div>
+</div>
+<div class="sec-item">
+<div class="sec-icon" style="background:rgba(39,174,96,.1)">&#x1F4E7;</div>
+<div class="sec-info"><div class="sec-label">Email Confirmations</div><div class="sec-desc">Confirm transactions via email</div></div>
+<div class="sec-status" id="secEmail">OFF</div>
+</div>
+<div class="sec-item">
+<div class="sec-icon" style="background:rgba(245,197,24,.1)">&#x1F511;</div>
+<div class="sec-info"><div class="sec-label">Multisig</div><div class="sec-desc">Multi-signature wallet protection</div></div>
+<div class="sec-status" id="secMs">OFF</div>
+</div>
+<div class="sec-item">
+<div class="sec-icon" style="background:rgba(99,102,241,.1)">&#x1F4F1;</div>
+<div class="sec-info"><div class="sec-label">Admin PIN</div><div class="sec-desc">Device-level admin panel protection</div></div>
+<div class="sec-status sec-on">ACTIVE</div>
+</div>
+</div>
+
+<!-- Platform Wallets -->
+<div class="card">
+<div class="card-head"><h3>&#x1F3E6; Platform Wallet Addresses</h3></div>
+<div class="info-row"><div class="info-label">Main Platform Wallet</div><div class="info-value mono" id="dMainW" style="font-size:.65rem">—</div></div>
+<div class="info-row"><div class="info-label">Admin 60% Fee Wallet</div><div class="info-value mono" id="dFeeW" style="font-size:.65rem">—</div></div>
+<div class="info-row"><div class="info-label">Auto-Withdraw Wallet</div><div class="info-value mono" id="dWithW" style="font-size:.65rem">—</div></div>
+</div>
+
+<!-- Actions -->
+<div class="actions">
+<a href="backend.html" class="act-btn primary">&#x2190; Admin Panel</a>
+<a href="../dashboard.html" class="act-btn">&#x1F4CA; Dashboard</a>
+<a href="../wallet.html" class="act-btn">&#x1F4B3; Wallet</a>
+<a href="../send.html" class="act-btn">&#x1F4E4; Send</a>
+<a href="../swap.html" class="act-btn">&#x1F504; Swap</a>
+<button class="act-btn" onclick="exportAccountData()">&#x1F4E5; Export Data</button>
+<button class="act-btn danger" onclick="adminLogout()">&#x1F6AA; Logout</button>
+</div>
+
+</div><!-- /.container -->
+
+<div class="toast" id="toast"></div>
+
+<script>
+var TOKEN_META={OLIGHFT:{name:'OLIGHFT Smart Coin',icon:'\u2728',price:0.50},XLM:{name:'Stellar Lumens',icon:'\u2B50',price:0.12},USDC:{name:'USD Coin',icon:'\uD83D\uDCB5',price:1.00},wETH:{name:'Wrapped Ethereum',icon:'\uD83D\uDC8E',price:3200},wBTC:{name:'Wrapped Bitcoin',icon:'\uD83D\uDD36',price:68000},EURC:{name:'Euro Coin',icon:'\uD83D\uDCB6',price:1.08}};
+var DEFAULT_BALS={XLM:10000,USDC:500,wETH:0.5,wBTC:0.02,EURC:200,OLIGHFT:10000};
+
+function getUser(){return JSON.parse(localStorage.getItem('cw_user')||'null');}
+function getStakes(){return JSON.parse(localStorage.getItem('card_stakes')||'[]');}
+function getBalances(){try{return JSON.parse(localStorage.getItem('cw_balances')||'null')||DEFAULT_BALS;}catch(e){return DEFAULT_BALS;}}
+function getAccounts(){try{var r=localStorage.getItem('cw_accounts');return r?JSON.parse(atob(r)):[];}catch(e){return[];}}
+function getSecSettings(){return JSON.parse(localStorage.getItem('cw_security')||'{}');}
+function getMsConfig(){return JSON.parse(localStorage.getItem('cw_multisig')||'null');}
+function getAdminDeposits(){return JSON.parse(localStorage.getItem('cw_admin_deposits')||'[]');}
+function fmtBal(v){return v<0.001?v.toFixed(8):v<1?v.toFixed(6):v<100?v.toFixed(4):v.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function shortAddr(a){return a?a.slice(0,8)+'...'+a.slice(-4):'-';}
+function showToast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2500);}
+
+function init(){
+  var user=getUser();
+  if(!user){window.location.href='../auth.html';return;}
+
+  var stakes=getStakes();
+  var accounts=getAccounts();
+  var bals=getBalances();
+  var sec=getSecSettings();
+  var ms=getMsConfig();
+  var deps=getAdminDeposits();
+  var activeIdx=parseInt(localStorage.getItem('cw_active_idx')||'0',10);
+
+  // Profile header
+  document.getElementById('pAvatar').textContent=(user.name||'A').charAt(0).toUpperCase();
+  document.getElementById('pName').textContent=user.name||'Admin';
+  document.getElementById('pEmail').textContent=user.email||'—';
+  document.getElementById('pJoined').textContent=user.created?'Joined '+new Date(user.created).toLocaleDateString():'—';
+
+  // Account details
+  document.getElementById('dName').textContent=user.name||'—';
+  document.getElementById('dEmail').textContent=user.email||'—';
+  document.getElementById('dSponsor').textContent=user.sponsor||'None';
+  document.getElementById('dRegistered').textContent=user.created?new Date(user.created).toLocaleString():'—';
+
+  // Wallet info
+  document.getElementById('dAddr').textContent=user.addr?shortAddr(user.addr):'Not generated';
+  document.getElementById('dAddr').setAttribute('data-full',user.addr||'');
+  document.getElementById('dActiveAcc').textContent='#'+activeIdx+(accounts[activeIdx]?' — '+accounts[activeIdx].label:'');
+  document.getElementById('wAccountCount').textContent=accounts.length+' account'+(accounts.length!==1?'s':'');
+
+  // Balances
+  var portfolioVal=0;
+  Object.keys(bals).forEach(function(k){var m=TOKEN_META[k];if(m)portfolioVal+=bals[k]*m.price;});
+  document.getElementById('dPortfolio').textContent='$'+portfolioVal.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2});
+  document.getElementById('dOLI').textContent=fmtBal(bals.OLIGHFT||0)+' OLI';
+
+  // Token rows
+  var tokenHtml='';
+  Object.keys(bals).forEach(function(k){
+    var m=TOKEN_META[k]||{name:k,icon:'\uD83E\uDE99',price:0};
+    var val=bals[k]*(m.price||0);
+    tokenHtml+='<div class="info-row"><div class="info-label">'+m.icon+' '+m.name+' ('+k+')</div><div class="info-value" style="color:#27ae60">'+fmtBal(bals[k])+' <span style="color:rgba(255,255,255,.3);font-size:.65rem">≈ $'+val.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})+'</span></div></div>';
+  });
+  document.getElementById('tokenRows').innerHTML=tokenHtml;
+
+  // Staking
+  var totalStaked=0,totalPayout=0,totalFees=0,activeStakes=0;
+  stakes.forEach(function(s){
+    totalStaked+=s.stake||0;totalPayout+=s.payout||0;totalFees+=s.fee||0;
+    var end=new Date(s.date).getTime()+((s.period||0)*86400000);
+    if(Date.now()<end)activeStakes++;
+  });
+  document.getElementById('dStakeCount').textContent=stakes.length;
+  document.getElementById('dActiveStakes').textContent=activeStakes;
+  document.getElementById('dStakedVal').textContent='$'+totalStaked.toLocaleString();
+  document.getElementById('dPayout').textContent='$'+totalPayout.toLocaleString();
+  document.getElementById('dFees').textContent='$'+totalFees.toLocaleString();
+
+  // Security
+  var s2fa=document.getElementById('sec2fa');
+  if(sec.tog2fa){s2fa.textContent='ON';s2fa.className='sec-status sec-on';}else{s2fa.textContent='OFF';s2fa.className='sec-status sec-off';}
+  var sEmail=document.getElementById('secEmail');
+  if(sec.togEmail){sEmail.textContent='ON';sEmail.className='sec-status sec-on';}else{sEmail.textContent='OFF';sEmail.className='sec-status sec-off';}
+  var sMs=document.getElementById('secMs');
+  if(ms&&ms.signers&&ms.signers.length>0){sMs.textContent=ms.signers.length+' SIGNERS';sMs.className='sec-status sec-on';}else{sMs.textContent='OFF';sMs.className='sec-status sec-off';}
+
+  // Platform wallets
+  var cfg=JSON.parse(localStorage.getItem('olighft_wallet_config')||'{}');
+  var defW='GBLEKKQNHKVE7NIOOPY7CQ6SJ4BQCGHD3O5FCPB2B47X2ERKSJGSMWCP';
+  document.getElementById('dMainW').textContent=shortAddr(cfg.mainWallet||defW);
+  document.getElementById('dFeeW').textContent=shortAddr(cfg.feeWallet||defW);
+  document.getElementById('dWithW').textContent=shortAddr(cfg.withdrawWallet||defW);
+
+  // Quick stats
+  var feeTotal=deps.reduce(function(s,d){return s+(d.usd||0);},0);
+  var sends=JSON.parse(localStorage.getItem('send_txs')||'[]');
+  var swaps=JSON.parse(localStorage.getItem('swap_txs')||'[]');
+  document.getElementById('accountStats').innerHTML=
+    '<div class="stat"><div class="s-label">Portfolio</div><div class="s-val gold">$'+portfolioVal.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})+'</div><div class="s-sub">'+Object.keys(bals).length+' tokens</div></div>'+
+    '<div class="stat"><div class="s-label">Active Stakes</div><div class="s-val green">'+activeStakes+'</div><div class="s-sub">of '+stakes.length+' total</div></div>'+
+    '<div class="stat"><div class="s-label">Fee Revenue</div><div class="s-val gold">$'+feeTotal.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})+'</div><div class="s-sub">'+deps.length+' deposits</div></div>'+
+    '<div class="stat"><div class="s-label">Transactions</div><div class="s-val purple">'+(sends.length+swaps.length+stakes.length)+'</div><div class="s-sub">'+sends.length+' sends · '+swaps.length+' swaps</div></div>'+
+    '<div class="stat"><div class="s-label">HD Accounts</div><div class="s-val blue">'+accounts.length+'</div><div class="s-sub">SEP-0005 derived</div></div>'+
+    '<div class="stat"><div class="s-label">Security</div><div class="s-val '+(sec.tog2fa?'green':'red')+'">'+(sec.tog2fa?'HIGH':'STANDARD')+'</div><div class="s-sub">2FA '+(sec.tog2fa?'enabled':'disabled')+'</div></div>';
+}
+
+function copyAddr(){
+  var full=document.getElementById('dAddr').getAttribute('data-full');
+  if(full){navigator.clipboard.writeText(full).then(function(){showToast('Address copied!');}).catch(function(){});}
+}
+
+function exportAccountData(){
+  var data={user:getUser(),balances:getBalances(),stakes:getStakes(),accounts:getAccounts(),security:getSecSettings(),multisig:getMsConfig(),adminDeposits:getAdminDeposits(),sends:JSON.parse(localStorage.getItem('send_txs')||'[]'),swaps:JSON.parse(localStorage.getItem('swap_txs')||'[]'),walletConfig:JSON.parse(localStorage.getItem('olighft_wallet_config')||'{}'),exported:new Date().toISOString()};
+  var blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='olighft-account-'+Date.now()+'.json';a.click();
+  showToast('Account data exported');
+}
+
+function adminLogout(){
+  if(!confirm('Logout from admin?'))return;
+  localStorage.removeItem('cw_user');localStorage.removeItem('cw_seed');localStorage.removeItem('cw_secret');localStorage.removeItem('cw_accounts');localStorage.removeItem('cw_active_idx');localStorage.removeItem('cw_security');localStorage.removeItem('cw_multisig');localStorage.removeItem('cw_balances');
+  window.location.href='../auth.html';
+}
+
+init();
+</script>
+</body>
+</html>
