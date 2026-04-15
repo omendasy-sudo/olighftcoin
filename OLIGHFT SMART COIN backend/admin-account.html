@@ -415,12 +415,45 @@ function init(){
   document.getElementById('feeRows').innerHTML=feeHtml||'<div style="text-align:center;color:rgba(255,255,255,.2);padding:14px;font-size:.75rem">No fee deposits yet</div>';
 
   // ── 8-Gen Commissions & Withdrawals Card (ALL users across project) ──
+  // Force-process any uncredited earnings that are past 5min so nothing stays "Pending"
+  (function(){
+    var _now=Date.now(),_GWD=5*60*1000,_changed=false;
+    // Process cw_gen_pending
+    try{
+      var pq=JSON.parse(localStorage.getItem('cw_gen_pending')||'[]');
+      for(var qi=0;qi<pq.length;qi++){
+        if(!pq[qi].credited&&_now>=(pq[qi].readyAt||0)){
+          creditSponsorBalance(pq[qi].sponsor,pq[qi].amount);
+          pq[qi].credited=true;pq[qi].creditedAt=_now;_changed=true;
+          try{var _sk='cw_gen_earnings_'+pq[qi].sponsor.toLowerCase();var _se=JSON.parse(localStorage.getItem(_sk)||'[]');for(var _k=_se.length-1;_k>=0;_k--){if(_se[_k].stakeId===pq[qi].stakeId&&_se[_k].gen===pq[qi].gen&&!_se[_k].credited){_se[_k].credited=true;_se[_k].creditedAt=_now;break;}}localStorage.setItem(_sk,JSON.stringify(_se));}catch(e){}
+        }
+      }
+      if(_changed)localStorage.setItem('cw_gen_pending',JSON.stringify(pq));
+    }catch(e){}
+    // Also scan all cw_gen_earnings_* and credit any that are past 5min but not credited
+    for(var _li=0;_li<localStorage.length;_li++){
+      var _lk=localStorage.key(_li);
+      if(_lk&&_lk.indexOf('cw_gen_earnings_')===0){
+        var _sn=_lk.replace('cw_gen_earnings_','');
+        try{
+          var _ea=JSON.parse(localStorage.getItem(_lk)||'[]'),_ec=false;
+          for(var _ei=0;_ei<_ea.length;_ei++){
+            if(!_ea[_ei].credited&&_ea[_ei].readyAt&&_now>=_ea[_ei].readyAt){
+              creditSponsorBalance(_sn,_ea[_ei].amount||0);
+              _ea[_ei].credited=true;_ea[_ei].creditedAt=_now;_ec=true;
+            }
+          }
+          if(_ec)localStorage.setItem(_lk,JSON.stringify(_ea));
+        }catch(e){}
+      }
+    }
+  })();
+
   var genItems=[];
   var _genSeen={};
 
   // 1. Scan ALL cw_gen_earnings_* keys across every user
   var allUsers=[];try{allUsers=JSON.parse(localStorage.getItem('cw_all_users')||'[]');}catch(e){}
-  // Also discover earnings keys directly from localStorage
   var earningsKeys={};
   for(var li=0;li<localStorage.length;li++){
     var lk=localStorage.key(li);
@@ -428,7 +461,6 @@ function init(){
       earningsKeys[lk]=1;
     }
   }
-  // Add known users' keys
   allUsers.forEach(function(u){
     var nm=(u.name||u.username||'').toLowerCase();
     if(nm)earningsKeys['cw_gen_earnings_'+nm]=1;
@@ -440,7 +472,7 @@ function init(){
     earns.forEach(function(e){
       var gk=(e.ts||0)+'_gen'+(e.gen||0)+'_'+sponsorName+'_'+(e.stakeId||'');
       if(!_genSeen[gk]){_genSeen[gk]=1;
-        var status=e.credited?'✅ Credited':'⏳ Pending'+(e.readyAt?' ('+Math.max(0,Math.ceil((e.readyAt-Date.now())/60000))+'m)':'');
+        var status=e.credited?'✅ Auto-Withdrawn to wallet':'⏳ Withdrawing in '+Math.max(0,Math.ceil(((e.readyAt||0)-Date.now())/60000))+'m';
         genItems.push({icon:'🌳',type:'Gen '+(e.gen||'?')+' → '+sponsorName,detail:fmtBal(e.amount||0)+' OLIGHFT from '+(e.from||'unknown')+' ('+(e.cardTier||'—')+') · '+status,amt:'+'+fmtBal(e.amount||0),cls:e.credited?'green':'gold',ts:e.ts||0});
       }
     });
@@ -452,21 +484,21 @@ function init(){
     if(log.commissions){log.commissions.forEach(function(c){
       var gk=(log.ts||0)+'_clog_gen'+c.gen+'_'+c.sponsor;
       if(!_genSeen[gk]){_genSeen[gk]=1;
-      genItems.push({icon:'🌳',type:'Gen '+c.gen+' → '+(c.sponsor||'?'),detail:fmtBal(c.amount)+' OLIGHFT ('+(log.cardTier||'—')+') · Staker: '+(log.stakerEmail||'').split('@')[0],amt:'+'+fmtBal(c.amount),cls:c.onChain?'green':'gold',ts:log.ts||0});}
+      genItems.push({icon:'🌳',type:'Gen '+c.gen+' → '+(c.sponsor||'?'),detail:fmtBal(c.amount)+' OLIGHFT ('+(log.cardTier||'—')+') · Staker: '+(log.stakerEmail||'').split('@')[0]+' · ✅ Auto-Withdrawn',amt:'+'+fmtBal(c.amount),cls:'green',ts:log.ts||0});}
     });}
     if(log.undistributed>0){
       var gk2=(log.ts||0)+'_undist';
       if(!_genSeen[gk2]){_genSeen[gk2]=1;
-      genItems.push({icon:'🏦',type:'Unclaimed Gens → Admin',detail:fmtBal(log.undistributed)+' OLIGHFT from '+(log.cardTier||'')+' stake',amt:'+'+fmtBal(log.undistributed),cls:'gold',ts:log.ts||0});}
+      genItems.push({icon:'🏦',type:'Unclaimed Gens → Admin',detail:fmtBal(log.undistributed)+' OLIGHFT from '+(log.cardTier||'')+' stake · ✅ Credited to admin',amt:'+'+fmtBal(log.undistributed),cls:'green',ts:log.ts||0});}
     }
   });
 
-  // 3. Global pending queue
+  // 3. Global pending queue (already processed above, show status)
   genPending.forEach(function(p){
     var gk=(p.ts||0)+'_pend_gen'+p.gen+'_'+p.sponsor;
     if(!_genSeen[gk]){_genSeen[gk]=1;
-    var status=p.credited?'✅ Credited':'⏳ Pending ('+Math.max(0,Math.ceil((p.readyAt-Date.now())/60000))+'m)';
-    genItems.push({icon:'🌳',type:'Gen '+p.gen+' → '+(p.sponsor||'?'),detail:fmtBal(p.amount)+' OLIGHFT from '+(p.from||'unknown')+' ('+p.cardTier+') · '+status,amt:'+'+fmtBal(p.amount),cls:p.credited?'green':'gold',ts:p.queuedAt||p.ts||p.readyAt||0});}
+    var status=p.credited?'✅ Auto-Withdrawn to wallet':'⏳ Withdrawing in '+Math.max(0,Math.ceil(((p.readyAt||0)-Date.now())/60000))+'m';
+    genItems.push({icon:'🌳',type:'Gen '+p.gen+' → '+(p.sponsor||'?'),detail:fmtBal(p.amount)+' OLIGHFT from '+(p.from||'unknown')+' ('+(p.cardTier||'')+') · '+status,amt:'+'+fmtBal(p.amount),cls:p.credited?'green':'gold',ts:p.queuedAt||p.ts||p.readyAt||0});}
   });
 
   // 4. Auto-withdraw entries from activity
