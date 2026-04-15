@@ -799,7 +799,15 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
       </select>
       <div style="font-size:.58rem;color:rgba(255,255,255,.3);margin-top:4px" id="dashCardHint">Tap a card to select it for staking</div>
       <!-- Card Shortcut Tiles -->
-      <div style="text-align:center;padding:6px 10px;background:rgba(255,107,107,.08);border:1px solid rgba(255,107,107,.25);border-radius:8px;margin-top:8px;margin-bottom:6px"><span style="font-size:.7rem;font-weight:800;color:#ff6b6b;letter-spacing:1px">&#x1F9EA; TEST MODE</span><span style="font-size:.58rem;color:rgba(255,255,255,.4);margin-left:8px">1-day, 2-day, 5-day &amp; 7-day staking periods available</span></div>
+      <div style="text-align:center;padding:8px 10px;background:rgba(255,107,107,.08);border:1px solid rgba(255,107,107,.25);border-radius:10px;margin-top:8px;margin-bottom:6px">
+        <div style="margin-bottom:6px"><span style="font-size:.7rem;font-weight:800;color:#ff6b6b;letter-spacing:1px">&#x1F9EA; TEST MODE</span></div>
+        <div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap">
+          <button onclick="setTestPeriod(1)" class="tpBtn" id="tp1" style="padding:5px 12px;border-radius:8px;border:1px solid rgba(255,107,107,.35);background:rgba(255,107,107,.1);color:#ff6b6b;font-size:.68rem;font-weight:700;cursor:pointer;transition:all .2s">1 Day</button>
+          <button onclick="setTestPeriod(2)" class="tpBtn" id="tp2" style="padding:5px 12px;border-radius:8px;border:1px solid rgba(255,107,107,.35);background:rgba(255,107,107,.1);color:#ff6b6b;font-size:.68rem;font-weight:700;cursor:pointer;transition:all .2s">2 Days</button>
+          <button onclick="setTestPeriod(5)" class="tpBtn" id="tp5" style="padding:5px 12px;border-radius:8px;border:1px solid rgba(255,107,107,.35);background:rgba(255,107,107,.1);color:#ff6b6b;font-size:.68rem;font-weight:700;cursor:pointer;transition:all .2s">5 Days</button>
+          <button onclick="setTestPeriod(7)" class="tpBtn" id="tp7" style="padding:5px 12px;border-radius:8px;border:1px solid rgba(255,107,107,.35);background:rgba(255,107,107,.1);color:#ff6b6b;font-size:.68rem;font-weight:700;cursor:pointer;transition:all .2s">7 Days</button>
+        </div>
+      </div>
       <div id="cardShortcuts" style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:10px">
         <div class="csc-tile" data-card="Mastercard" data-href="card-mastercard.html" onclick="selectCardTile(this)" style="background:linear-gradient(135deg,rgba(235,87,87,.08),rgba(235,87,87,.02));border-color:rgba(235,87,87,.2)">
           <div class="csc-name">&#x1F4B3; Mastercard</div>
@@ -3866,6 +3874,24 @@ function setStakeMax() {
     document.getElementById('skAmount').value = bals['OLIGHFT'] || 0;
   }
   updateApy();
+}
+
+function setTestPeriod(d) {
+  var sel = document.getElementById('skPeriod');
+  sel.value = d;
+  updateApy();
+  // Highlight active button
+  var btns = document.querySelectorAll('.tpBtn');
+  for (var i = 0; i < btns.length; i++) {
+    btns[i].style.background = 'rgba(255,107,107,.1)';
+    btns[i].style.boxShadow = 'none';
+  }
+  var active = document.getElementById('tp' + d);
+  if (active) {
+    active.style.background = 'rgba(255,107,107,.3)';
+    active.style.boxShadow = '0 0 8px rgba(255,107,107,.4)';
+  }
+  showToast('\uD83E\uDDEA Test period set: ' + d + ' day' + (d > 1 ? 's' : ''), '#ff6b6b');
 }
 
 function updateApy() {
