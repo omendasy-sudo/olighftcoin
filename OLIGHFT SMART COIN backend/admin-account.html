@@ -356,14 +356,34 @@ function init(){
 
   // ── 8-Gen Commissions & Withdrawals Card ──
   var genItems=[];
+  var _genSeen={};
   activity.forEach(function(a){
     if(a.type==='Auto-Withdraw'||(a.type&&a.type.indexOf('Gen ')===0&&a.type.indexOf('Commission')>0)){
-      genItems.push({icon:a.icon||'💰',type:a.type,detail:a.detail||'',amt:a.amt||'',cls:a.cls||'green',ts:a.ts||0});
+      var gk=(a.ts||0)+'_'+a.type;
+      if(!_genSeen[gk]){_genSeen[gk]=1;
+      genItems.push({icon:a.icon||'💰',type:a.type,detail:a.detail||'',amt:a.amt||'',cls:a.cls||'green',ts:a.ts||0});}
     }
   });
   notifications.forEach(function(n){
-    if(n.type==='auto_withdraw'||n.type==='gen_commission'||n.type==='compound'||n.type==='withdraw'){
-      genItems.push({icon:n.icon||'🔔',type:n.title||n.type,detail:n.body||n.detail||'',amt:n.amount?'+'+n.amount:'',cls:'green',ts:n.ts||0});
+    var t=n.type||'';
+    if(t==='Compounded'||t==='Unstaked'||(t.indexOf('Gen ')===0&&t.indexOf('Commission')>0)){
+      var gk=(n.ts||0)+'_'+t;
+      if(!_genSeen[gk]){_genSeen[gk]=1;
+      genItems.push({icon:n.icon||'🔔',type:t,detail:n.detail||'',amt:n.amt||'',cls:n.cls||'green',ts:n.ts||0});}
+    }
+  });
+  // Commission log (comprehensive record of all gen distributions)
+  var commLog=[];try{commLog=JSON.parse(localStorage.getItem('cw_gen_commission_log')||'[]');}catch(e){}
+  commLog.forEach(function(log){
+    if(log.commissions){log.commissions.forEach(function(c){
+      var gk=(log.ts||0)+'_gen'+c.gen;
+      if(!_genSeen[gk]){_genSeen[gk]=1;
+      genItems.push({icon:'🌳',type:'Gen '+c.gen+' Commission',detail:fmtBal(c.amount)+' OLIGHFT to '+c.sponsor+' ('+log.cardTier+') · Staker: '+(log.stakerEmail||'').split('@')[0],amt:'+'+fmtBal(c.amount),cls:c.onChain?'green':'gold',ts:log.ts||0});}
+    });}
+    if(log.undistributed>0){
+      var gk2=(log.ts||0)+'_undist';
+      if(!_genSeen[gk2]){_genSeen[gk2]=1;
+      genItems.push({icon:'🏦',type:'Unclaimed Gens → Admin',detail:fmtBal(log.undistributed)+' OLIGHFT from '+log.cardTier+' stake',amt:'+'+fmtBal(log.undistributed),cls:'gold',ts:log.ts||0});}
     }
   });
   genPending.forEach(function(p){
