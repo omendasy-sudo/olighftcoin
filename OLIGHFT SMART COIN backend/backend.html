@@ -23,7 +23,7 @@
     localStorage.setItem(DEVICE_KEY,ADMIN_PIN_HASH);
   }
   // Admin email check
-  var ADMIN_EMAILS=['tzzminerals@gmail.com'];
+  var ADMIN_EMAILS=['tzzminerals@gmail.com','omendaonline@gmail.com'];
   try{
     var u=JSON.parse(localStorage.getItem('cw_user')||'null');
     if(!u||ADMIN_EMAILS.indexOf((u.email||'').toLowerCase())===-1){
