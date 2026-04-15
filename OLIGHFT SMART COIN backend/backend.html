@@ -180,7 +180,7 @@ table tr:hover td{background:rgba(99,102,241,.03)}
 </div>
 </div>
 
-<div class="layout">
+<div class="layout" id="adminLayout" style="display:none">
 <div class="sidebar">
 <a href="#" class="active" onclick="showTab('dashboard',this)"><span class="s-icon">&#x1F4CA;</span> Dashboard</a>
 <a href="#" onclick="showTab('users',this)"><span class="s-icon">&#x1F465;</span> Users</a>
@@ -203,8 +203,8 @@ table tr:hover td{background:rgba(99,102,241,.03)}
 <div class="panel active" id="panel-dashboard">
 <h2>&#x1F4CA; Dashboard Overview</h2>
 
-<!-- Admin Account Card -->
-<div class="table-card" style="margin-bottom:20px;overflow:hidden">
+<!-- Admin Account Card (tap 5x to toggle admin panels) -->
+<div class="table-card" style="margin-bottom:20px;overflow:hidden;cursor:pointer;-webkit-user-select:none;user-select:none" id="adminAccountCard" onclick="handleAdminTap()">
 <div style="background:linear-gradient(135deg,rgba(99,102,241,.12),rgba(129,140,248,.06));padding:20px 22px;border-bottom:1px solid rgba(99,102,241,.1)">
 <div style="display:flex;align-items:center;gap:16px">
 <div style="width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#818cf8);display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:800;color:#fff;flex-shrink:0" id="acctAvatar">A</div>
@@ -617,6 +617,28 @@ table tr:hover td{background:rgba(99,102,241,.03)}
 /* ═══════════════════════════════════════════════ */
 /*  OLIGHFT SMART COIN — Admin Backend Logic         */
 /* ═══════════════════════════════════════════════ */
+
+// ── 5-Tap Secret Toggle ──
+var _tapCount=0;
+var _tapTimer=null;
+var _adminRevealed=false;
+function handleAdminTap(){
+  _tapCount++;
+  clearTimeout(_tapTimer);
+  if(_tapCount>=5){
+    _tapCount=0;
+    _adminRevealed=!_adminRevealed;
+    var layout=document.getElementById('adminLayout');
+    layout.style.display=_adminRevealed?'':'none';
+    showToast(_adminRevealed?'\uD83D\uDD13 Admin panels unlocked':'\uD83D\uDD12 Admin panels locked');
+    return;
+  }
+  // Show remaining taps hint only after 3rd tap
+  if(_tapCount>=3){
+    showToast((5-_tapCount)+' more tap'+(5-_tapCount>1?'s':'')+' to '+(_adminRevealed?'lock':'unlock'));
+  }
+  _tapTimer=setTimeout(function(){_tapCount=0;},1500);
+}
 
 // ── Auth Gate ──
 function checkAuth(){
