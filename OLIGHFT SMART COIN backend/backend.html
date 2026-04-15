@@ -189,6 +189,7 @@ table tr:hover td{background:rgba(99,102,241,.03)}
 <a href="#" onclick="showTab('referrals',this)"><span class="s-icon">&#x1F333;</span> Referral Tree</a>
 <a href="#" onclick="showTab('supply',this)"><span class="s-icon">&#x1F4E6;</span> Supply</a>
 <a href="#" onclick="showTab('fees',this)"><span class="s-icon">&#x1F4B8;</span> Fees</a>
+<a href="#" onclick="showTab('withdrawals',this)"><span class="s-icon">&#x1F4E4;</span> Withdrawals</a>
 <div class="sep"></div>
 <a href="#" onclick="showTab('wallets',this)"><span class="s-icon">&#x1F4B3;</span> Wallets</a>
 <a href="#" onclick="showTab('settings',this)"><span class="s-icon">&#x2699;&#xFE0F;</span> Settings</a>
@@ -298,6 +299,53 @@ table tr:hover td{background:rgba(99,102,241,.03)}
 <div style="font-size:.75rem;font-weight:700;color:#818cf8">Total Fee Wallet Value</div>
 <div style="font-size:.95rem;font-weight:800;color:#f5c518" id="totalFeeWalletVal">$0</div>
 </div>
+</div>
+</div>
+
+<!-- ═══ WITHDRAWALS ═══ -->
+<div class="panel" id="panel-withdrawals">
+<h2>&#x1F4E4; Auto-Withdraw Wallet</h2>
+
+<!-- Withdraw Wallet Address Card -->
+<div class="table-card" style="margin-bottom:20px">
+<div style="display:flex;align-items:center;gap:14px;padding:16px 18px">
+<div style="font-size:2rem">&#x1F4E4;</div>
+<div style="flex:1;min-width:0">
+<div style="font-size:.7rem;color:rgba(255,255,255,.4)">Withdraw Wallet Address</div>
+<div id="withdrawWalletAddr" style="font-size:.85rem;font-weight:700;color:#27ae60;font-family:monospace;overflow:hidden;text-overflow:ellipsis"></div>
+<div style="font-size:.68rem;color:rgba(255,255,255,.3);margin-top:2px">Receives auto-withdraw payouts when staking periods end</div>
+</div>
+<button class="act-btn" id="copyWithdrawWalletBtn" style="font-size:.65rem;padding:6px 12px">&#x1F4CB; Copy</button>
+</div>
+</div>
+
+<!-- Withdraw Stats -->
+<div class="stats" id="withdrawStats"></div>
+
+<!-- Pending Withdrawals -->
+<div class="table-card">
+<div class="table-head"><h3>&#x23F0; Pending Withdrawals (Expired Stakes)</h3><div class="badge" id="pendingWithdrawCount">0</div></div>
+<table><thead><tr><th>Card</th><th>Stake</th><th>Daily</th><th>Period</th><th>Total Payout</th><th>Expired</th><th>Status</th></tr></thead><tbody id="pendingWithdrawBody"></tbody></table>
+<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 18px;border-top:1px solid rgba(255,255,255,.04)">
+<div style="font-size:.75rem;font-weight:700;color:#818cf8">Total Pending Payout</div>
+<div style="font-size:.95rem;font-weight:800;color:#f5c518" id="totalPendingPayout">$0</div>
+</div>
+</div>
+
+<!-- Completed Withdrawals -->
+<div class="table-card">
+<div class="table-head"><h3>&#x2705; Completed Withdrawals</h3><div class="badge" id="completedWithdrawCount">0</div></div>
+<table><thead><tr><th>Card</th><th>Stake</th><th>Daily</th><th>Period</th><th>Payout</th><th>Withdrawn At</th><th>Status</th></tr></thead><tbody id="completedWithdrawBody"></tbody></table>
+<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 18px;border-top:1px solid rgba(255,255,255,.04)">
+<div style="font-size:.75rem;font-weight:700;color:#818cf8">Total Withdrawn</div>
+<div style="font-size:.95rem;font-weight:800;color:#27ae60" id="totalWithdrawnAmt">$0</div>
+</div>
+</div>
+
+<!-- Auto-Withdraw Activity Log -->
+<div class="table-card">
+<div class="table-head"><h3>&#x1F4DC; Withdrawal Activity Log</h3><div class="badge" id="withdrawLogCount">0</div></div>
+<table><thead><tr><th>Type</th><th>Detail</th><th>Amount</th><th>Time</th></tr></thead><tbody id="withdrawLogBody"></tbody></table>
 </div>
 </div>
 
@@ -532,6 +580,7 @@ function refreshTab(id){
     case 'supply': renderSupply(); break;
     case 'fees': renderFees(); break;
     case 'wallets': renderWallets(); break;
+    case 'withdrawals': renderWithdrawals(); break;
     case 'settings': renderSettings(); break;
   }
 }
@@ -1070,6 +1119,57 @@ function renderFees(){
     return '<tr><td style="font-weight:700;color:'+clr+'">'+typ+'</td><td style="font-size:.75rem">'+(d.source||'-')+'</td><td style="font-size:.75rem">'+shortAddr(d.stakeId||'')+'</td><td>'+(d.amount||0).toFixed(2)+'</td><td style="font-weight:700;color:#f5c518">$'+(d.usd||0).toFixed(2)+'</td><td>'+(d.onChain?'<span style="color:#27ae60">✓</span>':'<span style="color:#eb5757">✗</span>')+'</td><td style="font-size:.72rem">'+(d.txHash?shortAddr(d.txHash):'-')+'</td><td>'+new Date(d.ts||d.date).toLocaleString()+'</td></tr>';
   }).join('')||'<tr><td colspan="8" style="text-align:center;color:rgba(255,255,255,.2)">No fee wallet deposits</td></tr>';
   document.getElementById('totalFeeWalletVal').textContent='$'+totalDepUSD.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+
+// ── Withdrawals ──
+function renderWithdrawals(){
+  var cfg=JSON.parse(localStorage.getItem('olighft_wallet_config')||'{}');
+  var witW=cfg.withdrawWallet||'GBLEKKQNHKVE7NIOOPY7CQ6SJ4BQCGHD3O5FCPB2B47X2ERKSJGSMWCP';
+  document.getElementById('withdrawWalletAddr').textContent=witW;
+  document.getElementById('copyWithdrawWalletBtn').onclick=function(){navigator.clipboard.writeText(witW);showToast('Withdraw wallet copied!');};
+
+  var allSt=getAllStakes();
+  var pending=allSt.filter(function(s){return isExpired(s);});
+  var completed=allSt.filter(function(s){return s.withdrawn===true;});
+  var active=allSt.filter(function(s){return !s.withdrawn && (s.period||s.lockDays||0)>0 && Date.now()<stakeEndTs(s);});
+  var pendingTotal=0;pending.forEach(function(s){pendingTotal+=stakePayout(s);});
+  var completedTotal=0;completed.forEach(function(s){completedTotal+=stakePayout(s);});
+  var grandTotal=pendingTotal+completedTotal;
+
+  document.getElementById('withdrawStats').innerHTML=
+    '<div class="stat-card"><div class="sc-label">Pending Withdrawals</div><div class="sc-val sc-red">'+pending.length+'</div><div class="sc-sub">$'+pendingTotal.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})+' awaiting payout</div></div>'+
+    '<div class="stat-card"><div class="sc-label">Completed Withdrawals</div><div class="sc-val sc-green">'+completed.length+'</div><div class="sc-sub">$'+completedTotal.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})+' paid out</div></div>'+
+    '<div class="stat-card"><div class="sc-label">Active Stakes</div><div class="sc-val sc-blue">'+active.length+'</div><div class="sc-sub">Still in lock period</div></div>'+
+    '<div class="stat-card"><div class="sc-label">Total All-Time Payouts</div><div class="sc-val sc-gold">$'+grandTotal.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})+'</div><div class="sc-sub">'+allSt.length+' total stakes</div></div>';
+
+  // Pending withdrawals table
+  document.getElementById('pendingWithdrawCount').textContent=pending.length;
+  document.getElementById('pendingWithdrawBody').innerHTML=pending.sort(function(a,b){return stakeEndTs(a)-stakeEndTs(b);}).map(function(s){
+    var p=stakePayout(s);
+    var expDate=new Date(stakeEndTs(s)).toLocaleDateString();
+    var sinceExpired=Math.floor((Date.now()-stakeEndTs(s))/86400000);
+    return '<tr><td style="font-weight:600">'+(s.card||s.cardTier||'-')+'</td><td>$'+(s.stake||s.amount||0)+'</td><td>$'+(s.dailyReward||0)+'</td><td>'+(s.period||s.lockDays||0)+'d</td><td style="font-weight:700;color:#f5c518">$'+p.toLocaleString()+'</td><td>'+expDate+' <span style="color:#eb5757;font-size:.68rem">('+sinceExpired+'d ago)</span></td><td><span style="color:#eb5757;font-weight:600">⏳ Pending</span></td></tr>';
+  }).join('')||'<tr><td colspan="7" style="text-align:center;color:rgba(255,255,255,.2)">No pending withdrawals</td></tr>';
+  document.getElementById('totalPendingPayout').textContent='$'+pendingTotal.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2});
+
+  // Completed withdrawals table
+  document.getElementById('completedWithdrawCount').textContent=completed.length;
+  document.getElementById('completedWithdrawBody').innerHTML=completed.sort(function(a,b){return(b.withdrawnAt||0)-(a.withdrawnAt||0);}).map(function(s){
+    var p=stakePayout(s);
+    var wDate=s.withdrawnAt?new Date(s.withdrawnAt).toLocaleString():'N/A';
+    return '<tr><td style="font-weight:600">'+(s.card||s.cardTier||'-')+'</td><td>$'+(s.stake||s.amount||0)+'</td><td>$'+(s.dailyReward||0)+'</td><td>'+(s.period||s.lockDays||0)+'d</td><td style="font-weight:700;color:#27ae60">$'+p.toLocaleString()+'</td><td>'+wDate+'</td><td><span style="color:#27ae60;font-weight:600">✅ Withdrawn</span></td></tr>';
+  }).join('')||'<tr><td colspan="7" style="text-align:center;color:rgba(255,255,255,.2)">No completed withdrawals yet</td></tr>';
+  document.getElementById('totalWithdrawnAmt').textContent='$'+completedTotal.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2});
+
+  // Withdrawal activity log from cw_activity
+  var activity=[];
+  try{activity=JSON.parse(localStorage.getItem('cw_activity')||'[]');}catch(e){}
+  var withdrawActivity=activity.filter(function(a){return a.type==='Auto-Withdraw'||a.type==='Withdrawn'||(a.detail&&a.detail.toLowerCase().indexOf('withdraw')>=0);});
+  document.getElementById('withdrawLogCount').textContent=withdrawActivity.length;
+  document.getElementById('withdrawLogBody').innerHTML=withdrawActivity.slice(0,50).map(function(a){
+    var d=a.ts?new Date(a.ts).toLocaleString():(a.time||'-');
+    return '<tr><td style="font-weight:600;color:#27ae60">'+(a.type||'-')+'</td><td style="font-size:.75rem">'+(a.detail||'-')+'</td><td style="font-weight:700;color:#27ae60">'+(a.amt||'-')+'</td><td>'+d+'</td></tr>';
+  }).join('')||'<tr><td colspan="4" style="text-align:center;color:rgba(255,255,255,.2)">No withdrawal activity yet</td></tr>';
 }
 
 function renderSettings(){
