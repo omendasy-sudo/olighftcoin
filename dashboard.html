@@ -1612,8 +1612,9 @@ function _sendOLIGHFTOnChain(destAddr, amountOLIGHFT, label, callback) {
   if (_totalCheck < 1) {
     bals = Object.assign({}, DEFAULT_BALS);
   }
-  // Ensure every user gets 10,000 OLIGHFT for testing
-  if (!bals.OLIGHFT || bals.OLIGHFT <= 0) { bals.OLIGHFT = 10000; }
+  // Ensure every user has enough OLIGHFT for testing (refill when below min card stake)
+  var _minCardOLIGHFT = 100; // Mastercard $50 / $0.50 = 100 OLIGHFT
+  if (!bals.OLIGHFT || bals.OLIGHFT < _minCardOLIGHFT) { bals.OLIGHFT = 10000; }
   localStorage.setItem('cw_balances', JSON.stringify(bals));
 
   // Refresh dynamic OLIGHFT price before rendering
