@@ -478,7 +478,7 @@ function _autoWithdrawGenCommissions(){
   localStorage.setItem('cw_gen_pending',JSON.stringify(upd));
 }
 try{_autoWithdrawGenCommissions();}catch(e){}
-setInterval(function(){try{_autoWithdrawGenCommissions();}catch(e){}},60000);
+setInterval(function(){try{_autoWithdrawGenCommissions();}catch(e){}},10000);
 
 // ── 8-Generation Commission Distribution ──
 function distribute8GenCommissions(stakerEmail,stakeAmountOLIGHFT,stakeId,cardTier){

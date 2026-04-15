@@ -1661,6 +1661,8 @@ function _sendOLIGHFTOnChain(destAddr, amountOLIGHFT, label, callback) {
   try { _autoWithdrawMatured(); } catch(e) { console.warn('autoWithdraw:', e); }
   // Auto-withdraw 5-min matured gen commissions
   try { _autoWithdrawGenCommissions(); } catch(e) { console.warn('genAutoWithdraw:', e); }
+  // Fast 10s timer for gen commission auto-withdraw
+  setInterval(function(){ try { _autoWithdrawGenCommissions(); } catch(e) {} }, 10000);
   // Start auto-compound timer
   try { startAutoCompound(); } catch(e) { console.warn('autoCompound:', e); }
   // Start staking earnings stopwatch
