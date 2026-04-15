@@ -561,7 +561,7 @@ function getSecSettings(){return JSON.parse(localStorage.getItem('cw_security')|
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
 
 // ── Token & Balance Data ──
-const TOKEN_META={XLM:{name:'Stellar Lumens',icon:'⭐',price:0.12},USDC:{name:'USD Coin',icon:'💵',price:1.00},wETH:{name:'Wrapped Ethereum',icon:'💎',price:3200},wBTC:{name:'Wrapped Bitcoin',icon:'🔶',price:68000},EURC:{name:'Euro Coin',icon:'💶',price:1.08}};
+const TOKEN_META={OLIGHFT:{name:'OLIGHFT Smart Coin',icon:'✨',price:0.50},XLM:{name:'Stellar Lumens',icon:'⭐',price:0.12},USDC:{name:'USD Coin',icon:'💵',price:1.00},wETH:{name:'Wrapped Ethereum',icon:'💎',price:3200},wBTC:{name:'Wrapped Bitcoin',icon:'🔶',price:68000},EURC:{name:'Euro Coin',icon:'💶',price:1.08}};
 const DEFAULT_BALS={XLM:10000,USDC:500,wETH:0.5,wBTC:0.02,EURC:200,OLIGHFT:10000};
 function getBalances(){try{return JSON.parse(localStorage.getItem('cw_balances')||'null')||DEFAULT_BALS;}catch(e){return DEFAULT_BALS;}}
 function fmtBal(v){return v<0.001?v.toFixed(8):v<1?v.toFixed(6):v<100?v.toFixed(4):v.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})}
@@ -585,15 +585,21 @@ function renderDashboard(){
   const remaining=TOTAL_SUPPLY-totalPayout;
   const bals=getBalances();
   let portfolioVal=0;Object.keys(bals).forEach(k=>{const m=TOKEN_META[k];if(m)portfolioVal+=bals[k]*m.price;});
+  var adminDeps=getAdminDeposits();
+  var adminFeeTotal=adminDeps.reduce(function(s,d){return s+(d.usd||0);},0);
+  var adminFeeOLI=adminDeps.reduce(function(s,d){return s+(d.amount||0);},0);
+  var adminFeeOnChain=adminDeps.filter(function(d){return d.onChain;}).length;
 
   document.getElementById('dashStats').innerHTML=
     '<div class="stat-card"><div class="sc-label">Total Supply</div><div class="sc-val sc-gold">'+TOTAL_SUPPLY.toLocaleString()+'</div><div class="sc-sub">OLIGHFT tokens</div></div>'+
     '<div class="stat-card"><div class="sc-label">Remaining Supply</div><div class="sc-val sc-green">'+remaining.toLocaleString()+'</div><div class="sc-sub">'+(remaining/TOTAL_SUPPLY*100).toFixed(6)+'% available</div></div>'+
     '<div class="stat-card"><div class="sc-label">Wallet Portfolio</div><div class="sc-val sc-blue">$'+portfolioVal.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})+'</div><div class="sc-sub">'+Object.keys(bals).length+' tokens</div></div>'+
+    '<div class="stat-card"><div class="sc-label">Fee Wallet Balance</div><div class="sc-val sc-gold">$'+adminFeeTotal.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})+'</div><div class="sc-sub">'+adminFeeOLI.toFixed(2)+' OLI · '+adminDeps.length+' deposits</div></div>'+
     '<div class="stat-card"><div class="sc-label">Total Stakes</div><div class="sc-val sc-purple">'+stakes.length+'</div><div class="sc-sub">'+activeStakes+' active</div></div>'+
     '<div class="stat-card"><div class="sc-label">Total Staked Value</div><div class="sc-val sc-gold">$'+totalStaked.toLocaleString()+'</div><div class="sc-sub">Payout: $'+totalPayout.toLocaleString()+'</div></div>'+
     '<div class="stat-card"><div class="sc-label">Send Transactions</div><div class="sc-val sc-purple">'+sends.length+'</div><div class="sc-sub">Token transfers</div></div>'+
     '<div class="stat-card"><div class="sc-label">Swap Transactions</div><div class="sc-val sc-purple">'+swaps.length+'</div><div class="sc-sub">DEX swaps</div></div>'+
+    '<div class="stat-card"><div class="sc-label">On-Chain Confirmed</div><div class="sc-val sc-green">'+adminFeeOnChain+'/'+adminDeps.length+'</div><div class="sc-sub">Fee deposits confirmed</div></div>'+
     '<div class="stat-card"><div class="sc-label">HD Accounts</div><div class="sc-val sc-blue">'+accounts.length+'</div><div class="sc-sub">SEP-0005 derived</div></div>';
 
   // Recent sends
@@ -780,8 +786,12 @@ function renderWallets(){
   // ── Wallet Stats ──
   let totalVal=0;
   Object.keys(bals).forEach(k=>{const m=TOKEN_META[k];if(m)totalVal+=bals[k]*m.price;});
+  var wAdminDeps=getAdminDeposits();
+  var wFeeTotal=wAdminDeps.reduce(function(s,d){return s+(d.usd||0);},0);
+  var wFeeOLI=wAdminDeps.reduce(function(s,d){return s+(d.amount||0);},0);
   document.getElementById('walletStats').innerHTML=
     '<div class="stat-card"><div class="sc-label">Portfolio Value</div><div class="sc-val sc-green">$'+totalVal.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})+'</div><div class="sc-sub">'+Object.keys(bals).length+' tokens</div></div>'+
+    '<div class="stat-card"><div class="sc-label">Fee Wallet Balance</div><div class="sc-val sc-gold">$'+wFeeTotal.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})+'</div><div class="sc-sub">'+wFeeOLI.toFixed(2)+' OLI · '+wAdminDeps.length+' deposits</div></div>'+
     '<div class="stat-card"><div class="sc-label">HD Accounts</div><div class="sc-val sc-purple">'+accounts.length+'</div><div class="sc-sub">SEP-0005 derivation</div></div>'+
     '<div class="stat-card"><div class="sc-label">Active Account</div><div class="sc-val sc-blue">#'+activeIdx+'</div><div class="sc-sub">'+(accounts[activeIdx]?accounts[activeIdx].label:'Primary')+'</div></div>'+
     '<div class="stat-card"><div class="sc-label">Security Level</div><div class="sc-val '+(sec.tog2fa?'sc-green':'sc-red')+'">'+(sec.tog2fa?'HIGH':'STANDARD')+'</div><div class="sc-sub">2FA '+(sec.tog2fa?'enabled':'disabled')+'</div></div>'+
