@@ -1,0 +1,410 @@
+﻿ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+  OLIGHFT STAKING PROCESS TEST ΓÇö Full Lifecycle
+ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+
+ΓöÇΓöÇ Test 1: Stake Creation ΓöÇΓöÇ
+  [32mΓ£à Mastercard 1d stake amount = 100 OLIGHFT ($50)[0m
+  [32mΓ£à Mastercard 1d endDate set: 2026-04-16[0m
+  [32mΓ£à Mastercard 1d lockDays = 1[0m
+  [32mΓ£à Mastercard 1d admin 60% = 60.00[0m
+  [32mΓ£à Mastercard 1d referral 40% = 40.00[0m
+  [32mΓ£à Mastercard 2d stake amount = 100 OLIGHFT ($50)[0m
+  [32mΓ£à Mastercard 2d endDate set: 2026-04-17[0m
+  [32mΓ£à Mastercard 2d lockDays = 2[0m
+  [32mΓ£à Mastercard 2d admin 60% = 60.00[0m
+  [32mΓ£à Mastercard 2d referral 40% = 40.00[0m
+  [32mΓ£à Mastercard 5d stake amount = 100 OLIGHFT ($50)[0m
+  [32mΓ£à Mastercard 5d endDate set: 2026-04-20[0m
+  [32mΓ£à Mastercard 5d lockDays = 5[0m
+  [32mΓ£à Mastercard 5d admin 60% = 60.00[0m
+  [32mΓ£à Mastercard 5d referral 40% = 40.00[0m
+  [32mΓ£à Mastercard 7d stake amount = 100 OLIGHFT ($50)[0m
+  [32mΓ£à Mastercard 7d endDate set: 2026-04-22[0m
+  [32mΓ£à Mastercard 7d lockDays = 7[0m
+  [32mΓ£à Mastercard 7d admin 60% = 60.00[0m
+  [32mΓ£à Mastercard 7d referral 40% = 40.00[0m
+  [32mΓ£à Visa 1d stake amount = 200 OLIGHFT ($100)[0m
+  [32mΓ£à Visa 1d endDate set: 2026-04-16[0m
+  [32mΓ£à Visa 1d lockDays = 1[0m
+  [32mΓ£à Visa 1d admin 60% = 120.00[0m
+  [32mΓ£à Visa 1d referral 40% = 80.00[0m
+  [32mΓ£à Visa 2d stake amount = 200 OLIGHFT ($100)[0m
+  [32mΓ£à Visa 2d endDate set: 2026-04-17[0m
+  [32mΓ£à Visa 2d lockDays = 2[0m
+  [32mΓ£à Visa 2d admin 60% = 120.00[0m
+  [32mΓ£à Visa 2d referral 40% = 80.00[0m
+  [32mΓ£à Visa 5d stake amount = 200 OLIGHFT ($100)[0m
+  [32mΓ£à Visa 5d endDate set: 2026-04-20[0m
+  [32mΓ£à Visa 5d lockDays = 5[0m
+  [32mΓ£à Visa 5d admin 60% = 120.00[0m
+  [32mΓ£à Visa 5d referral 40% = 80.00[0m
+  [32mΓ£à Visa 7d stake amount = 200 OLIGHFT ($100)[0m
+  [32mΓ£à Visa 7d endDate set: 2026-04-22[0m
+  [32mΓ£à Visa 7d lockDays = 7[0m
+  [32mΓ£à Visa 7d admin 60% = 120.00[0m
+  [32mΓ£à Visa 7d referral 40% = 80.00[0m
+  [32mΓ£à Amex 1d stake amount = 400 OLIGHFT ($200)[0m
+  [32mΓ£à Amex 1d endDate set: 2026-04-16[0m
+  [32mΓ£à Amex 1d lockDays = 1[0m
+  [32mΓ£à Amex 1d admin 60% = 240.00[0m
+  [32mΓ£à Amex 1d referral 40% = 160.00[0m
+  [32mΓ£à Amex 2d stake amount = 400 OLIGHFT ($200)[0m
+  [32mΓ£à Amex 2d endDate set: 2026-04-17[0m
+  [32mΓ£à Amex 2d lockDays = 2[0m
+  [32mΓ£à Amex 2d admin 60% = 240.00[0m
+  [32mΓ£à Amex 2d referral 40% = 160.00[0m
+  [32mΓ£à Amex 5d stake amount = 400 OLIGHFT ($200)[0m
+  [32mΓ£à Amex 5d endDate set: 2026-04-20[0m
+  [32mΓ£à Amex 5d lockDays = 5[0m
+  [32mΓ£à Amex 5d admin 60% = 240.00[0m
+  [32mΓ£à Amex 5d referral 40% = 160.00[0m
+  [32mΓ£à Amex 7d stake amount = 400 OLIGHFT ($200)[0m
+  [32mΓ£à Amex 7d endDate set: 2026-04-22[0m
+  [32mΓ£à Amex 7d lockDays = 7[0m
+  [32mΓ£à Amex 7d admin 60% = 240.00[0m
+  [32mΓ£à Amex 7d referral 40% = 160.00[0m
+  [32mΓ£à Platinum 1d stake amount = 600 OLIGHFT ($300)[0m
+  [32mΓ£à Platinum 1d endDate set: 2026-04-16[0m
+  [32mΓ£à Platinum 1d lockDays = 1[0m
+  [32mΓ£à Platinum 1d admin 60% = 360.00[0m
+  [32mΓ£à Platinum 1d referral 40% = 240.00[0m
+  [32mΓ£à Platinum 2d stake amount = 600 OLIGHFT ($300)[0m
+  [32mΓ£à Platinum 2d endDate set: 2026-04-17[0m
+  [32mΓ£à Platinum 2d lockDays = 2[0m
+  [32mΓ£à Platinum 2d admin 60% = 360.00[0m
+  [32mΓ£à Platinum 2d referral 40% = 240.00[0m
+  [32mΓ£à Platinum 5d stake amount = 600 OLIGHFT ($300)[0m
+  [32mΓ£à Platinum 5d endDate set: 2026-04-20[0m
+  [32mΓ£à Platinum 5d lockDays = 5[0m
+  [32mΓ£à Platinum 5d admin 60% = 360.00[0m
+  [32mΓ£à Platinum 5d referral 40% = 240.00[0m
+  [32mΓ£à Platinum 7d stake amount = 600 OLIGHFT ($300)[0m
+  [32mΓ£à Platinum 7d endDate set: 2026-04-22[0m
+  [32mΓ£à Platinum 7d lockDays = 7[0m
+  [32mΓ£à Platinum 7d admin 60% = 360.00[0m
+  [32mΓ£à Platinum 7d referral 40% = 240.00[0m
+  [32mΓ£à Gold 1d stake amount = 800 OLIGHFT ($400)[0m
+  [32mΓ£à Gold 1d endDate set: 2026-04-16[0m
+  [32mΓ£à Gold 1d lockDays = 1[0m
+  [32mΓ£à Gold 1d admin 60% = 480.00[0m
+  [32mΓ£à Gold 1d referral 40% = 320.00[0m
+  [32mΓ£à Gold 2d stake amount = 800 OLIGHFT ($400)[0m
+  [32mΓ£à Gold 2d endDate set: 2026-04-17[0m
+  [32mΓ£à Gold 2d lockDays = 2[0m
+  [32mΓ£à Gold 2d admin 60% = 480.00[0m
+  [32mΓ£à Gold 2d referral 40% = 320.00[0m
+  [32mΓ£à Gold 5d stake amount = 800 OLIGHFT ($400)[0m
+  [32mΓ£à Gold 5d endDate set: 2026-04-20[0m
+  [32mΓ£à Gold 5d lockDays = 5[0m
+  [32mΓ£à Gold 5d admin 60% = 480.00[0m
+  [32mΓ£à Gold 5d referral 40% = 320.00[0m
+  [32mΓ£à Gold 7d stake amount = 800 OLIGHFT ($400)[0m
+  [32mΓ£à Gold 7d endDate set: 2026-04-22[0m
+  [32mΓ£à Gold 7d lockDays = 7[0m
+  [32mΓ£à Gold 7d admin 60% = 480.00[0m
+  [32mΓ£à Gold 7d referral 40% = 320.00[0m
+  [32mΓ£à Black 1d stake amount = 1000 OLIGHFT ($500)[0m
+  [32mΓ£à Black 1d endDate set: 2026-04-16[0m
+  [32mΓ£à Black 1d lockDays = 1[0m
+  [32mΓ£à Black 1d admin 60% = 600.00[0m
+  [32mΓ£à Black 1d referral 40% = 400.00[0m
+  [32mΓ£à Black 2d stake amount = 1000 OLIGHFT ($500)[0m
+  [32mΓ£à Black 2d endDate set: 2026-04-17[0m
+  [32mΓ£à Black 2d lockDays = 2[0m
+  [32mΓ£à Black 2d admin 60% = 600.00[0m
+  [32mΓ£à Black 2d referral 40% = 400.00[0m
+  [32mΓ£à Black 5d stake amount = 1000 OLIGHFT ($500)[0m
+  [32mΓ£à Black 5d endDate set: 2026-04-20[0m
+  [32mΓ£à Black 5d lockDays = 5[0m
+  [32mΓ£à Black 5d admin 60% = 600.00[0m
+  [32mΓ£à Black 5d referral 40% = 400.00[0m
+  [32mΓ£à Black 7d stake amount = 1000 OLIGHFT ($500)[0m
+  [32mΓ£à Black 7d endDate set: 2026-04-22[0m
+  [32mΓ£à Black 7d lockDays = 7[0m
+  [32mΓ£à Black 7d admin 60% = 600.00[0m
+  [32mΓ£à Black 7d referral 40% = 400.00[0m
+
+ΓöÇΓöÇ Test 2: Balance Deduction ΓöÇΓöÇ
+  [32mΓ£à Mastercard balance after stake: 9900.00 OLIGHFT (deducted 100)[0m
+  [32mΓ£à Mastercard deduction correct: 10000 - 100 = 9900[0m
+  [32mΓ£à Visa balance after stake: 9800.00 OLIGHFT (deducted 200)[0m
+  [32mΓ£à Visa deduction correct: 10000 - 200 = 9800[0m
+  [32mΓ£à Amex balance after stake: 9600.00 OLIGHFT (deducted 400)[0m
+  [32mΓ£à Amex deduction correct: 10000 - 400 = 9600[0m
+  [32mΓ£à Platinum balance after stake: 9400.00 OLIGHFT (deducted 600)[0m
+  [32mΓ£à Platinum deduction correct: 10000 - 600 = 9400[0m
+  [32mΓ£à Gold balance after stake: 9200.00 OLIGHFT (deducted 800)[0m
+  [32mΓ£à Gold deduction correct: 10000 - 800 = 9200[0m
+  [32mΓ£à Black balance after stake: 9000.00 OLIGHFT (deducted 1000)[0m
+  [32mΓ£à Black deduction correct: 10000 - 1000 = 9000[0m
+
+ΓöÇΓöÇ Test 3: Time Progression & Maturity ΓöÇΓöÇ
+  [32mΓ£à 1d: halfway (0.5d) ΓÇö NOT matured[0m
+  [32mΓ£à 1d: at end time ΓÇö MATURED Γ£ô[0m
+  [32mΓ£à 1d: 1h after end ΓÇö MATURED Γ£ô[0m
+  [32mΓ£à 1d: progress at halfway = 50%[0m
+  [32mΓ£à 1d: progress at end = 100%[0m
+  [32mΓ£à 2d: halfway (1d) ΓÇö NOT matured[0m
+  [32mΓ£à 2d: at end time ΓÇö MATURED Γ£ô[0m
+  [32mΓ£à 2d: 1h after end ΓÇö MATURED Γ£ô[0m
+  [32mΓ£à 2d: progress at halfway = 50%[0m
+  [32mΓ£à 2d: progress at end = 100%[0m
+  [32mΓ£à 5d: halfway (2.5d) ΓÇö NOT matured[0m
+  [32mΓ£à 5d: at end time ΓÇö MATURED Γ£ô[0m
+  [32mΓ£à 5d: 1h after end ΓÇö MATURED Γ£ô[0m
+  [32mΓ£à 5d: progress at halfway = 50%[0m
+  [32mΓ£à 5d: progress at end = 100%[0m
+  [32mΓ£à 7d: halfway (3.5d) ΓÇö NOT matured[0m
+  [32mΓ£à 7d: at end time ΓÇö MATURED Γ£ô[0m
+  [32mΓ£à 7d: 1h after end ΓÇö MATURED Γ£ô[0m
+  [32mΓ£à 7d: progress at halfway = 50%[0m
+  [32mΓ£à 7d: progress at end = 100%[0m
+
+ΓöÇΓöÇ Test 4: Auto-Withdraw Process ΓöÇΓöÇ
+  [32mΓ£à Mastercard 1d: matured after 7 days Γ£ô[0m
+  [32mΓ£à Mastercard 1d: net payout = 104.13 OLIGHFT ($52.06)[0m
+  [32mΓ£à Mastercard 1d: service fee = 56.07 OLIGHFT (35%)[0m
+  [32mΓ£à Mastercard 1d: net + fee = gross Γ£ô[0m
+  [32mΓ£à Mastercard 2d: matured after 7 days Γ£ô[0m
+  [32mΓ£à Mastercard 2d: net payout = 104.13 OLIGHFT ($52.06)[0m
+  [32mΓ£à Mastercard 2d: service fee = 56.07 OLIGHFT (35%)[0m
+  [32mΓ£à Mastercard 2d: net + fee = gross Γ£ô[0m
+  [32mΓ£à Mastercard 5d: matured after 7 days Γ£ô[0m
+  [32mΓ£à Mastercard 5d: net payout = 104.13 OLIGHFT ($52.06)[0m
+  [32mΓ£à Mastercard 5d: service fee = 56.07 OLIGHFT (35%)[0m
+  [32mΓ£à Mastercard 5d: net + fee = gross Γ£ô[0m
+  [32mΓ£à Mastercard 7d: matured after 7 days Γ£ô[0m
+  [32mΓ£à Mastercard 7d: net payout = 104.13 OLIGHFT ($52.06)[0m
+  [32mΓ£à Mastercard 7d: service fee = 56.07 OLIGHFT (35%)[0m
+  [32mΓ£à Mastercard 7d: net + fee = gross Γ£ô[0m
+  [32mΓ£à Visa 1d: matured after 7 days Γ£ô[0m
+  [32mΓ£à Visa 1d: net payout = 188.69 OLIGHFT ($94.35)[0m
+  [32mΓ£à Visa 1d: service fee = 101.60 OLIGHFT (35%)[0m
+  [32mΓ£à Visa 1d: net + fee = gross Γ£ô[0m
+  [32mΓ£à Visa 2d: matured after 7 days Γ£ô[0m
+  [32mΓ£à Visa 2d: net payout = 188.69 OLIGHFT ($94.35)[0m
+  [32mΓ£à Visa 2d: service fee = 101.60 OLIGHFT (35%)[0m
+  [32mΓ£à Visa 2d: net + fee = gross Γ£ô[0m
+  [32mΓ£à Visa 5d: matured after 7 days Γ£ô[0m
+  [32mΓ£à Visa 5d: net payout = 188.69 OLIGHFT ($94.35)[0m
+  [32mΓ£à Visa 5d: service fee = 101.60 OLIGHFT (35%)[0m
+  [32mΓ£à Visa 5d: net + fee = gross Γ£ô[0m
+  [32mΓ£à Visa 7d: matured after 7 days Γ£ô[0m
+  [32mΓ£à Visa 7d: net payout = 188.69 OLIGHFT ($94.35)[0m
+  [32mΓ£à Visa 7d: service fee = 101.60 OLIGHFT (35%)[0m
+  [32mΓ£à Visa 7d: net + fee = gross Γ£ô[0m
+  [32mΓ£à Amex 1d: matured after 7 days Γ£ô[0m
+  [32mΓ£à Amex 1d: net payout = 377.38 OLIGHFT ($188.69)[0m
+  [32mΓ£à Amex 1d: service fee = 203.21 OLIGHFT (35%)[0m
+  [32mΓ£à Amex 1d: net + fee = gross Γ£ô[0m
+  [32mΓ£à Amex 2d: matured after 7 days Γ£ô[0m
+  [32mΓ£à Amex 2d: net payout = 377.38 OLIGHFT ($188.69)[0m
+  [32mΓ£à Amex 2d: service fee = 203.21 OLIGHFT (35%)[0m
+  [32mΓ£à Amex 2d: net + fee = gross Γ£ô[0m
+  [32mΓ£à Amex 5d: matured after 7 days Γ£ô[0m
+  [32mΓ£à Amex 5d: net payout = 377.38 OLIGHFT ($188.69)[0m
+  [32mΓ£à Amex 5d: service fee = 203.21 OLIGHFT (35%)[0m
+  [32mΓ£à Amex 5d: net + fee = gross Γ£ô[0m
+  [32mΓ£à Amex 7d: matured after 7 days Γ£ô[0m
+  [32mΓ£à Amex 7d: net payout = 377.38 OLIGHFT ($188.69)[0m
+  [32mΓ£à Amex 7d: service fee = 203.21 OLIGHFT (35%)[0m
+  [32mΓ£à Amex 7d: net + fee = gross Γ£ô[0m
+  [32mΓ£à Platinum 1d: matured after 7 days Γ£ô[0m
+  [32mΓ£à Platinum 1d: net payout = 566.08 OLIGHFT ($283.04)[0m
+  [32mΓ£à Platinum 1d: service fee = 304.81 OLIGHFT (35%)[0m
+  [32mΓ£à Platinum 1d: net + fee = gross Γ£ô[0m
+  [32mΓ£à Platinum 2d: matured after 7 days Γ£ô[0m
+  [32mΓ£à Platinum 2d: net payout = 566.08 OLIGHFT ($283.04)[0m
+  [32mΓ£à Platinum 2d: service fee = 304.81 OLIGHFT (35%)[0m
+  [32mΓ£à Platinum 2d: net + fee = gross Γ£ô[0m
+  [32mΓ£à Platinum 5d: matured after 7 days Γ£ô[0m
+  [32mΓ£à Platinum 5d: net payout = 566.08 OLIGHFT ($283.04)[0m
+  [32mΓ£à Platinum 5d: service fee = 304.81 OLIGHFT (35%)[0m
+  [32mΓ£à Platinum 5d: net + fee = gross Γ£ô[0m
+  [32mΓ£à Platinum 7d: matured after 7 days Γ£ô[0m
+  [32mΓ£à Platinum 7d: net payout = 566.08 OLIGHFT ($283.04)[0m
+  [32mΓ£à Platinum 7d: service fee = 304.81 OLIGHFT (35%)[0m
+  [32mΓ£à Platinum 7d: net + fee = gross Γ£ô[0m
+  [32mΓ£à Gold 1d: matured after 7 days Γ£ô[0m
+  [32mΓ£à Gold 1d: net payout = 754.77 OLIGHFT ($377.38)[0m
+  [32mΓ£à Gold 1d: service fee = 406.41 OLIGHFT (35%)[0m
+  [32mΓ£à Gold 1d: net + fee = gross Γ£ô[0m
+  [32mΓ£à Gold 2d: matured after 7 days Γ£ô[0m
+  [32mΓ£à Gold 2d: net payout = 754.77 OLIGHFT ($377.38)[0m
+  [32mΓ£à Gold 2d: service fee = 406.41 OLIGHFT (35%)[0m
+  [32mΓ£à Gold 2d: net + fee = gross Γ£ô[0m
+  [32mΓ£à Gold 5d: matured after 7 days Γ£ô[0m
+  [32mΓ£à Gold 5d: net payout = 754.77 OLIGHFT ($377.38)[0m
+  [32mΓ£à Gold 5d: service fee = 406.41 OLIGHFT (35%)[0m
+  [32mΓ£à Gold 5d: net + fee = gross Γ£ô[0m
+  [32mΓ£à Gold 7d: matured after 7 days Γ£ô[0m
+  [32mΓ£à Gold 7d: net payout = 754.77 OLIGHFT ($377.38)[0m
+  [32mΓ£à Gold 7d: service fee = 406.41 OLIGHFT (35%)[0m
+  [32mΓ£à Gold 7d: net + fee = gross Γ£ô[0m
+  [32mΓ£à Black 1d: matured after 7 days Γ£ô[0m
+  [32mΓ£à Black 1d: net payout = 943.46 OLIGHFT ($471.73)[0m
+  [32mΓ£à Black 1d: service fee = 508.02 OLIGHFT (35%)[0m
+  [32mΓ£à Black 1d: net + fee = gross Γ£ô[0m
+  [32mΓ£à Black 2d: matured after 7 days Γ£ô[0m
+  [32mΓ£à Black 2d: net payout = 943.46 OLIGHFT ($471.73)[0m
+  [32mΓ£à Black 2d: service fee = 508.02 OLIGHFT (35%)[0m
+  [32mΓ£à Black 2d: net + fee = gross Γ£ô[0m
+  [32mΓ£à Black 5d: matured after 7 days Γ£ô[0m
+  [32mΓ£à Black 5d: net payout = 943.46 OLIGHFT ($471.73)[0m
+  [32mΓ£à Black 5d: service fee = 508.02 OLIGHFT (35%)[0m
+  [32mΓ£à Black 5d: net + fee = gross Γ£ô[0m
+  [32mΓ£à Black 7d: matured after 7 days Γ£ô[0m
+  [32mΓ£à Black 7d: net payout = 943.46 OLIGHFT ($471.73)[0m
+  [32mΓ£à Black 7d: service fee = 508.02 OLIGHFT (35%)[0m
+  [32mΓ£à Black 7d: net + fee = gross Γ£ô[0m
+
+ΓöÇΓöÇ Test 5: Card Page Auto-Withdraw ΓöÇΓöÇ
+  [32mΓ£à Mastercard 1d: card page autoWithdrawFinished() triggers Γ£ô[0m
+  [32mΓ£à Mastercard 1d: card payout = 8.00 OLIGHFT ($4)[0m
+  [32mΓ£à Mastercard 2d: card page autoWithdrawFinished() triggers Γ£ô[0m
+  [32mΓ£à Mastercard 2d: card payout = 16.00 OLIGHFT ($8)[0m
+  [32mΓ£à Mastercard 5d: card page autoWithdrawFinished() triggers Γ£ô[0m
+  [32mΓ£à Mastercard 5d: card payout = 40.00 OLIGHFT ($20)[0m
+  [31mΓ¥î Mastercard 7d: card page autoWithdrawFinished() triggers Γ£ô[0m
+  [32mΓ£à Mastercard 7d: card payout = 56.00 OLIGHFT ($28)[0m
+  [32mΓ£à Visa 1d: card page autoWithdrawFinished() triggers Γ£ô[0m
+  [32mΓ£à Visa 1d: card payout = 12.00 OLIGHFT ($6)[0m
+  [32mΓ£à Visa 2d: card page autoWithdrawFinished() triggers Γ£ô[0m
+  [32mΓ£à Visa 2d: card payout = 24.00 OLIGHFT ($12)[0m
+  [32mΓ£à Visa 5d: card page autoWithdrawFinished() triggers Γ£ô[0m
+  [32mΓ£à Visa 5d: card payout = 60.00 OLIGHFT ($30)[0m
+  [31mΓ¥î Visa 7d: card page autoWithdrawFinished() triggers Γ£ô[0m
+  [32mΓ£à Visa 7d: card payout = 84.00 OLIGHFT ($42)[0m
+  [32mΓ£à Amex 1d: card page autoWithdrawFinished() triggers Γ£ô[0m
+  [32mΓ£à Amex 1d: card payout = 24.00 OLIGHFT ($12)[0m
+  [32mΓ£à Amex 2d: card page autoWithdrawFinished() triggers Γ£ô[0m
+  [32mΓ£à Amex 2d: card payout = 48.00 OLIGHFT ($24)[0m
+  [32mΓ£à Amex 5d: card page autoWithdrawFinished() triggers Γ£ô[0m
+  [32mΓ£à Amex 5d: card payout = 120.00 OLIGHFT ($60)[0m
+  [31mΓ¥î Amex 7d: card page autoWithdrawFinished() triggers Γ£ô[0m
+  [32mΓ£à Amex 7d: card payout = 168.00 OLIGHFT ($84)[0m
+  [32mΓ£à Platinum 1d: card page autoWithdrawFinished() triggers Γ£ô[0m
+  [32mΓ£à Platinum 1d: card payout = 36.00 OLIGHFT ($18)[0m
+  [32mΓ£à Platinum 2d: card page autoWithdrawFinished() triggers Γ£ô[0m
+  [32mΓ£à Platinum 2d: card payout = 72.00 OLIGHFT ($36)[0m
+  [32mΓ£à Platinum 5d: card page autoWithdrawFinished() triggers Γ£ô[0m
+  [32mΓ£à Platinum 5d: card payout = 180.00 OLIGHFT ($90)[0m
+  [31mΓ¥î Platinum 7d: card page autoWithdrawFinished() triggers Γ£ô[0m
+  [32mΓ£à Platinum 7d: card payout = 252.00 OLIGHFT ($126)[0m
+  [32mΓ£à Gold 1d: card page autoWithdrawFinished() triggers Γ£ô[0m
+  [32mΓ£à Gold 1d: card payout = 48.00 OLIGHFT ($24)[0m
+  [32mΓ£à Gold 2d: card page autoWithdrawFinished() triggers Γ£ô[0m
+  [32mΓ£à Gold 2d: card payout = 96.00 OLIGHFT ($48)[0m
+  [32mΓ£à Gold 5d: card page autoWithdrawFinished() triggers Γ£ô[0m
+  [32mΓ£à Gold 5d: card payout = 240.00 OLIGHFT ($120)[0m
+  [31mΓ¥î Gold 7d: card page autoWithdrawFinished() triggers Γ£ô[0m
+  [32mΓ£à Gold 7d: card payout = 336.00 OLIGHFT ($168)[0m
+  [32mΓ£à Black 1d: card page autoWithdrawFinished() triggers Γ£ô[0m
+  [32mΓ£à Black 1d: card payout = 60.00 OLIGHFT ($30)[0m
+  [32mΓ£à Black 2d: card page autoWithdrawFinished() triggers Γ£ô[0m
+  [32mΓ£à Black 2d: card payout = 120.00 OLIGHFT ($60)[0m
+  [32mΓ£à Black 5d: card page autoWithdrawFinished() triggers Γ£ô[0m
+  [32mΓ£à Black 5d: card payout = 300.00 OLIGHFT ($150)[0m
+  [31mΓ¥î Black 7d: card page autoWithdrawFinished() triggers Γ£ô[0m
+  [32mΓ£à Black 7d: card payout = 420.00 OLIGHFT ($210)[0m
+
+ΓöÇΓöÇ Test 6: Balance Credit After Withdraw ΓöÇΓöÇ
+  [32mΓ£à Mastercard 1d: balance after withdraw = 9908.00 (profit: -92.00 OLIGHFT / $-46.00)[0m
+  [32mΓ£à Mastercard 2d: balance after withdraw = 9916.00 (profit: -84.00 OLIGHFT / $-42.00)[0m
+  [32mΓ£à Mastercard 5d: balance after withdraw = 9940.00 (profit: -60.00 OLIGHFT / $-30.00)[0m
+  [32mΓ£à Mastercard 7d: balance after withdraw = 9956.00 (profit: -44.00 OLIGHFT / $-22.00)[0m
+  [32mΓ£à Visa 1d: balance after withdraw = 9812.00 (profit: -188.00 OLIGHFT / $-94.00)[0m
+  [32mΓ£à Visa 2d: balance after withdraw = 9824.00 (profit: -176.00 OLIGHFT / $-88.00)[0m
+  [32mΓ£à Visa 5d: balance after withdraw = 9860.00 (profit: -140.00 OLIGHFT / $-70.00)[0m
+  [32mΓ£à Visa 7d: balance after withdraw = 9884.00 (profit: -116.00 OLIGHFT / $-58.00)[0m
+  [32mΓ£à Amex 1d: balance after withdraw = 9624.00 (profit: -376.00 OLIGHFT / $-188.00)[0m
+  [32mΓ£à Amex 2d: balance after withdraw = 9648.00 (profit: -352.00 OLIGHFT / $-176.00)[0m
+  [32mΓ£à Amex 5d: balance after withdraw = 9720.00 (profit: -280.00 OLIGHFT / $-140.00)[0m
+  [32mΓ£à Amex 7d: balance after withdraw = 9768.00 (profit: -232.00 OLIGHFT / $-116.00)[0m
+  [32mΓ£à Platinum 1d: balance after withdraw = 9436.00 (profit: -564.00 OLIGHFT / $-282.00)[0m
+  [32mΓ£à Platinum 2d: balance after withdraw = 9472.00 (profit: -528.00 OLIGHFT / $-264.00)[0m
+  [32mΓ£à Platinum 5d: balance after withdraw = 9580.00 (profit: -420.00 OLIGHFT / $-210.00)[0m
+  [32mΓ£à Platinum 7d: balance after withdraw = 9652.00 (profit: -348.00 OLIGHFT / $-174.00)[0m
+  [32mΓ£à Gold 1d: balance after withdraw = 9248.00 (profit: -752.00 OLIGHFT / $-376.00)[0m
+  [32mΓ£à Gold 2d: balance after withdraw = 9296.00 (profit: -704.00 OLIGHFT / $-352.00)[0m
+  [32mΓ£à Gold 5d: balance after withdraw = 9440.00 (profit: -560.00 OLIGHFT / $-280.00)[0m
+  [32mΓ£à Gold 7d: balance after withdraw = 9536.00 (profit: -464.00 OLIGHFT / $-232.00)[0m
+  [32mΓ£à Black 1d: balance after withdraw = 9060.00 (profit: -940.00 OLIGHFT / $-470.00)[0m
+  [32mΓ£à Black 2d: balance after withdraw = 9120.00 (profit: -880.00 OLIGHFT / $-440.00)[0m
+  [32mΓ£à Black 5d: balance after withdraw = 9300.00 (profit: -700.00 OLIGHFT / $-350.00)[0m
+  [32mΓ£à Black 7d: balance after withdraw = 9420.00 (profit: -580.00 OLIGHFT / $-290.00)[0m
+
+ΓöÇΓöÇ Test 7: Stake State Transitions ΓöÇΓöÇ
+  [32mΓ£à 1d: state after creation = active, withdrawn=false[0m
+  [32mΓ£à 1d: state after auto-withdraw = withdrawn=true[0m
+  [32mΓ£à 1d: autoWithdrawn flag set Γ£ô[0m
+  [32mΓ£à 1d: withdrawnAt timestamp recorded Γ£ô[0m
+  [32mΓ£à 2d: state after creation = active, withdrawn=false[0m
+  [32mΓ£à 2d: state after auto-withdraw = withdrawn=true[0m
+  [32mΓ£à 2d: autoWithdrawn flag set Γ£ô[0m
+  [32mΓ£à 2d: withdrawnAt timestamp recorded Γ£ô[0m
+  [32mΓ£à 5d: state after creation = active, withdrawn=false[0m
+  [32mΓ£à 5d: state after auto-withdraw = withdrawn=true[0m
+  [32mΓ£à 5d: autoWithdrawn flag set Γ£ô[0m
+  [32mΓ£à 5d: withdrawnAt timestamp recorded Γ£ô[0m
+  [32mΓ£à 7d: state after creation = active, withdrawn=false[0m
+  [32mΓ£à 7d: state after auto-withdraw = withdrawn=true[0m
+  [32mΓ£à 7d: autoWithdrawn flag set Γ£ô[0m
+  [32mΓ£à 7d: withdrawnAt timestamp recorded Γ£ô[0m
+
+ΓöÇΓöÇ Test 8: Activity & Notification Logging ΓöÇΓöÇ
+  [32mΓ£à Mastercard 7d: activity type = Auto-Withdraw[0m
+  [32mΓ£à Mastercard 7d: activity class = green[0m
+  [32mΓ£à Mastercard 7d: activity timestamp set[0m
+  [32mΓ£à Visa 7d: activity type = Auto-Withdraw[0m
+  [32mΓ£à Visa 7d: activity class = green[0m
+  [32mΓ£à Visa 7d: activity timestamp set[0m
+  [32mΓ£à Amex 7d: activity type = Auto-Withdraw[0m
+  [32mΓ£à Amex 7d: activity class = green[0m
+  [32mΓ£à Amex 7d: activity timestamp set[0m
+  [32mΓ£à Platinum 7d: activity type = Auto-Withdraw[0m
+  [32mΓ£à Platinum 7d: activity class = green[0m
+  [32mΓ£à Platinum 7d: activity timestamp set[0m
+  [32mΓ£à Gold 7d: activity type = Auto-Withdraw[0m
+  [32mΓ£à Gold 7d: activity class = green[0m
+  [32mΓ£à Gold 7d: activity timestamp set[0m
+  [32mΓ£à Black 7d: activity type = Auto-Withdraw[0m
+  [32mΓ£à Black 7d: activity class = green[0m
+  [32mΓ£à Black 7d: activity timestamp set[0m
+
+ΓöÇΓöÇ Test 9: Toast Notifications ΓöÇΓöÇ
+  [32mΓ£à 1d: dashboard toast contains "Auto-withdrew"[0m
+  [32mΓ£à 1d: dashboard toast shows amount 12.00[0m
+  [32mΓ£à 1d: card page toast contains "credited"[0m
+  [32mΓ£à 2d: dashboard toast contains "Auto-withdrew"[0m
+  [32mΓ£à 2d: dashboard toast shows amount 24.00[0m
+  [32mΓ£à 2d: card page toast contains "credited"[0m
+  [32mΓ£à 5d: dashboard toast contains "Auto-withdrew"[0m
+  [32mΓ£à 5d: dashboard toast shows amount 60.00[0m
+  [32mΓ£à 5d: card page toast contains "credited"[0m
+  [32mΓ£à 7d: dashboard toast contains "Auto-withdrew"[0m
+  [32mΓ£à 7d: dashboard toast shows amount 84.00[0m
+  [32mΓ£à 7d: card page toast contains "credited"[0m
+
+ΓöÇΓöÇ Test 10: Multiple Stakes Batch Auto-Withdraw ΓöÇΓöÇ
+  [32mΓ£à Batch: all 3 matured stakes auto-withdrawn[0m
+  [32mΓ£à Batch: total credited = 408 OLIGHFT ($204)[0m
+  [32mΓ£à Batch: all stakes marked withdrawn[0m
+  [32mΓ£à Batch: all stakes marked autoWithdrawn[0m
+
+ΓöÇΓöÇ Test 11: Already-Withdrawn Skip ΓöÇΓöÇ
+  [32mΓ£à Skip: only 1 new withdrawal (already-withdrawn skipped)[0m
+  [32mΓ£à Skip: first stake still withdrawn[0m
+  [32mΓ£à Skip: second stake now withdrawn[0m
+
+ΓöÇΓöÇ Test 12: Not-Yet-Matured Untouched ΓöÇΓöÇ
+  [32mΓ£à Future: 7d stake created now is NOT matured yet[0m
+  [32mΓ£à Future: stake still active (withdrawn=false)[0m
+  [32mΓ£à Future: 7 days remaining[0m
+
+ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+  RESULTS: 370 passed, 6 failed, 376 total
+ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+
+[31mΓ¥î 6 TESTS FAILED[0m
+

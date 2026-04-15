@@ -1165,10 +1165,14 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
     <div style="font-size:.82rem;font-weight:700;color:#f5c518">&#x1F4C8; Commission Movement</div>
     <div id="genFlowTotal" style="font-size:.72rem;font-weight:700;color:#27ae60">0.00 OLIGHFT</div>
   </div>
-  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px" id="genFlowStats">
+  <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:12px" id="genFlowStats">
     <div style="text-align:center;padding:8px 4px;border-radius:10px;background:rgba(245,197,24,.06);border:1px solid rgba(245,197,24,.08)">
       <div style="font-size:.95rem;font-weight:800;color:#f5c518" id="gfEarned">0.00</div>
       <div style="font-size:.48rem;color:rgba(255,255,255,.35)">Earned</div>
+    </div>
+    <div style="text-align:center;padding:8px 4px;border-radius:10px;background:rgba(243,156,18,.06);border:1px solid rgba(243,156,18,.08)">
+      <div style="font-size:.95rem;font-weight:800;color:#f39c12" id="gfPending">None</div>
+      <div style="font-size:.48rem;color:rgba(255,255,255,.35)">Pending</div>
     </div>
     <div style="text-align:center;padding:8px 4px;border-radius:10px;background:rgba(39,174,96,.06);border:1px solid rgba(39,174,96,.08)">
       <div style="font-size:.95rem;font-weight:800;color:#27ae60" id="gfPaid">0.00</div>
@@ -1644,6 +1648,8 @@ function _sendOLIGHFTOnChain(destAddr, amountOLIGHFT, label, callback) {
   } catch(e) { console.warn('cleanup:', e); }
   // Auto-withdraw any finished stakes immediately on page load
   try { _autoWithdrawMatured(); } catch(e) { console.warn('autoWithdraw:', e); }
+  // Auto-withdraw 5-min matured gen commissions
+  try { _autoWithdrawGenCommissions(); } catch(e) { console.warn('genAutoWithdraw:', e); }
   // Start auto-compound timer
   try { startAutoCompound(); } catch(e) { console.warn('autoCompound:', e); }
   // Start staking earnings stopwatch
@@ -2925,10 +2931,12 @@ function distribute8GenCommissions(stakerEmail, stakeAmountOLIGHFT, stakeId, car
     var commissionOLIGHFT = stakeAmountOLIGHFT * rate;
     var commissionUSD = commissionOLIGHFT * OLIGHFT_PRICE;
 
-    // Credit sponsor balance
+    // Store as pending commission (5-min auto-withdraw delay)
     var sponsorKey = 'cw_gen_earnings_' + sponsorName.toLowerCase();
     var earnings = [];
     try { earnings = JSON.parse(localStorage.getItem(sponsorKey) || '[]'); } catch(e) { earnings = []; }
+    var nowTs = Date.now();
+    var GEN_WITHDRAW_DELAY = 5 * 60 * 1000; // 5 minutes
     earnings.push({
       gen: gen + 1,
       from: currentEmail,
@@ -2936,12 +2944,28 @@ function distribute8GenCommissions(stakerEmail, stakeAmountOLIGHFT, stakeId, car
       usd: commissionUSD,
       stakeId: stakeId,
       cardTier: cardTier,
-      ts: Date.now()
+      ts: nowTs,
+      readyAt: nowTs + GEN_WITHDRAW_DELAY,
+      credited: false
     });
     localStorage.setItem(sponsorKey, JSON.stringify(earnings));
 
-    // Also credit the sponsor's OLIGHFT balance directly
-    creditSponsorBalance(sponsorName, commissionOLIGHFT);
+    // Store in global pending queue for auto-withdraw processing
+    var pendingQ = [];
+    try { pendingQ = JSON.parse(localStorage.getItem('cw_gen_pending') || '[]'); } catch(e) { pendingQ = []; }
+    pendingQ.push({
+      sponsor: sponsorName,
+      gen: gen + 1,
+      amount: commissionOLIGHFT,
+      usd: commissionUSD,
+      stakeId: stakeId,
+      cardTier: cardTier,
+      from: currentEmail,
+      ts: nowTs,
+      readyAt: nowTs + GEN_WITHDRAW_DELAY,
+      credited: false
+    });
+    localStorage.setItem('cw_gen_pending', JSON.stringify(pendingQ));
 
     // On-chain autopay: send OLIGHFT to sponsor's Stellar wallet
     var sponsorAddr = _lookupWalletAddress(sponsorName);
@@ -3040,6 +3064,99 @@ function creditSponsorBalance(sponsorName, amountOLIGHFT) {
   }
 }
 
+// ── Auto-Withdraw 8-Gen Commissions (5-min delay) ──
+function _autoWithdrawGenCommissions() {
+  var now = Date.now();
+  var pendingQ = [];
+  try { pendingQ = JSON.parse(localStorage.getItem('cw_gen_pending') || '[]'); } catch(e) { return; }
+  if (!pendingQ.length) return;
+
+  var readyItems = [];
+  var stillPending = [];
+  for (var i = 0; i < pendingQ.length; i++) {
+    var p = pendingQ[i];
+    if (p.credited) continue; // already processed
+    if (now >= (p.readyAt || 0)) {
+      readyItems.push(p);
+    } else {
+      stillPending.push(p);
+    }
+  }
+  if (!readyItems.length) return;
+
+  // Credit each ready commission
+  var totalCredited = 0;
+  var creditCount = 0;
+  for (var j = 0; j < readyItems.length; j++) {
+    var item = readyItems[j];
+    creditSponsorBalance(item.sponsor, item.amount);
+    item.credited = true;
+    item.creditedAt = now;
+    totalCredited += item.amount;
+    creditCount++;
+
+    // Mark as credited in the sponsor's earnings log too
+    try {
+      var sKey = 'cw_gen_earnings_' + item.sponsor.toLowerCase();
+      var sEarnings = JSON.parse(localStorage.getItem(sKey) || '[]');
+      for (var k = sEarnings.length - 1; k >= 0; k--) {
+        if (sEarnings[k].stakeId === item.stakeId && sEarnings[k].gen === item.gen && !sEarnings[k].credited) {
+          sEarnings[k].credited = true;
+          sEarnings[k].creditedAt = now;
+          break;
+        }
+      }
+      localStorage.setItem(sKey, JSON.stringify(sEarnings));
+    } catch(e) {}
+
+    // Log activity
+    try {
+      var al = JSON.parse(localStorage.getItem('cw_activity') || '[]');
+      al.unshift({
+        type: 'Gen ' + item.gen + ' Commission',
+        icon: '\uD83C\uDF33',
+        detail: '+' + item.amount.toFixed(2) + ' OLIGHFT from Gen ' + item.gen + ' (' + item.cardTier + ') \u00B7 ' + (item.from || '').split('@')[0],
+        amt: '+' + item.amount.toFixed(2) + ' OLIGHFT',
+        cls: 'green',
+        time: 'Just now',
+        ts: now
+      });
+      if (al.length > 50) al.length = 50;
+      localStorage.setItem('cw_activity', JSON.stringify(al));
+    } catch(e) {}
+
+    // Transaction notification
+    try {
+      var notifs = JSON.parse(localStorage.getItem('cw_tx_notifications') || '[]');
+      notifs.unshift({
+        type: 'Gen ' + item.gen + ' Commission',
+        icon: '\uD83C\uDF33',
+        detail: '+' + item.amount.toFixed(2) + ' OLIGHFT \u00B7 Gen ' + item.gen + ' from ' + (item.from || '').split('@')[0] + ' \u00B7 ' + item.cardTier,
+        amt: '+' + item.amount.toFixed(2) + ' OLIGHFT',
+        cls: 'green',
+        ts: now
+      });
+      if (notifs.length > 50) notifs.length = 50;
+      localStorage.setItem('cw_tx_notifications', JSON.stringify(notifs));
+      try { updateNotifBadge(); } catch(e) {}
+    } catch(e) {}
+  }
+
+  // Save updated pending queue (mark credited items)
+  var updated = stillPending.concat(readyItems);
+  // Keep only last 200 entries, remove old credited items (older than 1 day)
+  var oneDayAgo = now - 86400000;
+  updated = updated.filter(function(p) { return !p.credited || (p.creditedAt || 0) > oneDayAgo; });
+  localStorage.setItem('cw_gen_pending', JSON.stringify(updated));
+
+  // Refresh UI
+  var bals = {};
+  try { bals = Object.assign({}, DEFAULT_BALS, JSON.parse(localStorage.getItem('cw_balances'))); } catch(e) { bals = Object.assign({}, DEFAULT_BALS); }
+  try { renderBalances(bals); updateTotalBalance(bals); } catch(e) {}
+  try { renderGenFlow(); } catch(e) {}
+  showToast('\uD83C\uDF33 ' + creditCount + ' Gen commission(s) received — +' + totalCredited.toFixed(2) + ' OLIGHFT!', '#27ae60');
+}
+
 // ── Render 8-Gen Commission Flow Panel ──
 function renderGenFlow() {
   var user = null;
@@ -3116,8 +3233,11 @@ function renderGenFlow() {
   var txList = [];
 
   // Incoming (my earnings)
+  var pendingCount = 0;
   for (var i = 0; i < myEarnings.length; i++) {
     var e = myEarnings[i];
+    var isPending = e.readyAt && !e.credited;
+    if (isPending) pendingCount++;
     txList.push({
       dir: 'in',
       gen: e.gen || 1,
@@ -3127,9 +3247,15 @@ function renderGenFlow() {
       cardTier: e.cardTier || '',
       ts: e.ts || 0,
       txHash: e.txHash || null,
-      onChain: !!(e.onChain || e.txHash)
+      onChain: !!(e.onChain || e.txHash),
+      pending: isPending,
+      readyAt: e.readyAt || 0,
+      credited: !!e.credited
     });
   }
+  // Show pending count
+  el = document.getElementById('gfPending');
+  if (el) el.textContent = pendingCount > 0 ? pendingCount + ' pending' : 'None';
 
   // Outgoing (commissions my stakes generated)
   for (var j = 0; j < myOutgoing.length; j++) {
@@ -3182,7 +3308,7 @@ function renderGenFlow() {
     var icon, label, color, amtSign, person;
     if (tx.dir === 'in') {
       icon = '\u2B07\uFE0F'; label = 'Gen ' + tx.gen + ' Earned';
-      color = '#27ae60'; amtSign = '+';
+      color = tx.pending ? '#f39c12' : '#27ae60'; amtSign = '+';
       person = tx.from ? 'from ' + tx.from.split('@')[0] : '';
     } else if (tx.dir === 'out') {
       icon = '\u2B06\uFE0F'; label = 'Gen ' + tx.gen + ' Paid';
@@ -3196,6 +3322,14 @@ function renderGenFlow() {
     var chainTag = tx.onChain
       ? '<span style="font-size:.42rem;padding:1px 4px;border-radius:4px;background:rgba(39,174,96,.15);color:#27ae60;margin-left:4px">\u2713 On-Chain</span>'
       : '<span style="font-size:.42rem;padding:1px 4px;border-radius:4px;background:rgba(255,255,255,.05);color:rgba(255,255,255,.25);margin-left:4px">Local</span>';
+    var pendingTag = '';
+    if (tx.dir === 'in' && tx.pending) {
+      var secsLeft = Math.max(0, Math.ceil((tx.readyAt - Date.now()) / 1000));
+      var mLeft = Math.floor(secsLeft / 60); var sLeft = secsLeft % 60;
+      pendingTag = '<span style="font-size:.42rem;padding:1px 4px;border-radius:4px;background:rgba(243,156,18,.15);color:#f39c12;margin-left:4px">\u23F3 ' + mLeft + ':' + (sLeft < 10 ? '0' : '') + sLeft + '</span>';
+    } else if (tx.dir === 'in' && tx.credited) {
+      pendingTag = '<span style="font-size:.42rem;padding:1px 4px;border-radius:4px;background:rgba(39,174,96,.15);color:#27ae60;margin-left:4px">\u2713 Credited</span>';
+    }
     var timeStr = tx.ts ? _genTimeAgo(tx.ts) : '';
     var hashStr = tx.txHash ? '<div style="font-size:.4rem;color:rgba(255,255,255,.2);margin-top:2px;word-break:break-all">tx: ' + tx.txHash.slice(0, 8) + '\u2026' + tx.txHash.slice(-6) + '</div>' : '';
 
@@ -3203,7 +3337,7 @@ function renderGenFlow() {
       '<div style="font-size:.9rem;width:22px;text-align:center;flex-shrink:0;padding-top:2px">' + icon + '</div>' +
       '<div style="flex:1;min-width:0">' +
         '<div style="display:flex;align-items:center;justify-content:space-between">' +
-          '<div style="font-size:.6rem;font-weight:700;color:' + color + '">' + label + chainTag + '</div>' +
+          '<div style="font-size:.6rem;font-weight:700;color:' + color + '">' + label + chainTag + pendingTag + '</div>' +
           '<div style="font-size:.62rem;font-weight:800;color:' + color + '">' + amtSign + tx.amount.toFixed(2) + '</div>' +
         '</div>' +
         '<div style="font-size:.48rem;color:rgba(255,255,255,.3)">' + person +
@@ -3512,6 +3646,7 @@ function startAutoCompound() {
           showToast('\uD83D\uDD04 Auto-compounded ' + ready.length + ' stake(s) (offline)', '#27ae60');
         }
         _autoWithdrawMatured();
+        try { _autoWithdrawGenCommissions(); } catch(e) {}
         updateNextCompoundDisplay();
       });
     } else {
@@ -3524,6 +3659,7 @@ function startAutoCompound() {
         showToast('\uD83D\uDD04 Auto-compounded ' + ready.length + ' stake(s)', '#27ae60');
       }
       _autoWithdrawMatured();
+      try { _autoWithdrawGenCommissions(); } catch(e) {}
       updateNextCompoundDisplay();
     }
     _syncOnChainDeposits();

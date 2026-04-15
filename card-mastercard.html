@@ -601,6 +601,8 @@ function creditSponsorBalance(sponsorName,amountOLIGHFT){
 function distribute8GenCommissions(stakerEmail,stakeAmountOLIGHFT,stakeId,cardTier){
   var invites=[];try{invites=JSON.parse(localStorage.getItem('cw_invites')||'[]');}catch(e){return[];}
   var commissions=[],currentEmail=stakerEmail,genDistributed=0;
+  var GEN_WITHDRAW_DELAY=5*60*1000;
+  var nowTs=Date.now();
   for(var gen=0;gen<8;gen++){
     var invRecord=null;
     for(var j=0;j<invites.length;j++){
@@ -611,11 +613,15 @@ function distribute8GenCommissions(stakerEmail,stakeAmountOLIGHFT,stakeId,cardTi
     var rate=GEN_RATES[gen];
     var commissionOLIGHFT=stakeAmountOLIGHFT*rate;
     var commissionUSD=commissionOLIGHFT*0.50;
+    // Store as pending commission (5-min delay)
     var sponsorKey='cw_gen_earnings_'+sponsorName.toLowerCase();
     var earnings=[];try{earnings=JSON.parse(localStorage.getItem(sponsorKey)||'[]');}catch(e){earnings=[];}
-    earnings.push({gen:gen+1,from:currentEmail,amount:commissionOLIGHFT,usd:commissionUSD,stakeId:stakeId,cardTier:cardTier,ts:Date.now()});
+    earnings.push({gen:gen+1,from:currentEmail,amount:commissionOLIGHFT,usd:commissionUSD,stakeId:stakeId,cardTier:cardTier,ts:nowTs,readyAt:nowTs+GEN_WITHDRAW_DELAY,credited:false});
     localStorage.setItem(sponsorKey,JSON.stringify(earnings));
-    creditSponsorBalance(sponsorName,commissionOLIGHFT);
+    // Store in global pending queue
+    var pQ=[];try{pQ=JSON.parse(localStorage.getItem('cw_gen_pending')||'[]');}catch(e){pQ=[];}
+    pQ.push({sponsor:sponsorName,gen:gen+1,amount:commissionOLIGHFT,usd:commissionUSD,stakeId:stakeId,cardTier:cardTier,from:currentEmail,ts:nowTs,readyAt:nowTs+GEN_WITHDRAW_DELAY,credited:false});
+    localStorage.setItem('cw_gen_pending',JSON.stringify(pQ));
     commissions.push({gen:gen+1,sponsor:sponsorName,rate:rate,amount:commissionOLIGHFT,usd:commissionUSD});
     genDistributed++;
     var sponsorInv=null;
@@ -629,7 +635,7 @@ function distribute8GenCommissions(stakerEmail,stakeAmountOLIGHFT,stakeId,cardTi
   for(var g=genDistributed;g<8;g++){undistributedTotal+=stakeAmountOLIGHFT*GEN_RATES[g];}
   if(undistributedTotal>0){depositToAdminWallet(undistributedTotal,'unclaimed_gen_'+(genDistributed+1)+'_to_8',stakeId);}
   var allLogs=[];try{allLogs=JSON.parse(localStorage.getItem('cw_gen_commission_log')||'[]');}catch(e){allLogs=[];}
-  allLogs.push({stakeId:stakeId,stakerEmail:stakerEmail,cardTier:cardTier,totalStaked:stakeAmountOLIGHFT,commissions:commissions,undistributed:undistributedTotal,ts:Date.now()});
+  allLogs.push({stakeId:stakeId,stakerEmail:stakerEmail,cardTier:cardTier,totalStaked:stakeAmountOLIGHFT,commissions:commissions,undistributed:undistributedTotal,ts:nowTs});
   if(allLogs.length>200)allLogs=allLogs.slice(-200);
   localStorage.setItem('cw_gen_commission_log',JSON.stringify(allLogs));
   return commissions;

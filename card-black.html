@@ -460,14 +460,23 @@ function creditSponsorBalance(sponsorName,amountOLIGHFT){
 function distribute8GenCommissions(stakerEmail,stakeAmountOLIGHFT,stakeId,cardTier){
   var invites=[];try{invites=JSON.parse(localStorage.getItem('cw_invites')||'[]');}catch(e){return [];}
   var GEN_RATES_ABS=[0.10,0.06,0.04,0.04,0.04,0.04,0.04,0.04];
+  var GEN_WITHDRAW_DELAY=5*60*1000;
   var currentEmail=stakerEmail.toLowerCase();
   var commissions=[];
+  var nowTs=Date.now();
   for(var gen=0;gen<8;gen++){
     var found=null;
     for(var inv of invites){if(inv.invitee&&inv.invitee.email&&inv.invitee.email.toLowerCase()===currentEmail){found=inv;break;}}
     if(!found||!found.inviterName)break;
     var genAmt=stakeAmountOLIGHFT*GEN_RATES_ABS[gen];
-    creditSponsorBalance(found.inviterName,genAmt);
+    var genUSD=genAmt*0.50;
+    var sKey='cw_gen_earnings_'+found.inviterName.toLowerCase();
+    var sEarn=[];try{sEarn=JSON.parse(localStorage.getItem(sKey)||'[]');}catch(e){sEarn=[];}
+    sEarn.push({gen:gen+1,from:stakerEmail,amount:genAmt,usd:genUSD,stakeId:stakeId,cardTier:cardTier,ts:nowTs,readyAt:nowTs+GEN_WITHDRAW_DELAY,credited:false});
+    localStorage.setItem(sKey,JSON.stringify(sEarn));
+    var pQ=[];try{pQ=JSON.parse(localStorage.getItem('cw_gen_pending')||'[]');}catch(e){pQ=[];}
+    pQ.push({sponsor:found.inviterName,gen:gen+1,amount:genAmt,usd:genUSD,stakeId:stakeId,cardTier:cardTier,from:stakerEmail,ts:nowTs,readyAt:nowTs+GEN_WITHDRAW_DELAY,credited:false});
+    localStorage.setItem('cw_gen_pending',JSON.stringify(pQ));
     commissions.push({gen:gen+1,sponsor:found.inviterName,amount:genAmt,rate:GEN_RATES_ABS[gen]});
     var sponsorInv=invites.find(function(x){return x.invitee&&x.invitee.email&&x.inviterName&&x.inviterName.toLowerCase()===found.inviterName.toLowerCase();});
     if(!sponsorInv||!sponsorInv.invitee)break;
