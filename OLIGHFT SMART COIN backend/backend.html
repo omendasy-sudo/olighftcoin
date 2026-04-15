@@ -8,30 +8,30 @@
 <link rel="canonical" href="https://olighftcoin.com/backend.html">
 <script>
 (function(){
-  var isLocal=(window.location.protocol==='file:');
-  // Local file:// — allow directly (only you have the files on your computer)
-  if(isLocal) return;
-  // Remote — require PIN + admin email
-  var ADMIN_PIN_HASH='ec42e8fd-4c8a4ede';
-  var DEVICE_KEY='olighft_admin_device';
-  var token=localStorage.getItem(DEVICE_KEY);
-  function hash(s){var h=0;for(var i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h|=0;}return (h>>>0).toString(16).padStart(8,'0')+(h>>>0^0x5f3759df).toString(16).padStart(8,'0');}
-  if(!token||token!==ADMIN_PIN_HASH){
-    var pin=prompt('🔐 Admin Device Lock\nEnter admin PIN to authorize this computer:');
-    if(!pin||hash(pin)!==ADMIN_PIN_HASH){
-      document.title='404';
-      document.documentElement.innerHTML='<body style="background:#0a0a1a;color:#555;display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif"><h1>404 — Not Found</h1></body>';
-      return;
+  // Only block on public domain
+  var h=window.location.hostname;
+  if(h&&h!=='localhost'&&h!=='127.0.0.1'){
+    var ADMIN_PIN_HASH='ec42e8fd-4c8a4ede';
+    var DEVICE_KEY='olighft_admin_device';
+    var token=localStorage.getItem(DEVICE_KEY);
+    function hash(s){var h=0;for(var i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h|=0;}return (h>>>0).toString(16).padStart(8,'0')+(h>>>0^0x5f3759df).toString(16).padStart(8,'0');}
+    if(!token||token!==ADMIN_PIN_HASH){
+      var pin=prompt('Enter admin PIN:');
+      if(!pin||hash(pin)!==ADMIN_PIN_HASH){
+        document.title='404';
+        document.documentElement.innerHTML='<body style="background:#0a0a1a;color:#555;display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif"><h1>404 — Not Found</h1></body>';
+        return;
+      }
+      localStorage.setItem(DEVICE_KEY,ADMIN_PIN_HASH);
     }
-    localStorage.setItem(DEVICE_KEY,ADMIN_PIN_HASH);
+    var ADMIN_EMAILS=['tzzminerals@gmail.com','omendaonline@gmail.com'];
+    try{
+      var u=JSON.parse(localStorage.getItem('cw_user')||'null');
+      if(!u||ADMIN_EMAILS.indexOf((u.email||'').toLowerCase())===-1){
+        window.location.replace('../dashboard.html');
+      }
+    }catch(e){window.location.replace('../dashboard.html');}
   }
-  var ADMIN_EMAILS=['tzzminerals@gmail.com','omendaonline@gmail.com'];
-  try{
-    var u=JSON.parse(localStorage.getItem('cw_user')||'null');
-    if(!u||ADMIN_EMAILS.indexOf((u.email||'').toLowerCase())===-1){
-      window.location.replace('../dashboard.html');
-    }
-  }catch(e){window.location.replace('../dashboard.html');}
 })();
 </script>
 <style>
@@ -335,6 +335,47 @@ table tr:hover td{background:rgba(99,102,241,.03)}
 <button class="act-btn" onclick="exportData()">&#x1F4E5; Export All Data</button>
 <button class="act-btn danger" onclick="clearStakes()">&#x1F5D1; Clear Stakes</button>
 <button class="act-btn danger" onclick="clearTxs()">&#x1F5D1; Clear Transactions</button>
+</div>
+</div>
+
+<div class="table-card" style="padding:20px;margin-top:14px">
+<h3 style="font-size:.82rem;margin-bottom:16px;color:rgba(255,255,255,.6)">&#x1F4B3; Platform Wallet Addresses</h3>
+<p style="font-size:.72rem;color:rgba(255,255,255,.35);margin-bottom:14px">Configure wallet addresses for admin operations. Changes are saved to localStorage.</p>
+<div style="display:grid;gap:14px">
+
+<div>
+<label style="font-size:.72rem;color:rgba(255,255,255,.4);display:block;margin-bottom:4px">&#x1F3E6; Main Platform Wallet (receives all funds)</label>
+<div style="display:flex;gap:6px">
+<input id="cfgMainWallet" type="text" placeholder="G..." style="flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:10px 12px;color:#fff;font-size:.75rem;font-family:monospace" spellcheck="false">
+<button class="act-btn" onclick="copyField('cfgMainWallet')" style="white-space:nowrap">&#x1F4CB;</button>
+</div>
+</div>
+
+<div>
+<label style="font-size:.72rem;color:rgba(255,255,255,.4);display:block;margin-bottom:4px">&#x1F4B0; Admin 60% Fee Wallet (receives 60% of staking fees)</label>
+<div style="display:flex;gap:6px">
+<input id="cfgFeeWallet" type="text" placeholder="G..." style="flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:10px 12px;color:#fff;font-size:.75rem;font-family:monospace" spellcheck="false">
+<button class="act-btn" onclick="copyField('cfgFeeWallet')" style="white-space:nowrap">&#x1F4CB;</button>
+</div>
+</div>
+
+<div>
+<label style="font-size:.72rem;color:rgba(255,255,255,.4);display:block;margin-bottom:4px">&#x1F4E4; Auto-Withdraw Wallet (payouts after staking period ends)</label>
+<div style="display:flex;gap:6px">
+<input id="cfgWithdrawWallet" type="text" placeholder="G..." style="flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:10px 12px;color:#fff;font-size:.75rem;font-family:monospace" spellcheck="false">
+<button class="act-btn" onclick="copyField('cfgWithdrawWallet')" style="white-space:nowrap">&#x1F4CB;</button>
+</div>
+</div>
+
+<div style="display:flex;gap:8px;margin-top:6px">
+<button class="act-btn" onclick="saveWalletConfig()" style="background:linear-gradient(135deg,#6c5ce7,#818cf8)">&#x1F4BE; Save Wallet Config</button>
+<button class="act-btn" onclick="loadWalletConfig()">&#x1F504; Reload</button>
+</div>
+</div>
+
+<div style="margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.04)">
+<h4 style="font-size:.72rem;color:rgba(255,255,255,.35);margin-bottom:10px">Current Wallet Summary</h4>
+<div id="walletConfigSummary" style="font-size:.72rem;color:rgba(255,255,255,.5)"></div>
 </div>
 </div>
 
@@ -862,6 +903,52 @@ function renderSettings(){
   e('setting2fa',sec.tog2fa?'Enabled':'Disabled',sec.tog2fa?'#27ae60':'#eb5757');
   e('settingEmail',sec.togEmail!==false?'Enabled':'Disabled',sec.togEmail!==false?'#27ae60':'#eb5757');
   e('settingMs',ms&&ms.signers&&ms.signers.length>0?ms.signers.length+' signers':'Not configured',ms&&ms.signers&&ms.signers.length>0?'#27ae60':'rgba(255,255,255,.35)');
+  loadWalletConfig();
+}
+
+function saveWalletConfig(){
+  var cfg={
+    mainWallet:document.getElementById('cfgMainWallet').value.trim(),
+    feeWallet:document.getElementById('cfgFeeWallet').value.trim(),
+    withdrawWallet:document.getElementById('cfgWithdrawWallet').value.trim()
+  };
+  localStorage.setItem('olighft_wallet_config',JSON.stringify(cfg));
+  showToast('Wallet config saved');
+  updateWalletSummary(cfg);
+}
+
+function loadWalletConfig(){
+  var cfg=JSON.parse(localStorage.getItem('olighft_wallet_config')||'{}');
+  document.getElementById('cfgMainWallet').value=cfg.mainWallet||'GBLEKKQNHKVE7NIOOPY7CQ6SJ4BQCGHD3O5FCPB2B47X2ERKSJGSMWCP';
+  document.getElementById('cfgFeeWallet').value=cfg.feeWallet||'';
+  document.getElementById('cfgWithdrawWallet').value=cfg.withdrawWallet||'';
+  updateWalletSummary(cfg);
+}
+
+function updateWalletSummary(cfg){
+  var short=function(a){return a?(a.slice(0,6)+'...'+a.slice(-6)):'<span style="color:#eb5757">Not set</span>';};
+  var stakes=getStakes();
+  var totalFees=0,admin60=0;
+  stakes.forEach(function(s){totalFees+=s.fee||0;admin60+=s.split&&s.split.adminUSD?s.split.adminUSD:(s.fee||0)*0.6;});
+  var expired=stakes.filter(function(s){var end=new Date(s.date).getTime()+((s.period||0)*86400000);return Date.now()>=end;});
+  var pendingPayout=0;expired.forEach(function(s){pendingPayout+=s.payout||0;});
+  document.getElementById('walletConfigSummary').innerHTML=
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">'+
+    '<div>Main Wallet: <b style="color:#818cf8">'+short(cfg.mainWallet||'GBLEKKQNHKVE7NIOOPY7CQ6SJ4BQCGHD3O5FCPB2B47X2ERKSJGSMWCP')+'</b></div>'+
+    '<div>Fee Wallet: <b style="color:#f5c518">'+short(cfg.feeWallet)+'</b></div>'+
+    '<div>Withdraw Wallet: <b style="color:#27ae60">'+short(cfg.withdrawWallet)+'</b></div>'+
+    '<div>Total 60% Admin Fees: <b style="color:#f5c518">$'+admin60.toFixed(2)+'</b></div>'+
+    '<div>Expired Stakes: <b style="color:#eb5757">'+expired.length+'</b></div>'+
+    '<div>Pending Auto-Withdraw: <b style="color:#27ae60">$'+pendingPayout.toLocaleString()+'</b></div>'+
+    '</div>';
+}
+
+function copyField(id){
+  var v=document.getElementById(id).value;
+  if(!v){showToast('Nothing to copy');return;}
+  navigator.clipboard.writeText(v).then(function(){showToast('Copied!')}).catch(function(){
+    var t=document.createElement('textarea');t.value=v;document.body.appendChild(t);t.select();document.execCommand('copy');document.body.removeChild(t);showToast('Copied!');
+  });
 }
 
 // ── Data Management ──
