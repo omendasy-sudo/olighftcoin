@@ -176,6 +176,28 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 <div class="info-row"><div class="info-label">Total Fees Paid</div><div class="info-value red" id="dFees">$0</div></div>
 </div>
 
+<!-- Token Balances -->
+<div class="card">
+<div class="card-head"><h3>&#x1F4B0; Token Balances</h3></div>
+<div id="balanceRows"></div>
+</div>
+
+<!-- Fee Deposits -->
+<div class="card">
+<div class="card-head"><h3>&#x1F4B5; Admin Fee Deposits</h3><span style="font-size:.65rem;background:rgba(16,185,129,.12);color:#34d399;padding:3px 8px;border-radius:6px;font-weight:700" id="feeBadge">0</span></div>
+<div id="feeRows" style="max-height:300px;overflow-y:auto"></div>
+<div class="info-row" style="border-top:1px solid rgba(16,185,129,.1);margin-top:8px;padding-top:10px">
+<div class="info-label" style="font-weight:700">Total Fee Revenue</div>
+<div class="info-value gold" id="feeTotalVal">$0</div>
+</div>
+</div>
+
+<!-- 8-Gen Commission & Auto-Withdraw Log -->
+<div class="card">
+<div class="card-head"><h3>&#x1F333; 8-Gen Commissions &amp; Withdrawals</h3><span style="font-size:.65rem;background:rgba(16,185,129,.12);color:#34d399;padding:3px 8px;border-radius:6px;font-weight:700" id="genBadge">0</span></div>
+<div id="genRows" style="max-height:400px;overflow-y:auto"></div>
+</div>
+
 <!-- Security -->
 <div class="card">
 <div class="card-head"><h3>&#x1F6E1;&#xFE0F; Security Settings</h3></div>
@@ -299,6 +321,9 @@ function init(){
   var feeTotal=deps.reduce(function(s,d){return s+(d.usd||0);},0);
   var sends=JSON.parse(localStorage.getItem('send_txs')||'[]');
   var swaps=JSON.parse(localStorage.getItem('swap_txs')||'[]');
+  var activity=[];try{activity=JSON.parse(localStorage.getItem('cw_activity')||'[]');}catch(e){}
+  var genPending=[];try{genPending=JSON.parse(localStorage.getItem('cw_gen_pending')||'[]');}catch(e){}
+  var notifications=[];try{notifications=JSON.parse(localStorage.getItem('cw_tx_notifications')||'[]');}catch(e){}
   document.getElementById('accountStats').innerHTML=
     '<div class="stat"><div class="s-label">Portfolio</div><div class="s-val gold">$'+portfolioVal.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})+'</div><div class="s-sub">'+Object.keys(bals).length+' tokens</div></div>'+
     '<div class="stat"><div class="s-label">Active Stakes</div><div class="s-val green">'+activeStakes+'</div><div class="s-sub">of '+stakes.length+' total</div></div>'+
@@ -306,6 +331,53 @@ function init(){
     '<div class="stat"><div class="s-label">Transactions</div><div class="s-val purple">'+(sends.length+swaps.length+stakes.length)+'</div><div class="s-sub">'+sends.length+' sends · '+swaps.length+' swaps</div></div>'+
     '<div class="stat"><div class="s-label">HD Accounts</div><div class="s-val blue">'+accounts.length+'</div><div class="s-sub">SEP-0005 derived</div></div>'+
     '<div class="stat"><div class="s-label">Security</div><div class="s-val '+(sec.tog2fa?'green':'red')+'">'+(sec.tog2fa?'HIGH':'STANDARD')+'</div><div class="s-sub">2FA '+(sec.tog2fa?'enabled':'disabled')+'</div></div>';
+
+  // ── Token Balances Card ──
+  var balHtml='';
+  Object.keys(TOKEN_META).forEach(function(k){
+    var m=TOKEN_META[k];
+    var amt=bals[k]||0;
+    var usd=amt*m.price;
+    balHtml+='<div class="info-row"><div class="info-label">'+m.icon+' '+m.name+' ('+k+')</div><div class="info-value" style="text-align:right"><div style="font-weight:700;color:#34d399">'+fmtBal(amt)+'</div><div style="font-size:.6rem;color:rgba(255,255,255,.3)">$'+usd.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})+'</div></div></div>';
+  });
+  document.getElementById('balanceRows').innerHTML=balHtml||'<div style="text-align:center;color:rgba(255,255,255,.2);padding:14px;font-size:.75rem">No balances</div>';
+
+  // ── Fee Deposits Card ──
+  document.getElementById('feeBadge').textContent=deps.length;
+  document.getElementById('feeTotalVal').textContent='$'+feeTotal.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2});
+  var feeHtml='';
+  deps.slice().reverse().forEach(function(d){
+    var dt=d.date?new Date(d.date).toLocaleString():(d.ts?new Date(d.ts).toLocaleString():'—');
+    var chain=d.onChain?'<span style="color:#34d399;font-size:.55rem">✅ On-Chain</span>':'<span style="color:rgba(255,255,255,.2);font-size:.55rem">⏳ Pending</span>';
+    var src=(d.source||'').replace(/_/g,' ');
+    feeHtml+='<div class="info-row" style="align-items:flex-start"><div class="info-label" style="flex:1"><div style="font-weight:600;font-size:.72rem">'+fmtBal(d.amount)+' OLIGHFT</div><div style="font-size:.58rem;color:rgba(255,255,255,.25)">'+src+' · '+dt+'</div></div><div style="text-align:right"><div style="font-weight:700;color:#f5c518;font-size:.72rem">$'+(d.usd||0).toFixed(2)+'</div>'+chain+'</div></div>';
+  });
+  document.getElementById('feeRows').innerHTML=feeHtml||'<div style="text-align:center;color:rgba(255,255,255,.2);padding:14px;font-size:.75rem">No fee deposits yet</div>';
+
+  // ── 8-Gen Commissions & Withdrawals Card ──
+  var genItems=[];
+  activity.forEach(function(a){
+    if(a.type==='Auto-Withdraw'||(a.type&&a.type.indexOf('Gen ')===0&&a.type.indexOf('Commission')>0)){
+      genItems.push({icon:a.icon||'💰',type:a.type,detail:a.detail||'',amt:a.amt||'',cls:a.cls||'green',ts:a.ts||0});
+    }
+  });
+  notifications.forEach(function(n){
+    if(n.type==='auto_withdraw'||n.type==='gen_commission'||n.type==='compound'||n.type==='withdraw'){
+      genItems.push({icon:n.icon||'🔔',type:n.title||n.type,detail:n.body||n.detail||'',amt:n.amount?'+'+n.amount:'',cls:'green',ts:n.ts||0});
+    }
+  });
+  genPending.forEach(function(p){
+    var status=p.credited?'✅ Credited':'⏳ Pending ('+Math.max(0,Math.ceil((p.readyAt-Date.now())/60000))+'m)';
+    genItems.push({icon:'🌳',type:'Gen '+p.gen+' Commission',detail:fmtBal(p.amount)+' OLIGHFT from '+(p.from||'unknown')+' ('+p.cardTier+') · '+status,amt:'+'+fmtBal(p.amount),cls:p.credited?'green':'gold',ts:p.queuedAt||p.readyAt||0});
+  });
+  genItems.sort(function(a,b){return(b.ts||0)-(a.ts||0);});
+  document.getElementById('genBadge').textContent=genItems.length;
+  var genHtml='';
+  genItems.forEach(function(g){
+    var dt=g.ts?new Date(g.ts).toLocaleString():'—';
+    genHtml+='<div class="info-row" style="align-items:flex-start"><div class="info-label" style="flex:1"><div style="font-weight:600;font-size:.72rem">'+g.icon+' '+g.type+'</div><div style="font-size:.58rem;color:rgba(255,255,255,.25)">'+g.detail+'</div><div style="font-size:.52rem;color:rgba(255,255,255,.15)">'+dt+'</div></div><div style="font-weight:700;font-size:.72rem;color:'+(g.cls==='green'?'#34d399':g.cls==='gold'?'#f5c518':'#eb5757')+'">'+g.amt+'</div></div>';
+  });
+  document.getElementById('genRows').innerHTML=genHtml||'<div style="text-align:center;color:rgba(255,255,255,.2);padding:14px;font-size:.75rem">No 8-gen commissions or withdrawals yet</div>';
 }
 
 function copyAddr(){
