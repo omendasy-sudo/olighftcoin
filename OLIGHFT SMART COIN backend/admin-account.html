@@ -254,7 +254,43 @@ function fmtBal(v){return v<0.001?v.toFixed(8):v<1?v.toFixed(6):v<100?v.toFixed(
 function shortAddr(a){return a?a.slice(0,8)+'...'+a.slice(-4):'-';}
 function showToast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2500);}
 
+// ── Credit Sponsor Balance ──
+function creditSponsorBalance(sponsorName,amountOLIGHFT){
+  var balKey='cw_sponsor_bal_'+sponsorName.toLowerCase();
+  var bal=parseFloat(localStorage.getItem(balKey)||'0');
+  bal+=amountOLIGHFT;
+  localStorage.setItem(balKey,bal.toString());
+  try{var cu=JSON.parse(localStorage.getItem('cw_user'));if(cu&&cu.name&&cu.name.toLowerCase()===sponsorName.toLowerCase()){var b=JSON.parse(localStorage.getItem('cw_balances')||'{}');b.OLIGHFT=(b.OLIGHFT||0)+amountOLIGHFT;localStorage.setItem('cw_balances',JSON.stringify(b));}}catch(e){}
+}
+
+// ── Auto-Withdraw 8-Gen Commissions (5-min delay) ──
+function _autoWithdrawGenCommissions(){
+  var now=Date.now(),pendingQ=[];
+  try{pendingQ=JSON.parse(localStorage.getItem('cw_gen_pending')||'[]');}catch(e){return;}
+  if(!pendingQ.length)return;
+  var ready=[],still=[];
+  for(var i=0;i<pendingQ.length;i++){var p=pendingQ[i];if(p.credited)continue;if(now>=(p.readyAt||0))ready.push(p);else still.push(p);}
+  if(!ready.length)return;
+  var total=0,cnt=0;
+  for(var j=0;j<ready.length;j++){
+    var it=ready[j];
+    creditSponsorBalance(it.sponsor,it.amount);
+    it.credited=true;it.creditedAt=now;total+=it.amount;cnt++;
+    try{var sK='cw_gen_earnings_'+it.sponsor.toLowerCase();var sE=JSON.parse(localStorage.getItem(sK)||'[]');for(var k=sE.length-1;k>=0;k--){if(sE[k].stakeId===it.stakeId&&sE[k].gen===it.gen&&!sE[k].credited){sE[k].credited=true;sE[k].creditedAt=now;break;}}localStorage.setItem(sK,JSON.stringify(sE));}catch(e){}
+    try{var al=JSON.parse(localStorage.getItem('cw_activity')||'[]');al.unshift({type:'Gen '+it.gen+' Commission',icon:'\uD83C\uDF33',detail:'+'+it.amount.toFixed(2)+' OLIGHFT from Gen '+it.gen+' ('+it.cardTier+') \u00B7 '+(it.from||'').split('@')[0],amt:'+'+it.amount.toFixed(2)+' OLIGHFT',cls:'green',time:'Just now',ts:now});if(al.length>50)al.length=50;localStorage.setItem('cw_activity',JSON.stringify(al));}catch(e){}
+    try{var nf=JSON.parse(localStorage.getItem('cw_tx_notifications')||'[]');nf.unshift({type:'Gen '+it.gen+' Commission',icon:'\uD83C\uDF33',detail:'+'+it.amount.toFixed(2)+' OLIGHFT \u00B7 Gen '+it.gen+' from '+(it.from||'').split('@')[0]+' \u00B7 '+it.cardTier,amt:'+'+it.amount.toFixed(2)+' OLIGHFT',cls:'green',ts:now});if(nf.length>50)nf.length=50;localStorage.setItem('cw_tx_notifications',JSON.stringify(nf));}catch(e){}
+  }
+  var upd=still.concat(ready);var oneDay=now-86400000;upd=upd.filter(function(p){return !p.credited||(p.creditedAt||0)>oneDay;});
+  localStorage.setItem('cw_gen_pending',JSON.stringify(upd));
+  if(cnt>0)showToast('\uD83C\uDF33 '+cnt+' Gen commission(s) credited — +'+total.toFixed(2)+' OLIGHFT');
+}
+// Run on load + every 60s
+try{_autoWithdrawGenCommissions();}catch(e){}
+setInterval(function(){try{_autoWithdrawGenCommissions();}catch(e){}},60000);
+
 function init(){
+  // Process any ready gen commissions before rendering
+  try{_autoWithdrawGenCommissions();}catch(e){}
   var user=getUser();
   if(!user){
     // Admin device verified but no cw_user yet — seed default admin record
