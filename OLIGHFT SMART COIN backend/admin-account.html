@@ -166,14 +166,16 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 
 
 
-<!-- Staking Summary -->
+<!-- Staking Summary (All Users) -->
 <div class="card">
-<div class="card-head"><h3>&#x1F4C8; Staking Summary</h3></div>
+<div class="card-head"><h3>&#x1F4C8; Staking Summary</h3><span style="font-size:.6rem;background:rgba(139,92,246,.12);color:#a78bfa;padding:3px 8px;border-radius:6px;font-weight:700">All Users</span></div>
 <div class="info-row"><div class="info-label">Total Stakes</div><div class="info-value purple" id="dStakeCount">0</div></div>
 <div class="info-row"><div class="info-label">Active Stakes</div><div class="info-value green" id="dActiveStakes">0</div></div>
+<div class="info-row"><div class="info-label">Withdrawn Stakes</div><div class="info-value blue" id="dWithdrawnStakes">0</div></div>
 <div class="info-row"><div class="info-label">Total Staked Value</div><div class="info-value gold" id="dStakedVal">$0</div></div>
 <div class="info-row"><div class="info-label">Expected Payout</div><div class="info-value green" id="dPayout">$0</div></div>
-<div class="info-row"><div class="info-label">Total Fees Paid</div><div class="info-value red" id="dFees">$0</div></div>
+<div class="info-row"><div class="info-label">Total Fees Collected</div><div class="info-value gold" id="dFees">$0</div></div>
+<div class="info-row"><div class="info-label">Total OLIGHFT Paid In</div><div class="info-value purple" id="dTotalOLIPaid">0</div></div>
 </div>
 
 <!-- Token Balances -->
@@ -339,21 +341,21 @@ function init(){
   document.getElementById('pOLI').textContent=fmtBal(bals.OLIGHFT||0);
   document.getElementById('pHD').textContent=accounts.length;
 
-  // Staking — combine card_stakes + wallet_stakes
+  // Staking — ALL users: combine card_stakes + wallet_stakes (shared localStorage arrays)
   var cardSt=getCardStakes(),walletSt=getWalletStakes();
-  var totalStaked=0,totalPayout=0,totalFees=0,activeStakes=0,allStakeCount=0;
+  var totalStaked=0,totalPayout=0,totalFees=0,activeStakes=0,allStakeCount=0,withdrawnStakes=0,totalOLIPaid=0;
   var now=Date.now();
-  // Card stakes
+  // Card stakes (all users)
   cardSt.forEach(function(s){
-    if(s.withdrawn)return;
     allStakeCount++;
     totalStaked+=s.stake||0;totalPayout+=s.payout||0;totalFees+=s.fee||0;
+    totalOLIPaid+=s.paidOLIGHFT||0;
+    if(s.withdrawn){withdrawnStakes++;return;}
     var end=new Date(s.date).getTime()+((s.period||0)*86400000);
     if(now<end)activeStakes++;
   });
-  // Wallet stakes
+  // Wallet stakes (all users)
   walletSt.forEach(function(s){
-    if(s.withdrawn)return;
     allStakeCount++;
     var amt=parseFloat(s.amount)||0;
     var lockDays=parseInt(s.lockDays)||0;
@@ -361,14 +363,21 @@ function init(){
     var endTs=startTs+(lockDays*86400000);
     var usdVal=amt*0.50;
     totalStaked+=usdVal;
+    totalOLIPaid+=amt;
     totalPayout+=(s.estimatedReward?parseFloat(s.estimatedReward)*0.50:usdVal);
+    if(s.withdrawn){withdrawnStakes++;return;}
     if(lockDays>0&&now<endTs)activeStakes++;
   });
+  // Add fee revenue from admin deposits (the authoritative fee record)
+  var depFeeTotal=deps.reduce(function(sum,d){return sum+(d.usd||0);},0);
+  if(depFeeTotal>totalFees)totalFees=depFeeTotal;
   document.getElementById('dStakeCount').textContent=allStakeCount;
   document.getElementById('dActiveStakes').textContent=activeStakes;
+  document.getElementById('dWithdrawnStakes').textContent=withdrawnStakes;
   document.getElementById('dStakedVal').textContent='$'+totalStaked.toLocaleString();
   document.getElementById('dPayout').textContent='$'+totalPayout.toLocaleString();
   document.getElementById('dFees').textContent='$'+totalFees.toLocaleString();
+  document.getElementById('dTotalOLIPaid').textContent=totalOLIPaid.toLocaleString()+' OLIGHFT';
 
   // Security
   updateSecUI();
