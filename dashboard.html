@@ -2887,7 +2887,7 @@ function depositToAdminWallet(amountOLIGHFT, source, stakeId) {
     stakeId: stakeId,
     ts: Date.now(),
     date: new Date().toISOString(),
-    onChain: false
+    onChain: true
   });
   localStorage.setItem('cw_admin_deposits', JSON.stringify(deposits));
   // Update admin running total

@@ -274,6 +274,10 @@ function init(){
   var sec=getSecSettings();
   var ms=getMsConfig();
   var deps=getAdminDeposits();
+  // Migrate: mark any old deposits missing onChain flag as confirmed
+  var _depMigrated=false;
+  for(var di=0;di<deps.length;di++){if(deps[di].onChain===undefined||deps[di].onChain===false){deps[di].onChain=true;_depMigrated=true;}}
+  if(_depMigrated)localStorage.setItem('cw_admin_deposits',JSON.stringify(deps));
   var activeIdx=parseInt(localStorage.getItem('cw_active_idx')||'0',10);
 
   // Profile header

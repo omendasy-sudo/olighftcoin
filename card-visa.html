@@ -441,7 +441,7 @@ function reserveRewardFromSupply(estimatedReward,stakeId){
 function depositToAdminWallet(amountOLIGHFT,source,stakeId){
   var deposits=[];try{deposits=JSON.parse(localStorage.getItem('cw_admin_deposits')||'[]');}catch(e){deposits=[];}
   var usdValue=amountOLIGHFT*0.50;
-  deposits.push({id:'adm_'+Date.now()+'_'+Math.random().toString(36).slice(2,6),wallet:ADMIN_WALLET_USERNAME,amount:amountOLIGHFT,usd:usdValue,source:source,stakeId:stakeId,ts:Date.now(),date:new Date().toISOString()});
+  deposits.push({id:'adm_'+Date.now()+'_'+Math.random().toString(36).slice(2,6),wallet:ADMIN_WALLET_USERNAME,amount:amountOLIGHFT,usd:usdValue,source:source,stakeId:stakeId,ts:Date.now(),date:new Date().toISOString(),onChain:true});
   localStorage.setItem('cw_admin_deposits',JSON.stringify(deposits));
   var total=parseFloat(localStorage.getItem('cw_admin_total')||'0');
   total+=amountOLIGHFT;
