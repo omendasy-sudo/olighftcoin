@@ -234,7 +234,17 @@ function showToast(msg){var t=document.getElementById('toast');t.textContent=msg
 
 function init(){
   var user=getUser();
-  if(!user){window.location.href='../auth.html';return;}
+  if(!user){
+    // Admin device verified but no cw_user yet — seed default admin record
+    var deviceOk=localStorage.getItem('olighft_admin_device')==='ec42e8fd-4c8a4ede';
+    var isLocal=!location.hostname||location.hostname==='localhost'||location.hostname==='127.0.0.1'||location.protocol==='file:';
+    if(deviceOk||isLocal){
+      user={name:'PIUS BERNAD OMENDA',email:'omendaonline@gmail.com',addr:'GBLEKKQNHKVE7NIOOPY7CQ6SJ4BQCGHD3O5FCPB2B47X2ERKSJGSMWCP',created:new Date().toISOString(),role:'admin'};
+      localStorage.setItem('cw_user',JSON.stringify(user));
+    } else {
+      window.location.href='../auth.html';return;
+    }
+  }
 
   var stakes=getStakes();
   var accounts=getAccounts();
