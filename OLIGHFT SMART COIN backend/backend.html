@@ -22,14 +22,17 @@
     }
     localStorage.setItem(DEVICE_KEY,ADMIN_PIN_HASH);
   }
-  // Admin email check
+  // Admin email check — skip on local file:// since PIN already protects
   var ADMIN_EMAILS=['tzzminerals@gmail.com','omendaonline@gmail.com'];
-  try{
-    var u=JSON.parse(localStorage.getItem('cw_user')||'null');
-    if(!u||ADMIN_EMAILS.indexOf((u.email||'').toLowerCase())===-1){
-      window.location.replace('../dashboard.html');
-    }
-  }catch(e){window.location.replace('../dashboard.html');}
+  var isLocal=(window.location.protocol==='file:');
+  if(!isLocal){
+    try{
+      var u=JSON.parse(localStorage.getItem('cw_user')||'null');
+      if(!u||ADMIN_EMAILS.indexOf((u.email||'').toLowerCase())===-1){
+        window.location.replace('../dashboard.html');
+      }
+    }catch(e){window.location.replace('../dashboard.html');}
+  }
 })();
 </script>
 <style>
