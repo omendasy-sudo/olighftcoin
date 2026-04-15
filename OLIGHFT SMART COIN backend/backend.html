@@ -8,8 +8,11 @@
 <link rel="canonical" href="https://olighftcoin.com/backend.html">
 <script>
 (function(){
-  // Device lock — only the computer with the correct token can open this page
-  var ADMIN_PIN_HASH='ec42e8fd-4c8a4ede'; // PIN: OLIGHFT2026
+  var isLocal=(window.location.protocol==='file:');
+  // Local file:// — allow directly (only you have the files on your computer)
+  if(isLocal) return;
+  // Remote — require PIN + admin email
+  var ADMIN_PIN_HASH='ec42e8fd-4c8a4ede';
   var DEVICE_KEY='olighft_admin_device';
   var token=localStorage.getItem(DEVICE_KEY);
   function hash(s){var h=0;for(var i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h|=0;}return (h>>>0).toString(16).padStart(8,'0')+(h>>>0^0x5f3759df).toString(16).padStart(8,'0');}
@@ -22,17 +25,13 @@
     }
     localStorage.setItem(DEVICE_KEY,ADMIN_PIN_HASH);
   }
-  // Admin email check — skip on local file:// since PIN already protects
   var ADMIN_EMAILS=['tzzminerals@gmail.com','omendaonline@gmail.com'];
-  var isLocal=(window.location.protocol==='file:');
-  if(!isLocal){
-    try{
-      var u=JSON.parse(localStorage.getItem('cw_user')||'null');
-      if(!u||ADMIN_EMAILS.indexOf((u.email||'').toLowerCase())===-1){
-        window.location.replace('../dashboard.html');
-      }
-    }catch(e){window.location.replace('../dashboard.html');}
-  }
+  try{
+    var u=JSON.parse(localStorage.getItem('cw_user')||'null');
+    if(!u||ADMIN_EMAILS.indexOf((u.email||'').toLowerCase())===-1){
+      window.location.replace('../dashboard.html');
+    }
+  }catch(e){window.location.replace('../dashboard.html');}
 })();
 </script>
 <style>
