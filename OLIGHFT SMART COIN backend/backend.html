@@ -492,6 +492,11 @@ function getStakes(){return JSON.parse(localStorage.getItem('card_stakes')||'[]'
 function getSendTxs(){return JSON.parse(localStorage.getItem('send_txs')||'[]');}
 function getSwapTxs(){return JSON.parse(localStorage.getItem('swap_txs')||'[]');}
 function getAdminDeposits(){return JSON.parse(localStorage.getItem('cw_admin_deposits')||'[]');}
+function getWalletStakesAdmin(){return JSON.parse(localStorage.getItem('wallet_stakes')||'[]');}
+function getAllStakes(){var cs=getStakes(),ws=getWalletStakesAdmin(),ids={};cs.forEach(function(s){ids[s.id]=true;});var all=cs.slice();ws.forEach(function(s){if(!ids[s.id])all.push(s);});return all;}
+function stakeEndTs(s){var days=s.period||s.lockDays||0;return new Date(s.date||s.startDate).getTime()+(days*86400000);}
+function isExpired(s){return !s.withdrawn && (s.period||s.lockDays||0)>0 && Date.now()>=stakeEndTs(s);}
+function stakePayout(s){return s.payout||(s.dailyReward?(s.dailyReward*(s.lockDays||s.period||0)):0);}
 function getAccounts(){try{const r=localStorage.getItem('cw_accounts');return r?JSON.parse(atob(r)):[];}catch(e){return[];}}
 function getUser(){return JSON.parse(localStorage.getItem('cw_user')||'null');}
 function getMsConfig(){return JSON.parse(localStorage.getItem('cw_multisig')||'null');}
@@ -550,13 +555,15 @@ function renderDashboard(){
   var cfg=JSON.parse(localStorage.getItem('olighft_wallet_config')||'{}');
   var mainW=cfg.mainWallet||'GBLEKKQNHKVE7NIOOPY7CQ6SJ4BQCGHD3O5FCPB2B47X2ERKSJGSMWCP';
   var feeW=cfg.feeWallet||'';
-  var witW=cfg.withdrawWallet||'';
+  var witW=cfg.withdrawWallet||'GBLEKKQNHKVE7NIOOPY7CQ6SJ4BQCGHD3O5FCPB2B47X2ERKSJGSMWCP';
   var totalFees=0,admin60=0,pendingWithdraw=0,expiredCount=0;
+  var allStakes=getAllStakes();
   stakes.forEach(function(s){
     totalFees+=s.fee||0;
     admin60+=s.split&&s.split.adminUSD?s.split.adminUSD:(s.fee||0)*0.6;
-    var end=new Date(s.date).getTime()+((s.period||0)*86400000);
-    if(Date.now()>=end){expiredCount++;pendingWithdraw+=s.payout||0;}
+  });
+  allStakes.forEach(function(s){
+    if(isExpired(s)){expiredCount++;pendingWithdraw+=stakePayout(s);}
   });
   function wCard(icon,label,addr,color,sub){
     var sh=addr?(addr.slice(0,8)+'...'+addr.slice(-8)):'<span style="color:#eb5757">Not configured</span>';
@@ -1023,7 +1030,7 @@ function loadWalletConfig(){
   var cfg=JSON.parse(localStorage.getItem('olighft_wallet_config')||'{}');
   document.getElementById('cfgMainWallet').value=cfg.mainWallet||'GBLEKKQNHKVE7NIOOPY7CQ6SJ4BQCGHD3O5FCPB2B47X2ERKSJGSMWCP';
   document.getElementById('cfgFeeWallet').value=cfg.feeWallet||'';
-  document.getElementById('cfgWithdrawWallet').value=cfg.withdrawWallet||'';
+  document.getElementById('cfgWithdrawWallet').value=cfg.withdrawWallet||'GBLEKKQNHKVE7NIOOPY7CQ6SJ4BQCGHD3O5FCPB2B47X2ERKSJGSMWCP';
   updateWalletSummary(cfg);
 }
 
@@ -1032,8 +1039,9 @@ function updateWalletSummary(cfg){
   var stakes=getStakes();
   var totalFees=0,admin60=0;
   stakes.forEach(function(s){totalFees+=s.fee||0;admin60+=s.split&&s.split.adminUSD?s.split.adminUSD:(s.fee||0)*0.6;});
-  var expired=stakes.filter(function(s){var end=new Date(s.date).getTime()+((s.period||0)*86400000);return Date.now()>=end;});
-  var pendingPayout=0;expired.forEach(function(s){pendingPayout+=s.payout||0;});
+  var allSt=getAllStakes();
+  var expired=allSt.filter(function(s){return isExpired(s);});
+  var pendingPayout=0;expired.forEach(function(s){pendingPayout+=stakePayout(s);});
   document.getElementById('walletConfigSummary').innerHTML=
     '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">'+
     '<div>Main Wallet: <b style="color:#818cf8">'+short(cfg.mainWallet||'GBLEKKQNHKVE7NIOOPY7CQ6SJ4BQCGHD3O5FCPB2B47X2ERKSJGSMWCP')+'</b></div>'+
@@ -1056,7 +1064,7 @@ function copyField(id){
 // ── Data Management ──
 function exportData(){
   const data={};
-  ['cw_user','cw_accounts','cw_active_idx','cw_security','cw_multisig','cw_balances','card_stakes','send_txs','swap_txs','olighft_remaining_supply'].forEach(k=>{
+  ['cw_user','cw_accounts','cw_active_idx','cw_security','cw_multisig','cw_balances','card_stakes','wallet_stakes','cw_admin_deposits','send_txs','swap_txs','olighft_remaining_supply'].forEach(k=>{
     const v=localStorage.getItem(k);
     if(v!==null)data[k]=v;
   });
