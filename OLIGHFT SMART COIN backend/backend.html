@@ -247,15 +247,74 @@ table tr:hover td{background:rgba(99,102,241,.03)}
 
 <!-- ═══ TRANSACTIONS ═══ -->
 <div class="panel" id="panel-transactions">
-<h2>&#x1F4CB; Transaction History</h2>
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+<h2>&#x1F4CB; Transaction Workflow</h2>
+
+<!-- Transaction Stats -->
+<div class="stats" id="txStats"></div>
+
+<!-- Transaction Flow Visual -->
+<div class="table-card" style="margin-bottom:20px">
+<div class="table-head"><h3>&#x1F500; Transaction Flow</h3><div class="badge">LIVE</div></div>
+<div id="txFlowVisual" style="padding:18px;display:flex;flex-wrap:wrap;gap:10px;justify-content:center"></div>
+</div>
+
+<!-- Filter Tabs -->
+<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px" id="txFilterTabs">
+<button class="act-btn" onclick="filterTx('all')" id="txf-all" style="background:linear-gradient(135deg,#6c5ce7,#818cf8)">All</button>
+<button class="act-btn" onclick="filterTx('send')" id="txf-send">&#x1F4E4; Sends</button>
+<button class="act-btn" onclick="filterTx('swap')" id="txf-swap">&#x1F504; Swaps</button>
+<button class="act-btn" onclick="filterTx('stake')" id="txf-stake">&#x1F4C8; Stakes</button>
+<button class="act-btn" onclick="filterTx('deposit')" id="txf-deposit">&#x1F4E5; Deposits</button>
+<button class="act-btn" onclick="filterTx('compound')" id="txf-compound">&#x1F504; Compounds</button>
+<button class="act-btn" onclick="filterTx('withdraw')" id="txf-withdraw">&#x1F4B0; Withdrawals</button>
+<button class="act-btn" onclick="filterTx('gen')" id="txf-gen">&#x1F333; Gen Commissions</button>
+</div>
+
+<!-- Unified Transaction Timeline -->
+<div class="table-card">
+<div class="table-head"><h3>&#x1F4DC; Unified Transaction Timeline</h3><div class="badge" id="txTimelineCount">0</div></div>
+<table><thead><tr><th>Type</th><th>Detail</th><th>Amount</th><th>Status</th><th>Time</th></tr></thead><tbody id="txTimelineBody"></tbody></table>
+<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 18px;border-top:1px solid rgba(255,255,255,.04)">
+<div style="font-size:.75rem;font-weight:700;color:#818cf8" id="txTimelineInfo">Showing all transactions</div>
+<div style="display:flex;gap:6px">
+<button class="act-btn" onclick="txTimelinePage(-1)" style="font-size:.65rem;padding:4px 10px">&#x25C0; Prev</button>
+<span id="txPageInfo" style="font-size:.7rem;color:rgba(255,255,255,.4);padding:4px 8px"></span>
+<button class="act-btn" onclick="txTimelinePage(1)" style="font-size:.65rem;padding:4px 10px">Next &#x25B6;</button>
+</div>
+</div>
+</div>
+
+<!-- Detailed Tables -->
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px">
 <div class="table-card">
 <div class="table-head"><h3>&#x1F4E4; Send Transactions</h3><div class="badge" id="sendTxCount">0</div></div>
-<table><thead><tr><th>To</th><th>Token</th><th>Amount</th><th>Hash</th><th>Time</th></tr></thead><tbody id="sendTxBody"></tbody></table>
+<table><thead><tr><th>To</th><th>Token</th><th>Amount</th><th>On-Chain</th><th>Hash</th><th>Time</th></tr></thead><tbody id="sendTxBody"></tbody></table>
 </div>
 <div class="table-card">
 <div class="table-head"><h3>&#x1F504; Swap Transactions</h3><div class="badge" id="swapTxCount">0</div></div>
-<table><thead><tr><th>From</th><th>To</th><th>Amount</th><th>Hash</th><th>Time</th></tr></thead><tbody id="swapTxBody"></tbody></table>
+<table><thead><tr><th>From</th><th>To</th><th>Amount</th><th>Impact</th><th>Hash</th><th>Time</th></tr></thead><tbody id="swapTxBody"></tbody></table>
+</div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px">
+<div class="table-card">
+<div class="table-head"><h3>&#x1F4C8; Stake Activations</h3><div class="badge" id="stakeTxCount">0</div></div>
+<table><thead><tr><th>Card</th><th>Stake</th><th>Fee</th><th>Period</th><th>Payout</th><th>Date</th></tr></thead><tbody id="stakeTxBody"></tbody></table>
+</div>
+<div class="table-card">
+<div class="table-head"><h3>&#x1F504; Compound Events</h3><div class="badge" id="compoundTxCount">0</div></div>
+<table><thead><tr><th>Detail</th><th>Amount</th><th>Time</th></tr></thead><tbody id="compoundTxBody"></tbody></table>
+</div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px">
+<div class="table-card">
+<div class="table-head"><h3>&#x1F4B0; Withdrawal Events</h3><div class="badge" id="withdrawTxCount">0</div></div>
+<table><thead><tr><th>Detail</th><th>Amount</th><th>Time</th></tr></thead><tbody id="withdrawTxBody"></tbody></table>
+</div>
+<div class="table-card">
+<div class="table-head"><h3>&#x1F333; Gen Commission Events</h3><div class="badge" id="genTxCount">0</div></div>
+<table><thead><tr><th>Detail</th><th>Amount</th><th>Time</th></tr></thead><tbody id="genTxBody"></tbody></table>
 </div>
 </div>
 </div>
@@ -748,19 +807,184 @@ function renderStakes(){
 }
 
 // ── Transactions ──
+// ── Transactions Workflow ──
+var _txFilter='all';
+var _txPage=0;
+var _txPageSize=25;
+var _txAllItems=[];
+
+function buildAllTxItems(){
+  var items=[];
+  // Sends
+  var sends=getSendTxs();
+  sends.forEach(function(tx){
+    items.push({cat:'send',icon:'\uD83D\uDCE4',type:'Send',detail:(tx.amount||0)+' '+(tx.token||'OLIGHFT')+' to '+shortAddr(tx.to||''),amt:'-'+(tx.amount||0)+' '+(tx.token||'OLIGHFT'),cls:'red',ts:tx.time||0,hash:tx.hash,onChain:tx.onChain});
+  });
+  // Swaps
+  var swaps=getSwapTxs();
+  swaps.forEach(function(tx){
+    items.push({cat:'swap',icon:'\uD83D\uDD04',type:'Swap',detail:(tx.fromAmt||0)+' '+(tx.from||'?')+' \u2192 '+(tx.toAmt||'?')+' '+(tx.to||'?'),amt:'+'+(tx.toAmt||0)+' '+(tx.to||''),cls:'green',ts:tx.time||0,hash:tx.hash,impact:tx.priceImpact});
+  });
+  // Stakes
+  var stakes=getStakes();
+  stakes.forEach(function(s){
+    items.push({cat:'stake',icon:'\uD83D\uDCC8',type:'Stake',detail:(s.card||'Card')+' $'+(s.stake||0)+' \u00B7 '+(s.period||s.lockDays||0)+'d \u00B7 Payout $'+(s.payout||0),amt:'-$'+(s.stake||0),cls:'red',ts:new Date(s.date||s.startDate).getTime()||0});
+  });
+  // Deposits (fee wallet)
+  var deps=getAdminDeposits();
+  deps.forEach(function(d){
+    var src=d.source||'';var typ='Fee Deposit';
+    if(src.startsWith('stake_')||src.startsWith('card_stake_'))typ='60% Activation';
+    else if(src==='service_fee'||src==='service_fee_auto')typ='Service Fee';
+    else if(src==='compound_fee')typ='Compound Fee';
+    else if(src.startsWith('unclaimed_gen_'))typ='Unclaimed Gen';
+    items.push({cat:'deposit',icon:'\uD83D\uDCE5',type:typ,detail:'$'+(d.usd||0).toFixed(2)+' \u00B7 '+(d.amount||0).toFixed(2)+' OLI'+(d.onChain?' \u00B7 On-chain \u2713':''),amt:'+$'+(d.usd||0).toFixed(2),cls:'gold',ts:d.ts||new Date(d.date).getTime()||0,hash:d.txHash,onChain:d.onChain});
+  });
+  // Activity log (compounds, withdrawals, gen commissions)
+  var activity=[];
+  try{activity=JSON.parse(localStorage.getItem('cw_activity')||'[]');}catch(e){}
+  activity.forEach(function(a){
+    var t=(a.type||'').toLowerCase();
+    if(t==='compounded'){
+      items.push({cat:'compound',icon:'\uD83D\uDD04',type:'Compound',detail:a.detail||'',amt:a.amt||'',cls:'green',ts:a.ts||0});
+    }else if(t==='auto-withdraw'||t==='unstaked'||t==='withdrawn'){
+      items.push({cat:'withdraw',icon:'\uD83D\uDCB0',type:a.type||'Withdraw',detail:a.detail||'',amt:a.amt||'',cls:'green',ts:a.ts||0});
+    }
+  });
+  // Tx notifications (for gen commissions and any missed)
+  var notifs=[];
+  try{notifs=JSON.parse(localStorage.getItem('cw_tx_notifications')||'[]');}catch(e){}
+  var seen={};items.forEach(function(i){if(i.ts)seen[i.type+'_'+i.ts]=true;});
+  notifs.forEach(function(n){
+    var t=(n.type||'').toLowerCase();
+    var key=(n.type||'')+'_'+(n.ts||0);
+    if(seen[key])return;
+    if(t.indexOf('gen')>=0||t==='referral'||t==='commission'){
+      items.push({cat:'gen',icon:'\uD83C\uDF33',type:n.type||'Gen Commission',detail:n.detail||'',amt:n.amt||'',cls:'green',ts:n.ts||0});
+    }
+  });
+  items.sort(function(a,b){return(b.ts||0)-(a.ts||0);});
+  return items;
+}
+
+function filterTx(cat){
+  _txFilter=cat;_txPage=0;
+  document.querySelectorAll('#txFilterTabs .act-btn').forEach(function(b){b.style.background='';});
+  var btn=document.getElementById('txf-'+cat);
+  if(btn)btn.style.background='linear-gradient(135deg,#6c5ce7,#818cf8)';
+  renderTxTimeline();
+}
+
+function txTimelinePage(dir){
+  var filtered=_txFilter==='all'?_txAllItems:_txAllItems.filter(function(i){return i.cat===_txFilter;});
+  var maxPage=Math.max(0,Math.ceil(filtered.length/_txPageSize)-1);
+  _txPage=Math.max(0,Math.min(maxPage,_txPage+dir));
+  renderTxTimeline();
+}
+
+function renderTxTimeline(){
+  var filtered=_txFilter==='all'?_txAllItems:_txAllItems.filter(function(i){return i.cat===_txFilter;});
+  var start=_txPage*_txPageSize;
+  var page=filtered.slice(start,start+_txPageSize);
+  var maxPage=Math.max(0,Math.ceil(filtered.length/_txPageSize)-1);
+
+  document.getElementById('txTimelineCount').textContent=filtered.length;
+  document.getElementById('txTimelineInfo').textContent='Showing '+(_txFilter==='all'?'all':_txFilter)+' transactions ('+filtered.length+')';
+  document.getElementById('txPageInfo').textContent='Page '+(_txPage+1)+' / '+(maxPage+1);
+
+  var catColors={send:'#eb5757',swap:'#27ae60',stake:'#818cf8',deposit:'#f5c518',compound:'#6c5ce7',withdraw:'#27ae60',gen:'#ff9f43'};
+  document.getElementById('txTimelineBody').innerHTML=page.map(function(tx){
+    var clr=catColors[tx.cat]||'#aaa';
+    var d=tx.ts?new Date(tx.ts).toLocaleString():'-';
+    var status=tx.onChain?'<span style="color:#27ae60">\u2713 On-chain</span>':'<span style="color:rgba(255,255,255,.3)">Local</span>';
+    if(tx.hash)status+=' <span style="font-size:.65rem;color:rgba(255,255,255,.2)">'+shortAddr(tx.hash)+'</span>';
+    return '<tr><td style="font-weight:700;color:'+clr+'">'+tx.icon+' '+tx.type+'</td><td style="font-size:.75rem">'+tx.detail+'</td><td style="font-weight:700;color:'+(tx.cls==='red'?'#eb5757':tx.cls==='gold'?'#f5c518':'#27ae60')+'">'+tx.amt+'</td><td style="font-size:.72rem">'+status+'</td><td style="font-size:.72rem">'+d+'</td></tr>';
+  }).join('')||'<tr><td colspan="5" style="text-align:center;color:rgba(255,255,255,.2)">No transactions found</td></tr>';
+}
+
 function renderTransactions(){
-  const sends=getSendTxs();
-  const swaps=getSwapTxs();
+  _txAllItems=buildAllTxItems();
+  var sends=getSendTxs();
+  var swaps=getSwapTxs();
+  var stakes=getStakes();
+  var deps=getAdminDeposits();
+  var activity=[];try{activity=JSON.parse(localStorage.getItem('cw_activity')||'[]');}catch(e){}
+  var compounds=activity.filter(function(a){return(a.type||'').toLowerCase()==='compounded';});
+  var withdrawals=activity.filter(function(a){var t=(a.type||'').toLowerCase();return t==='auto-withdraw'||t==='unstaked'||t==='withdrawn';});
+  var genItems=_txAllItems.filter(function(i){return i.cat==='gen';});
 
+  var totalVolume=0;
+  sends.forEach(function(tx){totalVolume+=parseFloat(tx.amount)||0;});
+  stakes.forEach(function(s){totalVolume+=(s.stake||0)+(s.fee||0);});
+  deps.forEach(function(d){totalVolume+=(d.usd||0);});
+
+  // Stats
+  document.getElementById('txStats').innerHTML=
+    '<div class="stat-card"><div class="sc-label">Total Transactions</div><div class="sc-val sc-purple">'+_txAllItems.length+'</div><div class="sc-sub">All types combined</div></div>'+
+    '<div class="stat-card"><div class="sc-label">Sends / Swaps</div><div class="sc-val sc-red">'+sends.length+' / '+swaps.length+'</div><div class="sc-sub">Token transfers</div></div>'+
+    '<div class="stat-card"><div class="sc-label">Stakes / Deposits</div><div class="sc-val sc-gold">'+stakes.length+' / '+deps.length+'</div><div class="sc-sub">Activations + fee deposits</div></div>'+
+    '<div class="stat-card"><div class="sc-label">Compounds / Withdrawals</div><div class="sc-val sc-green">'+compounds.length+' / '+withdrawals.length+'</div><div class="sc-sub">Auto-compound + payouts</div></div>';
+
+  // Flow visual
+  var flowData=[
+    {icon:'\uD83D\uDCE4',label:'Sends',count:sends.length,color:'#eb5757'},
+    {icon:'\uD83D\uDD04',label:'Swaps',count:swaps.length,color:'#6c5ce7'},
+    {icon:'\uD83D\uDCC8',label:'Stakes',count:stakes.length,color:'#818cf8'},
+    {icon:'\uD83D\uDCE5',label:'Deposits',count:deps.length,color:'#f5c518'},
+    {icon:'\uD83D\uDD04',label:'Compounds',count:compounds.length,color:'#a29bfe'},
+    {icon:'\uD83D\uDCB0',label:'Withdrawals',count:withdrawals.length,color:'#27ae60'},
+    {icon:'\uD83C\uDF33',label:'Gen Comm.',count:genItems.length,color:'#ff9f43'}
+  ];
+  document.getElementById('txFlowVisual').innerHTML=flowData.map(function(f,i){
+    return '<div style="text-align:center;min-width:80px;padding:10px 14px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:10px;cursor:pointer" onclick="filterTx(\''+['send','swap','stake','deposit','compound','withdraw','gen'][i]+'\')">'+
+      '<div style="font-size:1.4rem">'+f.icon+'</div>'+
+      '<div style="font-size:1.1rem;font-weight:800;color:'+f.color+'">'+f.count+'</div>'+
+      '<div style="font-size:.65rem;color:rgba(255,255,255,.4)">'+f.label+'</div>'+
+    '</div>'+(i<flowData.length-1?'<div style="color:rgba(255,255,255,.15);font-size:1.2rem;align-self:center">\u2192</div>':'');
+  }).join('');
+
+  // Unified timeline
+  renderTxTimeline();
+
+  // Send details
   document.getElementById('sendTxCount').textContent=sends.length;
-  document.getElementById('sendTxBody').innerHTML=sends.map(tx=>{
-    return '<tr><td class="addr">'+shortAddr(tx.to)+'</td><td>'+tx.token+'</td><td>'+tx.amount+'</td><td class="addr">'+shortAddr(tx.hash)+'</td><td>'+timeAgo(tx.time)+'</td></tr>';
-  }).join('')||'<tr><td colspan="5" style="text-align:center;color:rgba(255,255,255,.2)">No sends</td></tr>';
+  document.getElementById('sendTxBody').innerHTML=sends.map(function(tx){
+    return '<tr><td class="addr">'+shortAddr(tx.to)+'</td><td>'+tx.token+'</td><td>'+tx.amount+'</td><td>'+(tx.onChain?'<span style="color:#27ae60">\u2713</span>':'<span style="color:rgba(255,255,255,.2)">\u2717</span>')+'</td><td class="addr">'+shortAddr(tx.hash)+'</td><td>'+timeAgo(tx.time)+'</td></tr>';
+  }).join('')||'<tr><td colspan="6" style="text-align:center;color:rgba(255,255,255,.2)">No sends</td></tr>';
 
+  // Swap details
   document.getElementById('swapTxCount').textContent=swaps.length;
-  document.getElementById('swapTxBody').innerHTML=swaps.map(tx=>{
-    return '<tr><td>'+tx.from+'</td><td>'+tx.to+'</td><td>'+tx.fromAmt+' &rarr; '+(tx.toAmt||'?')+'</td><td class="addr">'+shortAddr(tx.hash)+'</td><td>'+timeAgo(tx.time)+'</td></tr>';
-  }).join('')||'<tr><td colspan="5" style="text-align:center;color:rgba(255,255,255,.2)">No swaps</td></tr>';
+  document.getElementById('swapTxBody').innerHTML=swaps.map(function(tx){
+    return '<tr><td>'+tx.from+'</td><td>'+tx.to+'</td><td>'+tx.fromAmt+' \u2192 '+(tx.toAmt||'?')+'</td><td style="font-size:.72rem">'+(tx.priceImpact?tx.priceImpact+'%':'-')+'</td><td class="addr">'+shortAddr(tx.hash)+'</td><td>'+timeAgo(tx.time)+'</td></tr>';
+  }).join('')||'<tr><td colspan="6" style="text-align:center;color:rgba(255,255,255,.2)">No swaps</td></tr>';
+
+  // Stake activations
+  document.getElementById('stakeTxCount').textContent=stakes.length;
+  document.getElementById('stakeTxBody').innerHTML=stakes.slice(0,20).map(function(s){
+    var d=new Date(s.date||s.startDate).toLocaleDateString();
+    return '<tr><td style="font-weight:600">'+(s.card||'-')+'</td><td>$'+(s.stake||0)+'</td><td style="color:#eb5757">$'+(s.fee||0)+'</td><td>'+(s.period||s.lockDays||0)+'d</td><td style="color:#27ae60;font-weight:700">$'+(s.payout||0)+'</td><td>'+d+'</td></tr>';
+  }).join('')||'<tr><td colspan="6" style="text-align:center;color:rgba(255,255,255,.2)">No stakes</td></tr>';
+
+  // Compounds
+  document.getElementById('compoundTxCount').textContent=compounds.length;
+  document.getElementById('compoundTxBody').innerHTML=compounds.slice(0,20).map(function(a){
+    var d=a.ts?new Date(a.ts).toLocaleString():(a.time||'-');
+    return '<tr><td style="font-size:.75rem">'+(a.detail||'-')+'</td><td style="font-weight:700;color:#27ae60">'+(a.amt||'-')+'</td><td>'+d+'</td></tr>';
+  }).join('')||'<tr><td colspan="3" style="text-align:center;color:rgba(255,255,255,.2)">No compounds</td></tr>';
+
+  // Withdrawals
+  document.getElementById('withdrawTxCount').textContent=withdrawals.length;
+  document.getElementById('withdrawTxBody').innerHTML=withdrawals.slice(0,20).map(function(a){
+    var d=a.ts?new Date(a.ts).toLocaleString():(a.time||'-');
+    return '<tr><td style="font-size:.75rem">'+(a.detail||'-')+'</td><td style="font-weight:700;color:#27ae60">'+(a.amt||'-')+'</td><td>'+d+'</td></tr>';
+  }).join('')||'<tr><td colspan="3" style="text-align:center;color:rgba(255,255,255,.2)">No withdrawals</td></tr>';
+
+  // Gen commissions
+  document.getElementById('genTxCount').textContent=genItems.length;
+  document.getElementById('genTxBody').innerHTML=genItems.slice(0,20).map(function(a){
+    var d=a.ts?new Date(a.ts).toLocaleString():'-';
+    return '<tr><td style="font-size:.75rem">'+(a.detail||'-')+'</td><td style="font-weight:700;color:#ff9f43">'+(a.amt||'-')+'</td><td>'+d+'</td></tr>';
+  }).join('')||'<tr><td colspan="3" style="text-align:center;color:rgba(255,255,255,.2)">No gen commissions</td></tr>';
 }
 
 // ── Referrals ──
