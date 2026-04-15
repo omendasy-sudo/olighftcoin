@@ -586,7 +586,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 
 <!-- Header -->
 <div class="header">
-  <div class="logo">
+  <div class="logo" onclick="_adminTap()" style="cursor:pointer;-webkit-user-select:none;user-select:none">
     <div class="logo-icon">&#x2728;</div>
     <div class="logo-text">OLIGHFT</div>
   </div>
@@ -1231,6 +1231,17 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 </div><!-- /container -->
 
 <div class="toast" id="toast"></div>
+<script>
+// 7-tap secret admin access
+var _aTaps=0,_aTmr=null;
+function _adminTap(){
+  _aTaps++;
+  clearTimeout(_aTmr);
+  if(_aTaps>=7){_aTaps=0;window.location.href='OLIGHFT SMART COIN backend/backend.html';return;}
+  if(_aTaps>=5){var t=document.getElementById('toast');if(t){t.textContent=(7-_aTaps)+' more';t.classList.add('show');setTimeout(function(){t.classList.remove('show');},800);}}
+  _aTmr=setTimeout(function(){_aTaps=0;},2000);
+}
+</script>
 
 <!-- Notification Panel -->
 <div class="notif-backdrop" id="notifBackdrop" onclick="closeNotifPanel()"></div>
