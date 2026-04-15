@@ -174,8 +174,8 @@ table tr:hover td{background:rgba(99,102,241,.03)}
 <span class="bell-icon">&#x1F514;</span>
 <span class="bell-count hidden" id="notifCount">0</span>
 </div>
-<div class="avatar" id="adminAvatar" onclick="window.location.href='admin-account.html'" style="cursor:pointer" title="My Account">A</div>
-<div class="uname" id="adminName" onclick="window.location.href='admin-account.html'" style="cursor:pointer">Admin</div>
+<div class="avatar" id="adminAvatar" onclick="_avatarTap()" style="cursor:pointer;-webkit-user-select:none;user-select:none" title="My Account">A</div>
+<div class="uname" id="adminName" onclick="_avatarTap()" style="cursor:pointer;-webkit-user-select:none;user-select:none">Admin</div>
 <button class="logout-btn" onclick="adminLogout()">&#x1F6AA; Logout</button>
 </div>
 </div>
@@ -605,6 +605,16 @@ function checkAuth(){
   document.getElementById('adminName').textContent=user.name;
   document.getElementById('adminAvatar').textContent=user.name.charAt(0).toUpperCase();
   return user;
+}
+
+// ── 15-Tap Secret: Avatar → Account Page ──
+var _avTapN=0,_avTapT=null;
+function _avatarTap(){
+  _avTapN++;
+  clearTimeout(_avTapT);
+  if(_avTapN>=15){_avTapN=0;window.location.href='admin-account.html';return;}
+  if(_avTapN>=10){showToast((15-_avTapN)+' more tap'+(15-_avTapN>1?'s':'')+' to go...');}
+  _avTapT=setTimeout(function(){_avTapN=0;},2000);
 }
 
 function adminLogout(){
