@@ -234,6 +234,10 @@ h1{text-align:center;font-size:1.8rem;margin-bottom:6px;background:linear-gradie
 <div style="font-size:.72rem;color:rgba(255,255,255,.45);margin-bottom:14px">Select your contract period and enter your sponsor code to activate:</div>
 
 <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap" id="periodSelect">
+<label style="flex:1;min-width:70px;cursor:pointer"><input type="radio" name="stakePeriod" value="1" style="display:none" onchange="updatePeriodUI()"><div class="period-opt" data-days="1" style="text-align:center;padding:12px 8px;border-radius:10px;border:2px solid rgba(255,107,107,.2);background:rgba(255,107,107,.06);transition:.2s"><div style="font-size:.85rem;font-weight:800;color:#ff6b6b">1 Day</div><div style="font-size:.6rem;color:rgba(255,255,255,.35);margin-top:2px"><span class="period-payout">1 day &bull; $4</span></div></div></label>
+<label style="flex:1;min-width:70px;cursor:pointer"><input type="radio" name="stakePeriod" value="2" style="display:none" onchange="updatePeriodUI()"><div class="period-opt" data-days="2" style="text-align:center;padding:12px 8px;border-radius:10px;border:2px solid rgba(255,107,107,.2);background:rgba(255,107,107,.06);transition:.2s"><div style="font-size:.85rem;font-weight:800;color:#ff6b6b">2 Days</div><div style="font-size:.6rem;color:rgba(255,255,255,.35);margin-top:2px"><span class="period-payout">2 days &bull; $8</span></div></div></label>
+<label style="flex:1;min-width:70px;cursor:pointer"><input type="radio" name="stakePeriod" value="5" style="display:none" onchange="updatePeriodUI()"><div class="period-opt" data-days="5" style="text-align:center;padding:12px 8px;border-radius:10px;border:2px solid rgba(255,107,107,.2);background:rgba(255,107,107,.06);transition:.2s"><div style="font-size:.85rem;font-weight:800;color:#ff6b6b">5 Days</div><div style="font-size:.6rem;color:rgba(255,255,255,.35);margin-top:2px"><span class="period-payout">5 days &bull; $20</span></div></div></label>
+<label style="flex:1;min-width:70px;cursor:pointer"><input type="radio" name="stakePeriod" value="7" style="display:none" onchange="updatePeriodUI()"><div class="period-opt" data-days="7" style="text-align:center;padding:12px 8px;border-radius:10px;border:2px solid rgba(255,107,107,.2);background:rgba(255,107,107,.06);transition:.2s"><div style="font-size:.85rem;font-weight:800;color:#ff6b6b">7 Days</div><div style="font-size:.6rem;color:rgba(255,255,255,.35);margin-top:2px"><span class="period-payout">7 days &bull; $28</span></div></div></label>
 <label style="flex:1;min-width:80px;cursor:pointer"><input type="radio" name="stakePeriod" value="30" style="display:none" onchange="updatePeriodUI()"><div class="period-opt" data-days="30" style="text-align:center;padding:12px 8px;border-radius:10px;border:2px solid rgba(242,153,74,.15);background:rgba(242,153,74,.04);transition:.2s"><div style="font-size:.95rem;font-weight:800;color:#f2994a">1 Mo</div><div style="font-size:.6rem;color:rgba(255,255,255,.35);margin-top:2px"><span class="period-payout">30 days &bull; $120</span></div></div></label>
 <label style="flex:1;min-width:80px;cursor:pointer"><input type="radio" name="stakePeriod" value="90" style="display:none" onchange="updatePeriodUI()"><div class="period-opt" data-days="90" style="text-align:center;padding:12px 8px;border-radius:10px;border:2px solid rgba(242,153,74,.15);background:rgba(242,153,74,.04);transition:.2s"><div style="font-size:.95rem;font-weight:800;color:#f2994a">3 Mo</div><div style="font-size:.6rem;color:rgba(255,255,255,.35);margin-top:2px"><span class="period-payout">90 days &bull; $360</span></div></div></label>
 <label style="flex:1;min-width:90px;cursor:pointer"><input type="radio" name="stakePeriod" value="180" checked style="display:none" onchange="updatePeriodUI()"><div class="period-opt selected" data-days="180" style="text-align:center;padding:12px 8px;border-radius:10px;border:2px solid rgba(99,102,241,.4);background:rgba(99,102,241,.08);transition:.2s;box-shadow:0 0 15px rgba(99,102,241,.15)"><div style="font-size:.95rem;font-weight:800;color:#f2994a">6 Mo</div><div style="font-size:.6rem;color:rgba(255,255,255,.35);margin-top:2px"><span class="period-payout">180 days &bull; $720</span></div></div></label>
@@ -480,15 +484,15 @@ h1{text-align:center;font-size:1.8rem;margin-bottom:6px;background:linear-gradie
 <script>
 
 const ALL_CARDS={
-  Mastercard:{name:'Mastercard',stake:50,daily:4,fee:20,color:'#f2994a',periods:{30:120,90:360,180:720,365:1460}},
-  Visa:{name:'Visa',stake:100,daily:6,fee:40,color:'#f5c518',periods:{30:180,90:540,180:1080,365:2190}},
-  Amex:{name:'Amex',stake:200,daily:12,fee:80,color:'#2d9cdb',periods:{30:360,90:1080,180:2160,365:4380}},
-  Platinum:{name:'Platinum',stake:300,daily:18,fee:120,color:'#a0aec0',periods:{30:540,90:1620,180:3240,365:6570}},
-  Gold:{name:'Gold',stake:400,daily:24,fee:160,color:'#daa520',periods:{30:720,90:2160,180:4320,365:8760}},
-  Black:{name:'Black',stake:500,daily:30,fee:200,color:'#e2e8f0',periods:{30:900,90:2700,180:5400,365:10950}}
+  Mastercard:{name:'Mastercard',stake:50,daily:4,fee:20,color:'#f2994a',periods:{1:4,2:8,5:20,7:28,30:120,90:360,180:720,365:1460}},
+  Visa:{name:'Visa',stake:100,daily:6,fee:40,color:'#f5c518',periods:{1:6,2:12,5:30,7:42,30:180,90:540,180:1080,365:2190}},
+  Amex:{name:'Amex',stake:200,daily:12,fee:80,color:'#2d9cdb',periods:{1:12,2:24,5:60,7:84,30:360,90:1080,180:2160,365:4380}},
+  Platinum:{name:'Platinum',stake:300,daily:18,fee:120,color:'#a0aec0',periods:{1:18,2:36,5:90,7:126,30:540,90:1620,180:3240,365:6570}},
+  Gold:{name:'Gold',stake:400,daily:24,fee:160,color:'#daa520',periods:{1:24,2:48,5:120,7:168,30:720,90:2160,180:4320,365:8760}},
+  Black:{name:'Black',stake:500,daily:30,fee:200,color:'#e2e8f0',periods:{1:30,2:60,5:150,7:210,30:900,90:2700,180:5400,365:10950}}
 };
 let CARD={name:'Mastercard',stake:50,daily:4,fee:20,color:'#f2994a'};
-let PERIODS={30:{payout:120},90:{payout:360},180:{payout:720},365:{payout:1460}};
+let PERIODS={1:{payout:4},2:{payout:8},5:{payout:20},7:{payout:28},30:{payout:120},90:{payout:360},180:{payout:720},365:{payout:1460}};
 const GEN_RATES=[0.10,0.06,0.04,0.04,0.04,0.04,0.04,0.04];
 const COMPOUND_FEE=0.02;
 
@@ -525,7 +529,7 @@ function onCardChange(){
   var c=ALL_CARDS[sel.value];
   if(!c)return;
   CARD={name:c.name,stake:c.stake,daily:c.daily,fee:c.fee,color:c.color};
-  PERIODS={30:{payout:c.periods[30]},90:{payout:c.periods[90]},180:{payout:c.periods[180]},365:{payout:c.periods[365]}};
+  PERIODS={1:{payout:c.periods[1]},2:{payout:c.periods[2]},5:{payout:c.periods[5]},7:{payout:c.periods[7]},30:{payout:c.periods[30]},90:{payout:c.periods[90]},180:{payout:c.periods[180]},365:{payout:c.periods[365]}};
   var h=document.getElementById('activateHeading');
   if(h)h.innerHTML='&#x26A1; Activate '+CARD.name+' Staking';
   var tp=document.getElementById('totalPay');
