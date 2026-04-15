@@ -554,7 +554,7 @@ function renderDashboard(){
   // Platform wallets on dashboard
   var cfg=JSON.parse(localStorage.getItem('olighft_wallet_config')||'{}');
   var mainW=cfg.mainWallet||'GBLEKKQNHKVE7NIOOPY7CQ6SJ4BQCGHD3O5FCPB2B47X2ERKSJGSMWCP';
-  var feeW=cfg.feeWallet||'';
+  var feeW=cfg.feeWallet||'GBLEKKQNHKVE7NIOOPY7CQ6SJ4BQCGHD3O5FCPB2B47X2ERKSJGSMWCP';
   var witW=cfg.withdrawWallet||'GBLEKKQNHKVE7NIOOPY7CQ6SJ4BQCGHD3O5FCPB2B47X2ERKSJGSMWCP';
   var totalFees=0,admin60=0,pendingWithdraw=0,expiredCount=0;
   var allStakes=getAllStakes();
@@ -1029,7 +1029,7 @@ function saveWalletConfig(){
 function loadWalletConfig(){
   var cfg=JSON.parse(localStorage.getItem('olighft_wallet_config')||'{}');
   document.getElementById('cfgMainWallet').value=cfg.mainWallet||'GBLEKKQNHKVE7NIOOPY7CQ6SJ4BQCGHD3O5FCPB2B47X2ERKSJGSMWCP';
-  document.getElementById('cfgFeeWallet').value=cfg.feeWallet||'';
+  document.getElementById('cfgFeeWallet').value=cfg.feeWallet||'GBLEKKQNHKVE7NIOOPY7CQ6SJ4BQCGHD3O5FCPB2B47X2ERKSJGSMWCP';
   document.getElementById('cfgWithdrawWallet').value=cfg.withdrawWallet||'GBLEKKQNHKVE7NIOOPY7CQ6SJ4BQCGHD3O5FCPB2B47X2ERKSJGSMWCP';
   updateWalletSummary(cfg);
 }
