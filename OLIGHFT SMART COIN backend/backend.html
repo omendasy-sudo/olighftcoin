@@ -244,6 +244,23 @@ table tr:hover td{background:rgba(99,102,241,.03)}
 <div class="table-head"><h3>&#x1F4CB; All Stake Fee Records</h3><div class="badge" id="feeRecordCount">0</div></div>
 <table><thead><tr><th>Card</th><th>Stake</th><th>Fee</th><th>Total Paid</th><th>Admin Share</th><th>Referral Pool</th><th>Sponsor</th><th>Date</th></tr></thead><tbody id="feeRecordsBody"></tbody></table>
 </div>
+
+<h2 style="margin-top:28px">&#x1F4E5; Fee Wallet Transactions</h2>
+<div class="stats" id="feeWalletStats"></div>
+
+<div class="table-card">
+<div class="table-head"><h3>&#x1F4B3; 60% Activation Deposits</h3><div class="badge" id="activationDepCount">0</div></div>
+<table><thead><tr><th>Source</th><th>Stake ID</th><th>Amount (OLI)</th><th>USD Value</th><th>On-Chain</th><th>TX Hash</th><th>Date</th></tr></thead><tbody id="activationDepsBody"></tbody></table>
+</div>
+
+<div class="table-card">
+<div class="table-head"><h3>&#x1F4CB; All Fee Wallet Deposits</h3><div class="badge" id="allDepCount">0</div></div>
+<table><thead><tr><th>Type</th><th>Source</th><th>Stake ID</th><th>Amount (OLI)</th><th>USD Value</th><th>On-Chain</th><th>TX Hash</th><th>Date</th></tr></thead><tbody id="allDepsBody"></tbody></table>
+<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 18px;border-top:1px solid rgba(255,255,255,.04)">
+<div style="font-size:.75rem;font-weight:700;color:#818cf8">Total Fee Wallet Value</div>
+<div style="font-size:.95rem;font-weight:800;color:#f5c518" id="totalFeeWalletVal">$0</div>
+</div>
+</div>
 </div>
 
 <!-- ═══ REFERRALS ═══ -->
@@ -474,6 +491,7 @@ function shortAddr(a){return a?a.slice(0,8)+'...'+a.slice(-4):'-';}
 function getStakes(){return JSON.parse(localStorage.getItem('card_stakes')||'[]');}
 function getSendTxs(){return JSON.parse(localStorage.getItem('send_txs')||'[]');}
 function getSwapTxs(){return JSON.parse(localStorage.getItem('swap_txs')||'[]');}
+function getAdminDeposits(){return JSON.parse(localStorage.getItem('cw_admin_deposits')||'[]');}
 function getAccounts(){try{const r=localStorage.getItem('cw_accounts');return r?JSON.parse(atob(r)):[];}catch(e){return[];}}
 function getUser(){return JSON.parse(localStorage.getItem('cw_user')||'null');}
 function getMsConfig(){return JSON.parse(localStorage.getItem('cw_multisig')||'null');}
@@ -928,6 +946,56 @@ function renderFees(){
     const d=new Date(s.date).toLocaleDateString();
     return '<tr><td style="font-weight:600">'+s.card+'</td><td>$'+s.stake+'</td><td style="font-weight:700;color:#eb5757">$'+fee+'</td><td>$'+totalPaid+'</td><td style="color:#f5c518">$'+adminUSD+'</td><td style="color:#27ae60">'+refPool+' OLI</td><td>'+(s.sponsor||'-')+'</td><td>'+d+'</td></tr>';
   }).join('')||'<tr><td colspan="8" style="text-align:center;color:rgba(255,255,255,.2)">No stake records</td></tr>';
+
+  // ── Fee Wallet Deposits ──
+  const deps=getAdminDeposits();
+  const activationDeps=deps.filter(d=>d.source&&(d.source.startsWith('stake_')||d.source.startsWith('card_stake_')));
+  const serviceDeps=deps.filter(d=>d.source==='service_fee'||d.source==='service_fee_auto');
+  const compoundDeps=deps.filter(d=>d.source==='compound_fee');
+  const unclaimedDeps=deps.filter(d=>d.source&&d.source.startsWith('unclaimed_gen_'));
+  const onChainCount=deps.filter(d=>d.onChain).length;
+  const totalDepUSD=deps.reduce((s,d)=>s+(d.usd||0),0);
+  const actDepUSD=activationDeps.reduce((s,d)=>s+(d.usd||0),0);
+  const svcDepUSD=serviceDeps.reduce((s,d)=>s+(d.usd||0),0);
+
+  document.getElementById('feeWalletStats').innerHTML=
+    '<div class="stat-card"><div class="sc-label">Total Deposits</div><div class="sc-val sc-gold">$'+totalDepUSD.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})+'</div><div class="sc-sub">'+deps.length+' transactions</div></div>'+
+    '<div class="stat-card"><div class="sc-label">60% Activation</div><div class="sc-val sc-purple">$'+actDepUSD.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})+'</div><div class="sc-sub">'+activationDeps.length+' deposits</div></div>'+
+    '<div class="stat-card"><div class="sc-label">Service Fees</div><div class="sc-val sc-red">$'+svcDepUSD.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})+'</div><div class="sc-sub">'+serviceDeps.length+' deposits</div></div>'+
+    '<div class="stat-card"><div class="sc-label">On-Chain Confirmed</div><div class="sc-val sc-green">'+onChainCount+'/'+deps.length+'</div><div class="sc-sub">'+(deps.length>0?((onChainCount/deps.length)*100).toFixed(0):'0')+'% confirmed</div></div>';
+
+  // 60% Activation deposits table
+  document.getElementById('activationDepCount').textContent=activationDeps.length;
+  document.getElementById('activationDepsBody').innerHTML=activationDeps.sort((a,b)=>(b.ts||0)-(a.ts||0)).map(d=>{
+    const src=d.source.replace('card_stake_','Card: ').replace('stake_','Stake: ');
+    return '<tr><td style="font-weight:600;color:#818cf8">'+src+'</td><td style="font-size:.75rem">'+shortAddr(d.stakeId||'')+'</td><td>'+(d.amount||0).toFixed(2)+'</td><td style="font-weight:700;color:#f5c518">$'+(d.usd||0).toFixed(2)+'</td><td>'+(d.onChain?'<span style="color:#27ae60">✓ Yes</span>':'<span style="color:#eb5757">✗ No</span>')+'</td><td style="font-size:.72rem">'+(d.txHash?shortAddr(d.txHash):'-')+'</td><td>'+new Date(d.ts||d.date).toLocaleString()+'</td></tr>';
+  }).join('')||'<tr><td colspan="7" style="text-align:center;color:rgba(255,255,255,.2)">No activation deposits</td></tr>';
+
+  // All deposits table
+  function depType(src){
+    if(!src)return'Unknown';
+    if(src.startsWith('stake_')||src.startsWith('card_stake_'))return'60% Activation';
+    if(src==='service_fee'||src==='service_fee_auto')return'Service Fee';
+    if(src==='compound_fee')return'Compound Fee';
+    if(src.startsWith('unclaimed_gen_'))return'Unclaimed Gen';
+    if(src==='extra_reward_auto')return'Extra Reward';
+    return src;
+  }
+  function depColor(src){
+    if(!src)return'#aaa';
+    if(src.startsWith('stake_')||src.startsWith('card_stake_'))return'#818cf8';
+    if(src==='service_fee'||src==='service_fee_auto')return'#eb5757';
+    if(src==='compound_fee')return'#f5c518';
+    if(src.startsWith('unclaimed_gen_'))return'#ff9f43';
+    return'#aaa';
+  }
+  document.getElementById('allDepCount').textContent=deps.length;
+  document.getElementById('allDepsBody').innerHTML=deps.sort((a,b)=>(b.ts||0)-(a.ts||0)).map(d=>{
+    const typ=depType(d.source);
+    const clr=depColor(d.source);
+    return '<tr><td style="font-weight:700;color:'+clr+'">'+typ+'</td><td style="font-size:.75rem">'+(d.source||'-')+'</td><td style="font-size:.75rem">'+shortAddr(d.stakeId||'')+'</td><td>'+(d.amount||0).toFixed(2)+'</td><td style="font-weight:700;color:#f5c518">$'+(d.usd||0).toFixed(2)+'</td><td>'+(d.onChain?'<span style="color:#27ae60">✓</span>':'<span style="color:#eb5757">✗</span>')+'</td><td style="font-size:.72rem">'+(d.txHash?shortAddr(d.txHash):'-')+'</td><td>'+new Date(d.ts||d.date).toLocaleString()+'</td></tr>';
+  }).join('')||'<tr><td colspan="8" style="text-align:center;color:rgba(255,255,255,.2)">No fee wallet deposits</td></tr>';
+  document.getElementById('totalFeeWalletVal').textContent='$'+totalDepUSD.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2});
 }
 
 function renderSettings(){
