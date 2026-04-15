@@ -949,9 +949,11 @@ async function handleLogin(e) {
 
     setLoading('login-btn', true);
 
-    // Check if user already registered in localStorage
-    var existingUser = JSON.parse(localStorage.getItem('cw_user') || 'null');
-    // Also check saved account from previous logout
+    // Check user registry first, then fallback to cw_user/cw_registered_account
+    var existingUser = findUserInRegistry(email, phone);
+    if (!existingUser) {
+        existingUser = JSON.parse(localStorage.getItem('cw_user') || 'null');
+    }
     if (!existingUser) {
         try { existingUser = JSON.parse(localStorage.getItem('cw_registered_account') || 'null'); } catch(e) {}
     }
@@ -961,17 +963,25 @@ async function handleLogin(e) {
         return;
     }
     // Match by email or phone
-    var matchEmail = email && existingUser.email === email;
-    var matchPhone = phone && existingUser.phone === phone;
+    var matchEmail = email && existingUser.email && existingUser.email.toLowerCase() === email.toLowerCase();
+    var matchPhone = phone && existingUser.phone && existingUser.phone === phone;
     if (!matchEmail && !matchPhone) {
         setLoading('login-btn', false);
         showAlert('error', (_loginMode === 'phone' ? 'Phone number' : 'Email') + ' not found. Please check or register.');
         return;
     }
-    // Restore cw_user from saved account if needed
-    if (!localStorage.getItem('cw_user')) {
-        localStorage.setItem('cw_user', JSON.stringify(existingUser));
+    // Verify password against stored hash (if available)
+    if (existingUser.pwHash && simpleHash(pw) !== existingUser.pwHash) {
+        setLoading('login-btn', false);
+        showAlert('error', 'Incorrect password. Please try again.');
+        return;
     }
+    // Restore cw_user from registry record
+    localStorage.setItem('cw_user', JSON.stringify(existingUser));
+    localStorage.setItem('cw_registered_account', JSON.stringify(existingUser));
+    // Update last login in registry
+    existingUser.lastLogin = Date.now();
+    addUserToRegistry(existingUser, null);
     // Resolve email for OTP sending
     if (!email && existingUser.email) email = existingUser.email;
 
@@ -1023,11 +1033,57 @@ async function handleLogin(e) {
     }
 }
 
+// ── User Registry: stores ALL registered users ──
+function getAllUsers() {
+    try { return JSON.parse(localStorage.getItem('cw_all_users') || '[]'); } catch(e) { return []; }
+}
+function saveAllUsers(arr) { localStorage.setItem('cw_all_users', JSON.stringify(arr)); }
+function addUserToRegistry(user, pwHash) {
+    var all = getAllUsers();
+    // Update existing or add new
+    var found = false;
+    for (var i = 0; i < all.length; i++) {
+        if (all[i].email && all[i].email.toLowerCase() === (user.email || '').toLowerCase()) {
+            all[i] = Object.assign({}, all[i], user);
+            if (pwHash) all[i].pwHash = pwHash;
+            all[i].lastUpdated = Date.now();
+            found = true;
+            break;
+        }
+    }
+    if (!found) {
+        var entry = Object.assign({}, user);
+        if (pwHash) entry.pwHash = pwHash;
+        entry.registeredAt = Date.now();
+        all.push(entry);
+    }
+    saveAllUsers(all);
+}
+function findUserInRegistry(email, phone) {
+    var all = getAllUsers();
+    for (var i = 0; i < all.length; i++) {
+        if (email && all[i].email && all[i].email.toLowerCase() === email.toLowerCase()) return all[i];
+        if (phone && all[i].phone && all[i].phone === phone) return all[i];
+    }
+    return null;
+}
+function simpleHash(s) {
+    var h = 0;
+    for (var i = 0; i < s.length; i++) { h = ((h << 5) - h) + s.charCodeAt(i); h |= 0; }
+    return 'ph_' + (h >>> 0).toString(16);
+}
+
 // ── Username Helpers ──
 function isUsernameTaken(uname) {
     var registry = [];
     try { registry = JSON.parse(localStorage.getItem('cw_usernames') || '[]'); } catch(e) { registry = []; }
-    return registry.indexOf(uname.toLowerCase()) !== -1;
+    if (registry.indexOf(uname.toLowerCase()) !== -1) return true;
+    // Also check full registry
+    var all = getAllUsers();
+    for (var i = 0; i < all.length; i++) {
+        if (all[i].username && all[i].username.toLowerCase() === uname.toLowerCase()) return true;
+    }
+    return false;
 }
 
 function checkUsernameAvail() {
@@ -1139,6 +1195,9 @@ async function handleRegister(e) {
     localStorage.setItem('cw_user', JSON.stringify(user));
     // Also save as registered account for remember-after-logout
     localStorage.setItem('cw_registered_account', JSON.stringify(user));
+
+    // ── Save to persistent user registry ──
+    addUserToRegistry(user, simpleHash(pw));
 
     // ── Backend sync: register with server ──
     _authBackendRegister(user);

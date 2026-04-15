@@ -784,20 +784,38 @@ function renderDashboard(){
 }
 
 // ── Users ──
+function getAllRegisteredUsers(){
+  try{return JSON.parse(localStorage.getItem('cw_all_users')||'[]');}catch(e){return [];}
+}
 function renderUsers(){
-  const user=getUser();
-  const users=user?[user]:[];
-  document.getElementById('userCount').textContent=users.length;
-  document.getElementById('usersBody').innerHTML=users.map(u=>{
-    const d=u.created?new Date(u.created).toLocaleDateString():'N/A';
-    return '<tr><td style="font-weight:600">'+u.name+'</td><td>'+u.email+'</td><td class="addr">'+shortAddr(u.addr)+'</td><td>'+(u.sponsor||'-')+'</td><td>'+d+'</td><td><button class="act-btn" onclick="viewUser()">View</button></td></tr>';
+  var allUsers=getAllRegisteredUsers();
+  // Also include current admin if not in registry
+  const admin=getUser();
+  if(admin&&admin.email){
+    var found=false;
+    for(var i=0;i<allUsers.length;i++){if(allUsers[i].email&&allUsers[i].email.toLowerCase()===admin.email.toLowerCase()){found=true;break;}}
+    if(!found)allUsers.unshift(admin);
+  }
+  document.getElementById('userCount').textContent=allUsers.length;
+  document.getElementById('usersBody').innerHTML=allUsers.map(function(u,idx){
+    const d=u.created||u.registeredAt?new Date(u.created||u.registeredAt).toLocaleDateString():'N/A';
+    const verified=u.verified?'<span style="color:#27ae60">&#x2705;</span>':'<span style="color:rgba(255,255,255,.2)">&#x23F3;</span>';
+    const lastLogin=u.lastLogin?new Date(u.lastLogin).toLocaleDateString():'Never';
+    return '<tr><td style="font-weight:600">'+verified+' '+(u.name||'Unknown')+'</td><td>'+(u.email||'-')+'</td><td class="addr">'+shortAddr(u.addr)+'</td><td>'+(u.sponsor||'-')+'</td><td>'+d+'</td><td><button class="act-btn" onclick="viewUser('+idx+')">View</button></td></tr>';
   }).join('')||'<tr><td colspan="6" style="text-align:center;color:rgba(255,255,255,.2)">No users registered</td></tr>';
 }
 
-function viewUser(){
-  const u=getUser();
+function viewUser(idx){
+  var allUsers=getAllRegisteredUsers();
+  const admin=getUser();
+  if(admin&&admin.email){
+    var found=false;
+    for(var i=0;i<allUsers.length;i++){if(allUsers[i].email&&allUsers[i].email.toLowerCase()===admin.email.toLowerCase()){found=true;break;}}
+    if(!found)allUsers.unshift(admin);
+  }
+  const u=allUsers[idx];
   if(!u)return;
-  alert('User: '+u.name+'\nEmail: '+u.email+'\nAddress: '+shortAddr(u.addr)+'\nSponsor: '+(u.sponsor||'None')+'\nRegistered: '+new Date(u.created).toLocaleString());
+  alert('User: '+(u.name||'Unknown')+'\nUsername: '+(u.username||'-')+'\nEmail: '+(u.email||'-')+'\nPhone: '+(u.phone||'-')+'\nAddress: '+shortAddr(u.addr)+'\nSponsor: '+(u.sponsor||'None')+'\nVerified: '+(u.verified?'Yes':'No')+'\nRegistered: '+(u.created||u.registeredAt?new Date(u.created||u.registeredAt).toLocaleString():'N/A')+'\nLast Login: '+(u.lastLogin?new Date(u.lastLogin).toLocaleString():'Never'));
 }
 
 // ── Stakes ──
