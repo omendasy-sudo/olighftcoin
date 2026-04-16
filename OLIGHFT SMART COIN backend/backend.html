@@ -933,12 +933,22 @@ function renderStakes(){
   const stakes=getAllStakes();
   var now=Date.now();
   let totalStaked=0,totalPayout=0,totalFees=0,active=0,withdrawn=0,expired=0;
+  var byCard={},byUser={};
   stakes.forEach(s=>{
     totalStaked+=(s.stake||s.amount||0);
     totalPayout+=stakePayout(s);
     totalFees+=s.fee||0;
-    if(s.withdrawn){withdrawn++;}
-    else{const end=stakeEndTs(s);if(now<end)active++;else expired++;}
+    var st;
+    if(s.withdrawn){withdrawn++;st='withdrawn';}
+    else{const end=stakeEndTs(s);if(now<end){active++;st='active';}else{expired++;st='expired';}}
+    // Per card tier
+    var card=s.card||s.cardTier||'Wallet';
+    if(!byCard[card])byCard[card]={active:0,withdrawn:0,expired:0,total:0,staked:0,payout:0};
+    byCard[card][st]++;byCard[card].total++;byCard[card].staked+=(s.stake||s.amount||0);byCard[card].payout+=stakePayout(s);
+    // Per user
+    var user=s.activatedBy||s.user||s.userEmail||'Unknown';
+    if(!byUser[user])byUser[user]={active:0,withdrawn:0,expired:0,total:0,staked:0};
+    byUser[user][st]++;byUser[user].total++;byUser[user].staked+=(s.stake||s.amount||0);
   });
 
   document.getElementById('stakeStats').innerHTML=
@@ -949,6 +959,25 @@ function renderStakes(){
     '<div class="stat-card"><div class="sc-label">Total Staked</div><div class="sc-val sc-gold">$'+totalStaked.toLocaleString()+'</div></div>'+
     '<div class="stat-card"><div class="sc-label">Total Fees</div><div class="sc-val sc-red">$'+totalFees.toLocaleString()+'</div></div>'+
     '<div class="stat-card"><div class="sc-label">Total Payout</div><div class="sc-val sc-blue">$'+totalPayout.toLocaleString()+'</div></div>';
+
+  // Per-card breakdown table
+  var cardKeys=Object.keys(byCard).sort();
+  var cardHtml='<div style="margin:16px 0 10px;font-size:.78rem;font-weight:700;color:rgba(255,255,255,.5)">📊 Stakes by Card Tier</div>'+
+    '<div class="table-scroll"><table><thead><tr><th>Card Tier</th><th>Active</th><th>Withdrawn</th><th>Expired</th><th>Total</th><th>Staked</th><th>Payout</th></tr></thead><tbody>'+
+    cardKeys.map(function(c){var d=byCard[c];return '<tr><td style="font-weight:700;color:#818cf8">'+c+'</td><td style="color:#34d399">'+d.active+'</td><td style="color:#f5c518">'+d.withdrawn+'</td><td style="color:#ef4444">'+d.expired+'</td><td>'+d.total+'</td><td style="color:#f5c518">$'+d.staked.toLocaleString()+'</td><td style="color:#34d399">$'+d.payout.toLocaleString()+'</td></tr>';}).join('')+
+    '</tbody></table></div>';
+
+  // Per-user breakdown table
+  var userKeys=Object.keys(byUser).sort();
+  var userHtml='<div style="margin:16px 0 10px;font-size:.78rem;font-weight:700;color:rgba(255,255,255,.5)">👤 Stakes by User</div>'+
+    '<div class="table-scroll"><table><thead><tr><th>User</th><th>Active</th><th>Withdrawn</th><th>Expired</th><th>Total</th><th>Staked</th></tr></thead><tbody>'+
+    userKeys.map(function(u){var d=byUser[u];return '<tr><td style="font-weight:600">'+u+'</td><td style="color:#34d399">'+d.active+'</td><td style="color:#f5c518">'+d.withdrawn+'</td><td style="color:#ef4444">'+d.expired+'</td><td>'+d.total+'</td><td style="color:#f5c518">$'+d.staked.toLocaleString()+'</td></tr>';}).join('')+
+    '</tbody></table></div>';
+
+  // Insert breakdowns before the main table
+  var breakdownEl=document.getElementById('stakeBreakdowns');
+  if(!breakdownEl){breakdownEl=document.createElement('div');breakdownEl.id='stakeBreakdowns';var tbl=document.getElementById('stakesBody');if(tbl)tbl.closest('.table-card').parentNode.insertBefore(breakdownEl,tbl.closest('.table-card'));}
+  breakdownEl.innerHTML=cardHtml+userHtml;
 
   document.getElementById('stakeCount').textContent=stakes.length;
 
