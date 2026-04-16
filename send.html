@@ -334,7 +334,7 @@ function onRecipientInput(){
 function getContacts(){
   var list=[],accs=getAccounts(),seen={};
   accs.forEach(function(a){list.push({addr:a.publicKey,label:a.label+' (own)'});seen[a.publicKey]=true});
-  var txs=JSON.parse(localStorage.getItem('send_txs')||'[]');
+  var txs=_getSendTxs();
   txs.forEach(function(tx){if(!seen[tx.to]){seen[tx.to]=true;list.push({addr:tx.to,label:'Recent'})}});
   return list;
 }
@@ -466,10 +466,9 @@ function onSendSuccess(addr,amt,tk,memo,type,fromAddr,hash,onChain){
   document.getElementById('successMsg').textContent='Sent '+amt+' '+tk+' to '+addr.slice(0,6)+'...'+addr.slice(-4)+' '+label;
   document.getElementById('txHash').textContent=hash;
   document.getElementById('successOverlay').classList.add('show');
-  var txs=JSON.parse(localStorage.getItem('send_txs')||'[]');
+  var txs=_getSendTxs();
   txs.unshift({to:addr,from:fromAddr,amount:amt,token:tk,memo:memo,hash:hash,time:Date.now(),addrType:type,onChain:onChain});
-  if(txs.length>20)txs.length=20;localStorage.setItem('send_txs',JSON.stringify(txs));
-  try{var _su=JSON.parse(localStorage.getItem('cw_user')||'null');if(_su){var _suid=(_su.email||_su.name||'').toLowerCase().replace(/[^a-z0-9]/g,'_');if(_suid)localStorage.setItem('send_txs_'+_suid,JSON.stringify(txs));}}catch(e){}
+  if(txs.length>20)txs.length=20;_saveSendTxs(txs);
   try{var al=JSON.parse(localStorage.getItem('cw_activity')||'[]');al.unshift({type:'Sent',icon:'\uD83D\uDCE4',detail:amt+' '+tk+' to '+addr.slice(0,6)+'...'+addr.slice(-4),amt:'-'+amt+' '+tk,cls:'red',time:'Just now',ts:Date.now(),onChain:onChain});if(al.length>50)al.length=50;localStorage.setItem('cw_activity',JSON.stringify(al))}catch(e){}
   // Transaction notification
   try{var notifs=_getNotifs();notifs.unshift({type:'Sent',icon:'\uD83D\uDCE4',detail:amt+' '+tk+' to '+addr.slice(0,6)+'...'+addr.slice(-4),amt:'-'+amt+' '+tk,cls:'red',ts:Date.now(),hash:hash});if(notifs.length>50)notifs.length=50;_saveNotifs(notifs);}catch(e){}
@@ -504,7 +503,7 @@ document.getElementById('sendBtn').addEventListener('click',function(){
 });
 
 function renderRecent(){
-  var txs=JSON.parse(localStorage.getItem('send_txs')||'[]');
+  var txs=_getSendTxs();
   var sec=document.getElementById('recentSection'),list=document.getElementById('recentList');
   if(!txs.length){sec.style.display='none';return}
   sec.style.display='block';
@@ -690,7 +689,7 @@ function runAllTests(){
     document.getElementById('amount').value='999999';
     document.getElementById('tokenSelect').value='XLM';
     doSend().then(function(){
-      var txs=JSON.parse(localStorage.getItem('send_txs')||'[]');
+      var txs=_getSendTxs();
       var last=txs[0]||{};
       setResult('et-5',last.amount===999999,'doSend() Overdraft \u2014 Processed with auto-adjust (balance: '+balances.XLM+')');
     }).catch(function(){
@@ -705,7 +704,7 @@ function runAllTests(){
     document.getElementById('tokenSelect').value='XLM';
     document.getElementById('memo').value='_TEST_';
     doSend().then(function(){
-      var txs=JSON.parse(localStorage.getItem('send_txs')||'[]');
+      var txs=_getSendTxs();
       var last=txs[0]||{};
       var hasTx=last.amount===100&&last.token==='XLM'&&last.hash&&last.hash.length===64;
       var balOk=balances.XLM===4900;
@@ -762,6 +761,9 @@ function resetTests(){
 </script>
 <script>
 function _notifUid(){try{var u=JSON.parse(localStorage.getItem('cw_user')||'null');return u&&(u.email||u.name)?(u.email||u.name).toLowerCase().replace(/[^a-z0-9]/g,'_'):'';}catch(e){return'';}}
+function _sendTxKey(){var uid=_notifUid();return uid?'send_txs_'+uid:'send_txs';}
+function _getSendTxs(){try{return JSON.parse(localStorage.getItem(_sendTxKey())||'[]');}catch(e){return[];}}
+function _saveSendTxs(txs){localStorage.setItem(_sendTxKey(),JSON.stringify(txs));localStorage.setItem('send_txs',JSON.stringify(txs));}
 function _notifKey(){var uid=_notifUid();return uid?'cw_tx_notifications_'+uid:'cw_tx_notifications';}
 function _getNotifs(){try{return JSON.parse(localStorage.getItem(_notifKey())||'[]');}catch(e){return[];}}
 function _saveNotifs(n){localStorage.setItem(_notifKey(),JSON.stringify(n));}

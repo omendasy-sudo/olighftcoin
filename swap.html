@@ -804,7 +804,7 @@ function executeSwap(){
   document.getElementById('successOverlay').classList.add('show');
 
   // Swap TX history with full router receipt
-  const txs=JSON.parse(localStorage.getItem('swap_txs')||'[]');
+  const txs=_getSwapTxs();
   txs.unshift({
     from:f, to:t, fromAmt:fAmt, toAmt:tAmt,
     hash:receipt.transactionHash,
@@ -817,8 +817,7 @@ function executeSwap(){
     account:acctAddr, accountIdx:activeIdx
   });
   if(txs.length>20)txs.length=20;
-  localStorage.setItem('swap_txs',JSON.stringify(txs));
-  try{var _su=JSON.parse(localStorage.getItem('cw_user')||'null');if(_su){var _suid=(_su.email||_su.name||'').toLowerCase().replace(/[^a-z0-9]/g,'_');if(_suid)localStorage.setItem('swap_txs_'+_suid,JSON.stringify(txs));}}catch(e){}
+  _saveSwapTxs(txs);
 
   // Unified activity log
   try{var al=JSON.parse(localStorage.getItem('cw_activity')||'[]');al.unshift({
@@ -841,7 +840,7 @@ function executeSwap(){
 }
 function closeSuccess(){document.getElementById('successOverlay').classList.remove('show')}
 function renderRecent(){
-  const txs=JSON.parse(localStorage.getItem('swap_txs')||'[]');
+  const txs=_getSwapTxs();
   const sec=document.getElementById('recentSection');
   const list=document.getElementById('recentList');
   if(!txs.length){sec.style.display='none';return}
@@ -914,7 +913,7 @@ function runAllTests(){
   document.querySelectorAll('.tst-badge').forEach(function(b){b.textContent='pending';b.style.color='rgba(255,255,255,.35)';b.style.borderColor='rgba(255,255,255,.08)';b.style.background='none';});
 
   var snap=JSON.parse(JSON.stringify(getSharedBalances()));
-  var swapSnap=localStorage.getItem('swap_txs')||'[]';
+  var swapSnap=localStorage.getItem(_swapTxKey())||'[]';
 
   // Snapshot and reset POOL_REGISTRY to initial reserves for deterministic tests
   var poolSnap=JSON.parse(JSON.stringify(POOL_REGISTRY));
@@ -1010,7 +1009,7 @@ function runAllTests(){
   })();
 
   (function(){
-    var txs=JSON.parse(localStorage.getItem('swap_txs')||'[]');var last=txs[0];
+    var txs=_getSwapTxs();var last=txs[0];
     var ok=last&&last.from&&last.to&&last.fromAmt>0&&last.toAmt>0&&last.hash&&last.hash.length===64;
     setBadge(intRows,8,ok);
     logTestLine('Swap TX Record',ok,ok?'swap_txs[0]: '+last.fromAmt+' '+last.from+' \u2192 '+last.toAmt.toFixed(4)+' '+last.to+' hash='+last.hash.slice(0,8)+'...':'No valid entry');
@@ -1026,7 +1025,7 @@ function runAllTests(){
   saveSharedBalances(snap);for(var k in snap)bals[k]=snap[k];
   // Restore POOL_REGISTRY to pre-test state
   for(var pk in poolSnap){if(POOL_REGISTRY[pk]){POOL_REGISTRY[pk].reserve0=poolSnap[pk].reserve0;POOL_REGISTRY[pk].reserve1=poolSnap[pk].reserve1;}}
-  localStorage.setItem('swap_txs',swapSnap);
+  localStorage.setItem(_swapTxKey(),swapSnap);
   updateBals();document.getElementById('fromAmt').value='';document.getElementById('toAmt').value='';hideDetails();renderRecent();
 }
 
@@ -2334,6 +2333,9 @@ function resetTests(){
 </script>
 <script>
 function _notifUid(){try{var u=JSON.parse(localStorage.getItem('cw_user')||'null');return u&&(u.email||u.name)?(u.email||u.name).toLowerCase().replace(/[^a-z0-9]/g,'_'):'';}catch(e){return'';}}
+function _swapTxKey(){var uid=_notifUid();return uid?'swap_txs_'+uid:'swap_txs';}
+function _getSwapTxs(){try{return JSON.parse(localStorage.getItem(_swapTxKey())||'[]');}catch(e){return[];}}
+function _saveSwapTxs(txs){localStorage.setItem(_swapTxKey(),JSON.stringify(txs));localStorage.setItem('swap_txs',JSON.stringify(txs));}
 function _notifKey(){var uid=_notifUid();return uid?'cw_tx_notifications_'+uid:'cw_tx_notifications';}
 function _getNotifs(){try{return JSON.parse(localStorage.getItem(_notifKey())||'[]');}catch(e){return[];}}
 function _saveNotifs(n){localStorage.setItem(_notifKey(),JSON.stringify(n));}

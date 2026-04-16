@@ -5176,9 +5176,10 @@ function execDashSwap() {
     localStorage.setItem('cw_activity', JSON.stringify(al));
   } catch(e) {}
 
-  // Swap TX history
+  // Swap TX history (per-user)
   try {
-    var txs = JSON.parse(localStorage.getItem('swap_txs') || '[]');
+    var _stk=(function(){var uid=_notifUid();return uid?'swap_txs_'+uid:'swap_txs';})();
+    var txs = JSON.parse(localStorage.getItem(_stk) || '[]');
     txs.unshift({
       from: f, to: t, fromAmt: amt, toAmt: out,
       hash: receipt.transactionHash,
@@ -5190,8 +5191,8 @@ function execDashSwap() {
       time: Date.now()
     });
     if (txs.length > 20) txs.length = 20;
+    localStorage.setItem(_stk, JSON.stringify(txs));
     localStorage.setItem('swap_txs', JSON.stringify(txs));
-    try{var _su=JSON.parse(localStorage.getItem('cw_user')||'null');if(_su){var _suid=(_su.email||_su.name||'').toLowerCase().replace(/[^a-z0-9]/g,'_');if(_suid)localStorage.setItem('swap_txs_'+_suid,JSON.stringify(txs));}}catch(e){}
   } catch(e) {}
 
   // Refresh UI
