@@ -632,8 +632,9 @@ function init(){
   var swaps=getAllSwapTxs();
   var activity=[];try{activity=JSON.parse(localStorage.getItem('cw_activity')||'[]');}catch(e){}
   var genPending=[];try{genPending=JSON.parse(localStorage.getItem('cw_gen_pending')||'[]');}catch(e){}
-  var notifications=[];try{var _allU=JSON.parse(localStorage.getItem('cw_all_users')||'[]');for(var _ni=0;_ni<_allU.length;_ni++){var _nuid=(_allU[_ni].email||_allU[_ni].name||'').toLowerCase().replace(/[^a-z0-9]/g,'_');if(!_nuid)continue;var _nk='cw_tx_notifications_'+_nuid;try{var _nn=JSON.parse(localStorage.getItem(_nk)||'[]');notifications=notifications.concat(_nn);}catch(e){}}notifications.sort(function(a,b){return(b.ts||0)-(a.ts||0)});}catch(e){}
+  var notifications=[];var _totalUsers=0;try{var _allU=JSON.parse(localStorage.getItem('cw_all_users')||'[]');_totalUsers=_allU.length;for(var _ni=0;_ni<_allU.length;_ni++){var _nuid=(_allU[_ni].email||_allU[_ni].name||'').toLowerCase().replace(/[^a-z0-9]/g,'_');if(!_nuid)continue;var _nk='cw_tx_notifications_'+_nuid;try{var _nn=JSON.parse(localStorage.getItem(_nk)||'[]');notifications=notifications.concat(_nn);}catch(e){}}notifications.sort(function(a,b){return(b.ts||0)-(a.ts||0)});}catch(e){}
   document.getElementById('accountStats').innerHTML=
+    '<div class="stat"><div class="s-label">Total Users</div><div class="s-val purple">'+_totalUsers+'</div><div class="s-sub">Registered accounts</div></div>'+
     '<div class="stat"><div class="s-label">Portfolio</div><div class="s-val gold">$'+portfolioVal.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})+'</div><div class="s-sub">'+Object.keys(bals).length+' tokens</div></div>'+
     '<div class="stat"><div class="s-label">Active Stakes</div><div class="s-val green" id="qsActiveStakes">...</div><div class="s-sub">of <span id="qsTotalStakes">...</span> total</div></div>'+
     '<div class="stat"><div class="s-label">Fee Revenue</div><div class="s-val gold">$'+feeTotal.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})+'</div><div class="s-sub">'+deps.length+' deposits</div></div>'+
