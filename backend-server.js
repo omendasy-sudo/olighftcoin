@@ -1424,6 +1424,24 @@ app.get('/api/admin/deposits', (req, res) => {
   res.json({ total, deposits });
 });
 
+// GET /api/admin/users — list all registered users with stake counts
+app.get('/api/admin/users', (req, res) => {
+  try {
+    const users = db.prepare(`
+      SELECT u.id, u.email, u.username, u.name, u.created_at, u.last_login,
+             COALESCE(sp.username, sp.name, '') AS sponsor,
+             (SELECT COUNT(*) FROM stakes s WHERE s.user_id = u.id) AS stake_count,
+             (SELECT COALESCE(SUM(s.stake_usd), 0) FROM stakes s WHERE s.user_id = u.id) AS total_staked
+      FROM users u
+      LEFT JOIN users sp ON u.sponsor_id = sp.id
+      ORDER BY u.created_at DESC
+    `).all();
+    res.json({ total: users.length, users });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // GET /api/admin/supply-log
 app.get('/api/admin/supply-log', (req, res) => {
   const logs = db.prepare('SELECT * FROM supply_log ORDER BY created_at DESC LIMIT 200').all();
