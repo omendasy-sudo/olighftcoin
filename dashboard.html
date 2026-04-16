@@ -1596,6 +1596,39 @@ function _sendOLIGHFTOnChain(destAddr, amountOLIGHFT, label, callback) {
   });
 }
 
+// ── Force Refresh All System Data ──
+function _forceRefreshSystem(){
+  try{
+    var user=JSON.parse(localStorage.getItem('cw_user')||'null');
+    if(!user||!user.email)return;
+    var bals=DEFAULT_BALS;
+    try{var saved=JSON.parse(localStorage.getItem('cw_balances'));if(saved)bals=Object.assign({},DEFAULT_BALS,saved);}catch(e){}
+    try{refreshOLIGHFTPrice();}catch(e){}
+    try{renderPrices();}catch(e){}
+    try{renderBalances(bals);}catch(e){}
+    try{updateTotalBalance(bals);}catch(e){}
+    try{renderStakeSummary();}catch(e){}
+    try{renderStakeList();}catch(e){}
+    try{renderRecentStakes();}catch(e){}
+    try{updateApy();}catch(e){}
+    try{updateSupplyDisplay();}catch(e){}
+    try{updateMaturedCount();}catch(e){}
+    try{renderGenFlow();}catch(e){}
+    try{updateNotifBadge();}catch(e){}
+    try{_autoWithdrawMatured();}catch(e){}
+    try{_autoWithdrawGenCommissions();}catch(e){}
+    console.log('[REFRESH] System data refreshed');
+  }catch(e){console.warn('[REFRESH]',e);}
+}
+// Listen for page show (back/forward nav + bfcache)
+window.addEventListener('pageshow',function(e){
+  if(e.persisted) _forceRefreshSystem();
+});
+// Listen for visibility change (tab switch back)
+document.addEventListener('visibilitychange',function(){
+  if(document.visibilityState==='visible') _forceRefreshSystem();
+});
+
 // ── Init ──
 (function init() {
   var user = null;
@@ -6792,12 +6825,17 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 <script>
 (function(){
-  var V='20260414a';
-  if(localStorage.getItem('olighft_v')!==V){
+  var V='20260416a';
+  var vChanged=localStorage.getItem('olighft_v')!==V;
+  if(vChanged){
     if('caches' in window) caches.keys().then(function(k){k.forEach(function(n){caches.delete(n)})});
     if(navigator.serviceWorker) navigator.serviceWorker.getRegistrations().then(function(r){r.forEach(function(w){w.unregister()})});
     localStorage.setItem('olighft_v',V);
     location.reload(true); return;
+  }
+  // Always tell SW to clear stale cache entries on every page load
+  if(navigator.serviceWorker&&navigator.serviceWorker.controller){
+    navigator.serviceWorker.controller.postMessage({type:'CLEAR_ALL_CACHES'});
   }
   if('serviceWorker' in navigator){
     navigator.serviceWorker.register('/sw.js').then(function(reg){

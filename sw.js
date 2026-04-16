@@ -1,4 +1,4 @@
-const CACHE_VERSION = '20260414a';
+const CACHE_VERSION = '20260416a';
 const CACHE_NAME = 'olighft-' + CACHE_VERSION;
 const PRECACHE = [
   '/',
