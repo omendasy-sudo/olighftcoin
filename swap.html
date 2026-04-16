@@ -828,7 +828,7 @@ function executeSwap(){
     route:receipt.route.join(' \u2192 '),
     priceImpact:receipt.priceImpact,
     deadline:receipt.deadline
-  });if(al.length>50)al.length=50;localStorage.setItem('cw_activity',JSON.stringify(al));}catch(e){}
+  });if(al.length>50)al.length=50;localStorage.setItem('cw_activity',JSON.stringify(al));try{var _auid=_notifUid();if(_auid)localStorage.setItem('cw_activity_'+_auid,JSON.stringify(al));}catch(e){}}catch(e){}
 
   // Transaction notification
   try{var notifs=_getNotifs();notifs.unshift({type:'Swap',icon:'\uD83D\uDD04',detail:fAmt+' '+f+' \u2192 '+tAmt.toFixed(4)+' '+t,amt:'+'+tAmt.toFixed(4)+' '+t,cls:'green',ts:Date.now(),hash:receipt.transactionHash});if(notifs.length>50)notifs.length=50;_saveNotifs(notifs);}catch(e){}

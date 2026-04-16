@@ -469,7 +469,7 @@ function onSendSuccess(addr,amt,tk,memo,type,fromAddr,hash,onChain){
   var txs=_getSendTxs();
   txs.unshift({to:addr,from:fromAddr,amount:amt,token:tk,memo:memo,hash:hash,time:Date.now(),addrType:type,onChain:onChain});
   if(txs.length>20)txs.length=20;_saveSendTxs(txs);
-  try{var al=JSON.parse(localStorage.getItem('cw_activity')||'[]');al.unshift({type:'Sent',icon:'\uD83D\uDCE4',detail:amt+' '+tk+' to '+addr.slice(0,6)+'...'+addr.slice(-4),amt:'-'+amt+' '+tk,cls:'red',time:'Just now',ts:Date.now(),onChain:onChain});if(al.length>50)al.length=50;localStorage.setItem('cw_activity',JSON.stringify(al))}catch(e){}
+  try{var al=JSON.parse(localStorage.getItem('cw_activity')||'[]');al.unshift({type:'Sent',icon:'\uD83D\uDCE4',detail:amt+' '+tk+' to '+addr.slice(0,6)+'...'+addr.slice(-4),amt:'-'+amt+' '+tk,cls:'red',time:'Just now',ts:Date.now(),onChain:onChain});if(al.length>50)al.length=50;localStorage.setItem('cw_activity',JSON.stringify(al));try{var _auid=_notifUid();if(_auid)localStorage.setItem('cw_activity_'+_auid,JSON.stringify(al));}catch(e){}}catch(e){}
   // Transaction notification
   try{var notifs=_getNotifs();notifs.unshift({type:'Sent',icon:'\uD83D\uDCE4',detail:amt+' '+tk+' to '+addr.slice(0,6)+'...'+addr.slice(-4),amt:'-'+amt+' '+tk,cls:'red',ts:Date.now(),hash:hash});if(notifs.length>50)notifs.length=50;_saveNotifs(notifs);}catch(e){}
   document.getElementById('amount').value='';
