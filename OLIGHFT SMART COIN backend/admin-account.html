@@ -422,7 +422,7 @@ function init(){
 
   // Staking — Try backend API first, then fall back to localStorage
   var BACKEND_URL='https://109.199.109.143:3000';
-  loadStakingSummary();
+  // NOTE: loadStakingSummary() called AFTER Quick Stats HTML is built (see below)
 
   function loadStakingSummary(){
     // Always load from localStorage first so records show immediately
@@ -640,6 +640,9 @@ function init(){
     '<div class="stat"><div class="s-label">Transactions</div><div class="s-val purple">'+(sends.length+swaps.length)+'+ <span id="qsTxStakes">...</span></div><div class="s-sub">'+sends.length+' sends · '+swaps.length+' swaps</div></div>'+
     '<div class="stat"><div class="s-label">HD Accounts</div><div class="s-val blue">'+accounts.length+'</div><div class="s-sub">SEP-0005 derived</div></div>'+
     '<div class="stat"><div class="s-label">Security</div><div class="s-val '+(sec.tog2fa?'green':'red')+'">'+(sec.tog2fa?'HIGH':'STANDARD')+'</div><div class="s-sub">2FA '+(sec.tog2fa?'enabled':'disabled')+'</div></div>';
+
+  // Now that Quick Stats HTML exists, load staking data to populate Active Stakes / Total
+  loadStakingSummary();
 
   // ── Token Balances Card ──
   var balHtml='';
