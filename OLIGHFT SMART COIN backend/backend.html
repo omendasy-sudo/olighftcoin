@@ -594,6 +594,7 @@ table tr:hover td{background:rgba(99,102,241,.03)}
 /* ═══════════════════════════════════════════════ */
 /*  OLIGHFT SMART COIN — Admin Backend Logic         */
 /* ═══════════════════════════════════════════════ */
+var BACKEND_URL='https://109.199.109.143:3000';
 
 // ── 5-Tap Secret Toggle ──
 var _tapCount=0;
@@ -833,7 +834,7 @@ function renderDashboard(){
   var allRegUsers=[];try{allRegUsers=JSON.parse(localStorage.getItem('cw_all_users')||'[]');}catch(e){}
 
   document.getElementById('dashStats').innerHTML=
-    '<div class="stat-card"><div class="sc-label">Registered Users</div><div class="sc-val sc-blue">'+allRegUsers.length+'</div><div class="sc-sub">All platform users</div></div>'+
+    '<div class="stat-card"><div class="sc-label">Registered Users</div><div class="sc-val sc-blue" id="regUserCount">'+allRegUsers.length+'</div><div class="sc-sub">All platform users</div></div>'+
     '<div class="stat-card"><div class="sc-label">Total Supply</div><div class="sc-val sc-gold">'+TOTAL_SUPPLY.toLocaleString()+'</div><div class="sc-sub">OLIGHFT tokens</div></div>'+
     '<div class="stat-card"><div class="sc-label">Remaining Supply</div><div class="sc-val sc-green">'+remaining.toLocaleString()+'</div><div class="sc-sub">'+(remaining/TOTAL_SUPPLY*100).toFixed(6)+'% available</div></div>'+
     '<div class="stat-card"><div class="sc-label">Wallet Portfolio</div><div class="sc-val sc-blue">$'+portfolioVal.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})+'</div><div class="sc-sub">'+Object.keys(bals).length+' tokens</div></div>'+
@@ -896,6 +897,32 @@ function renderDashboard(){
 function getAllRegisteredUsers(){
   try{return JSON.parse(localStorage.getItem('cw_all_users')||'[]');}catch(e){return [];}
 }
+// Fetch all users from backend API, merge with localStorage, re-render
+function fetchBackendUsers(){
+  fetch(BACKEND_URL+'/api/admin/users').then(function(r){return r.json();}).then(function(data){
+    if(data&&Array.isArray(data.users)&&data.users.length){
+      var localU=getAllRegisteredUsers();
+      var localMap={};localU.forEach(function(u){if(u.email)localMap[u.email.toLowerCase()]=u;});
+      var merged=data.users.map(function(su){
+        var loc=localMap[(su.email||'').toLowerCase()]||{};
+        return Object.assign({},loc,su,{stake_count:su.stake_count||loc.stake_count||0,created:su.created_at||loc.created||loc.registeredAt});
+      });
+      localU.forEach(function(lu){
+        if(!lu.email)return;
+        var found=data.users.some(function(su){return su.email&&su.email.toLowerCase()===lu.email.toLowerCase();});
+        if(!found)merged.push(lu);
+      });
+      localStorage.setItem('cw_all_users',JSON.stringify(merged));
+      // Update dashboard stat
+      var el=document.getElementById('regUserCount');if(el)el.textContent=merged.length;
+      // Update user count badge
+      var uc=document.getElementById('userCount');if(uc)uc.textContent=merged.length;
+      // Re-render users table if currently on users tab
+      renderUsers();
+    }
+  }).catch(function(e){console.warn('Backend users API unavailable:',e);});
+}
+fetchBackendUsers();
 function renderUsers(){
   var allUsers=getAllRegisteredUsers();
   // Also include current admin if not in registry
