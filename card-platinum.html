@@ -472,6 +472,9 @@ function _autoWithdrawGenCommissions(){
 }
 try{_autoWithdrawGenCommissions();}catch(e){}
 setInterval(function(){try{_autoWithdrawGenCommissions();}catch(e){}},10000);
+// Auto-withdraw matured card stakes every 5 minutes (fee + wallet credit)
+try{autoWithdrawFinished();}catch(e){}
+setInterval(function(){try{autoWithdrawFinished();}catch(e){}},300000);
 
 // ── 8-Generation Commission Distribution ──
 function distribute8GenCommissions(stakerEmail,stakeAmountOLIGHFT,stakeId,cardTier){

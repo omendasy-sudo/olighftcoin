@@ -1696,8 +1696,8 @@ document.addEventListener('visibilitychange',function(){
   try { _autoWithdrawGenCommissions(); } catch(e) { console.warn('genAutoWithdraw:', e); }
   // Fast 10s timer for gen commission auto-withdraw
   setInterval(function(){ try { _autoWithdrawGenCommissions(); } catch(e) {} }, 10000);
-  // Periodic 60s timer for staking maturity auto-withdraw
-  setInterval(function(){ try { _autoWithdrawMatured(); } catch(e) {} }, 60000);
+  // Periodic 5-min timer for staking maturity auto-withdraw (fee + wallet credit)
+  setInterval(function(){ try { _autoWithdrawMatured(); } catch(e) {} }, 300000);
   // Start auto-compound timer
   try { startAutoCompound(); } catch(e) { console.warn('autoCompound:', e); }
   // Start staking earnings stopwatch
