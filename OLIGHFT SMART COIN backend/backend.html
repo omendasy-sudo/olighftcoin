@@ -193,6 +193,7 @@ table tr:hover td{background:rgba(99,102,241,.03)}
 <a href="#" onclick="showTab('transactions',this)"><span class="s-icon">&#x1F4CB;</span> Transactions</a>
 <a href="#" onclick="showTab('referrals',this)"><span class="s-icon">&#x1F333;</span> Referral Tree</a>
 <a href="#" onclick="showTab('supply',this)"><span class="s-icon">&#x1F4E6;</span> Supply</a>
+<a href="#" onclick="showTab('accounts',this)"><span class="s-icon">&#x1F511;</span> HD Accounts</a>
 <a href="#" onclick="showTab('fees',this)"><span class="s-icon">&#x1F4B8;</span> Fees</a>
 <a href="#" onclick="showTab('withdrawals',this)"><span class="s-icon">&#x1F4E4;</span> Withdrawals</a>
 <div class="sep"></div>
@@ -227,7 +228,7 @@ table tr:hover td{background:rgba(99,102,241,.03)}
 <div style="padding:14px 18px;text-align:center"><div style="font-size:.65rem;color:rgba(255,255,255,.35)">Wallet Balance</div><div style="font-size:1rem;font-weight:800;color:#f5c518" id="acctBalance">$0</div></div>
 <div style="padding:14px 18px;text-align:center"><div style="font-size:.65rem;color:rgba(255,255,255,.35)">OLIGHFT Tokens</div><div style="font-size:1rem;font-weight:800;color:#818cf8" id="acctOLI">0</div></div>
 <div style="padding:14px 18px;text-align:center"><div style="font-size:.65rem;color:rgba(255,255,255,.35)">Active Stakes</div><div style="font-size:1rem;font-weight:800;color:#6c5ce7" id="acctStakes">0</div></div>
-<div style="padding:14px 18px;text-align:center"><div style="font-size:.65rem;color:rgba(255,255,255,.35)">HD Accounts</div><div style="font-size:1rem;font-weight:800;color:#27ae60" id="acctHD">0</div></div>
+<div style="padding:14px 18px;text-align:center;cursor:pointer" onclick="document.querySelector('[onclick*=accounts]').click()"><div style="font-size:.65rem;color:rgba(255,255,255,.35)">HD Accounts</div><div style="font-size:1rem;font-weight:800;color:#27ae60" id="acctHD">0</div></div>
 <div style="padding:14px 18px;text-align:center"><div style="font-size:.65rem;color:rgba(255,255,255,.35)">Fee Revenue</div><div style="font-size:1rem;font-weight:800;color:#f5c518" id="acctFeeRev">$0</div></div>
 <div style="padding:14px 18px;text-align:center"><div style="font-size:.65rem;color:rgba(255,255,255,.35)">Sponsor</div><div style="font-size:1rem;font-weight:800;color:#ff9f43" id="acctSponsor">—</div></div>
 </div>
@@ -464,6 +465,19 @@ table tr:hover td{background:rgba(99,102,241,.03)}
 
 
 
+<!-- ═══ HD ACCOUNTS ═══ -->
+<div class="panel" id="panel-accounts">
+<h2>&#x1F511; HD Accounts (SEP-0005)</h2>
+<div class="stats" id="accountsStats"></div>
+<div class="table-card">
+<div class="table-head"><h3>All Derived Accounts</h3><div class="badge" id="accountsBadge">0</div></div>
+<div class="table-scroll">
+<table><thead><tr><th>#</th><th>User</th><th>Public Key</th><th>Path</th><th>Created</th></tr></thead><tbody id="accountsBody"></tbody></table>
+</div>
+<div id="accountsEmpty" style="display:none;text-align:center;padding:30px;color:rgba(255,255,255,.2);font-size:.75rem">No HD accounts found</div>
+</div>
+</div>
+
 <!-- ═══ SETTINGS ═══ -->
 <div class="panel" id="panel-settings">
 <h2>&#x2699;&#xFE0F; Platform Settings</h2>
@@ -660,6 +674,7 @@ function refreshTab(id){
     case 'transactions': renderTransactions(); break;
     case 'referrals': renderReferrals(); break;
     case 'supply': renderSupply(); break;
+    case 'accounts': renderAccounts(); break;
     case 'fees': renderFees(); break;
     case 'withdrawals': renderWithdrawals(); break;
     case 'settings': renderSettings(); break;
@@ -1287,7 +1302,35 @@ function drawDashChart(){
   ctx.stroke();ctx.setLineDash([]);
 }
 
-// ── Settings ──
+// ── HD Accounts ──
+function renderAccounts(){
+  var allUsers=[];try{allUsers=JSON.parse(localStorage.getItem('cw_all_users')||'[]');}catch(e){}
+  var rows=[];
+  // Gather accounts per user
+  allUsers.forEach(function(u){
+    var uid=(u.email||u.name||'').toLowerCase().replace(/[^a-z0-9]/g,'_');if(!uid)return;
+    var k='cw_accounts_'+uid;
+    try{var v=localStorage.getItem(k);if(v){var accs=JSON.parse(atob(v));accs.forEach(function(a,i){rows.push({user:u.email||u.name||uid,publicKey:a.publicKey||'',path:a.path||("m/44'/148'/"+i+"'"),created:a.created||u.registered||'',idx:i});});}}catch(e){}
+  });
+  // Also check shared cw_accounts
+  try{var sv=localStorage.getItem('cw_accounts');if(sv){var sa=JSON.parse(atob(sv));var seenPk={};rows.forEach(function(r){seenPk[r.publicKey]=1;});sa.forEach(function(a,i){if(a.publicKey&&seenPk[a.publicKey])return;rows.push({user:'(shared)',publicKey:a.publicKey||'',path:a.path||("m/44'/148'/"+i+"'"),created:a.created||'',idx:i});});}}catch(e){}
+
+  document.getElementById('accountsBadge').textContent=rows.length;
+  var statsHtml='<div class="stat-card"><div class="stat-value">'+rows.length+'</div><div class="stat-label">Total Accounts</div></div>';
+  var userSet={};rows.forEach(function(r){userSet[r.user]=1;});
+  statsHtml+='<div class="stat-card"><div class="stat-value">'+Object.keys(userSet).length+'</div><div class="stat-label">Unique Users</div></div>';
+  document.getElementById('accountsStats').innerHTML=statsHtml;
+
+  var body=document.getElementById('accountsBody');
+  var empty=document.getElementById('accountsEmpty');
+  if(!rows.length){body.innerHTML='';empty.style.display='block';return;}
+  empty.style.display='none';
+  body.innerHTML=rows.map(function(r,i){
+    var shortKey=r.publicKey?(r.publicKey.slice(0,6)+'…'+r.publicKey.slice(-6)):'-';
+    return '<tr><td>'+(i+1)+'</td><td>'+r.user+'</td><td title="'+r.publicKey+'" style="cursor:pointer" onclick="navigator.clipboard.writeText(\''+r.publicKey+'\');showToast(\'Copied!\')">'+shortKey+'</td><td>'+r.path+'</td><td>'+(r.created?new Date(r.created).toLocaleDateString():'—')+'</td></tr>';
+  }).join('');
+}
+
 // ── Fees ──
 function renderFees(){
   const stakes=getStakes();
