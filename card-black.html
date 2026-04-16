@@ -347,6 +347,7 @@ function _notifUid(){try{var u=JSON.parse(localStorage.getItem('cw_user')||'null
 function _notifKey(){var uid=_notifUid();return uid?'cw_tx_notifications_'+uid:'cw_tx_notifications';}
 function _getNotifs(){try{return JSON.parse(localStorage.getItem(_notifKey())||'[]');}catch(e){return[];}}
 function _saveNotifs(n){localStorage.setItem(_notifKey(),JSON.stringify(n));}
+try{var _cu=JSON.parse(localStorage.getItem('cw_user')||'null');if(_cu&&_cu.email){var _aul=JSON.parse(localStorage.getItem('cw_all_users')||'[]');var _fnd=false;for(var _ri=0;_ri<_aul.length;_ri++){if(_aul[_ri].email&&_aul[_ri].email.toLowerCase()===_cu.email.toLowerCase()){_fnd=true;break;}}if(!_fnd){_cu.registeredAt=_cu.created||Date.now();_aul.push(_cu);localStorage.setItem('cw_all_users',JSON.stringify(_aul));}}}catch(e){}
 const ALL_CARDS={
   Mastercard:{name:'Mastercard',stake:50,daily:4,fee:20,color:'#f2994a',periods:{1:4,2:8,5:20,7:28,30:120,90:360,180:720,365:1460}},
   Visa:{name:'Visa',stake:100,daily:6,fee:40,color:'#f5c518',periods:{1:6,2:12,5:30,7:42,30:180,90:540,180:1080,365:2190}},

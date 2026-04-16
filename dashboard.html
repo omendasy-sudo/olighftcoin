@@ -1690,6 +1690,8 @@ document.addEventListener('visibilitychange',function(){
     var _cleanWs = _ws.filter(function(s) { return !s._normalized; });
     if (_cleanWs.length !== _ws.length) localStorage.setItem('wallet_stakes', JSON.stringify(_cleanWs));
   } catch(e) { console.warn('cleanup:', e); }
+  // Ensure current user is in cw_all_users registry
+  try{var _cu=JSON.parse(localStorage.getItem('cw_user')||'null');if(_cu&&_cu.email){var _aul=JSON.parse(localStorage.getItem('cw_all_users')||'[]');var _fnd=false;for(var _ri=0;_ri<_aul.length;_ri++){if(_aul[_ri].email&&_aul[_ri].email.toLowerCase()===_cu.email.toLowerCase()){_fnd=true;break;}}if(!_fnd){_cu.registeredAt=_cu.created||Date.now();_aul.push(_cu);localStorage.setItem('cw_all_users',JSON.stringify(_aul));}}}catch(e){}
   // Auto-withdraw any finished stakes immediately on page load
   try { _autoWithdrawMatured(); } catch(e) { console.warn('autoWithdraw:', e); }
   // Auto-withdraw 5-min matured gen commissions

@@ -180,6 +180,15 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 <div class="info-row"><div class="info-label">Admin Status</div><div class="info-value green">&#x1F7E2; Active</div></div>
 </div>
 
+<!-- Registered Users -->
+<div class="card">
+<div class="card-head"><h3>&#x1F465; Registered Users</h3><span class="badge" id="userCountBadge">0</span></div>
+<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:.75rem">
+<thead><tr style="border-bottom:1px solid rgba(255,255,255,.06)"><th style="text-align:left;padding:8px 10px;color:rgba(255,255,255,.4);font-weight:600">#</th><th style="text-align:left;padding:8px 10px;color:rgba(255,255,255,.4);font-weight:600">Name</th><th style="text-align:left;padding:8px 10px;color:rgba(255,255,255,.4);font-weight:600">Email</th><th style="text-align:left;padding:8px 10px;color:rgba(255,255,255,.4);font-weight:600">Sponsor</th><th style="text-align:left;padding:8px 10px;color:rgba(255,255,255,.4);font-weight:600">Registered</th><th style="text-align:left;padding:8px 10px;color:rgba(255,255,255,.4);font-weight:600">Stakes</th></tr></thead>
+<tbody id="userListBody"></tbody>
+</table></div>
+<div id="userListEmpty" style="display:none;text-align:center;padding:20px;color:rgba(255,255,255,.2);font-size:.72rem">No registered users found</div>
+</div>
 
 
 <!-- Staking Summary — All Users -->
@@ -644,6 +653,31 @@ function init(){
 
   // Now that Quick Stats HTML exists, load staking data to populate Active Stakes / Total
   loadStakingSummary();
+
+  // ── Registered Users List ──
+  (function(){
+    var allU=[];try{allU=JSON.parse(localStorage.getItem('cw_all_users')||'[]');}catch(e){}
+    // Also ensure current user is in list
+    try{var cu=JSON.parse(localStorage.getItem('cw_user')||'null');if(cu&&cu.email){var found=false;for(var i=0;i<allU.length;i++){if(allU[i].email&&allU[i].email.toLowerCase()===cu.email.toLowerCase()){found=true;allU[i]=Object.assign({},allU[i],cu);break;}}if(!found){cu.registeredAt=cu.created||Date.now();allU.push(cu);}localStorage.setItem('cw_all_users',JSON.stringify(allU));}}catch(e){}
+    document.getElementById('userCountBadge').textContent=allU.length;
+    var body=document.getElementById('userListBody');
+    var empty=document.getElementById('userListEmpty');
+    if(!allU.length){body.innerHTML='';empty.style.display='block';}
+    else{
+      empty.style.display='none';
+      // Count stakes per user
+      var allStakes=[];try{var _cs=JSON.parse(localStorage.getItem('card_stakes')||'[]');if(Array.isArray(_cs))allStakes=allStakes.concat(_cs);}catch(e){}try{var _ws=JSON.parse(localStorage.getItem('wallet_stakes')||'[]');if(Array.isArray(_ws))allStakes=allStakes.concat(_ws);}catch(e){}
+      for(var _ui=0;_ui<allU.length;_ui++){var uid=(allU[_ui].email||allU[_ui].name||'').toLowerCase().replace(/[^a-z0-9]/g,'_');if(!uid)continue;['card_stakes_'+uid,'wallet_stakes_'+uid,'cw_card_stakes_'+uid,'cw_wallet_stakes_'+uid].forEach(function(k){try{var v=JSON.parse(localStorage.getItem(k)||'[]');if(Array.isArray(v))allStakes=allStakes.concat(v);}catch(e){}});}
+      var stakesByEmail={};allStakes.forEach(function(s){var em=(s.userEmail||'').toLowerCase();if(em){stakesByEmail[em]=(stakesByEmail[em]||0)+1;}});
+      body.innerHTML=allU.map(function(u,i){
+        var regDate=u.registeredAt||u.created||u.lastUpdated||0;
+        var dStr=regDate?new Date(regDate).toLocaleDateString('en',{year:'numeric',month:'short',day:'numeric'}):'—';
+        var em=(u.email||'').toLowerCase();
+        var sc=stakesByEmail[em]||0;
+        return '<tr style="border-bottom:1px solid rgba(255,255,255,.03)"><td style="padding:8px 10px;color:rgba(255,255,255,.5)">'+(i+1)+'</td><td style="padding:8px 10px;font-weight:600">'+(u.name||u.username||'—')+'</td><td style="padding:8px 10px;color:#818cf8">'+(u.email||'—')+'</td><td style="padding:8px 10px;color:#ff9f43">'+(u.sponsor||'—')+'</td><td style="padding:8px 10px;color:rgba(255,255,255,.4)">'+dStr+'</td><td style="padding:8px 10px;font-weight:700;color:'+(sc>0?'#34d399':'rgba(255,255,255,.2)')+'">'+sc+'</td></tr>';
+      }).join('');
+    }
+  })();
 
   // ── Token Balances Card ──
   var balHtml='';
