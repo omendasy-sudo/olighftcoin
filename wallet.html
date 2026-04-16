@@ -1129,12 +1129,13 @@ async function register(){
   const user={name:name, email:email, addr:keyPair.publicKey, sponsor:sponsor, created:Date.now(), seedHash:hashSeed(mnemonic)};
   localStorage.setItem('cw_user', JSON.stringify(user));
   // Base64 encode seed for local storage (user's responsibility to back up)
-  localStorage.setItem('cw_seed', btoa(mnemonic));
+  _secSet('cw_seed', btoa(mnemonic));
   // Initialize multi-account storage with primary account
   const accounts=[{index:0, label:'Primary', publicKey:keyPair.publicKey, secret:keyPair.secret}];
   localStorage.setItem('cw_accounts', btoa(JSON.stringify(accounts)));
+  try{var _auid=(email||name||'').toLowerCase().replace(/[^a-z0-9]/g,'_');if(_auid)localStorage.setItem('cw_accounts_'+_auid,btoa(JSON.stringify(accounts)));}catch(e){}
   localStorage.setItem('cw_active_idx', '0');
-  localStorage.setItem('cw_secret', btoa(keyPair.secret));
+  _secSet('cw_secret', btoa(keyPair.secret));
   if(!localStorage.getItem('cw_balances'))localStorage.setItem('cw_balances',JSON.stringify({XLM:10000,USDC:500,wETH:0.5,wBTC:0.02,EURC:200,OLIGHFT:10000}));
 
   checkAndAdvanceOwnStage('wallet_created');
@@ -1161,11 +1162,12 @@ async function login(){
     const keyPair = await deriveKeypair(mnemonic, 0);
     user={name:email.split('@')[0], email:email, addr:keyPair.publicKey, created:Date.now(), seedHash:hashSeed(mnemonic)};
     localStorage.setItem('cw_user', JSON.stringify(user));
-    localStorage.setItem('cw_seed', btoa(mnemonic));
+    _secSet('cw_seed', btoa(mnemonic));
     const accounts=[{index:0, label:'Primary', publicKey:keyPair.publicKey, secret:keyPair.secret}];
     localStorage.setItem('cw_accounts', btoa(JSON.stringify(accounts)));
+    try{var _auid=(email||'').toLowerCase().replace(/[^a-z0-9]/g,'_');if(_auid)localStorage.setItem('cw_accounts_'+_auid,btoa(JSON.stringify(accounts)));}catch(e){}
     localStorage.setItem('cw_active_idx', '0');
-    localStorage.setItem('cw_secret', btoa(keyPair.secret));
+    _secSet('cw_secret', btoa(keyPair.secret));
     if(!localStorage.getItem('cw_balances'))localStorage.setItem('cw_balances',JSON.stringify({XLM:10000,USDC:500,wETH:0.5,wBTC:0.02,EURC:200,OLIGHFT:10000}));
     showToast('Wallet created!','#27ae60');
     showSeedScreen(mnemonic);
@@ -1211,7 +1213,7 @@ window.toggleSeedVis=toggleSeedVis;
 
 function copySeed(){
   if(!_currentMnemonic){
-    const stored=localStorage.getItem('cw_seed');
+    const stored=_secGet('cw_seed');
     if(stored) _currentMnemonic=atob(stored);
   }
   if(!_currentMnemonic) return;
@@ -1250,7 +1252,7 @@ window.seedContinue=seedContinue;
 
 // ── View Seed Phrase from Security Settings ──
 function viewSeedPhrase(){
-  const stored=localStorage.getItem('cw_seed');
+  const stored=_secGet('cw_seed');
   if(!stored){showToast('No seed phrase found. Re-create wallet.','#eb5757');return;}
   const phrase=atob(stored);
   showSeedScreen(phrase);
@@ -1260,15 +1262,19 @@ window.viewSeedPhrase=viewSeedPhrase;
 // ── Logout ──
 function logout(){
   if(!confirm('Logout? This will end your session.'))return;
+  // Remove per-user keys first (while cw_user still exists)
+  _secRemove('cw_seed');
+  _secRemove('cw_secret');
+  _secRemove('cw_security');
+  _secRemove('cw_google');
+  _secRemove('cw_whitelist');
+  _secRemove('cw_2fa');
+  _secRemove('cw_wd_lock_until');
   localStorage.removeItem('cw_user');
-  localStorage.removeItem('cw_seed');
-  localStorage.removeItem('cw_secret');
   localStorage.removeItem('cw_accounts');
   localStorage.removeItem('cw_active_idx');
-  localStorage.removeItem('cw_security');
   localStorage.removeItem('cw_multisig');
   localStorage.removeItem('cw_balances');
-  localStorage.removeItem('cw_google');
   window.location.href='auth.html';
 }
 window.logout=logout;
@@ -1530,6 +1536,7 @@ function stakeTokens() {
   var stakes = getWalletStakes();
   stakes.push(stakeEntry);
   localStorage.setItem('wallet_stakes', JSON.stringify(stakes));
+  try{var _uid=(user.email||user.name||'').toLowerCase().replace(/[^a-z0-9]/g,'_');if(_uid){var _usk=JSON.parse(localStorage.getItem('wallet_stakes_'+_uid)||'[]');_usk.push(stakeEntry);localStorage.setItem('wallet_stakes_'+_uid,JSON.stringify(_usk));}}catch(e){}
 
   // 10b. On-chain Soroban stake (async, non-blocking)
   if (typeof STAKING_BACKEND !== 'undefined' && STAKING_BACKEND.isWalletConnected() && asset === 'OLIGHFT') {
@@ -1581,9 +1588,9 @@ function withdrawStake(stakeId) {
   var now = Date.now();
 
   // ── 24h Withdrawal Lock check ──
-  var sec = JSON.parse(localStorage.getItem('cw_security') || '{}');
+  var sec = JSON.parse(_secGet('cw_security') || '{}');
   if (sec.togLock) {
-    var lockTs = parseInt(localStorage.getItem('cw_wd_lock_until') || '0');
+    var lockTs = parseInt(_secGet('cw_wd_lock_until') || '0');
     if (now < lockTs) {
       var mins = Math.ceil((lockTs - now) / 60000);
       var hrs = Math.floor(mins / 60);
@@ -1595,7 +1602,7 @@ function withdrawStake(stakeId) {
 
   // ── Address Whitelist check ──
   if (sec.togWhitelist) {
-    var whitelist = JSON.parse(localStorage.getItem('cw_whitelist') || '[]');
+    var whitelist = JSON.parse(_secGet('cw_whitelist') || '[]');
     var user = JSON.parse(localStorage.getItem('cw_user') || 'null');
     var myAddr = user && user.addr ? user.addr : '';
     if (whitelist.length > 0 && myAddr && whitelist.indexOf(myAddr) < 0) {
@@ -1780,7 +1787,7 @@ async function confirmWdVerify() {
 
   if (_wdMethod === 'gauth') {
     try {
-      var sec = JSON.parse(localStorage.getItem('cw_2fa') || 'null');
+      var sec = JSON.parse(_secGet('cw_2fa') || 'null');
       if (sec && sec.secret) { verified = await gVerifyTotp(sec.secret, code); }
     } catch(e) {}
   } else {
@@ -1808,9 +1815,9 @@ function _executeWithdraw(stakeId, totalReturn, asset) {
   var s = stakes[idx];
 
   // ── Set 24h withdrawal lock cooldown (if togLock enabled) ──
-  var sec = JSON.parse(localStorage.getItem('cw_security') || '{}');
+  var sec = JSON.parse(_secGet('cw_security') || '{}');
   if (sec.togLock) {
-    localStorage.setItem('cw_wd_lock_until', String(Date.now() + 24 * 60 * 60 * 1000));
+    _secSet('cw_wd_lock_until', String(Date.now() + 24 * 60 * 60 * 1000));
   }
 
   // On-chain Soroban withdraw (async, non-blocking)
@@ -1836,6 +1843,7 @@ function _executeWithdraw(stakeId, totalReturn, asset) {
   stakes[idx].status = 'withdrawn';
   stakes[idx].withdrawn = true;
   localStorage.setItem('wallet_stakes', JSON.stringify(stakes));
+  try{var _wu=JSON.parse(localStorage.getItem('cw_user')||'null');if(_wu){var _wuid=(_wu.email||_wu.name||'').toLowerCase().replace(/[^a-z0-9]/g,'_');if(_wuid){localStorage.setItem('wallet_stakes_'+_wuid,JSON.stringify(stakes.filter(function(ss){return ss.userEmail===(_wu.email||'')||ss.activatedBy===(_wu.name||'')})));}}}catch(e){}
 
   // Activity log
   defaultActivity.unshift({
@@ -1917,13 +1925,14 @@ function getAccounts(){
 }
 function saveAccounts(accounts){
   localStorage.setItem('cw_accounts',btoa(JSON.stringify(accounts)));
+  try{var _u=JSON.parse(localStorage.getItem('cw_user')||'null');if(_u){var _uid=(_u.email||_u.name||'').toLowerCase().replace(/[^a-z0-9]/g,'_');if(_uid)localStorage.setItem('cw_accounts_'+_uid,btoa(JSON.stringify(accounts)));}}catch(e){}
 }
 function getActiveIdx(){
   return parseInt(localStorage.getItem('cw_active_idx')||'0',10);
 }
 
 async function addAccount(){
-  const stored=localStorage.getItem('cw_seed');
+  const stored=_secGet('cw_seed');
   if(!stored){showToast('No seed phrase found.','#eb5757');return;}
   const mnemonic=atob(stored);
   const accounts=getAccounts();
@@ -1945,7 +1954,7 @@ function switchAccount(idx){
   const acc=accounts.find(a=>a.index===idx);
   if(!acc)return;
   localStorage.setItem('cw_active_idx',String(idx));
-  localStorage.setItem('cw_secret',btoa(acc.secret));
+  _secSet('cw_secret',btoa(acc.secret));
   // Update user address
   const user=JSON.parse(localStorage.getItem('cw_user'));
   if(user){user.addr=acc.publicKey;localStorage.setItem('cw_user',JSON.stringify(user));}
@@ -1973,7 +1982,7 @@ function renderAccounts(){
   // Auto-migrate: if no accounts stored, create from existing user
   if(accounts.length===0){
     const user=JSON.parse(localStorage.getItem('cw_user')||'null');
-    const secret=localStorage.getItem('cw_secret');
+    const secret=_secGet('cw_secret');
     if(user&&secret){
       const migrated=[{index:0,label:'Primary',publicKey:user.addr,secret:atob(secret)}];
       saveAccounts(migrated);
@@ -2075,8 +2084,26 @@ function gBuildUri(email,secret){
   return 'otpauth://totp/'+encodeURIComponent('OLIGHFT:'+email)+'?secret='+secret+'&issuer=OLIGHFT%20SMART%20COIN&algorithm=SHA1&digits=6&period=30';
 }
 
+// ── Per-user security key helper ──
+function _secUid(){
+  try{var u=JSON.parse(localStorage.getItem('cw_user')||'null');if(!u)return '';return (u.email||u.name||'').toLowerCase().replace(/[^a-z0-9]/g,'_');}catch(e){return '';}
+}
+function _secGet(base){
+  var uid=_secUid();
+  if(uid){var v=localStorage.getItem(base+'_'+uid);if(v!==null)return v;}
+  return localStorage.getItem(base);
+}
+function _secSet(base,val){
+  localStorage.setItem(base,val);
+  var uid=_secUid();if(uid)localStorage.setItem(base+'_'+uid,val);
+}
+function _secRemove(base){
+  localStorage.removeItem(base);
+  var uid=_secUid();if(uid)localStorage.removeItem(base+'_'+uid);
+}
+
 function gIsEnabled(){
-  try{const c=JSON.parse(localStorage.getItem('cw_2fa')||'null');return c&&c.enabled&&c.secret;}catch(e){return false;}
+  try{const c=JSON.parse(_secGet('cw_2fa')||'null');return c&&c.enabled&&c.secret;}catch(e){return false;}
 }
 
 // Pending setup secret (not yet saved)
@@ -2087,14 +2114,14 @@ function toggleGoogleAuth(){
   if(gIsEnabled()){
     // Disable Google Auth
     if(!confirm('Disable Google Authenticator 2FA? You will lose this security layer.'))return;
-    localStorage.removeItem('cw_2fa');
+    _secRemove('cw_2fa');
     const el=document.getElementById('tog2fa');
     el.classList.remove('on');
     document.getElementById('gauth-status-desc').textContent='Extra layer of login security';
     document.getElementById('gauthSetupPanel').style.display='none';
-    const sec=JSON.parse(localStorage.getItem('cw_security')||'{}');
+    const sec=JSON.parse(_secGet('cw_security')||'{}');
     sec.tog2fa=false;
-    localStorage.setItem('cw_security',JSON.stringify(sec));
+    _secSet('cw_security',JSON.stringify(sec));
     showToast('Google Authenticator disabled','#f2994a');
   } else {
     // Start setup
@@ -2159,10 +2186,10 @@ async function verifyGauthSetup(){
   }
 
   // Save 2FA config
-  localStorage.setItem('cw_2fa',JSON.stringify({enabled:true,secret:_gauthPendingSecret,setupAt:Date.now()}));
-  const sec=JSON.parse(localStorage.getItem('cw_security')||'{}');
+  _secSet('cw_2fa',JSON.stringify({enabled:true,secret:_gauthPendingSecret,setupAt:Date.now()}));
+  const sec=JSON.parse(_secGet('cw_security')||'{}');
   sec.tog2fa=true;
-  localStorage.setItem('cw_security',JSON.stringify(sec));
+  _secSet('cw_security',JSON.stringify(sec));
 
   // Update UI
   document.getElementById('tog2fa').classList.add('on');
@@ -2249,7 +2276,7 @@ function linkGoogleAccount(email, name, picture, sub) {
   user.googleAuth = true;
   if (picture) user.picture = picture;
   localStorage.setItem('cw_user', JSON.stringify(user));
-  localStorage.setItem('cw_google', JSON.stringify({
+  _secSet('cw_google', JSON.stringify({
     enabled: true,
     email: email,
     name: name,
@@ -2269,7 +2296,7 @@ function unlinkGoogleAccount() {
     delete user.picture;
     localStorage.setItem('cw_user', JSON.stringify(user));
   }
-  localStorage.removeItem('cw_google');
+  _secRemove('cw_google');
   // Revoke Google session if SDK available
   if (window.google && window.google.accounts) {
     try { window.google.accounts.id.disableAutoSelect(); } catch (e) {}
@@ -2280,7 +2307,7 @@ function unlinkGoogleAccount() {
 
 function toggleGoogleLink() {
   var gc = null;
-  try { gc = JSON.parse(localStorage.getItem('cw_google') || 'null'); } catch (e) {}
+  try { gc = JSON.parse(_secGet('cw_google') || 'null'); } catch (e) {}
   if (gc && gc.enabled) {
     unlinkGoogleAccount();
   } else {
@@ -2310,7 +2337,7 @@ function googleLinkDemo() {
 
 function restoreGoogleLinkState() {
   var gc = null;
-  try { gc = JSON.parse(localStorage.getItem('cw_google') || 'null'); } catch (e) {}
+  try { gc = JSON.parse(_secGet('cw_google') || 'null'); } catch (e) {}
   var btn = document.getElementById('googleLinkBtn');
   var desc = document.getElementById('googleLinkDesc');
   var badge = document.getElementById('googleLinkBadge');
@@ -2362,9 +2389,9 @@ function toggleSec(el){
   const id=el.id;
   const isOn=el.classList.contains('on');
   // Persist toggle states
-  const sec=JSON.parse(localStorage.getItem('cw_security')||'{}');
+  const sec=JSON.parse(_secGet('cw_security')||'{}');
   sec[id]=isOn;
-  localStorage.setItem('cw_security',JSON.stringify(sec));
+  _secSet('cw_security',JSON.stringify(sec));
   showToast(el.closest('.sec-row').querySelector('.sr-name').textContent+': '+(isOn?'Enabled':'Disabled'),'#6c5ce7');
   // Show/hide whitelist panel
   if(id==='togWhitelist'){
@@ -2379,9 +2406,9 @@ window.toggleSec=toggleSec;
 function toggleSmsSec(el){
   el.classList.toggle('on');
   var isOn=el.classList.contains('on');
-  var sec=JSON.parse(localStorage.getItem('cw_security')||'{}');
+  var sec=JSON.parse(_secGet('cw_security')||'{}');
   sec.togSms=isOn;
-  localStorage.setItem('cw_security',JSON.stringify(sec));
+  _secSet('cw_security',JSON.stringify(sec));
   var phoneRow=document.getElementById('smsPhoneRow');
   if(phoneRow) phoneRow.style.display=isOn?'block':'none';
   if(isOn){
@@ -2407,10 +2434,10 @@ window.savePhone=savePhone;
 function addWhitelistAddr(){
   var addr=document.getElementById('wlAddrInput').value.trim();
   if(!addr||addr.length!==56||addr[0]!=='G'){showToast('Invalid Stellar address (must start with G, 56 chars)','#eb5757');return;}
-  var list=JSON.parse(localStorage.getItem('cw_whitelist')||'[]');
+  var list=JSON.parse(_secGet('cw_whitelist')||'[]');
   if(list.indexOf(addr)>=0){showToast('Address already whitelisted','#f2994a');return;}
   list.push(addr);
-  localStorage.setItem('cw_whitelist',JSON.stringify(list));
+  _secSet('cw_whitelist',JSON.stringify(list));
   document.getElementById('wlAddrInput').value='';
   renderWhitelist();
   showToast('Address added to whitelist','#27ae60');
@@ -2418,16 +2445,16 @@ function addWhitelistAddr(){
 window.addWhitelistAddr=addWhitelistAddr;
 
 function removeWhitelistAddr(addr){
-  var list=JSON.parse(localStorage.getItem('cw_whitelist')||'[]');
+  var list=JSON.parse(_secGet('cw_whitelist')||'[]');
   list=list.filter(function(a){return a!==addr;});
-  localStorage.setItem('cw_whitelist',JSON.stringify(list));
+  _secSet('cw_whitelist',JSON.stringify(list));
   renderWhitelist();
   showToast('Address removed','#f2994a');
 }
 window.removeWhitelistAddr=removeWhitelistAddr;
 
 function renderWhitelist(){
-  var list=JSON.parse(localStorage.getItem('cw_whitelist')||'[]');
+  var list=JSON.parse(_secGet('cw_whitelist')||'[]');
   var el=document.getElementById('wlList');
   if(!el)return;
   if(list.length===0){el.innerHTML='<div style="padding:4px 0">No addresses whitelisted yet</div>';return;}
@@ -2440,7 +2467,7 @@ function renderWhitelist(){
 
 // Restore security toggles from localStorage
 function restoreSecToggles(){
-  const sec=JSON.parse(localStorage.getItem('cw_security')||'{}');
+  const sec=JSON.parse(_secGet('cw_security')||'{}');
   Object.keys(sec).forEach(id=>{
     const el=document.getElementById(id);
     if(el){if(sec[id])el.classList.add('on');else el.classList.remove('on');}
@@ -2549,7 +2576,7 @@ function msCreateTx(){
   if(accounts.length===0){showToast('Create a wallet first','#eb5757');return;}
   var pk=accounts[0].publicKey;
   var sk=null;
-  try{var raw=localStorage.getItem('cw_secret');if(raw)sk=atob(raw);}catch(e){}
+  try{var raw=_secGet('cw_secret');if(raw)sk=atob(raw);}catch(e){}
   if(!sk){showToast('Secret key not available — cannot sign','#eb5757');return;}
 
   var txId='TX-'+Date.now().toString(36).toUpperCase();
@@ -2924,12 +2951,12 @@ async function runAllWalletTests(){
   var aRows=document.querySelectorAll('#wAccTests .tst-row');
 
   // Ensure a wallet exists for multi-account tests
-  if(!localStorage.getItem('cw_seed')){
+  if(!_secGet('cw_seed')){
     var _m=await generateMnemonic24('multitest@olighft.com');
     var _kp=await deriveKeypair(_m,0);
     localStorage.setItem('cw_user',JSON.stringify({name:'MultiTest',email:'multitest@olighft.com',addr:_kp.publicKey,sponsor:'X',created:Date.now(),seedHash:hashSeed(_m)}));
-    localStorage.setItem('cw_seed',btoa(_m));
-    localStorage.setItem('cw_secret',btoa(_kp.secret));
+    _secSet('cw_seed',btoa(_m));
+    _secSet('cw_secret',btoa(_kp.secret));
     saveAccounts([{index:0,label:'Primary',publicKey:_kp.publicKey,secret:_kp.secret}]);
     localStorage.setItem('cw_active_idx','0');
   }
@@ -3317,7 +3344,7 @@ window.runAllSecurityTests=runAllSecurityTests;
 const existing=JSON.parse(localStorage.getItem('cw_user')||'null');
 if(existing){
   // User registered via auth.html but no keys generated yet
-  if(!existing.addr || !localStorage.getItem('cw_seed')){
+  if(!existing.addr || !_secGet('cw_seed')){
     (async function(){
       showToast('Setting up your wallet...','#6c5ce7');
       const mnemonic=await generateMnemonic24(existing.email);
@@ -3325,10 +3352,10 @@ if(existing){
       existing.addr=keyPair.publicKey;
       existing.seedHash=hashSeed(mnemonic);
       localStorage.setItem('cw_user',JSON.stringify(existing));
-      localStorage.setItem('cw_seed',btoa(mnemonic));
+      _secSet('cw_seed',btoa(mnemonic));
       const accounts=[{index:0,label:'Primary',publicKey:keyPair.publicKey,secret:keyPair.secret}];
       localStorage.setItem('cw_active_idx','0');
-      localStorage.setItem('cw_secret',btoa(keyPair.secret));
+      _secSet('cw_secret',btoa(keyPair.secret));
       if(!localStorage.getItem('cw_balances'))localStorage.setItem('cw_balances',JSON.stringify({XLM:10000,USDC:500,wETH:0.5,wBTC:0.02,EURC:200}));
       checkAndAdvanceOwnStage('wallet_created');
       showSeedScreen(mnemonic);

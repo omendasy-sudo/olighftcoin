@@ -93,6 +93,22 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 .act-btn.danger{border-color:rgba(235,87,87,.2);color:#eb5757}
 .act-btn.danger:hover{background:rgba(235,87,87,.1)}
 
+/* Staking Records Table */
+.stake-table-wrap{max-height:500px;overflow:auto;margin:0}
+.stake-table{width:100%;border-collapse:collapse;font-size:.68rem}
+.stake-table th{position:sticky;top:0;background:#0f1f2e;color:rgba(255,255,255,.5);font-weight:700;text-transform:uppercase;letter-spacing:.4px;padding:10px 8px;text-align:left;border-bottom:1px solid rgba(16,185,129,.15);font-size:.58rem;white-space:nowrap}
+.stake-table td{padding:8px 8px;border-bottom:1px solid rgba(255,255,255,.02);color:rgba(255,255,255,.7);white-space:nowrap}
+.stake-table tr:hover td{background:rgba(16,185,129,.04)}
+.stake-table .st-active{color:#34d399;font-weight:700}
+.stake-table .st-withdrawn{color:#eb5757;font-weight:700}
+.stake-table .st-expired{color:#f5c518;font-weight:700}
+.stake-filter{display:flex;gap:6px;flex-wrap:wrap;padding:12px 20px;border-bottom:1px solid rgba(255,255,255,.04)}
+.stake-filter button{padding:5px 12px;border-radius:6px;border:1px solid rgba(255,255,255,.08);background:none;color:rgba(255,255,255,.4);font-size:.62rem;font-weight:600;cursor:pointer;transition:.2s}
+.stake-filter button.active,.stake-filter button:hover{border-color:rgba(16,185,129,.3);color:#34d399;background:rgba(16,185,129,.08)}
+.stake-src{font-size:.55rem;padding:2px 6px;border-radius:4px;font-weight:600;margin-left:6px}
+.stake-src.api{background:rgba(16,185,129,.12);color:#34d399}
+.stake-src.local{background:rgba(129,140,248,.12);color:#818cf8}
+
 /* Security */
 .sec-item{display:flex;align-items:center;gap:14px;padding:14px 20px;border-bottom:1px solid rgba(255,255,255,.02);cursor:pointer;transition:.15s}
 .sec-item:last-child{border-bottom:none}
@@ -166,16 +182,34 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 
 
 
-<!-- Staking Summary (All Users) -->
+<!-- Staking Summary — All Users -->
 <div class="card">
-<div class="card-head"><h3>&#x1F4C8; Staking Summary</h3><span style="font-size:.6rem;background:rgba(139,92,246,.12);color:#a78bfa;padding:3px 8px;border-radius:6px;font-weight:700">All Users</span></div>
+<div class="card-head"><h3>&#x1F4C8; Staking Summary</h3><span class="badge">All Users</span><span class="stake-src" id="stakeSrc">loading...</span></div>
 <div class="info-row"><div class="info-label">Total Stakes</div><div class="info-value purple" id="dStakeCount">0</div></div>
 <div class="info-row"><div class="info-label">Active Stakes</div><div class="info-value green" id="dActiveStakes">0</div></div>
-<div class="info-row"><div class="info-label">Withdrawn Stakes</div><div class="info-value blue" id="dWithdrawnStakes">0</div></div>
+<div class="info-row"><div class="info-label">Withdrawn Stakes</div><div class="info-value red" id="dWithdrawnStakes">0</div></div>
 <div class="info-row"><div class="info-label">Total Staked Value</div><div class="info-value gold" id="dStakedVal">$0</div></div>
 <div class="info-row"><div class="info-label">Expected Payout</div><div class="info-value green" id="dPayout">$0</div></div>
-<div class="info-row"><div class="info-label">Total Fees Collected</div><div class="info-value gold" id="dFees">$0</div></div>
-<div class="info-row"><div class="info-label">Total OLIGHFT Paid In</div><div class="info-value purple" id="dTotalOLIPaid">0</div></div>
+<div class="info-row"><div class="info-label">Total Fees Collected</div><div class="info-value red" id="dFees">$0</div></div>
+<div class="info-row"><div class="info-label">Total OLIGHFT Paid In</div><div class="info-value purple" id="dOlighftPaidIn">0 OLIGHFT</div></div>
+</div>
+
+<!-- All User Staking Records -->
+<div class="card">
+<div class="card-head"><h3>&#x1F4CB; All User Staking Records</h3><span style="font-size:.65rem;background:rgba(16,185,129,.12);color:#34d399;padding:3px 8px;border-radius:6px;font-weight:700" id="stakeRecordsBadge">0</span></div>
+<div class="stake-filter" id="stakeFilter">
+<button class="active" data-filter="all">All</button>
+<button data-filter="active">Active</button>
+<button data-filter="withdrawn">Withdrawn</button>
+<button data-filter="expired">Expired</button>
+</div>
+<div class="stake-table-wrap">
+<table class="stake-table">
+<thead><tr><th>#</th><th>User</th><th>Card Tier</th><th>Amount</th><th>USD</th><th>APY</th><th>Lock</th><th>Start</th><th>Status</th><th>Reward</th></tr></thead>
+<tbody id="stakeRecordsBody"></tbody>
+</table>
+</div>
+<div id="stakeRecordsEmpty" style="text-align:center;color:rgba(255,255,255,.2);padding:20px;font-size:.75rem;display:none">No staking records found</div>
 </div>
 
 <!-- Token Balances -->
@@ -250,10 +284,55 @@ function getCardStakes(){return JSON.parse(localStorage.getItem('card_stakes')||
 function getWalletStakes(){return JSON.parse(localStorage.getItem('wallet_stakes')||'[]');}
 function getStakes(){return getCardStakes().concat(getWalletStakes());}
 function getBalances(){try{return JSON.parse(localStorage.getItem('cw_balances')||'null')||DEFAULT_BALS;}catch(e){return DEFAULT_BALS;}}
-function getAccounts(){try{var r=localStorage.getItem('cw_accounts');return r?JSON.parse(atob(r)):[];}catch(e){return[];}}
+function getAccounts(){
+  var pkeys={},all=[];
+  function addAccts(arr){arr.forEach(function(a){if(a.publicKey&&pkeys[a.publicKey])return;if(a.publicKey)pkeys[a.publicKey]=true;all.push(a);});}
+  try{var r=localStorage.getItem('cw_accounts');if(r)addAccts(JSON.parse(atob(r)));}catch(e){}
+  var seen={'cw_accounts':1};
+  for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(!k||seen[k])continue;if(k.indexOf('cw_accounts_')===0){seen[k]=1;try{addAccts(JSON.parse(atob(localStorage.getItem(k))));}catch(e){}}}
+  var allUsers=[];try{allUsers=JSON.parse(localStorage.getItem('cw_all_users')||'[]');}catch(e){}
+  allUsers.forEach(function(u){var uid=(u.email||u.name||'').toLowerCase().replace(/[^a-z0-9]/g,'_');if(!uid)return;var k2='cw_accounts_'+uid;if(seen[k2])return;seen[k2]=1;try{var v=localStorage.getItem(k2);if(v)addAccts(JSON.parse(atob(v)));}catch(e){}});
+  return all;
+}
 function getSecSettings(){return JSON.parse(localStorage.getItem('cw_security')||'{}');}
 function getMsConfig(){return JSON.parse(localStorage.getItem('cw_multisig')||'null');}
-function getAdminDeposits(){return JSON.parse(localStorage.getItem('cw_admin_deposits')||'[]');}
+function getAdminDeposits(){
+  var ids={},all=[];
+  function addDeps(arr){arr.forEach(function(d){if(d.id&&ids[d.id])return;if(d.id)ids[d.id]=true;all.push(d);});}
+  try{addDeps(JSON.parse(localStorage.getItem('cw_admin_deposits')||'[]'));}catch(e){}
+  var seen={'cw_admin_deposits':1};
+  for(var i=0;i<localStorage.length;i++){
+    var k=localStorage.key(i);if(!k||seen[k])continue;
+    if(k.indexOf('cw_admin_deposits_')===0){seen[k]=1;try{addDeps(JSON.parse(localStorage.getItem(k)||'[]'));}catch(e){}}
+  }
+  var allUsers=[];try{allUsers=JSON.parse(localStorage.getItem('cw_all_users')||'[]');}catch(e){}
+  allUsers.forEach(function(u){
+    var uid=(u.email||u.name||'').toLowerCase().replace(/[^a-z0-9]/g,'_');if(!uid)return;
+    var k2='cw_admin_deposits_'+uid;if(seen[k2])return;seen[k2]=1;
+    try{addDeps(JSON.parse(localStorage.getItem(k2)||'[]'));}catch(e){}
+  });
+  return all;
+}
+function getAllSendTxs(){
+  var ids={},all=[];
+  function addTxs(arr){arr.forEach(function(t){var k=(t.hash||'')+'_'+(t.time||0);if(k&&ids[k])return;if(k)ids[k]=true;all.push(t);});}
+  try{addTxs(JSON.parse(localStorage.getItem('send_txs')||'[]'));}catch(e){}
+  var seen={'send_txs':1};
+  for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(!k||seen[k])continue;if(k.indexOf('send_txs_')===0){seen[k]=1;try{addTxs(JSON.parse(localStorage.getItem(k)||'[]'));}catch(e){}}}
+  var allUsers=[];try{allUsers=JSON.parse(localStorage.getItem('cw_all_users')||'[]');}catch(e){}
+  allUsers.forEach(function(u){var uid=(u.email||u.name||'').toLowerCase().replace(/[^a-z0-9]/g,'_');if(!uid)return;var k2='send_txs_'+uid;if(seen[k2])return;seen[k2]=1;try{addTxs(JSON.parse(localStorage.getItem(k2)||'[]'));}catch(e){}});
+  return all;
+}
+function getAllSwapTxs(){
+  var ids={},all=[];
+  function addTxs(arr){arr.forEach(function(t){var k=(t.hash||'')+'_'+(t.time||0);if(k&&ids[k])return;if(k)ids[k]=true;all.push(t);});}
+  try{addTxs(JSON.parse(localStorage.getItem('swap_txs')||'[]'));}catch(e){}
+  var seen={'swap_txs':1};
+  for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(!k||seen[k])continue;if(k.indexOf('swap_txs_')===0){seen[k]=1;try{addTxs(JSON.parse(localStorage.getItem(k)||'[]'));}catch(e){}}}
+  var allUsers=[];try{allUsers=JSON.parse(localStorage.getItem('cw_all_users')||'[]');}catch(e){}
+  allUsers.forEach(function(u){var uid=(u.email||u.name||'').toLowerCase().replace(/[^a-z0-9]/g,'_');if(!uid)return;var k2='swap_txs_'+uid;if(seen[k2])return;seen[k2]=1;try{addTxs(JSON.parse(localStorage.getItem(k2)||'[]'));}catch(e){}});
+  return all;
+}
 function fmtBal(v){return v<0.001?v.toFixed(8):v<1?v.toFixed(6):v<100?v.toFixed(4):v.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2});}
 function shortAddr(a){return a?a.slice(0,8)+'...'+a.slice(-4):'-';}
 function showToast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2500);}
@@ -341,43 +420,204 @@ function init(){
   document.getElementById('pOLI').textContent=fmtBal(bals.OLIGHFT||0);
   document.getElementById('pHD').textContent=accounts.length;
 
-  // Staking — ALL users: combine card_stakes + wallet_stakes (shared localStorage arrays)
-  var cardSt=getCardStakes(),walletSt=getWalletStakes();
-  var totalStaked=0,totalPayout=0,totalFees=0,activeStakes=0,allStakeCount=0,withdrawnStakes=0,totalOLIPaid=0;
-  var now=Date.now();
-  // Card stakes (all users)
-  cardSt.forEach(function(s){
-    allStakeCount++;
-    totalStaked+=s.stake||0;totalPayout+=s.payout||0;totalFees+=s.fee||0;
-    totalOLIPaid+=s.paidOLIGHFT||0;
-    if(s.withdrawn){withdrawnStakes++;return;}
-    var end=new Date(s.date).getTime()+((s.period||0)*86400000);
-    if(now<end)activeStakes++;
-  });
-  // Wallet stakes (all users)
-  walletSt.forEach(function(s){
-    allStakeCount++;
-    var amt=parseFloat(s.amount)||0;
-    var lockDays=parseInt(s.lockDays)||0;
-    var startTs=new Date(s.startDate||s.date||0).getTime();
-    var endTs=startTs+(lockDays*86400000);
-    var usdVal=amt*0.50;
-    totalStaked+=usdVal;
-    totalOLIPaid+=amt;
-    totalPayout+=(s.estimatedReward?parseFloat(s.estimatedReward)*0.50:usdVal);
-    if(s.withdrawn){withdrawnStakes++;return;}
-    if(lockDays>0&&now<endTs)activeStakes++;
-  });
-  // Add fee revenue from admin deposits (the authoritative fee record)
-  var depFeeTotal=deps.reduce(function(sum,d){return sum+(d.usd||0);},0);
-  if(depFeeTotal>totalFees)totalFees=depFeeTotal;
-  document.getElementById('dStakeCount').textContent=allStakeCount;
-  document.getElementById('dActiveStakes').textContent=activeStakes;
-  document.getElementById('dWithdrawnStakes').textContent=withdrawnStakes;
-  document.getElementById('dStakedVal').textContent='$'+totalStaked.toLocaleString();
-  document.getElementById('dPayout').textContent='$'+totalPayout.toLocaleString();
-  document.getElementById('dFees').textContent='$'+totalFees.toLocaleString();
-  document.getElementById('dTotalOLIPaid').textContent=totalOLIPaid.toLocaleString()+' OLIGHFT';
+  // Staking — Try backend API first, then fall back to localStorage
+  var BACKEND_URL='https://109.199.109.143:3000';
+  loadStakingSummary();
+
+  function loadStakingSummary(){
+    // Always load from localStorage first so records show immediately
+    loadStakingFromLocalStorage();
+    // Then try API — if it has data, overlay it
+    fetch(BACKEND_URL+'/api/admin/staking-summary',{method:'GET',headers:{'Content-Type':'application/json'}})
+    .then(function(r){if(!r.ok)throw new Error(r.status);return r.json();})
+    .then(function(data){
+      if(data.records&&data.records.length>0){
+        renderStakingSummary(data.summary,'api');
+        renderStakeRecords(data.records,'api');
+      }
+    })
+    .catch(function(){});
+  }
+
+  function renderStakingSummary(s,source){
+    document.getElementById('dStakeCount').textContent=s.totalStakes;
+    document.getElementById('dActiveStakes').textContent=s.activeStakes;
+    document.getElementById('dWithdrawnStakes').textContent=s.withdrawnStakes;
+    document.getElementById('dStakedVal').textContent='$'+s.totalStakedValue.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2});
+    document.getElementById('dPayout').textContent='$'+s.expectedPayout.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2});
+    document.getElementById('dFees').textContent='$'+s.totalFees.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2});
+    document.getElementById('dOlighftPaidIn').textContent=fmtBal(s.totalOlighftPaidIn)+' OLIGHFT';
+    var srcEl=document.getElementById('stakeSrc');
+    srcEl.textContent=source==='api'?'LIVE API':'LOCAL';
+    srcEl.className='stake-src '+(source==='api'?'api':'local');
+    // Update Quick Stats active stakes + transaction count
+    var qsActive=document.getElementById('qsActiveStakes');
+    var qsTotal=document.getElementById('qsTotalStakes');
+    var qsTxStakes=document.getElementById('qsTxStakes');
+    if(qsActive)qsActive.textContent=s.activeStakes;
+    if(qsTotal)qsTotal.textContent=s.totalStakes;
+    if(qsTxStakes)qsTxStakes.textContent=s.totalStakes;
+  }
+
+  function renderStakeRecords(records,source){
+    window._allStakeRecords=records;
+    var badge=document.getElementById('stakeRecordsBadge');
+    badge.textContent=records.length;
+    filterStakeRecords('all');
+    // Wire up filter buttons
+    var btns=document.querySelectorAll('#stakeFilter button');
+    for(var i=0;i<btns.length;i++){
+      btns[i].onclick=(function(btn){return function(){
+        for(var j=0;j<btns.length;j++)btns[j].classList.remove('active');
+        btn.classList.add('active');
+        filterStakeRecords(btn.getAttribute('data-filter'));
+      };})(btns[i]);
+    }
+  }
+
+  function filterStakeRecords(filter){
+    var records=window._allStakeRecords||[];
+    var now=Date.now();
+    var filtered=records.filter(function(r){
+      if(filter==='all')return true;
+      if(filter==='active')return r.status==='active';
+      if(filter==='withdrawn')return r.status==='withdrawn';
+      if(filter==='expired')return r.status!=='withdrawn'&&r.endDate&&r.endDate<now;
+      return true;
+    });
+    var tbody=document.getElementById('stakeRecordsBody');
+    var empty=document.getElementById('stakeRecordsEmpty');
+    if(!filtered.length){
+      tbody.innerHTML='';
+      empty.style.display='block';
+      return;
+    }
+    empty.style.display='none';
+    var html='';
+    filtered.forEach(function(r,i){
+      var statusCls=r.status==='active'?'st-active':r.status==='withdrawn'?'st-withdrawn':'st-expired';
+      var statusLabel=r.status==='active'?(r.endDate&&r.endDate<now?'Expired':'Active'):r.status==='withdrawn'?'Withdrawn':'—';
+      var start=r.startDate?new Date(r.startDate).toLocaleDateString():'—';
+      html+='<tr>';
+      html+='<td>'+(i+1)+'</td>';
+      html+='<td title="'+(r.email||'')+'">'+(r.user||'—')+'</td>';
+      html+='<td>'+(r.cardTier||'—')+'</td>';
+      html+='<td>'+fmtBal(r.amount||0)+'</td>';
+      html+='<td style="color:#f5c518">$'+(r.usd||0).toFixed(2)+'</td>';
+      html+='<td>'+(r.apy||0)+'%</td>';
+      html+='<td>'+(r.lockDays||0)+'d</td>';
+      html+='<td>'+start+'</td>';
+      html+='<td class="'+statusCls+'">'+statusLabel+'</td>';
+      html+='<td style="color:#34d399">'+fmtBal(r.estimatedReward||r.reward||0)+'</td>';
+      html+='</tr>';
+    });
+    tbody.innerHTML=html;
+  }
+
+  function loadStakingFromLocalStorage(){
+    var totalStaked=0,totalPayout=0,totalFees=0,activeStakes=0,allStakeCount=0,withdrawnStakes=0,totalOlighftPaidIn=0;
+    var _now=Date.now();
+    var localRecords=[];
+    var _seenIds={};
+
+    function _processCardStake(s,srcUser){
+      var sid=s.id||(s.card+'_'+s.date);
+      if(_seenIds[sid]){
+        // merge withdrawn flag from any source
+        if(s.withdrawn){
+          for(var ri=0;ri<localRecords.length;ri++){
+            if(localRecords[ri].id===sid&&localRecords[ri].status!=='withdrawn'){
+              localRecords[ri].status='withdrawn';
+              activeStakes--;withdrawnStakes++;
+            }
+          }
+        }
+        return;
+      }
+      _seenIds[sid]=1;
+      allStakeCount++;
+      var stakeAmt=parseFloat(s.stake)||0;
+      totalStaked+=stakeAmt;
+      totalPayout+=parseFloat(s.payout)||0;
+      totalFees+=parseFloat(s.fee)||0;
+      var oliAmt=parseFloat(s.paidOLIGHFT)||(stakeAmt/0.50)||0;
+      totalOlighftPaidIn+=oliAmt;
+      var end=new Date(s.date).getTime()+((s.period||0)*86400000);
+      var st=s.withdrawn?'withdrawn':(_now<end?'active':'expired');
+      if(s.withdrawn)withdrawnStakes++;
+      else if(_now<end)activeStakes++;
+      localRecords.push({id:sid,user:s.activatedBy||s.userEmail||srcUser||'—',email:s.userEmail||'',cardTier:s.card||'—',amount:oliAmt,usd:stakeAmt,apy:0,lockDays:s.period||0,startDate:new Date(s.date).getTime(),endDate:end,status:st,reward:parseFloat(s.payout)||0,estimatedReward:parseFloat(s.estimatedTotalReward)||parseFloat(s.payout)||0});
+    }
+    function _processWalletStake(s,srcUser){
+      var sid=s.id||(s.cardTier+'_wallet_'+s.startDate);
+      if(_seenIds[sid]){
+        if(s.withdrawn){
+          for(var ri=0;ri<localRecords.length;ri++){
+            if(localRecords[ri].id===sid&&localRecords[ri].status!=='withdrawn'){
+              localRecords[ri].status='withdrawn';
+              activeStakes--;withdrawnStakes++;
+            }
+          }
+        }
+        return;
+      }
+      _seenIds[sid]=1;
+      allStakeCount++;
+      var amt=parseFloat(s.amount)||0;
+      var lockDays=parseInt(s.lockDays)||0;
+      var startTs=new Date(s.startDate||s.date||0).getTime();
+      var endTs=startTs+(lockDays*86400000);
+      var usdVal=amt*0.50;
+      totalStaked+=usdVal;
+      totalPayout+=(s.estimatedReward?parseFloat(s.estimatedReward)*0.50:usdVal);
+      totalOlighftPaidIn+=amt;
+      var st=s.withdrawn?'withdrawn':(lockDays>0&&_now<endTs?'active':(_now>=endTs?'expired':'active'));
+      if(s.withdrawn)withdrawnStakes++;
+      else if(lockDays>0&&_now<endTs)activeStakes++;
+      localRecords.push({id:sid,user:s.activatedBy||s.userEmail||srcUser||'—',email:s.userEmail||'',cardTier:s.cardTier||'Wallet',amount:amt,usd:usdVal,apy:parseFloat(s.apy)||0,lockDays:lockDays,startDate:startTs,endDate:endTs||null,status:st,reward:parseFloat(s.reward)||0,estimatedReward:parseFloat(s.estimatedTotalReward)||0});
+    }
+
+    // 1) Read shared keys
+    getCardStakes().forEach(function(s){_processCardStake(s,'');});
+    getWalletStakes().forEach(function(s){_processWalletStake(s,'');});
+
+    // 2) Scan ALL localStorage for per-user stake keys
+    var _seenStakeKeys={'card_stakes':1,'wallet_stakes':1};
+    for(var _si=0;_si<localStorage.length;_si++){
+      var _sk2=localStorage.key(_si);
+      if(!_sk2||_seenStakeKeys[_sk2])continue;
+      var uidFromKey='';
+      if(_sk2.indexOf('card_stakes_')===0){uidFromKey=_sk2.slice(12);}
+      else if(_sk2.indexOf('cw_card_stakes_')===0){uidFromKey=_sk2.slice(15);}
+      else if(_sk2.indexOf('wallet_stakes_')===0){uidFromKey=_sk2.slice(14);}
+      else if(_sk2.indexOf('cw_wallet_stakes_')===0){uidFromKey=_sk2.slice(17);}
+      if(!uidFromKey)continue;
+      _seenStakeKeys[_sk2]=1;
+      try{
+        var arr=JSON.parse(localStorage.getItem(_sk2)||'[]');
+        if(_sk2.indexOf('card')!==-1)arr.forEach(function(s){_processCardStake(s,uidFromKey);});
+        else arr.forEach(function(s){_processWalletStake(s,uidFromKey);});
+      }catch(e){}
+    }
+
+    // 3) Also scan cw_all_users registry for any missed per-user keys
+    var _allU=[];try{_allU=JSON.parse(localStorage.getItem('cw_all_users')||'[]');}catch(e){}
+    _allU.forEach(function(u){
+      var uid=(u.email||u.name||'').toLowerCase().replace(/[^a-z0-9]/g,'_');
+      if(!uid)return;
+      ['card_stakes_'+uid,'wallet_stakes_'+uid,'cw_card_stakes_'+uid,'cw_wallet_stakes_'+uid].forEach(function(k){
+        if(_seenStakeKeys[k])return;_seenStakeKeys[k]=1;
+        try{var arr=JSON.parse(localStorage.getItem(k)||'[]');
+          if(k.indexOf('card')!==-1)arr.forEach(function(s){_processCardStake(s,u.email||u.name||uid);});
+          else arr.forEach(function(s){_processWalletStake(s,u.email||u.name||uid);});
+        }catch(e){}
+      });
+    });
+
+    localRecords.sort(function(a,b){return(b.startDate||0)-(a.startDate||0);});
+    renderStakingSummary({totalStakes:allStakeCount,activeStakes:activeStakes,withdrawnStakes:withdrawnStakes,totalStakedValue:totalStaked,expectedPayout:totalPayout,totalFees:totalFees,totalOlighftPaidIn:totalOlighftPaidIn},'local');
+    renderStakeRecords(localRecords,'local');
+  }
 
   // Security
   updateSecUI();
@@ -388,16 +628,16 @@ function init(){
 
   // Quick stats
   var feeTotal=deps.reduce(function(s,d){return s+(d.usd||0);},0);
-  var sends=JSON.parse(localStorage.getItem('send_txs')||'[]');
-  var swaps=JSON.parse(localStorage.getItem('swap_txs')||'[]');
+  var sends=getAllSendTxs();
+  var swaps=getAllSwapTxs();
   var activity=[];try{activity=JSON.parse(localStorage.getItem('cw_activity')||'[]');}catch(e){}
   var genPending=[];try{genPending=JSON.parse(localStorage.getItem('cw_gen_pending')||'[]');}catch(e){}
   var notifications=[];try{notifications=JSON.parse(localStorage.getItem('cw_tx_notifications')||'[]');}catch(e){}
   document.getElementById('accountStats').innerHTML=
     '<div class="stat"><div class="s-label">Portfolio</div><div class="s-val gold">$'+portfolioVal.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})+'</div><div class="s-sub">'+Object.keys(bals).length+' tokens</div></div>'+
-    '<div class="stat"><div class="s-label">Active Stakes</div><div class="s-val green">'+activeStakes+'</div><div class="s-sub">of '+allStakeCount+' total</div></div>'+
+    '<div class="stat"><div class="s-label">Active Stakes</div><div class="s-val green" id="qsActiveStakes">...</div><div class="s-sub">of <span id="qsTotalStakes">...</span> total</div></div>'+
     '<div class="stat"><div class="s-label">Fee Revenue</div><div class="s-val gold">$'+feeTotal.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})+'</div><div class="s-sub">'+deps.length+' deposits</div></div>'+
-    '<div class="stat"><div class="s-label">Transactions</div><div class="s-val purple">'+(sends.length+swaps.length+allStakeCount)+'</div><div class="s-sub">'+sends.length+' sends · '+swaps.length+' swaps</div></div>'+
+    '<div class="stat"><div class="s-label">Transactions</div><div class="s-val purple">'+(sends.length+swaps.length)+'+ <span id="qsTxStakes">...</span></div><div class="s-sub">'+sends.length+' sends · '+swaps.length+' swaps</div></div>'+
     '<div class="stat"><div class="s-label">HD Accounts</div><div class="s-val blue">'+accounts.length+'</div><div class="s-sub">SEP-0005 derived</div></div>'+
     '<div class="stat"><div class="s-label">Security</div><div class="s-val '+(sec.tog2fa?'green':'red')+'">'+(sec.tog2fa?'HIGH':'STANDARD')+'</div><div class="s-sub">2FA '+(sec.tog2fa?'enabled':'disabled')+'</div></div>';
 
@@ -569,7 +809,7 @@ function updateSecUI(){
 }
 
 function exportAccountData(){
-  var data={user:getUser(),balances:getBalances(),stakes:getStakes(),accounts:getAccounts(),security:getSecSettings(),multisig:getMsConfig(),adminDeposits:getAdminDeposits(),sends:JSON.parse(localStorage.getItem('send_txs')||'[]'),swaps:JSON.parse(localStorage.getItem('swap_txs')||'[]'),walletConfig:JSON.parse(localStorage.getItem('olighft_wallet_config')||'{}'),exported:new Date().toISOString()};
+  var data={user:getUser(),balances:getBalances(),stakes:getStakes(),accounts:getAccounts(),security:getSecSettings(),multisig:getMsConfig(),adminDeposits:getAdminDeposits(),sends:getAllSendTxs(),swaps:getAllSwapTxs(),walletConfig:JSON.parse(localStorage.getItem('olighft_wallet_config')||'{}'),exported:new Date().toISOString()};
   var blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
   var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='olighft-account-'+Date.now()+'.json';a.click();
   showToast('Account data exported');

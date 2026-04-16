@@ -1343,6 +1343,80 @@ app.get('/api/activity', authMiddleware, (req, res) => {
 // ADMIN ENDPOINTS
 // ═══════════════════════════════════════════════════════════════════════════
 
+// GET /api/admin/staking-summary — aggregated staking stats across ALL users
+app.get('/api/admin/staking-summary', (req, res) => {
+  try {
+    const allStakes = db.prepare('SELECT s.*, u.username, u.email, u.name AS user_name FROM stakes s LEFT JOIN users u ON s.user_id = u.id ORDER BY s.start_date DESC').all();
+    let totalStakes = allStakes.length;
+    let activeStakes = 0, withdrawnStakes = 0;
+    let totalStakedValue = 0, expectedPayout = 0, totalFees = 0, totalOlighftPaidIn = 0;
+    const now = Date.now();
+
+    const records = allStakes.map(s => {
+      const amount = s.amount || 0;
+      const usdVal = amount * 0.50;
+      totalStakedValue += usdVal;
+      totalOlighftPaidIn += amount;
+      totalFees += (s.admin_share || 0) * 0.50;
+      expectedPayout += (s.estimated_total_reward || 0) * 0.50;
+
+      if (s.withdrawn) {
+        withdrawnStakes++;
+      } else if (s.status === 'active') {
+        activeStakes++;
+      }
+
+      return {
+        id: s.id,
+        user: s.user_name || s.username || s.email || 'Unknown',
+        email: s.email || '',
+        asset: s.asset,
+        amount: amount,
+        usd: usdVal,
+        apy: s.apy,
+        cardTier: s.card_tier || '—',
+        lockDays: s.lock_days,
+        startDate: s.start_date,
+        endDate: s.end_date,
+        status: s.withdrawn ? 'withdrawn' : s.status,
+        reward: s.reward || 0,
+        estimatedReward: s.estimated_total_reward || 0,
+        compoundCount: s.compound_count || 0,
+        adminShare: s.admin_share || 0,
+        refShare: s.ref_share || 0,
+        withdrawnAt: s.withdrawn_at || null,
+        txHash: s.tx_hash || null
+      };
+    });
+
+    // Gen commissions summary
+    const genTotal = db.prepare('SELECT COALESCE(SUM(amount),0) as total, COUNT(*) as count FROM gen_commissions').get();
+    // Admin deposits summary
+    const depTotal = db.prepare('SELECT COALESCE(SUM(usd),0) as totalUsd, COALESCE(SUM(amount),0) as totalOli, COUNT(*) as count FROM admin_deposits').get();
+
+    res.json({
+      summary: {
+        totalStakes,
+        activeStakes,
+        withdrawnStakes,
+        totalStakedValue,
+        expectedPayout,
+        totalFees,
+        totalOlighftPaidIn,
+        genCommissionsTotal: genTotal.total,
+        genCommissionsCount: genTotal.count,
+        adminDepositsUsd: depTotal.totalUsd,
+        adminDepositsOli: depTotal.totalOli,
+        adminDepositsCount: depTotal.count
+      },
+      records
+    });
+  } catch (e) {
+    console.error('[ADMIN] staking-summary error:', e);
+    res.status(500).json({ error: 'Failed to load staking summary' });
+  }
+});
+
 // GET /api/admin/deposits
 app.get('/api/admin/deposits', (req, res) => {
   const deposits = stmts.getAdminDeposits.all();

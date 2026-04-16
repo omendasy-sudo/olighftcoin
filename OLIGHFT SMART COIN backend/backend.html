@@ -82,6 +82,11 @@ table tr:hover td{background:rgba(99,102,241,.03)}
 .addr{font-family:'Courier New',monospace;font-size:.68rem;color:#818cf8}
 .badge-active{display:inline-block;font-size:.58rem;padding:2px 8px;border-radius:4px;background:rgba(39,174,96,.12);color:#27ae60;font-weight:600}
 .badge-expired{display:inline-block;font-size:.58rem;padding:2px 8px;border-radius:4px;background:rgba(235,87,87,.12);color:#eb5757;font-weight:600}
+.badge-withdrawn{display:inline-block;font-size:.58rem;padding:2px 8px;border-radius:4px;background:rgba(245,197,24,.12);color:#f5c518;font-weight:600}
+.stake-filter{display:flex;gap:8px;margin-bottom:14px}
+.stake-filter button{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);color:rgba(255,255,255,.5);padding:6px 16px;border-radius:8px;font-size:.7rem;font-weight:600;cursor:pointer;transition:all .2s}
+.stake-filter button:hover{background:rgba(108,92,231,.1);color:#a78bfa}
+.stake-filter button.active{background:rgba(108,92,231,.18);color:#a78bfa;border-color:rgba(108,92,231,.3)}
 
 /* Panels */
 .panel{display:none}
@@ -267,7 +272,13 @@ table tr:hover td{background:rgba(99,102,241,.03)}
 <div class="stats" id="stakeStats"></div>
 <div class="table-card">
 <div class="table-head"><h3>Stake Records</h3><div class="badge" id="stakeCount">0</div></div>
-<table><thead><tr><th>Card</th><th>Stake</th><th>Fee</th><th>Daily</th><th>Period</th><th>Payout</th><th>Sponsor</th><th>Status</th><th>Date</th></tr></thead><tbody id="stakesBody"></tbody></table>
+<div class="stake-filter" id="stakeFilter">
+<button class="active" data-filter="all">All</button>
+<button data-filter="active">Active</button>
+<button data-filter="withdrawn">Withdrawn</button>
+<button data-filter="expired">Expired</button>
+</div>
+<table><thead><tr><th>#</th><th>User</th><th>Card Tier</th><th>Amount</th><th>USD</th><th>APY</th><th>Lock</th><th>Start</th><th>Status</th><th>Reward</th></tr></thead><tbody id="stakesBody"></tbody></table>
 </div>
 </div>
 
@@ -664,16 +675,96 @@ function timeAgo(ts){
   const d=Math.floor(h/24);return d+'d ago';
 }
 function shortAddr(a){return a?a.slice(0,8)+'...'+a.slice(-4):'-';}
-function getStakes(){return JSON.parse(localStorage.getItem('card_stakes')||'[]');}
-function getSendTxs(){return JSON.parse(localStorage.getItem('send_txs')||'[]');}
-function getSwapTxs(){return JSON.parse(localStorage.getItem('swap_txs')||'[]');}
-function getAdminDeposits(){return JSON.parse(localStorage.getItem('cw_admin_deposits')||'[]');}
+function getStakes(){return getAllStakes();}
+function getSendTxs(){return getAllSendTxs();}
+function getAllSendTxs(){
+  var ids={},all=[];
+  function addTxs(arr){arr.forEach(function(t){var k=(t.hash||'')+'_'+(t.time||0);if(k&&ids[k])return;if(k)ids[k]=true;all.push(t);});}
+  try{addTxs(JSON.parse(localStorage.getItem('send_txs')||'[]'));}catch(e){}
+  var seen={'send_txs':1};
+  for(var i=0;i<localStorage.length;i++){
+    var k=localStorage.key(i);if(!k||seen[k])continue;
+    if(k.indexOf('send_txs_')===0){seen[k]=1;try{addTxs(JSON.parse(localStorage.getItem(k)||'[]'));}catch(e){}}
+  }
+  var allUsers=[];try{allUsers=JSON.parse(localStorage.getItem('cw_all_users')||'[]');}catch(e){}
+  allUsers.forEach(function(u){var uid=(u.email||u.name||'').toLowerCase().replace(/[^a-z0-9]/g,'_');if(!uid)return;var k2='send_txs_'+uid;if(seen[k2])return;seen[k2]=1;try{addTxs(JSON.parse(localStorage.getItem(k2)||'[]'));}catch(e){}});
+  return all;
+}
+function getSwapTxs(){return getAllSwapTxs();}
+function getAllSwapTxs(){
+  var ids={},all=[];
+  function addTxs(arr){arr.forEach(function(t){var k=(t.hash||'')+'_'+(t.time||0);if(k&&ids[k])return;if(k)ids[k]=true;all.push(t);});}
+  try{addTxs(JSON.parse(localStorage.getItem('swap_txs')||'[]'));}catch(e){}
+  var seen={'swap_txs':1};
+  for(var i=0;i<localStorage.length;i++){
+    var k=localStorage.key(i);if(!k||seen[k])continue;
+    if(k.indexOf('swap_txs_')===0){seen[k]=1;try{addTxs(JSON.parse(localStorage.getItem(k)||'[]'));}catch(e){}}
+  }
+  var allUsers=[];try{allUsers=JSON.parse(localStorage.getItem('cw_all_users')||'[]');}catch(e){}
+  allUsers.forEach(function(u){var uid=(u.email||u.name||'').toLowerCase().replace(/[^a-z0-9]/g,'_');if(!uid)return;var k2='swap_txs_'+uid;if(seen[k2])return;seen[k2]=1;try{addTxs(JSON.parse(localStorage.getItem(k2)||'[]'));}catch(e){}});
+  return all;
+}
+function getAdminDeposits(){return getAllAdminDeposits();}
+function getAllAdminDeposits(){
+  var ids={},all=[];
+  function addDeps(arr){arr.forEach(function(d){if(d.id&&ids[d.id])return;if(d.id)ids[d.id]=true;all.push(d);});}
+  try{addDeps(JSON.parse(localStorage.getItem('cw_admin_deposits')||'[]'));}catch(e){}
+  var seen={'cw_admin_deposits':1};
+  for(var i=0;i<localStorage.length;i++){
+    var k=localStorage.key(i);if(!k||seen[k])continue;
+    if(k.indexOf('cw_admin_deposits_')===0){
+      seen[k]=1;try{addDeps(JSON.parse(localStorage.getItem(k)||'[]'));}catch(e){}
+    }
+  }
+  var allUsers=[];try{allUsers=JSON.parse(localStorage.getItem('cw_all_users')||'[]');}catch(e){}
+  allUsers.forEach(function(u){
+    var uid=(u.email||u.name||'').toLowerCase().replace(/[^a-z0-9]/g,'_');if(!uid)return;
+    var k2='cw_admin_deposits_'+uid;
+    if(seen[k2])return;seen[k2]=1;
+    try{addDeps(JSON.parse(localStorage.getItem(k2)||'[]'));}catch(e){}
+  });
+  return all;
+}
 function getWalletStakesAdmin(){return JSON.parse(localStorage.getItem('wallet_stakes')||'[]');}
-function getAllStakes(){var cs=getStakes(),ws=getWalletStakesAdmin(),ids={};cs.forEach(function(s){ids[s.id]=true;});var all=cs.slice();ws.forEach(function(s){if(!ids[s.id])all.push(s);});return all;}
+function getAllStakes(){
+  var ids={},all=[];
+  function addStakes(arr){arr.forEach(function(s){if(s.id&&ids[s.id])return;if(s.id)ids[s.id]=true;all.push(s);});}
+  try{addStakes(JSON.parse(localStorage.getItem('card_stakes')||'[]'));}catch(e){}
+  try{addStakes(JSON.parse(localStorage.getItem('wallet_stakes')||'[]'));}catch(e){}
+  var seen={'card_stakes':1,'wallet_stakes':1};
+  for(var i=0;i<localStorage.length;i++){
+    var k=localStorage.key(i);if(!k||seen[k])continue;
+    if(k.indexOf('card_stakes_')===0||k.indexOf('cw_card_stakes_')===0||k.indexOf('wallet_stakes_')===0||k.indexOf('cw_wallet_stakes_')===0){
+      seen[k]=1;try{addStakes(JSON.parse(localStorage.getItem(k)||'[]'));}catch(e){}
+    }
+  }
+  var allUsers=[];try{allUsers=JSON.parse(localStorage.getItem('cw_all_users')||'[]');}catch(e){}
+  allUsers.forEach(function(u){
+    var uid=(u.email||u.name||'').toLowerCase().replace(/[^a-z0-9]/g,'_');if(!uid)return;
+    ['card_stakes_'+uid,'wallet_stakes_'+uid,'cw_card_stakes_'+uid,'cw_wallet_stakes_'+uid].forEach(function(k2){
+      if(seen[k2])return;seen[k2]=1;
+      try{addStakes(JSON.parse(localStorage.getItem(k2)||'[]'));}catch(e){}
+    });
+  });
+  return all;
+}
 function stakeEndTs(s){var days=s.period||s.lockDays||0;return new Date(s.date||s.startDate).getTime()+(days*86400000);}
 function isExpired(s){return !s.withdrawn && (s.period||s.lockDays||0)>0 && Date.now()>=stakeEndTs(s);}
 function stakePayout(s){return s.payout||(s.dailyReward?(s.dailyReward*(s.lockDays||s.period||0)):0);}
-function getAccounts(){try{const r=localStorage.getItem('cw_accounts');return r?JSON.parse(atob(r)):[];}catch(e){return[];}}
+function getAccounts(){return getAllAccounts();}
+function getAllAccounts(){
+  var pkeys={},all=[];
+  function addAccts(arr){arr.forEach(function(a){if(a.publicKey&&pkeys[a.publicKey])return;if(a.publicKey)pkeys[a.publicKey]=true;all.push(a);});}
+  try{var r=localStorage.getItem('cw_accounts');if(r)addAccts(JSON.parse(atob(r)));}catch(e){}
+  var seen={'cw_accounts':1};
+  for(var i=0;i<localStorage.length;i++){
+    var k=localStorage.key(i);if(!k||seen[k])continue;
+    if(k.indexOf('cw_accounts_')===0){seen[k]=1;try{addAccts(JSON.parse(atob(localStorage.getItem(k))));}catch(e){}}
+  }
+  var allUsers=[];try{allUsers=JSON.parse(localStorage.getItem('cw_all_users')||'[]');}catch(e){}
+  allUsers.forEach(function(u){var uid=(u.email||u.name||'').toLowerCase().replace(/[^a-z0-9]/g,'_');if(!uid)return;var k2='cw_accounts_'+uid;if(seen[k2])return;seen[k2]=1;try{var v=localStorage.getItem(k2);if(v)addAccts(JSON.parse(atob(v)));}catch(e){}});
+  return all;
+}
 function getUser(){return JSON.parse(localStorage.getItem('cw_user')||'null');}
 function getMsConfig(){return JSON.parse(localStorage.getItem('cw_multisig')||'null');}
 function getSecSettings(){return JSON.parse(localStorage.getItem('cw_security')||'{}');}
@@ -688,17 +779,17 @@ function fmtBal(v){return v<0.001?v.toFixed(8):v<1?v.toFixed(6):v<100?v.toFixed(
 // ── Dashboard ──
 function renderDashboard(){
   const user=getUser();
-  const stakes=getStakes();
+  const stakes=getAllStakes();
   const sends=getSendTxs();
   const swaps=getSwapTxs();
   const accounts=getAccounts();
   const TOTAL_SUPPLY=100000000000000;
   let totalStaked=0,totalPayout=0,activeStakes=0;
   stakes.forEach(s=>{
-    totalStaked+=s.stake||0;
-    totalPayout+=s.payout||0;
-    const start=new Date(s.date).getTime();
-    const end=start+((s.period||0)*86400000);
+    totalStaked+=(s.stake||s.amount||0);
+    totalPayout+=stakePayout(s);
+    const start=new Date(s.date||s.startDate).getTime();
+    const end=start+((s.period||s.lockDays||0)*86400000);
     if(Date.now()<end)activeStakes++;
   });
   const remaining=TOTAL_SUPPLY-totalPayout;
@@ -724,7 +815,10 @@ function renderDashboard(){
   document.getElementById('acctHD').textContent=accounts.length;
   document.getElementById('acctFeeRev').textContent='$'+adminFeeTotal.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2});
 
+  var allRegUsers=[];try{allRegUsers=JSON.parse(localStorage.getItem('cw_all_users')||'[]');}catch(e){}
+
   document.getElementById('dashStats').innerHTML=
+    '<div class="stat-card"><div class="sc-label">Registered Users</div><div class="sc-val sc-blue">'+allRegUsers.length+'</div><div class="sc-sub">All platform users</div></div>'+
     '<div class="stat-card"><div class="sc-label">Total Supply</div><div class="sc-val sc-gold">'+TOTAL_SUPPLY.toLocaleString()+'</div><div class="sc-sub">OLIGHFT tokens</div></div>'+
     '<div class="stat-card"><div class="sc-label">Remaining Supply</div><div class="sc-val sc-green">'+remaining.toLocaleString()+'</div><div class="sc-sub">'+(remaining/TOTAL_SUPPLY*100).toFixed(6)+'% available</div></div>'+
     '<div class="stat-card"><div class="sc-label">Wallet Portfolio</div><div class="sc-val sc-blue">$'+portfolioVal.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})+'</div><div class="sc-sub">'+Object.keys(bals).length+' tokens</div></div>'+
@@ -819,35 +913,61 @@ function viewUser(idx){
 }
 
 // ── Stakes ──
+var _stakeFilterCurrent='all';
 function renderStakes(){
-  const stakes=getStakes();
-  let totalStaked=0,totalPayout=0,totalFees=0,active=0;
-  const cards={};
+  const stakes=getAllStakes();
+  var now=Date.now();
+  let totalStaked=0,totalPayout=0,totalFees=0,active=0,withdrawn=0,expired=0;
   stakes.forEach(s=>{
-    totalStaked+=s.stake||0;
-    totalPayout+=s.payout||0;
+    totalStaked+=(s.stake||s.amount||0);
+    totalPayout+=stakePayout(s);
     totalFees+=s.fee||0;
-    const start=new Date(s.date).getTime();
-    const end=start+((s.period||0)*86400000);
-    if(Date.now()<end)active++;
-    cards[s.card]=(cards[s.card]||0)+1;
+    if(s.withdrawn){withdrawn++;}
+    else{const end=stakeEndTs(s);if(now<end)active++;else expired++;}
   });
 
   document.getElementById('stakeStats').innerHTML=
     '<div class="stat-card"><div class="sc-label">Total Stakes</div><div class="sc-val sc-purple">'+stakes.length+'</div></div>'+
     '<div class="stat-card"><div class="sc-label">Active Stakes</div><div class="sc-val sc-green">'+active+'</div></div>'+
+    '<div class="stat-card"><div class="sc-label">Withdrawn</div><div class="sc-val sc-gold">'+withdrawn+'</div></div>'+
+    '<div class="stat-card"><div class="sc-label">Expired</div><div class="sc-val sc-red">'+expired+'</div></div>'+
     '<div class="stat-card"><div class="sc-label">Total Staked</div><div class="sc-val sc-gold">$'+totalStaked.toLocaleString()+'</div></div>'+
     '<div class="stat-card"><div class="sc-label">Total Fees</div><div class="sc-val sc-red">$'+totalFees.toLocaleString()+'</div></div>'+
     '<div class="stat-card"><div class="sc-label">Total Payout</div><div class="sc-val sc-blue">$'+totalPayout.toLocaleString()+'</div></div>';
 
   document.getElementById('stakeCount').textContent=stakes.length;
-  document.getElementById('stakesBody').innerHTML=stakes.map(s=>{
-    const start=new Date(s.date).getTime();
-    const end=start+((s.period||0)*86400000);
-    const isActive=Date.now()<end;
-    const d=new Date(s.date).toLocaleDateString();
-    return '<tr><td style="font-weight:600">'+s.card+'</td><td>$'+s.stake+'</td><td style="font-weight:700;color:#eb5757">$'+(s.fee||0)+'</td><td>$'+s.daily+'/day</td><td>'+s.period+' days</td><td style="font-weight:700;color:#27ae60">$'+s.payout+'</td><td>'+(s.sponsor||'-')+'</td><td>'+(isActive?'<span class="badge-active">Active</span>':'<span class="badge-expired">Expired</span>')+'</td><td>'+d+'</td></tr>';
-  }).join('')||'<tr><td colspan="9" style="text-align:center;color:rgba(255,255,255,.2)">No stakes yet</td></tr>';
+
+  // Filter
+  var filtered=stakes;
+  if(_stakeFilterCurrent==='active')filtered=stakes.filter(function(s){return !s.withdrawn&&now<stakeEndTs(s);});
+  else if(_stakeFilterCurrent==='withdrawn')filtered=stakes.filter(function(s){return s.withdrawn===true;});
+  else if(_stakeFilterCurrent==='expired')filtered=stakes.filter(function(s){return !s.withdrawn&&now>=stakeEndTs(s);});
+
+  document.getElementById('stakesBody').innerHTML=filtered.map(function(s,i){
+    var end=stakeEndTs(s);
+    var d=new Date(s.date||s.startDate).toLocaleDateString();
+    var stakeVal=s.stake||s.amount||0;
+    var payoutVal=stakePayout(s);
+    var oliAmt=parseFloat(s.paidOLIGHFT)||(stakeVal/0.50)||0;
+    var periodVal=s.period||s.lockDays||0;
+    var apyVal=s.apy||0;
+    var statusBadge;
+    if(s.withdrawn)statusBadge='<span class="badge-withdrawn">Withdrawn</span>';
+    else if(now<end)statusBadge='<span class="badge-active">Active</span>';
+    else statusBadge='<span class="badge-expired">Expired</span>';
+    return '<tr><td>'+(i+1)+'</td><td title="'+(s.userEmail||'')+'">'+(s.activatedBy||s.user||'-')+'</td><td style="font-weight:600">'+(s.card||s.cardTier||s.asset||'Wallet')+'</td><td>'+fmtBal(oliAmt)+'</td><td style="color:#f5c518">$'+stakeVal.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})+'</td><td>'+apyVal+'%</td><td>'+periodVal+'d</td><td>'+d+'</td><td>'+statusBadge+'</td><td style="color:#34d399">'+fmtBal(parseFloat(s.estimatedTotalReward)||payoutVal||0)+'</td></tr>';
+  }).join('')||'<tr><td colspan="10" style="text-align:center;color:rgba(255,255,255,.2)">No stakes yet</td></tr>';
+
+  // Wire filter buttons
+  var btns=document.querySelectorAll('#stakeFilter button');
+  for(var i=0;i<btns.length;i++){
+    btns[i].onclick=(function(btn){return function(){
+      for(var j=0;j<btns.length;j++)btns[j].classList.remove('active');
+      btn.classList.add('active');
+      _stakeFilterCurrent=btn.getAttribute('data-filter');
+      renderStakes();
+    };})(btns[i]);
+  }
 }
 
 // ── Transactions ──
@@ -872,7 +992,10 @@ function buildAllTxItems(){
   // Stakes
   var stakes=getStakes();
   stakes.forEach(function(s){
-    items.push({cat:'stake',icon:'\uD83D\uDCC8',type:'Stake',detail:(s.card||'Card')+' $'+(s.stake||0)+' \u00B7 '+(s.period||s.lockDays||0)+'d \u00B7 Payout $'+(s.payout||0),amt:'-$'+(s.stake||0),cls:'red',ts:new Date(s.date||s.startDate).getTime()||0});
+    var stk=s.stake||s.amount||0;
+    var per=s.period||s.lockDays||0;
+    var pay=stakePayout(s);
+    items.push({cat:'stake',icon:'\uD83D\uDCC8',type:'Stake',detail:(s.card||s.cardTier||'Wallet')+' $'+stk+' \u00B7 '+per+'d \u00B7 Payout $'+pay,amt:'-$'+stk,cls:'red',ts:new Date(s.date||s.startDate).getTime()||0});
   });
   // Deposits (fee wallet)
   var deps=getAdminDeposits();
@@ -959,7 +1082,7 @@ function renderTransactions(){
 
   var totalVolume=0;
   sends.forEach(function(tx){totalVolume+=parseFloat(tx.amount)||0;});
-  stakes.forEach(function(s){totalVolume+=(s.stake||0)+(s.fee||0);});
+  stakes.forEach(function(s){totalVolume+=(s.stake||s.amount||0)+(s.fee||0);});
   deps.forEach(function(d){totalVolume+=(d.usd||0);});
 
   // Stats
@@ -1066,14 +1189,17 @@ function renderSupply(){
   const byCard={};
   let totalPayout=0;
   stakes.forEach(s=>{
-    if(!byCard[s.card])byCard[s.card]={count:0,staked:0,payout:0,active:0};
-    byCard[s.card].count++;
-    byCard[s.card].staked+=s.stake||0;
-    byCard[s.card].payout+=s.payout||0;
-    const start=new Date(s.date).getTime();
-    const end=start+((s.period||0)*86400000);
-    if(Date.now()<end)byCard[s.card].active++;
-    totalPayout+=s.payout||0;
+    var card=s.card||s.cardTier||'Wallet';
+    var stk=s.stake||s.amount||0;
+    var pay=stakePayout(s);
+    if(!byCard[card])byCard[card]={count:0,staked:0,payout:0,active:0};
+    byCard[card].count++;
+    byCard[card].staked+=stk;
+    byCard[card].payout+=pay;
+    const start=new Date(s.date||s.startDate).getTime();
+    const end=start+((s.period||s.lockDays||0)*86400000);
+    if(Date.now()<end)byCard[card].active++;
+    totalPayout+=pay;
   });
   const remaining=TOTAL_SUPPLY-totalPayout;
 
@@ -1102,16 +1228,17 @@ function drawDashChart(){
   const W=canvas.offsetWidth,H=200;
   ctx.clearRect(0,0,W,H);
 
-  // Build 30-day staking data from card_stakes
+  // Build 30-day staking data from all stakes
   const stakes=getStakes();
   const now=Date.now();
   const days=[];for(let i=29;i>=0;i--)days.push({date:new Date(now-i*86400000),count:0,value:0});
   stakes.forEach(s=>{
-    const d=new Date(s.date).getTime();
+    const d=new Date(s.date||s.startDate).getTime();
+    var stk=s.stake||s.amount||0;
     days.forEach(day=>{
       const ds=day.date.setHours(0,0,0,0);
       const de=ds+86400000;
-      if(d>=ds&&d<de){day.count++;day.value+=s.stake||0;}
+      if(d>=ds&&d<de){day.count++;day.value+=stk;}
     });
   });
 
@@ -1184,18 +1311,18 @@ function renderFees(){
   let grandTotal=0,grandAdmin=0,grandRef=0,totalStakeCount=0;
   const byCard={};
   stakes.forEach(s=>{
+    var card=s.card||s.cardTier||'Wallet';
+    var stk=s.stake||s.amount||0;
     const fee=s.fee||0;
-    if(!byCard[s.card])byCard[s.card]={count:0,totalFees:0,feeEach:fee};
-    byCard[s.card].count++;
-    byCard[s.card].totalFees+=fee;
+    if(!byCard[card])byCard[card]={count:0,totalFees:0,feeEach:fee,admin:0,ref:0};
+    byCard[card].count++;
+    byCard[card].totalFees+=fee;
     grandTotal+=fee;
     totalStakeCount++;
     const adminShare=s.split&&s.split.adminUSD?s.split.adminUSD:(fee*0.6);
     const refShare=fee-adminShare;
-    if(!byCard[s.card].admin)byCard[s.card].admin=0;
-    if(!byCard[s.card].ref)byCard[s.card].ref=0;
-    byCard[s.card].admin+=adminShare;
-    byCard[s.card].ref+=refShare;
+    byCard[card].admin+=adminShare;
+    byCard[card].ref+=refShare;
     grandAdmin+=adminShare;
     grandRef+=refShare;
   });
@@ -1219,11 +1346,12 @@ function renderFees(){
   document.getElementById('feeRecordCount').textContent=stakes.length;
   document.getElementById('feeRecordsBody').innerHTML=stakes.map(s=>{
     const fee=s.fee||0;
-    const totalPaid=s.stake+fee;
+    const stk=s.stake||s.amount||0;
+    const totalPaid=stk+fee;
     const adminUSD=s.split&&s.split.adminUSD?s.split.adminUSD.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2}):(fee*0.6).toFixed(2);
     const refPool=s.split&&s.split.referralPool?s.split.referralPool.toFixed(2):(fee*0.4).toFixed(2);
-    const d=new Date(s.date).toLocaleDateString();
-    return '<tr><td style="font-weight:600">'+s.card+'</td><td>$'+s.stake+'</td><td style="font-weight:700;color:#eb5757">$'+fee+'</td><td>$'+totalPaid+'</td><td style="color:#f5c518">$'+adminUSD+'</td><td style="color:#27ae60">'+refPool+' OLI</td><td>'+(s.sponsor||'-')+'</td><td>'+d+'</td></tr>';
+    const d=new Date(s.date||s.startDate).toLocaleDateString();
+    return '<tr><td style="font-weight:600">'+(s.card||s.cardTier||'Wallet')+'</td><td>$'+stk+'</td><td style="font-weight:700;color:#eb5757">$'+fee+'</td><td>$'+totalPaid+'</td><td style="color:#f5c518">$'+adminUSD+'</td><td style="color:#27ae60">'+refPool+' OLI</td><td>'+(s.sponsor||'-')+'</td><td>'+d+'</td></tr>';
   }).join('')||'<tr><td colspan="8" style="text-align:center;color:rgba(255,255,255,.2)">No stake records</td></tr>';
 
   // ── Fee Wallet Deposits ──
@@ -1361,7 +1489,7 @@ function updateWalletSummary(cfg){
   var short=function(a){return a?(a.slice(0,6)+'...'+a.slice(-6)):'<span style="color:#eb5757">Not set</span>';};
   var stakes=getStakes();
   var totalFees=0,admin60=0;
-  stakes.forEach(function(s){totalFees+=s.fee||0;admin60+=s.split&&s.split.adminUSD?s.split.adminUSD:(s.fee||0)*0.6;});
+  stakes.forEach(function(s){totalFees+=(s.fee||0);admin60+=s.split&&s.split.adminUSD?s.split.adminUSD:((s.fee||0)*0.6);});
   var allSt=getAllStakes();
   var expired=allSt.filter(function(s){return isExpired(s);});
   var pendingPayout=0;expired.forEach(function(s){pendingPayout+=stakePayout(s);});

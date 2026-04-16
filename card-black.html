@@ -440,8 +440,10 @@ function reserveRewardFromSupply(estimatedReward,stakeId){
 function depositToAdminWallet(amountOLIGHFT,source,stakeId){
   var deposits=[];try{deposits=JSON.parse(localStorage.getItem('cw_admin_deposits')||'[]');}catch(e){deposits=[];}
   var usdValue=amountOLIGHFT*0.50;
-  deposits.push({id:'adm_'+Date.now()+'_'+Math.random().toString(36).slice(2,6),wallet:ADMIN_WALLET_USERNAME,amount:amountOLIGHFT,usd:usdValue,source:source,stakeId:stakeId,ts:Date.now(),date:new Date().toISOString(),onChain:true});
+  var _depEntry={id:'adm_'+Date.now()+'_'+Math.random().toString(36).slice(2,6),wallet:ADMIN_WALLET_USERNAME,amount:amountOLIGHFT,usd:usdValue,source:source,stakeId:stakeId,ts:Date.now(),date:new Date().toISOString(),onChain:true};
+  deposits.push(_depEntry);
   localStorage.setItem('cw_admin_deposits',JSON.stringify(deposits));
+  try{var _du=JSON.parse(localStorage.getItem('cw_user')||'null');if(_du){var _duid=(_du.email||_du.name||'').toLowerCase().replace(/[^a-z0-9]/g,'_');if(_duid){var _udeps=JSON.parse(localStorage.getItem('cw_admin_deposits_'+_duid)||'[]');_udeps.push(_depEntry);localStorage.setItem('cw_admin_deposits_'+_duid,JSON.stringify(_udeps));}}}catch(e){}
   var total=parseFloat(localStorage.getItem('cw_admin_total')||'0');
   total+=amountOLIGHFT;
   localStorage.setItem('cw_admin_total',total.toString());
@@ -571,8 +573,9 @@ async function _doWithdraw(stakeDate){
   all[idx].withdrawnOLIGHFT=payoutOLIGHFT;
   if(txHash)all[idx].txHash=txHash;
   localStorage.setItem('card_stakes',JSON.stringify(all));
+  try{var _wu=JSON.parse(localStorage.getItem('cw_user')||'null');if(_wu){var _wuid=(_wu.email||_wu.name||'').toLowerCase().replace(/[^a-z0-9]/g,'_');if(_wuid){localStorage.setItem('card_stakes_'+_wuid,JSON.stringify(all.filter(function(ss){return ss.userEmail===(_wu.email||'')||ss.activatedBy===(_wu.name||'')})));}}}catch(e){}
   // Activity log
-  try{var al=JSON.parse(localStorage.getItem('cw_activity')||'[]');al.unshift({type:CARD.name+' Withdraw',icon:'\uD83D\uDCB0',detail:CARD.name+' '+s.period+'d stake withdrawn \u00B7 +'+payoutOLIGHFT.toLocaleString()+' OLIGHFT',amt:'+'+payoutOLIGHFT.toFixed(0)+' OLIGHFT',cls:'green',time:'Just now',ts:Date.now()});if(al.length>50)al.length=50;localStorage.setItem('cw_activity',JSON.stringify(al));}catch(e){}
+  try{var al=JSON.parse(localStorage.getItem('cw_activity')||'[]');al.unshift({type:CARD.name+' Withdraw',icon:'\uD83D\uDCB0',detail:CARD.name+' '+s.period+'d stake withdrawn \u00B7 +'+payoutOLIGHFT.toLocaleString()+' OLIGHFT',amt:'+'+netOLIGHFT.toFixed(0)+' OLIGHFT',cls:'green',time:'Just now',ts:Date.now()});if(al.length>50)al.length=50;localStorage.setItem('cw_activity',JSON.stringify(al));}catch(e){}
   // Notification
   try{var notifs=JSON.parse(localStorage.getItem('cw_tx_notifications')||'[]');notifs.unshift({type:CARD.name+' Withdraw',msg:'\uD83D\uDCB0 '+CARD.name+' stake withdrawn \u00B7 +'+payoutOLIGHFT.toLocaleString()+' OLIGHFT credited',ts:Date.now(),read:false});if(notifs.length>50)notifs.length=50;localStorage.setItem('cw_tx_notifications',JSON.stringify(notifs));}catch(e){}
   alert('\u2705 Withdrawn Successfully!'+(onChainOk?'\n\uD83D\uDD17 On-chain TX: '+txHash.slice(0,12)+'...':'')+'\n\n\uD83D\uDCB0 +'+payoutOLIGHFT.toLocaleString()+' OLIGHFT credited to wallet\n\uD83D\uDCB3 OLIGHFT Balance: '+cwBals.OLIGHFT.toLocaleString());
@@ -611,6 +614,7 @@ async function _doRestake(stakeDate){
   all[idx].restaked=true;
   if(txHash)all[idx].txHash=txHash;
   localStorage.setItem('card_stakes',JSON.stringify(all));
+  try{var _wu=JSON.parse(localStorage.getItem('cw_user')||'null');if(_wu){var _wuid=(_wu.email||_wu.name||'').toLowerCase().replace(/[^a-z0-9]/g,'_');if(_wuid){localStorage.setItem('card_stakes_'+_wuid,JSON.stringify(all.filter(function(ss){return ss.userEmail===(_wu.email||'')||ss.activatedBy===(_wu.name||'')})));}}}catch(e){}
   // Activity log
   try{var al=JSON.parse(localStorage.getItem('cw_activity')||'[]');al.unshift({type:CARD.name+' Restake',icon:'\uD83D\uDD04',detail:CARD.name+' stake closed for restaking',amt:'',cls:'blue',time:'Just now',ts:Date.now()});if(al.length>50)al.length=50;localStorage.setItem('cw_activity',JSON.stringify(al));}catch(e){}
   // Notification
@@ -661,8 +665,9 @@ async function activateStake(){
   var estimatedReward=calcCardDailyCompound(cardDailyOLIGHFT,d,comp);
   var supplyResult=reserveRewardFromSupply(estimatedReward,stakeId);
   const stakes=JSON.parse(localStorage.getItem('card_stakes')||'[]');
-  stakes.push({id:stakeId,card:CARD.name,stake:CARD.stake,fee:CARD.fee,daily:CARD.daily,period:d,payout:compPayout,compound:comp,sponsor:sponsor,activatedBy:user.name,date:new Date().toISOString(),paidOLIGHFT:requiredOLIGHFT,estimatedTotalReward:estimatedReward,reservedFromSupply:supplyResult.deducted,split:{adminWallet:adminOLIGHFT,adminWalletName:ADMIN_WALLET_USERNAME,adminUSD:adminDeposit.usd,referralPool:refOLIGHFT,genDistributed:genCommissions.length,genCommissions:genCommissions}});
+  stakes.push({id:stakeId,card:CARD.name,stake:CARD.stake,fee:CARD.fee,daily:CARD.daily,period:d,payout:compPayout,compound:comp,sponsor:sponsor,activatedBy:user.name,userEmail:user.email||'',date:new Date().toISOString(),paidOLIGHFT:requiredOLIGHFT,estimatedTotalReward:estimatedReward,reservedFromSupply:supplyResult.deducted,split:{adminWallet:adminOLIGHFT,adminWalletName:ADMIN_WALLET_USERNAME,adminUSD:adminDeposit.usd,referralPool:refOLIGHFT,genDistributed:genCommissions.length,genCommissions:genCommissions}});
   localStorage.setItem('card_stakes',JSON.stringify(stakes));
+  try{var _uid=(user.email||user.name||'').toLowerCase().replace(/[^a-z0-9]/g,'_');if(_uid){var _usk=JSON.parse(localStorage.getItem('card_stakes_'+_uid)||'[]');_usk.push(stakes[stakes.length-1]);localStorage.setItem('card_stakes_'+_uid,JSON.stringify(_usk));}}catch(e){}
   // Unified activity log
   try{var al=JSON.parse(localStorage.getItem('cw_activity')||'[]');al.unshift({type:CARD.name+' Card Stake',icon:'\uD83C\uDF1F',detail:'$'+CARD.stake+' staked \u00B7 '+d+'d \u00B7 $'+CARD.daily+'/day \u00B7 Sponsor: '+sponsor,amt:'-'+requiredOLIGHFT.toFixed(0)+' OLIGHFT',cls:'red',time:'Just now',ts:Date.now()});if(al.length>50)al.length=50;localStorage.setItem('cw_activity',JSON.stringify(al));}catch(e){}
   // ── Soroban on-chain activate_stake ──
@@ -690,37 +695,44 @@ function autoWithdrawFinished(){
   const all=JSON.parse(localStorage.getItem('card_stakes')||'[]');
   const now=Date.now();
   const OLIGHFT_PRICE=0.50;
-  let changed=false,totalCredited=0,count=0;
+  let changed=false,totalCredited=0,totalFees=0,count=0;
   for(let i=0;i<all.length;i++){
     const s=all[i];
     if(s.card!==CARD.name||s.withdrawn)continue;
     const end=new Date(s.date).getTime()+(s.period*86400000);
     if(now>=end){
-      const payoutOLIGHFT=s.payout/OLIGHFT_PRICE;
+      const grossOLIGHFT=s.payout/OLIGHFT_PRICE;
+      const fee=grossOLIGHFT*0.35;
+      const netOLIGHFT=grossOLIGHFT-fee;
       const cwBals=JSON.parse(localStorage.getItem('cw_balances')||'{}');
-      cwBals.OLIGHFT=(cwBals.OLIGHFT||0)+payoutOLIGHFT;
+      cwBals.OLIGHFT=(cwBals.OLIGHFT||0)+netOLIGHFT;
       localStorage.setItem('cw_balances',JSON.stringify(cwBals));
+      try{var deps=JSON.parse(localStorage.getItem('cw_admin_deposits')||'[]');var depId='adm_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);deps.push({id:depId,wallet:'GBLEKKQNHKVE7NIOOPY7CQ6SJ4BQCGHD3O5FCPB2B47X2ERKSJGSMWCP',amount:fee,usd:fee*OLIGHFT_PRICE,source:'service_fee_auto',stakeId:s.id||'',ts:Date.now(),date:new Date().toISOString(),onChain:true});localStorage.setItem('cw_admin_deposits',JSON.stringify(deps));try{var _wu2=JSON.parse(localStorage.getItem('cw_user')||'null');if(_wu2){var _uid2=(_wu2.email||_wu2.name||'').toLowerCase().replace(/[^a-z0-9]/g,'_');if(_uid2){var _ud=JSON.parse(localStorage.getItem('cw_admin_deposits_'+_uid2)||'[]');_ud.push(deps[deps.length-1]);localStorage.setItem('cw_admin_deposits_'+_uid2,JSON.stringify(_ud));}}}catch(e){}}catch(e){}
       all[i].withdrawn=true;
       all[i].autoWithdrawn=true;
       all[i].withdrawnAt=new Date().toISOString();
-      all[i].withdrawnOLIGHFT=payoutOLIGHFT;
-      totalCredited+=payoutOLIGHFT;
+      all[i].grossOLIGHFT=grossOLIGHFT;
+      all[i].serviceFee=fee;
+      all[i].withdrawnOLIGHFT=netOLIGHFT;
+      totalCredited+=netOLIGHFT;
+      totalFees+=fee;
       count++;
       changed=true;
-      try{var al=JSON.parse(localStorage.getItem('cw_activity')||'[]');al.unshift({type:'Auto-Withdraw',icon:'\uD83D\uDCB0',detail:s.card+' '+s.period+'d stake auto-withdrawn \u00B7 $'+s.payout,amt:'+'+payoutOLIGHFT.toFixed(0)+' OLIGHFT',cls:'green',time:'Just now',ts:Date.now()});if(al.length>50)al.length=50;localStorage.setItem('cw_activity',JSON.stringify(al));}catch(e){}
+      try{var al=JSON.parse(localStorage.getItem('cw_activity')||'[]');al.unshift({type:'Auto-Withdraw',icon:'\uD83D\uDCB0',detail:s.card+' '+s.period+'d auto-withdrawn \u00B7 +'+netOLIGHFT.toFixed(0)+' OLIGHFT (fee: '+fee.toFixed(0)+')',amt:'+'+netOLIGHFT.toFixed(0)+' OLIGHFT',cls:'green',time:'Just now',ts:Date.now()});if(al.length>50)al.length=50;localStorage.setItem('cw_activity',JSON.stringify(al));}catch(e){}
     }
   }
   if(changed){
     localStorage.setItem('card_stakes',JSON.stringify(all));
+    try{var _wu=JSON.parse(localStorage.getItem('cw_user')||'null');if(_wu){var _wuid=(_wu.email||_wu.name||'').toLowerCase().replace(/[^a-z0-9]/g,'_');if(_wuid){localStorage.setItem('card_stakes_'+_wuid,JSON.stringify(all.filter(function(ss){return ss.userEmail===(_wu.email||'')||ss.activatedBy===(_wu.name||'')})));}}}catch(e){}
     // Notification
     try{var notifs=JSON.parse(localStorage.getItem('cw_tx_notifications')||'[]');notifs.unshift({type:'Auto-Withdraw',msg:'\uD83D\uDCB0 '+count+' '+CARD.name+' stake'+(count>1?'s':'')+' auto-withdrawn \u00B7 +'+totalCredited.toLocaleString()+' OLIGHFT',ts:Date.now(),read:false});if(notifs.length>50)notifs.length=50;localStorage.setItem('cw_tx_notifications',JSON.stringify(notifs));}catch(e){}
-    showAutoWithdrawToast(count,totalCredited);
+    showAutoWithdrawToast(count,totalCredited,totalFees);
   }
 }
-function showAutoWithdrawToast(count,olighft){
+function showAutoWithdrawToast(count,olighft,fees){
   var t=document.createElement('div');
   t.style.cssText='position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:99999;background:linear-gradient(135deg,#27ae60,#2ecc71);color:#fff;padding:14px 24px;border-radius:14px;font-size:.82rem;font-weight:700;box-shadow:0 8px 32px rgba(39,174,96,.4);display:flex;align-items:center;gap:10px;animation:slideDown .4s ease';
-  t.innerHTML='\uD83D\uDCB0 Auto-Withdrawn: '+count+' stake'+(count>1?'s':'')+' \u2022 +'+olighft.toLocaleString()+' OLIGHFT credited';
+  t.innerHTML='\uD83D\uDCB0 Auto-Withdrawn: '+count+' stake'+(count>1?'s':'')+' \u2022 +'+olighft.toLocaleString()+' OLIGHFT credited (35% fee: '+(fees||0).toLocaleString()+')';
   document.body.appendChild(t);
   setTimeout(function(){t.style.transition='opacity .5s';t.style.opacity='0';setTimeout(function(){t.remove();},500);},5000);
 }

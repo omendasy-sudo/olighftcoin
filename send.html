@@ -469,6 +469,7 @@ function onSendSuccess(addr,amt,tk,memo,type,fromAddr,hash,onChain){
   var txs=JSON.parse(localStorage.getItem('send_txs')||'[]');
   txs.unshift({to:addr,from:fromAddr,amount:amt,token:tk,memo:memo,hash:hash,time:Date.now(),addrType:type,onChain:onChain});
   if(txs.length>20)txs.length=20;localStorage.setItem('send_txs',JSON.stringify(txs));
+  try{var _su=JSON.parse(localStorage.getItem('cw_user')||'null');if(_su){var _suid=(_su.email||_su.name||'').toLowerCase().replace(/[^a-z0-9]/g,'_');if(_suid)localStorage.setItem('send_txs_'+_suid,JSON.stringify(txs));}}catch(e){}
   try{var al=JSON.parse(localStorage.getItem('cw_activity')||'[]');al.unshift({type:'Sent',icon:'\uD83D\uDCE4',detail:amt+' '+tk+' to '+addr.slice(0,6)+'...'+addr.slice(-4),amt:'-'+amt+' '+tk,cls:'red',time:'Just now',ts:Date.now(),onChain:onChain});if(al.length>50)al.length=50;localStorage.setItem('cw_activity',JSON.stringify(al))}catch(e){}
   // Transaction notification
   try{var notifs=JSON.parse(localStorage.getItem('cw_tx_notifications')||'[]');notifs.unshift({type:'Sent',icon:'\uD83D\uDCE4',detail:amt+' '+tk+' to '+addr.slice(0,6)+'...'+addr.slice(-4),amt:'-'+amt+' '+tk,cls:'red',ts:Date.now(),hash:hash});if(notifs.length>50)notifs.length=50;localStorage.setItem('cw_tx_notifications',JSON.stringify(notifs));}catch(e){}

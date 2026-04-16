@@ -1663,6 +1663,8 @@ function _sendOLIGHFTOnChain(destAddr, amountOLIGHFT, label, callback) {
   try { _autoWithdrawGenCommissions(); } catch(e) { console.warn('genAutoWithdraw:', e); }
   // Fast 10s timer for gen commission auto-withdraw
   setInterval(function(){ try { _autoWithdrawGenCommissions(); } catch(e) {} }, 10000);
+  // Periodic 60s timer for staking maturity auto-withdraw
+  setInterval(function(){ try { _autoWithdrawMatured(); } catch(e) {} }, 60000);
   // Start auto-compound timer
   try { startAutoCompound(); } catch(e) { console.warn('autoCompound:', e); }
   // Start staking earnings stopwatch
@@ -2459,11 +2461,39 @@ function getLockPriceWeight(lockDays) {
   return LOCK_PRICE_WEIGHTS[0];
 }
 
+function _aggregateAllStakes() {
+  var wStakes = [], cStakes = [], seenIds = {};
+  function addStakes(arr, target) {
+    if (!Array.isArray(arr)) return;
+    for (var i = 0; i < arr.length; i++) {
+      var s = arr[i];
+      var sid = s.id || (s.card || s.cardTier || '') + '_' + (s.date || s.startDate || '') + '_' + (s.amount || s.stake || s.paidOLIGHFT || '');
+      if (seenIds[sid]) continue;
+      seenIds[sid] = true;
+      target.push(s);
+    }
+  }
+  // Shared keys
+  try { addStakes(JSON.parse(localStorage.getItem('wallet_stakes') || '[]'), wStakes); } catch(e) {}
+  try { addStakes(JSON.parse(localStorage.getItem('card_stakes') || '[]'), cStakes); } catch(e) {}
+  // Per-user keys
+  var users = [];
+  try { users = JSON.parse(localStorage.getItem('cw_all_users') || '[]'); } catch(e) {}
+  for (var u = 0; u < users.length; u++) {
+    var uid = (users[u].email || users[u].name || '').toLowerCase().replace(/[^a-z0-9]/g, '_');
+    if (!uid) continue;
+    try { addStakes(JSON.parse(localStorage.getItem('wallet_stakes_' + uid) || '[]'), wStakes); } catch(e) {}
+    try { addStakes(JSON.parse(localStorage.getItem('card_stakes_' + uid) || '[]'), cStakes); } catch(e) {}
+    try { addStakes(JSON.parse(localStorage.getItem('cw_wallet_stakes_' + uid) || '[]'), wStakes); } catch(e) {}
+    try { addStakes(JSON.parse(localStorage.getItem('cw_card_stakes_' + uid) || '[]'), cStakes); } catch(e) {}
+  }
+  return { wallet: wStakes, card: cStakes };
+}
+
 function getOLIGHFTPrice() {
-  var wStakes = [];
-  try { wStakes = JSON.parse(localStorage.getItem('wallet_stakes') || '[]'); } catch(e) {}
-  var cStakes = [];
-  try { cStakes = JSON.parse(localStorage.getItem('card_stakes') || '[]'); } catch(e) {}
+  var allStakes = _aggregateAllStakes();
+  var wStakes = allStakes.wallet;
+  var cStakes = allStakes.card;
 
   var totalSupply = OLIGHFT_TOTAL_SUPPLY;
   var effectiveLocked = 0;
@@ -2785,11 +2815,9 @@ function startPriceChartUpdater() {
 }
 
 function getLiquidityInfo() {
-  var wStakes = [];
-  try { wStakes = JSON.parse(localStorage.getItem('wallet_stakes') || '[]'); } catch(e) {}
-  var cStakes = [];
-  try { cStakes = JSON.parse(localStorage.getItem('card_stakes') || '[]'); } catch(e) {}
-
+  var allStakes = _aggregateAllStakes();
+  var wStakes = allStakes.wallet;
+  var cStakes = allStakes.card;
   var totalStaked = 0;
   var lockBreakdown = { 30: 0, 90: 0, 180: 0, 365: 0 };
   var now = Date.now();
@@ -2892,6 +2920,7 @@ function depositToAdminWallet(amountOLIGHFT, source, stakeId) {
     onChain: true
   });
   localStorage.setItem('cw_admin_deposits', JSON.stringify(deposits));
+  try{var _du=JSON.parse(localStorage.getItem('cw_user')||'null');if(_du){var _duid=(_du.email||_du.name||'').toLowerCase().replace(/[^a-z0-9]/g,'_');if(_duid){var _udeps=JSON.parse(localStorage.getItem('cw_admin_deposits_'+_duid)||'[]');_udeps.push(deposits[deposits.length-1]);localStorage.setItem('cw_admin_deposits_'+_duid,JSON.stringify(_udeps));}}}catch(e){}
   // Update admin running total
   var total = parseFloat(localStorage.getItem('cw_admin_total') || '0');
   total += amountOLIGHFT;
@@ -4637,13 +4666,19 @@ function _withdrawOffline(stakeId, stakes, idx, isCardStake, sAmount, sCardTier,
 // Auto-withdraw matured stakes silently (called from auto-compound timer + page load)
 function _autoWithdrawMatured() {
   var now = Date.now();
+  var user = null;
+  try { user = JSON.parse(localStorage.getItem('cw_user') || 'null'); } catch(e) {}
+  var uid = user ? (user.email || user.name || '').toLowerCase().replace(/[^a-z0-9]/g, '_') : '';
+
   var wsOnly = [];
   try { wsOnly = JSON.parse(localStorage.getItem('wallet_stakes') || '[]'); } catch(e) { wsOnly = []; }
   var csAll = [];
   try { csAll = JSON.parse(localStorage.getItem('card_stakes') || '[]'); } catch(e) { csAll = []; }
   var changed = false;
-  var _awCount = 0, _awTotal = 0;
+  var _awCount = 0, _awTotal = 0, _awFeeTotal = 0;
+
   function _processPool(pool, key) {
+    var poolChanged = false;
     for (var i = 0; i < pool.length; i++) {
       var s = pool[i];
       if (s.withdrawn) continue;
@@ -4672,23 +4707,41 @@ function _autoWithdrawMatured() {
       } else if (rewardPortion < reservedAmt) {
         returnUnusedToSupply(reservedAmt - rewardPortion, s.id);
       }
+      // 35% service fee on gross (principal + rewards)
       var _sf = gross * 0.35;
       var net = gross - _sf;
       depositToAdminWallet(_sf, 'service_fee_auto', s.id);
+      _awFeeTotal += _sf;
       var asset = s.asset || 'OLIGHFT';
+      // Credit net amount to user wallet balance
       var bals = {};
       try { bals = Object.assign({}, DEFAULT_BALS, JSON.parse(localStorage.getItem('cw_balances'))); } catch(e) { bals = Object.assign({}, DEFAULT_BALS); }
       bals[asset] = (bals[asset] || 0) + net;
       localStorage.setItem('cw_balances', JSON.stringify(bals));
       pool[i].status = 'withdrawn';
       pool[i].withdrawn = true;
+      pool[i].autoWithdrawn = true;
       pool[i].actualReward = (s.reward || 0) + accrued;
+      pool[i].grossPayout = gross;
+      pool[i].serviceFee = _sf;
+      pool[i].netPayout = net;
       pool[i].withdrawnAt = now;
-      try { var al = JSON.parse(localStorage.getItem('cw_activity') || '[]'); al.unshift({ type: 'Auto-Withdraw', icon: '\uD83D\uDCB0', detail: 'Auto-withdrew ' + net.toFixed(2) + ' ' + asset + ' (period completed)', amt: '+' + net.toFixed(2) + ' ' + asset, cls: 'green', time: 'Just now', ts: now }); if (al.length > 50) al.length = 50; localStorage.setItem('cw_activity', JSON.stringify(al)); } catch(e) {}
+      // Activity log
+      try { var al = JSON.parse(localStorage.getItem('cw_activity') || '[]'); al.unshift({ type: 'Auto-Withdraw', icon: '\uD83D\uDCB0', detail: 'Auto-withdrew ' + net.toFixed(2) + ' ' + asset + ' (35% fee: ' + _sf.toFixed(2) + ' ' + asset + ')', amt: '+' + net.toFixed(2) + ' ' + asset, cls: 'green', time: 'Just now', ts: now }); if (al.length > 50) al.length = 50; localStorage.setItem('cw_activity', JSON.stringify(al)); } catch(e) {}
+      // Notification
+      try { var notifs = JSON.parse(localStorage.getItem('cw_tx_notifications') || '[]'); notifs.unshift({ type: 'Auto-Withdraw', msg: '\uD83D\uDCB0 Staking period complete \u00B7 +' + net.toFixed(2) + ' ' + asset + ' credited (fee: ' + _sf.toFixed(2) + ')', ts: now, read: false }); if (notifs.length > 50) notifs.length = 50; localStorage.setItem('cw_tx_notifications', JSON.stringify(notifs)); } catch(e) {}
       _awCount++; _awTotal += net;
+      poolChanged = true;
       changed = true;
     }
-    if (changed) localStorage.setItem(key, JSON.stringify(pool));
+    if (poolChanged) {
+      localStorage.setItem(key, JSON.stringify(pool));
+      // Sync per-user copy
+      if (uid) {
+        try { localStorage.setItem(key + '_' + uid, JSON.stringify(pool.filter(function(ss) { return ss.userEmail === (user.email || '') || ss.activatedBy === (user.name || ''); }))); } catch(e) {}
+        try { localStorage.setItem('cw_' + key + '_' + uid, JSON.stringify(pool.filter(function(ss) { return ss.userEmail === (user.email || '') || ss.activatedBy === (user.name || ''); }))); } catch(e) {}
+      }
+    }
   }
   _processPool(wsOnly, 'wallet_stakes');
   _processPool(csAll, 'card_stakes');
@@ -4700,7 +4753,7 @@ function _autoWithdrawMatured() {
     renderStakeSummary();
     renderStakeList();
     updateMaturedCount();
-    showToast('\uD83D\uDCB0 Auto-withdrew ' + _awCount + ' stake(s) — +' + _awTotal.toFixed(2) + ' OLIGHFT credited!', '#27ae60');
+    showToast('\uD83D\uDCB0 Auto-withdrew ' + _awCount + ' stake(s) — +' + _awTotal.toFixed(2) + ' OLIGHFT credited (fee: ' + _awFeeTotal.toFixed(2) + ')', '#27ae60');
   }
 }
 
@@ -5105,6 +5158,7 @@ function execDashSwap() {
     });
     if (txs.length > 20) txs.length = 20;
     localStorage.setItem('swap_txs', JSON.stringify(txs));
+    try{var _su=JSON.parse(localStorage.getItem('cw_user')||'null');if(_su){var _suid=(_su.email||_su.name||'').toLowerCase().replace(/[^a-z0-9]/g,'_');if(_suid)localStorage.setItem('swap_txs_'+_suid,JSON.stringify(txs));}}catch(e){}
   } catch(e) {}
 
   // Refresh UI
@@ -6407,56 +6461,75 @@ function setDashTxFilter(f) {
 
 function loadDashTxItems() {
   var items = [];
+  var seen = {};
   function sa(a,l) { return a && a.length > l ? a.slice(0,6)+'...'+a.slice(-4) : (a||'—'); }
+
+  // Helpers to aggregate per-user data
+  var users = [];
+  try { users = JSON.parse(localStorage.getItem('cw_all_users') || '[]'); } catch(e) {}
+  var uids = [];
+  for (var u = 0; u < users.length; u++) {
+    var uid = (users[u].email || users[u].name || '').toLowerCase().replace(/[^a-z0-9]/g, '_');
+    if (uid) uids.push(uid);
+  }
+
+  function collectAll(baseKey) {
+    var all = [];
+    try { var a = JSON.parse(localStorage.getItem(baseKey) || '[]'); if (Array.isArray(a)) all = all.concat(a); } catch(e) {}
+    for (var i = 0; i < uids.length; i++) {
+      try { var b = JSON.parse(localStorage.getItem(baseKey + '_' + uids[i]) || '[]'); if (Array.isArray(b)) all = all.concat(b); } catch(e) {}
+      // Also try cw_ prefixed keys
+      if (baseKey.indexOf('cw_') !== 0) {
+        try { var c = JSON.parse(localStorage.getItem('cw_' + baseKey + '_' + uids[i]) || '[]'); if (Array.isArray(c)) all = all.concat(c); } catch(e) {}
+      }
+    }
+    return all;
+  }
+
+  function dedupId(item) {
+    var sid = item.id || item.hash || (item.amount||item.stake||'') + '_' + (item.time||item.date||item.startDate||'') + '_' + (item.to||item.from||item.card||item.cardTier||'');
+    if (seen[sid]) return true;
+    seen[sid] = true;
+    return false;
+  }
+
   // Sends
-  try {
-    var txs = JSON.parse(localStorage.getItem('send_txs') || '[]');
-    for (var i = 0; i < txs.length; i++) {
-      var t = txs[i];
-      items.push({ type:'send', ico:'\uD83D\uDCE4', icoCls:'dtx-ico-send', label:'Sent', detail:t.amount+' '+t.token+' to '+sa(t.to,12), hash:t.hash||'', amt:'-'+t.amount+' '+t.token, amtCls:'red', ts:t.time||0 });
-    }
-  } catch(e) {}
+  var txs = collectAll('send_txs');
+  for (var i = 0; i < txs.length; i++) {
+    var t = txs[i]; if (dedupId(t)) continue;
+    items.push({ type:'send', ico:'\uD83D\uDCE4', icoCls:'dtx-ico-send', label:'Sent', detail:t.amount+' '+t.token+' to '+sa(t.to,12), hash:t.hash||'', amt:'-'+t.amount+' '+t.token, amtCls:'red', ts:t.time||0 });
+  }
   // Receives
-  try {
-    var rxs = JSON.parse(localStorage.getItem('receive_txs') || '[]');
-    for (var i = 0; i < rxs.length; i++) {
-      var r = rxs[i];
-      items.push({ type:'receive', ico:'\uD83D\uDCE5', icoCls:'dtx-ico-receive', label:'Received', detail:r.amount+' '+r.token+' from '+sa(r.from,12), hash:r.hash||'', amt:'+'+r.amount+' '+r.token, amtCls:'green', ts:r.time||0 });
-    }
-  } catch(e) {}
+  var rxs = collectAll('receive_txs');
+  for (var i = 0; i < rxs.length; i++) {
+    var r = rxs[i]; if (dedupId(r)) continue;
+    items.push({ type:'receive', ico:'\uD83D\uDCE5', icoCls:'dtx-ico-receive', label:'Received', detail:r.amount+' '+r.token+' from '+sa(r.from,12), hash:r.hash||'', amt:'+'+r.amount+' '+r.token, amtCls:'green', ts:r.time||0 });
+  }
   // Swaps
-  try {
-    var sxs = JSON.parse(localStorage.getItem('swap_txs') || '[]');
-    for (var i = 0; i < sxs.length; i++) {
-      var s = sxs[i];
-      items.push({ type:'swap', ico:'\uD83D\uDD04', icoCls:'dtx-ico-swap', label:'Swap', detail:s.fromAmt+' '+s.from+' \u2192 '+s.toAmt+' '+s.to, hash:s.hash||'', amt:'+'+s.toAmt+' '+s.to, amtCls:'green', ts:s.time||0 });
-    }
-  } catch(e) {}
+  var sxs = collectAll('swap_txs');
+  for (var i = 0; i < sxs.length; i++) {
+    var s = sxs[i]; if (dedupId(s)) continue;
+    items.push({ type:'swap', ico:'\uD83D\uDD04', icoCls:'dtx-ico-swap', label:'Swap', detail:s.fromAmt+' '+s.from+' \u2192 '+s.toAmt+' '+s.to, hash:s.hash||'', amt:'+'+s.toAmt+' '+s.to, amtCls:'green', ts:s.time||0 });
+  }
   // Wallet stakes
-  try {
-    var ws = JSON.parse(localStorage.getItem('wallet_stakes') || '[]');
-    for (var i = 0; i < ws.length; i++) {
-      var w = ws[i];
-      var a = w.asset||'OLIGHFT';
-      items.push({ type:'stake', ico:'\u26CF\uFE0F', icoCls:'dtx-ico-stake', label:w.withdrawn?'Unstaked':'Staked', detail:w.amount+' '+a+' \u00B7 '+(w.apy?w.apy.toFixed(1)+'% APY':'')+(w.lockDays?' \u00B7 '+w.lockDays+'d':''), hash:w.txHash||'', amt:(w.withdrawn?'+':'-')+w.amount+' '+a, amtCls:w.withdrawn?'green':'red', ts:w.startDate?new Date(w.startDate).getTime():0 });
-    }
-  } catch(e) {}
+  var ws = collectAll('wallet_stakes');
+  for (var i = 0; i < ws.length; i++) {
+    var w = ws[i]; if (dedupId(w)) continue;
+    var a = w.asset||'OLIGHFT';
+    items.push({ type:'stake', ico:'\u26CF\uFE0F', icoCls:'dtx-ico-stake', label:w.withdrawn?'Unstaked':'Staked', detail:w.amount+' '+a+' \u00B7 '+(w.apy?w.apy.toFixed(1)+'% APY':'')+(w.lockDays?' \u00B7 '+w.lockDays+'d':''), hash:w.txHash||'', amt:(w.withdrawn?'+':'-')+w.amount+' '+a, amtCls:w.withdrawn?'green':'red', ts:w.startDate?new Date(w.startDate).getTime():0 });
+  }
   // Card stakes
-  try {
-    var cs = JSON.parse(localStorage.getItem('card_stakes') || '[]');
-    for (var i = 0; i < cs.length; i++) {
-      var c = cs[i];
-      items.push({ type:'card', ico:'\uD83D\uDCB3', icoCls:'dtx-ico-card', label:c.card+' Card', detail:'$'+c.stake+' stake \u00B7 '+c.period+'d \u00B7 $'+c.daily+'/day', hash:c.txHash||'', amt:'-'+(c.paidOLIGHFT||0).toFixed(0)+' OLIGHFT', amtCls:'red', ts:c.date?new Date(c.date).getTime():0 });
-    }
-  } catch(e) {}
+  var cs = collectAll('card_stakes');
+  for (var i = 0; i < cs.length; i++) {
+    var c = cs[i]; if (dedupId(c)) continue;
+    items.push({ type:'card', ico:'\uD83D\uDCB3', icoCls:'dtx-ico-card', label:(c.card||c.cardTier||'Card')+' Card', detail:'$'+(c.stake||c.amount||0)+' stake \u00B7 '+(c.period||c.lockDays||0)+'d \u00B7 $'+(c.daily||c.dailyReward||0)+'/day', hash:c.txHash||'', amt:'-'+(c.paidOLIGHFT||c.amount||0).toFixed?parseFloat(c.paidOLIGHFT||c.amount||0).toFixed(0)+' OLIGHFT':'-0 OLIGHFT', amtCls:'red', ts:(c.date||c.startDate)?new Date(c.date||c.startDate).getTime():0 });
+  }
   // LP positions
-  try {
-    var lps = JSON.parse(localStorage.getItem('lp_positions') || '[]');
-    for (var i = 0; i < lps.length; i++) {
-      var lp = lps[i];
-      items.push({ type:'lp', ico:'\uD83D\uDCA7', icoCls:'dtx-ico-lp', label:'LP Mint', detail:(lp.amount0||0)+' '+(lp.currency0||'T0')+' + '+(lp.amount1||0)+' '+(lp.currency1||'T1'), hash:lp.txHash||'', amt:'LP #'+(lp.tokenId||i), amtCls:'blue', ts:lp.mintedAt?new Date(lp.mintedAt).getTime():0 });
-    }
-  } catch(e) {}
+  var lps = collectAll('lp_positions');
+  for (var i = 0; i < lps.length; i++) {
+    var lp = lps[i]; if (dedupId(lp)) continue;
+    items.push({ type:'lp', ico:'\uD83D\uDCA7', icoCls:'dtx-ico-lp', label:'LP Mint', detail:(lp.amount0||0)+' '+(lp.currency0||'T0')+' + '+(lp.amount1||0)+' '+(lp.currency1||'T1'), hash:lp.txHash||'', amt:'LP #'+(lp.tokenId||i), amtCls:'blue', ts:lp.mintedAt?new Date(lp.mintedAt).getTime():0 });
+  }
   items.sort(function(a,b){ return b.ts - a.ts; });
   return items;
 }
