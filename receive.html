@@ -269,6 +269,11 @@ select option{background:#1a1a2e;color:#fff}
 <div class="toast" id="toast">Copied to clipboard!</div>
 
 <script>
+function _notifUid(){try{var u=JSON.parse(localStorage.getItem('cw_user')||'null');return u&&(u.email||u.name)?(u.email||u.name).toLowerCase().replace(/[^a-z0-9]/g,'_'):'';}catch(e){return'';}}
+function _notifKey(){var uid=_notifUid();return uid?'cw_tx_notifications_'+uid:'cw_tx_notifications';}
+function _getNotifs(){try{return JSON.parse(localStorage.getItem(_notifKey())||'[]');}catch(e){return[];}}
+function _saveNotifs(n){localStorage.setItem(_notifKey(),JSON.stringify(n));}
+
 // Auth guard
 (function(){const u=JSON.parse(localStorage.getItem('cw_user')||'null');if(!u){window.location.href='auth.html';return;}
   if(u.addr){document.getElementById('walletAddr').textContent=u.addr;}})();
@@ -342,7 +347,7 @@ function simulateReceive(token,amount,fromAddr){
   // Unified activity log
   try{var al=JSON.parse(localStorage.getItem('cw_activity')||'[]');al.unshift({type:'Received',icon:'\uD83D\uDCE5',detail:amount+' '+token+' from '+(fromAddr?fromAddr.slice(0,6)+'...'+fromAddr.slice(-4):'unknown'),amt:'+'+amount+' '+token,cls:'green',time:'Just now',ts:Date.now()});if(al.length>50)al.length=50;localStorage.setItem('cw_activity',JSON.stringify(al));}catch(e){}
   // Transaction notification
-  try{var notifs=JSON.parse(localStorage.getItem('cw_tx_notifications')||'[]');notifs.unshift({type:'Received',icon:'\uD83D\uDCE5',detail:amount+' '+token+' from '+(fromAddr?fromAddr.slice(0,6)+'...'+fromAddr.slice(-4):'unknown'),amt:'+'+amount+' '+token,cls:'green',ts:Date.now(),hash:h});if(notifs.length>50)notifs.length=50;localStorage.setItem('cw_tx_notifications',JSON.stringify(notifs));}catch(e){}
+  try{var notifs=_getNotifs();notifs.unshift({type:'Received',icon:'\uD83D\uDCE5',detail:amount+' '+token+' from '+(fromAddr?fromAddr.slice(0,6)+'...'+fromAddr.slice(-4):'unknown'),amt:'+'+amount+' '+token,cls:'green',ts:Date.now(),hash:h});if(notifs.length>50)notifs.length=50;_saveNotifs(notifs);}catch(e){}
   renderRecentReceives();
   return true;
 }

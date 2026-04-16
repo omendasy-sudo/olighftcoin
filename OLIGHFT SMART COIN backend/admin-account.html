@@ -361,7 +361,7 @@ function _autoWithdrawGenCommissions(){
     it.credited=true;it.creditedAt=now;total+=it.amount;cnt++;
     try{var sK='cw_gen_earnings_'+it.sponsor.toLowerCase();var sE=JSON.parse(localStorage.getItem(sK)||'[]');for(var k=sE.length-1;k>=0;k--){if(sE[k].stakeId===it.stakeId&&sE[k].gen===it.gen&&!sE[k].credited){sE[k].credited=true;sE[k].creditedAt=now;break;}}localStorage.setItem(sK,JSON.stringify(sE));}catch(e){}
     try{var al=JSON.parse(localStorage.getItem('cw_activity')||'[]');al.unshift({type:'Gen '+it.gen+' Commission',icon:'\uD83C\uDF33',detail:'+'+it.amount.toFixed(2)+' OLIGHFT from Gen '+it.gen+' ('+it.cardTier+') \u00B7 '+(it.from||'').split('@')[0],amt:'+'+it.amount.toFixed(2)+' OLIGHFT',cls:'green',time:'Just now',ts:now});if(al.length>50)al.length=50;localStorage.setItem('cw_activity',JSON.stringify(al));}catch(e){}
-    try{var nf=JSON.parse(localStorage.getItem('cw_tx_notifications')||'[]');nf.unshift({type:'Gen '+it.gen+' Commission',icon:'\uD83C\uDF33',detail:'+'+it.amount.toFixed(2)+' OLIGHFT \u00B7 Gen '+it.gen+' from '+(it.from||'').split('@')[0]+' \u00B7 '+it.cardTier,amt:'+'+it.amount.toFixed(2)+' OLIGHFT',cls:'green',ts:now});if(nf.length>50)nf.length=50;localStorage.setItem('cw_tx_notifications',JSON.stringify(nf));}catch(e){}
+    try{var _nuid=(it.sponsor||'').toLowerCase().replace(/[^a-z0-9]/g,'_');var _nk=_nuid?'cw_tx_notifications_'+_nuid:'cw_tx_notifications';var nf=JSON.parse(localStorage.getItem(_nk)||'[]');nf.unshift({type:'Gen '+it.gen+' Commission',icon:'\uD83C\uDF33',detail:'+'+it.amount.toFixed(2)+' OLIGHFT \u00B7 Gen '+it.gen+' from '+(it.from||'').split('@')[0]+' \u00B7 '+it.cardTier,amt:'+'+it.amount.toFixed(2)+' OLIGHFT',cls:'green',ts:now});if(nf.length>50)nf.length=50;localStorage.setItem(_nk,JSON.stringify(nf));}catch(e){}
   }
   var upd=still.concat(ready);var oneDay=now-86400000;upd=upd.filter(function(p){return !p.credited||(p.creditedAt||0)>oneDay;});
   localStorage.setItem('cw_gen_pending',JSON.stringify(upd));
@@ -632,7 +632,7 @@ function init(){
   var swaps=getAllSwapTxs();
   var activity=[];try{activity=JSON.parse(localStorage.getItem('cw_activity')||'[]');}catch(e){}
   var genPending=[];try{genPending=JSON.parse(localStorage.getItem('cw_gen_pending')||'[]');}catch(e){}
-  var notifications=[];try{notifications=JSON.parse(localStorage.getItem('cw_tx_notifications')||'[]');}catch(e){}
+  var notifications=[];try{var _allU=JSON.parse(localStorage.getItem('cw_all_users')||'[]');for(var _ni=0;_ni<_allU.length;_ni++){var _nuid=(_allU[_ni].email||_allU[_ni].name||'').toLowerCase().replace(/[^a-z0-9]/g,'_');if(!_nuid)continue;var _nk='cw_tx_notifications_'+_nuid;try{var _nn=JSON.parse(localStorage.getItem(_nk)||'[]');notifications=notifications.concat(_nn);}catch(e){}}notifications.sort(function(a,b){return(b.ts||0)-(a.ts||0)});}catch(e){}
   document.getElementById('accountStats').innerHTML=
     '<div class="stat"><div class="s-label">Portfolio</div><div class="s-val gold">$'+portfolioVal.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})+'</div><div class="s-sub">'+Object.keys(bals).length+' tokens</div></div>'+
     '<div class="stat"><div class="s-label">Active Stakes</div><div class="s-val green" id="qsActiveStakes">...</div><div class="s-sub">of <span id="qsTotalStakes">...</span> total</div></div>'+

@@ -832,7 +832,7 @@ function executeSwap(){
   });if(al.length>50)al.length=50;localStorage.setItem('cw_activity',JSON.stringify(al));}catch(e){}
 
   // Transaction notification
-  try{var notifs=JSON.parse(localStorage.getItem('cw_tx_notifications')||'[]');notifs.unshift({type:'Swap',icon:'\uD83D\uDD04',detail:fAmt+' '+f+' \u2192 '+tAmt.toFixed(4)+' '+t,amt:'+'+tAmt.toFixed(4)+' '+t,cls:'green',ts:Date.now(),hash:receipt.transactionHash});if(notifs.length>50)notifs.length=50;localStorage.setItem('cw_tx_notifications',JSON.stringify(notifs));}catch(e){}
+  try{var notifs=_getNotifs();notifs.unshift({type:'Swap',icon:'\uD83D\uDD04',detail:fAmt+' '+f+' \u2192 '+tAmt.toFixed(4)+' '+t,amt:'+'+tAmt.toFixed(4)+' '+t,cls:'green',ts:Date.now(),hash:receipt.transactionHash});if(notifs.length>50)notifs.length=50;_saveNotifs(notifs);}catch(e){}
 
   document.getElementById('fromAmt').value='';
   document.getElementById('toAmt').value='';
@@ -2333,6 +2333,11 @@ function resetTests(){
 }
 </script>
 <script>
+function _notifUid(){try{var u=JSON.parse(localStorage.getItem('cw_user')||'null');return u&&(u.email||u.name)?(u.email||u.name).toLowerCase().replace(/[^a-z0-9]/g,'_'):'';}catch(e){return'';}}
+function _notifKey(){var uid=_notifUid();return uid?'cw_tx_notifications_'+uid:'cw_tx_notifications';}
+function _getNotifs(){try{return JSON.parse(localStorage.getItem(_notifKey())||'[]');}catch(e){return[];}}
+function _saveNotifs(n){localStorage.setItem(_notifKey(),JSON.stringify(n));}
+
 (function(){
   var V='20260414a';
   if(localStorage.getItem('olighft_v')!==V){

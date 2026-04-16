@@ -1020,7 +1020,7 @@ function buildAllTxItems(){
   });
   // Tx notifications (for gen commissions and any missed)
   var notifs=[];
-  try{notifs=JSON.parse(localStorage.getItem('cw_tx_notifications')||'[]');}catch(e){}
+  try{notifs=_getAllUserNotifs();}catch(e){}
   var seen={};items.forEach(function(i){if(i.ts)seen[i.type+'_'+i.ts]=true;});
   notifs.forEach(function(n){
     var t=(n.type||'').toLowerCase();
@@ -1554,10 +1554,12 @@ if(user) renderDashboard();
 var _activeNotifTab='all';
 var ADMIN_NOTIF_READ_KEY='admin_notif_last_read';
 
+function _getAllUserNotifs(){var all=[];try{var users=JSON.parse(localStorage.getItem('cw_all_users')||'[]');for(var i=0;i<users.length;i++){var uid=(users[i].email||users[i].name||'').toLowerCase().replace(/[^a-z0-9]/g,'_');if(!uid)continue;try{var n=JSON.parse(localStorage.getItem('cw_tx_notifications_'+uid)||'[]');all=all.concat(n);}catch(e){}}all.sort(function(a,b){return(b.ts||0)-(a.ts||0)});}catch(e){}return all;}
+
 function getAdminNotifications(){
   var items=[];
   // Transaction notifications from dashboard
-  try{var txNotifs=JSON.parse(localStorage.getItem('cw_tx_notifications')||'[]');
+  try{var txNotifs=_getAllUserNotifs();
     txNotifs.forEach(function(n){items.push({cat:n.type==='Staked'?'stakes':(n.type==='Withdrawn'||n.type==='Auto-Withdraw'?'withdrawals':'fees'),icon:n.icon||'\u2139\uFE0F',type:n.type||'Transaction',detail:n.detail||'',amt:n.amt||'',cls:n.cls||'',ts:n.ts||0});});
   }catch(e){}
   // Admin deposits as fee notifications
@@ -1636,7 +1638,7 @@ function switchNotifTab(tab,el){
 }
 
 function clearAdminNotifs(){
-  localStorage.removeItem('cw_tx_notifications');
+  try{var _cu=JSON.parse(localStorage.getItem('cw_all_users')||'[]');for(var _ci=0;_ci<_cu.length;_ci++){var _cuid=(_cu[_ci].email||_cu[_ci].name||'').toLowerCase().replace(/[^a-z0-9]/g,'_');if(_cuid)localStorage.removeItem('cw_tx_notifications_'+_cuid);}}catch(e){}
   localStorage.setItem(ADMIN_NOTIF_READ_KEY,String(Date.now()));
   renderNotifList();
   updateNotifBadge();
