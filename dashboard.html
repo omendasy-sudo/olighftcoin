@@ -2142,7 +2142,7 @@ function _swCalcStakeData(stake) {
   var cardDailyOLIGHFT = 0;
 
   if (tier) {
-    cardDailyOLIGHFT = tier.daily / price;
+    cardDailyOLIGHFT = tier.daily;
     baseRatePerSec = cardDailyOLIGHFT / 86400;
     baseEarned = cardDailyOLIGHFT * elapsedDays;
     compEarned = calcCardDailyCompound(cardDailyOLIGHFT, elapsedDays, compType);
@@ -4124,7 +4124,7 @@ function populateCardSelect() {
   // Lock amount to selected card's fixed value
   var finalCard = sel.value;
   if (finalCard && CARD_TIERS[finalCard]) {
-    document.getElementById('skAmount').value = (CARD_TIERS[finalCard].min / OLIGHFT_PRICE).toFixed(2);
+    document.getElementById('skAmount').value = CARD_TIERS[finalCard].min.toFixed(2);
     lockStakeAmount(true, finalCard);
   } else {
     lockStakeAmount(false);
@@ -4163,7 +4163,7 @@ function selectCardTile(el) {
   var amtInput = document.getElementById('skAmount');
   var cardCfg = CARD_TIERS[card];
   if (cardCfg) {
-    amtInput.value = (cardCfg.min / OLIGHFT_PRICE).toFixed(2);
+    amtInput.value = cardCfg.min.toFixed(2);
     lockStakeAmount(true, card);
   }
   updateApy();
@@ -4197,7 +4197,7 @@ function getApy() {
 function onCardDropdownChange() {
   var card = getSelectedCard();
   if (card && CARD_TIERS[card]) {
-    document.getElementById('skAmount').value = (CARD_TIERS[card].min / OLIGHFT_PRICE).toFixed(2);
+    document.getElementById('skAmount').value = CARD_TIERS[card].min.toFixed(2);
     lockStakeAmount(true, card);
   } else {
     lockStakeAmount(false);
@@ -4218,8 +4218,8 @@ function lockStakeAmount(locked, cardName) {
     inp.readOnly = true;
     inp.style.opacity = '0.7';
     inp.style.cursor = 'not-allowed';
-    var fixedOLIGHFT = (CARD_TIERS[cardName].min / OLIGHFT_PRICE).toFixed(2);
-    note.innerHTML = '\uD83D\uDD12 Fixed: ' + fixedOLIGHFT + ' OLIGHFT ($' + CARD_TIERS[cardName].min + ') for ' + cardName;
+    var fixedOLIGHFT = CARD_TIERS[cardName].min.toFixed(2);
+    note.innerHTML = '\uD83D\uDD12 Fixed: ' + fixedOLIGHFT + ' OLIGHFT ($' + (CARD_TIERS[cardName].min * OLIGHFT_PRICE).toFixed(2) + ') for ' + cardName;
     note.style.display = 'block';
   } else {
     inp.readOnly = false;
@@ -4232,7 +4232,7 @@ function lockStakeAmount(locked, cardName) {
 function setStakeMax() {
   var sel = getSelectedCard();
   if (sel && CARD_TIERS[sel]) {
-    document.getElementById('skAmount').value = (CARD_TIERS[sel].min / OLIGHFT_PRICE).toFixed(2);
+    document.getElementById('skAmount').value = CARD_TIERS[sel].min.toFixed(2);
   } else {
     var bals = {};
     try { bals = Object.assign({}, DEFAULT_BALS, JSON.parse(localStorage.getItem('cw_balances'))); } catch(e) { bals = Object.assign({}, DEFAULT_BALS); }
@@ -4426,7 +4426,7 @@ function doStake() {
 
   var asset = 'OLIGHFT';
   var cardConfig = CARD_TIERS[selectedCard] || {};
-  var fixedAmt = cardConfig.min ? (cardConfig.min / OLIGHFT_PRICE) : 0;
+  var fixedAmt = cardConfig.min || 0;
   // Force the fixed amount for the selected card
   if (fixedAmt > 0) document.getElementById('skAmount').value = fixedAmt.toFixed(2);
   var amt = parseFloat(document.getElementById('skAmount').value);
@@ -4435,7 +4435,7 @@ function doStake() {
     return;
   }
   if (fixedAmt > 0 && Math.abs(amt - fixedAmt) > 0.01) {
-    sfFail(2, selectedCard + ' requires exactly ' + fixedAmt.toFixed(2) + ' OLIGHFT ($' + cardConfig.min + ')');
+    sfFail(2, selectedCard + ' requires exactly ' + fixedAmt.toFixed(2) + ' OLIGHFT ($' + (cardConfig.min * OLIGHFT_PRICE).toFixed(2) + ')');
     return;
   }
   var bals = {};
@@ -4712,12 +4712,18 @@ function withdrawStake(stakeId) {
   var sStartDate = s.startDate || s.date || null;
   var sLockDays = s.lockDays || s.period || 0;
   var sEndDate = s.endDate || (sStartDate && sLockDays > 0 ? new Date(new Date(sStartDate).getTime() + STAKE_MATURITY_MS).toISOString() : null);
-  var sAmount = parseFloat(s.amount || s.paidOLIGHFT || ((s.stake || 0) / (OLIGHFT_PRICE || 0.50))) || 0;
+  var sAmount = parseFloat(s.amount || s.paidOLIGHFT || (s.stake || 0)) || 0;
   var sCardTier = s.cardTier || s.card || '';
   var sCompound = s.compound || 'none';
   var sLastCompound = s.lastCompound || sStartDate;
 
   if (s.withdrawn) { showToast('Already withdrawn.', '#eb5757'); return; }
+
+  // Block manual withdraw for card stakes — auto-withdraw only
+  if (isCardStake && sCardTier && CARD_TIERS[sCardTier]) {
+    showToast('Card stakes are auto-withdrawn at maturity (5 min). No manual withdraw.', '#f5c518');
+    return;
+  }
 
   if (sEndDate) {
     var end = new Date(sEndDate).getTime();
@@ -4858,7 +4864,7 @@ function _autoWithdrawMatured() {
       var end = new Date(sEnd).getTime();
       if (isNaN(end) || now < end) continue;
       // Matured — auto withdraw (use full lockDays for reward calc)
-      var sAmt = parseFloat(s.amount || s.paidOLIGHFT || ((s.stake || 0) / (OLIGHFT_PRICE || 0.50))) || 0;
+      var sAmt = parseFloat(s.amount || s.paidOLIGHFT || (s.stake || 0)) || 0;
       var sTier = s.cardTier || s.card || '';
       var sComp = s.compound || 'none';
       var sLast = s.lastCompound || s.startDate || s.date;

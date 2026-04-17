@@ -537,11 +537,8 @@ function findStakeIndex(stakeDate){
 }
 
 function withdrawCardStake(stakeDate){
-  const all=JSON.parse(localStorage.getItem('card_stakes')||'[]');
-  const idx=all.findIndex(s=>s.card===CARD.name&&s.date===stakeDate&&!s.withdrawn);
-  if(idx===-1){alert('\u26A0\uFE0F Stake not found.');return;}
-  const s=all[idx];
-  const end=new Date(s.date).getTime()+(STAKE_MATURITY_MS);
+  alert('\u26A0\uFE0F Card stakes are auto-withdrawn at maturity (5 min). No manual withdraw allowed.');
+  return;
   if(Date.now()<end){alert('\u26A0\uFE0F This stake has not finished yet.');return;}
   requireVerify('withdraw',stakeDate);
 }
@@ -663,7 +660,7 @@ async function activateStake(){
   var genCommissions=distribute8GenCommissions(user.email,refOLIGHFT,stakeId,CARD.name);
   // ── Reserve estimated reward from supply pool ──
   var cardDailyOLIGHFT=CARD.daily;
-  var estimatedReward=compPayout/0.50;
+  var estimatedReward=compPayout;
   var supplyResult=reserveRewardFromSupply(estimatedReward,stakeId);
   const stakes=JSON.parse(localStorage.getItem('card_stakes')||'[]');
   stakes.push({id:stakeId,card:CARD.name,stake:CARD.stake,fee:CARD.fee,daily:CARD.daily,period:d,payout:compPayout,compound:comp,sponsor:sponsor,activatedBy:user.name,userEmail:user.email||'',date:new Date().toISOString(),paidOLIGHFT:requiredOLIGHFT,estimatedTotalReward:estimatedReward,reservedFromSupply:supplyResult.deducted,split:{adminWallet:adminOLIGHFT,adminWalletName:ADMIN_WALLET_USERNAME,adminUSD:adminDeposit.usd,referralPool:refOLIGHFT,genDistributed:genCommissions.length,genCommissions:genCommissions}});
@@ -755,7 +752,7 @@ function renderStakeStatus(){
   // Activate button
   if(total>=MAX_STAKES){
     btn.disabled=true;btn.style.opacity='.5';btn.style.cursor='not-allowed';
-    btn.innerHTML='\u26D4 All '+MAX_STAKES+' Stake Slots Full \u2014 Withdraw to free a slot';
+    btn.innerHTML='\u26D4 All '+MAX_STAKES+' Stake Slots Full \u2014 Wait for auto-withdraw';
   } else {
     btn.disabled=false;btn.style.opacity='1';btn.style.cursor='pointer';
     btn.innerHTML='\u26A1 Activate '+CARD.stake+' OLIGHFT '+CARD.name+' Stake (Slot '+(total+1)+'/'+MAX_STAKES+')';
@@ -778,8 +775,7 @@ function renderStakeStatus(){
       '<div><div style="font-size:.52rem;color:rgba(255,255,255,.3);text-transform:uppercase">Days</div><div style="font-size:.85rem;font-weight:800;color:#818cf8">0 left</div></div>'+
       '<div><div style="font-size:.52rem;color:rgba(255,255,255,.3);text-transform:uppercase">Payout</div><div style="font-size:.85rem;font-weight:800;color:#f5c518">$'+s.payout.toLocaleString()+'</div></div></div>'+
       '<div style="display:flex;gap:8px">'+
-      '<button onclick="restakeCard(\''+s.date+'\')" style="flex:1;padding:10px;border:none;border-radius:10px;font-size:.75rem;font-weight:700;cursor:pointer;background:linear-gradient(135deg,#6c5ce7,#a29bfe);color:#fff">\uD83D\uDD04 Restake</button>'+
-      '<div style="flex:1;padding:10px;border-radius:10px;text-align:center;font-size:.72rem;font-weight:600;color:#f5c518;background:rgba(245,197,24,.08);border:1px solid rgba(245,197,24,.15)">\u23F3 Auto-withdrawing to balance...</div>'+
+      '<div style="flex:1;padding:12px;border-radius:10px;text-align:center;font-size:.75rem;font-weight:700;color:#f5c518;background:rgba(245,197,24,.08);border:1px solid rgba(245,197,24,.15)">\u23F3 Auto-withdrawing to balance...</div>'+
       '</div></div>';
   });
   // Active stakes

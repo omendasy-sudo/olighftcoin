@@ -817,7 +817,7 @@ app.post('/api/stake', authMiddleware, (req, res) => {
 
     const config = CARD_TIERS[cardTier];
     const price = calcOLIGHFTPrice();
-    const fixedAmt = config.min / price;
+    const fixedAmt = config.min;
     const days = parseInt(lockDays) || 0;
     const comp = compoundType || 'none';
 
@@ -828,7 +828,7 @@ app.post('/api/stake', authMiddleware, (req, res) => {
     }
 
     const apy = getApy(days, comp, cardTier);
-    const cardDailyOLIGHFT = config.daily / price;
+    const cardDailyOLIGHFT = config.daily;
     const effectiveDays = days > 0 ? days : 365;
     const estimatedReward = calcCardDailyCompound(cardDailyOLIGHFT, effectiveDays, comp);
 
@@ -912,7 +912,7 @@ app.post('/api/stake/:id/compound', authMiddleware, (req, res) => {
     let accrued = 0;
     const tier = stake.card_tier && CARD_TIERS[stake.card_tier] ? CARD_TIERS[stake.card_tier] : null;
     if (tier) {
-      accrued = (tier.daily / OLIGHFT_PRICE_VAR.current) * elapsed;
+      accrued = tier.daily * elapsed;
     } else if (stake.apy) {
       accrued = stake.amount * (stake.apy / 100) * (elapsed / 365);
     } else {
@@ -967,7 +967,7 @@ app.post('/api/stakes/compound-all', authMiddleware, (req, res) => {
 
       let accrued = 0;
       const tier = s.card_tier && CARD_TIERS[s.card_tier] ? CARD_TIERS[s.card_tier] : null;
-      if (tier) accrued = (tier.daily / OLIGHFT_PRICE_VAR.current) * elapsed;
+      if (tier) accrued = tier.daily * elapsed;
       else if (s.apy) accrued = s.amount * (s.apy / 100) * (elapsed / 365);
       else accrued = (s.daily_reward || 0) * elapsed;
       if (accrued <= 0) continue;
@@ -1002,6 +1002,11 @@ app.post('/api/stake/:id/withdraw', authMiddleware, (req, res) => {
     if (stake.user_id !== req.userId) return res.status(403).json({ error: 'Not your stake' });
     if (stake.withdrawn) return res.status(400).json({ error: 'Already withdrawn' });
 
+    // Block manual withdraw for card stakes — auto-withdraw only
+    if (stake.card_tier && CARD_TIERS[stake.card_tier]) {
+      return res.status(400).json({ error: 'Card stakes are auto-withdrawn at maturity. Manual withdraw is not allowed.' });
+    }
+
     const now = Date.now();
     if (stake.end_date && now < stake.end_date) {
       const daysLeft = Math.ceil((stake.end_date - now) / 86400000);
@@ -1014,7 +1019,7 @@ app.post('/api/stake/:id/withdraw', authMiddleware, (req, res) => {
     let accrued = 0;
     const tier = stake.card_tier && CARD_TIERS[stake.card_tier] ? CARD_TIERS[stake.card_tier] : null;
     if (tier) {
-      accrued = calcCardDailyCompound(tier.daily / OLIGHFT_PRICE_VAR.current, elapsed, stake.compound_type);
+      accrued = calcCardDailyCompound(tier.daily, elapsed, stake.compound_type);
     } else if (stake.compound_type && stake.compound_type !== 'none' && stake.apy) {
       accrued = stake.amount * (stake.apy / 100) * (elapsed / 365);
     } else {
@@ -1071,7 +1076,7 @@ function autoProcessStakes() {
         try {
           let accrued = 0;
           const tier = s.card_tier && CARD_TIERS[s.card_tier] ? CARD_TIERS[s.card_tier] : null;
-          if (tier) accrued = (tier.daily / OLIGHFT_PRICE_VAR.current) * elapsed;
+          if (tier) accrued = tier.daily * elapsed;
           else if (s.apy) accrued = s.amount * (s.apy / 100) * (elapsed / 365);
           else accrued = (s.daily_reward || 0) * elapsed;
 
@@ -1098,7 +1103,7 @@ function autoProcessStakes() {
         const elapsed = s.lock_days > 0 ? s.lock_days : (now - lastTs) / 86400000;
         let accrued = 0;
         const tier = s.card_tier && CARD_TIERS[s.card_tier] ? CARD_TIERS[s.card_tier] : null;
-        if (tier) accrued = calcCardDailyCompound(tier.daily / OLIGHFT_PRICE_VAR.current, elapsed, s.compound_type);
+        if (tier) accrued = calcCardDailyCompound(tier.daily, elapsed, s.compound_type);
         else if (s.apy) accrued = s.amount * (s.apy / 100) * (elapsed / 365);
         else accrued = (s.daily_reward || 0) * elapsed;
 
