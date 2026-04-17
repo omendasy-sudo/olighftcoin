@@ -884,7 +884,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
       <select id="dashCardSelect" onchange="onCardDropdownChange()" style="width:100%;padding:11px 13px;border-radius:10px;border:1px solid rgba(242,153,74,.12);background:rgba(0,0,0,.2);color:#fff;font-size:.8rem;outline:none">
         <option value="">&#x1F4B3; Select a card below</option>
       </select>
-      <div style="font-size:.58rem;color:rgba(255,255,255,.3);margin-top:4px" id="dashCardHint">Tap a card to open its staking page</div>
+      <div style="font-size:.58rem;color:rgba(255,255,255,.3);margin-top:4px" id="dashCardHint">Tap a card to select it for staking</div>
       <!-- Card Shortcut Tiles -->
       <div id="cardShortcuts" style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:10px">
         <div class="csc-tile" data-card="Mastercard" data-href="card-mastercard.html" onclick="selectCardTile(this)" style="background:linear-gradient(135deg,rgba(235,87,87,.08),rgba(235,87,87,.02));border-color:rgba(235,87,87,.2)">
@@ -4133,12 +4133,35 @@ function populateCardSelect() {
 
 function selectCardTile(el) {
   var card = el.getAttribute('data-card');
-  var href = el.getAttribute('data-href');
-  // Navigate to the card's dedicated staking page
-  if (href) {
-    window.location.href = href;
-    return;
+  var sel = document.getElementById('dashCardSelect');
+  // Auto-add option if not present
+  var found = false;
+  for (var i = 0; i < sel.options.length; i++) {
+    if (sel.options[i].value === card) { found = true; break; }
   }
+  if (!found && CARD_TIERS[card]) {
+    var t = CARD_TIERS[card];
+    var opt = document.createElement('option');
+    opt.value = card;
+    opt.textContent = '\uD83D\uDCB3 ' + card + ' \u2014 $' + t.daily + '/day \u00B7 +' + t.boost.toFixed(1) + '% boost';
+    sel.appendChild(opt);
+  }
+  sel.value = card;
+  // Highlight selected tile
+  var tiles = document.querySelectorAll('#cardShortcuts .csc-tile');
+  for (var k = 0; k < tiles.length; k++) {
+    if (tiles[k].getAttribute('data-card') === card) {
+      tiles[k].classList.add('csc-selected');
+    } else {
+      tiles[k].classList.remove('csc-selected');
+    }
+  }
+  // Lock amount to selected card's fixed value
+  if (CARD_TIERS[card]) {
+    document.getElementById('skAmount').value = CARD_TIERS[card].min.toFixed(2);
+    lockStakeAmount(true, card);
+  }
+  updateApy();
 }
 
 function getSelectedCard() {
@@ -4165,19 +4188,23 @@ function getApy() {
 
 function onCardDropdownChange() {
   var card = getSelectedCard();
-  // Navigate to card's dedicated staking page
-  var cardPages = {
-    Mastercard: 'card-mastercard.html',
-    Visa: 'card-visa.html',
-    Amex: 'card-amex.html',
-    Platinum: 'card-platinum.html',
-    Gold: 'card-gold.html',
-    Black: 'card-black.html'
-  };
-  if (card && cardPages[card]) {
-    window.location.href = cardPages[card];
-    return;
+  // Highlight matching tile
+  var tiles = document.querySelectorAll('#cardShortcuts .csc-tile');
+  for (var k = 0; k < tiles.length; k++) {
+    if (tiles[k].getAttribute('data-card') === card) {
+      tiles[k].classList.add('csc-selected');
+    } else {
+      tiles[k].classList.remove('csc-selected');
+    }
   }
+  // Lock amount to selected card's fixed value
+  if (card && CARD_TIERS[card]) {
+    document.getElementById('skAmount').value = CARD_TIERS[card].min.toFixed(2);
+    lockStakeAmount(true, card);
+  } else {
+    lockStakeAmount(false);
+  }
+  updateApy();
 }
 
 function lockStakeAmount(locked, cardName) {
@@ -4246,26 +4273,26 @@ function updateApy() {
     cbTier.textContent = '+' + apy.card.toFixed(1) + '% BOOST';
     cbDaily.innerHTML = '$<b>' + apy.cardDaily + '</b>/day';
     stakeBtn.dataset.hasCard = 'true';
-    stakeBtn.textContent = '\uD83D\uDCB3 Go to ' + apy.cardName + ' Card Staking Page';
+    stakeBtn.textContent = '\u26CF\uFE0F Stake OLIGHFT via ' + apy.cardName + ' Card';
   } else {
     // Check if a card is selected in standby
     var standbyCard = document.getElementById('dashCardSelect').value;
     if (standbyCard && CARD_TIERS[standbyCard]) {
       var sc = CARD_TIERS[standbyCard];
       badge.className = 'card-badge none';
-      cbText.innerHTML = '\uD83D\uDCB3 <b style="color:#f5c518">' + standbyCard + '</b> selected';
+      cbText.innerHTML = '\uD83D\uDCB3 <b style="color:#f5c518">' + standbyCard + '</b> selected \u2014 ready to stake';
       cbTier.style.display = 'inline-block';
       cbTier.textContent = '+' + sc.boost.toFixed(1) + '% BOOST';
       cbDaily.innerHTML = '$<b>' + sc.daily + '</b>/day';
       stakeBtn.dataset.hasCard = 'true';
-      stakeBtn.textContent = '\uD83D\uDCB3 Go to ' + standbyCard + ' Card Staking Page';
+      stakeBtn.textContent = '\u26CF\uFE0F Stake OLIGHFT via ' + standbyCard + ' Card';
     } else {
       badge.className = 'card-badge none';
       cbText.textContent = 'Select a card below to stake';
       cbTier.style.display = 'none';
       cbDaily.innerHTML = '';
       stakeBtn.dataset.hasCard = 'false';
-      stakeBtn.textContent = '\uD83D\uDCB3 Select a Card to Stake';
+      stakeBtn.textContent = '\u26CF\uFE0F Start Staking';
     }
   }
 }
@@ -4386,19 +4413,6 @@ function doStake() {
   var selectedCard = getSelectedCard();
   if (!selectedCard) {
     sfFail(1, 'No card selected \u2014 choose a card tier');
-    return;
-  }
-  // Redirect to the card's dedicated staking page
-  var cardPages = {
-    Mastercard: 'card-mastercard.html',
-    Visa: 'card-visa.html',
-    Amex: 'card-amex.html',
-    Platinum: 'card-platinum.html',
-    Gold: 'card-gold.html',
-    Black: 'card-black.html'
-  };
-  if (cardPages[selectedCard]) {
-    window.location.href = cardPages[selectedCard];
     return;
   }
   sfDone(1);
