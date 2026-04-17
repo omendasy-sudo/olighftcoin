@@ -18,6 +18,8 @@ const bcrypt     = require('bcryptjs');
 const crypto     = require('crypto');
 const Database   = require('better-sqlite3');
 const path       = require('path');
+const fs         = require('fs');
+const https      = require('https');
 
 // ── Config ──────────────────────────────────────────────────────────────────
 const PORT               = parseInt(process.env.OLIGHFT_BACKEND_PORT) || 3001;
@@ -32,22 +34,23 @@ const OLIGHFT_BASE_PRICE_FLOOR = 0.50;
 const PRICE_ELASTICITY         = 0.35;
 const ADMIN_WALLET_SPLIT       = 0.60;
 const COMPOUND_FEE_RATE        = 0.02;
-const WITHDRAWAL_FEE_RATE      = 0.35;
+const WITHDRAWAL_FEE_RATE      = 0.30;
 const GEN_RATES                = [0.10, 0.06, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04];
+const STAKE_MATURITY_MS        = 5 * 60 * 1000; // 5-min maturity for all card stakes
 const OLIGHFT_PRICE_VAR        = { current: 0.50 };
 
 const CARD_TIERS = {
-  Visa:       { min: 100, daily: 6,  fee: 40,  boost: 1.0 },
-  Gold:       { min: 400, daily: 24, fee: 160, boost: 2.0 },
-  Platinum:   { min: 300, daily: 18, fee: 120, boost: 1.5 },
-  Black:      { min: 500, daily: 30, fee: 200, boost: 3.0 },
-  Amex:       { min: 200, daily: 12, fee: 80,  boost: 1.2 },
-  Mastercard: { min: 50,  daily: 4,  fee: 20,  boost: 0.5 }
+  Visa:       { min: 100,   daily: 8,  fee: 0, boost: 1.0 },
+  Gold:       { min: 500,   daily: 32, fee: 0, boost: 2.0 },
+  Platinum:   { min: 1000,  daily: 24, fee: 0, boost: 1.5 },
+  Black:      { min: 2500,  daily: 40, fee: 0, boost: 3.0 },
+  Amex:       { min: 5000,  daily: 16, fee: 0, boost: 1.2 },
+  Mastercard: { min: 10000, daily: 4,  fee: 0, boost: 0.5 }
 };
 
-const LOCK_BOOSTS       = { 0: 0, 30: 1.5, 90: 3.5, 180: 6, 365: 10 };
+const LOCK_BOOSTS       = { 30: 1.5, 90: 3.5, 180: 6, 365: 10 };
 const COMPOUND_BOOSTS   = { none: 0, daily: 2.4, weekly: 1.2, monthly: 0.5 };
-const LOCK_PRICE_WEIGHTS = { 0: 0.5, 30: 1.0, 90: 1.3, 180: 1.6, 365: 2.0 };
+const LOCK_PRICE_WEIGHTS = { 30: 1.0, 90: 1.3, 180: 1.6, 365: 2.0 };
 const BASE_APY = 12.0;
 
 const FEE_WALLET_ADDRESS     = 'GBLEKKQNHKVE7NIOOPY7CQ6SJ4BQCGHD3O5FCPB2B47X2ERKSJGSMWCP';
@@ -66,6 +69,7 @@ db.exec(`
     id           INTEGER PRIMARY KEY AUTOINCREMENT,
     email        TEXT UNIQUE NOT NULL COLLATE NOCASE,
     username     TEXT UNIQUE COLLATE NOCASE,
+    phone        TEXT,
     name         TEXT,
     password_hash TEXT,
     otp_code     TEXT,
@@ -237,13 +241,23 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_price_history_ts ON price_history(created_at);
 `);
 
+// ── Migrations (safe for existing databases) ────────────────────────────────
+try {
+  db.prepare("SELECT phone FROM users LIMIT 1").get();
+} catch (e) {
+  db.exec("ALTER TABLE users ADD COLUMN phone TEXT");
+  console.log('[MIGRATION] Added phone column to users table');
+}
+
 // ── Prepared Statements ─────────────────────────────────────────────────────
 const stmts = {
   // Users
   getUserByEmail:   db.prepare('SELECT * FROM users WHERE email = ?'),
   getUserByUsername: db.prepare('SELECT * FROM users WHERE username = ?'),
+  getUserByPhone:   db.prepare('SELECT * FROM users WHERE phone = ?'),
   getUserById:      db.prepare('SELECT * FROM users WHERE id = ?'),
-  createUser:       db.prepare('INSERT INTO users (email, username, name, password_hash, sponsor_id) VALUES (?, ?, ?, ?, ?)'),
+  createUser:       db.prepare('INSERT INTO users (email, username, phone, name, password_hash, sponsor_id) VALUES (?, ?, ?, ?, ?, ?)'),
+  updatePassword:   db.prepare('UPDATE users SET password_hash = ? WHERE id = ?'),
   setOtp:           db.prepare('UPDATE users SET otp_code = ?, otp_expires = ? WHERE id = ?'),
   clearOtp:         db.prepare('UPDATE users SET otp_code = NULL, otp_expires = NULL WHERE id = ?'),
   setAddr:          db.prepare('UPDATE users SET addr = ? WHERE id = ?'),
@@ -347,7 +361,7 @@ function getLockPriceWeight(lockDays) {
   if (lockDays >= 180) return LOCK_PRICE_WEIGHTS[180];
   if (lockDays >= 90)  return LOCK_PRICE_WEIGHTS[90];
   if (lockDays >= 30)  return LOCK_PRICE_WEIGHTS[30];
-  return LOCK_PRICE_WEIGHTS[0];
+  return 1.0;
 }
 
 function calcOLIGHFTPrice() {
@@ -358,7 +372,7 @@ function calcOLIGHFTPrice() {
   for (const s of allStakes) {
     const amt = s.amount || 0;
     const lockDays = s.lock_days || 0;
-    const endTs = s.start_date + (lockDays * 86400000);
+    const endTs = s.start_date + STAKE_MATURITY_MS;
     let weight = getLockPriceWeight(lockDays);
     if (lockDays > 0 && now >= endTs) weight *= 0.3;
     effectiveLocked += amt * weight;
@@ -416,16 +430,7 @@ function getApy(lockDays, compound, cardTier) {
 }
 
 function calcCardDailyCompound(cardDailyOLIGHFT, days, compoundType) {
-  if (!compoundType || compoundType === 'none') return cardDailyOLIGHFT * days;
-  const boostRates = { daily: 0.024, weekly: 0.012, monthly: 0.005 };
-  const rate = boostRates[compoundType] || 0;
-  let total = 0;
-  for (let d = 0; d < days; d++) {
-    const dailyRaw = cardDailyOLIGHFT + (total * rate / (compoundType === 'daily' ? 1 : compoundType === 'weekly' ? 7 : 30));
-    const adminFee = dailyRaw * COMPOUND_FEE_RATE;
-    total += dailyRaw - adminFee;
-  }
-  return total;
+  return cardDailyOLIGHFT * days;
 }
 
 function getUserBalances(userId) {
@@ -490,15 +495,15 @@ function distribute8GenCommissions(stakerId, stakeAmountOLIGHFT, stakeId, cardTi
 }
 
 // ── Rate Limiter ────────────────────────────────────────────────────────────
-const rateLimitMap = new Map();
 function rateLimit(windowMs, maxReqs) {
+  const map = new Map(); // each call gets its own counter map
   return (req, res, next) => {
     const key = req.ip;
     const now = Date.now();
-    let entry = rateLimitMap.get(key);
+    let entry = map.get(key);
     if (!entry || now - entry.start > windowMs) {
       entry = { start: now, count: 0 };
-      rateLimitMap.set(key, entry);
+      map.set(key, entry);
     }
     entry.count++;
     if (entry.count > maxReqs) {
@@ -525,12 +530,24 @@ function authMiddleware(req, res, next) {
   }
 }
 
+const ADMIN_EMAILS = (process.env.OLIGHFT_ADMIN_EMAILS || 'tzzminerals@gmail.com,omendaonline@gmail.com')
+  .split(',').map(e => e.trim().toLowerCase());
+
+function adminMiddleware(req, res, next) {
+  authMiddleware(req, res, () => {
+    if (!req.userEmail || !ADMIN_EMAILS.includes(req.userEmail.toLowerCase())) {
+      return res.status(403).json({ error: 'Admin access required' });
+    }
+    next();
+  });
+}
+
 // ── Express App ─────────────────────────────────────────────────────────────
 const app = express();
 
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors({
-  origin: ['https://olighftcoin.com', 'https://olighftcoin.pages.dev', 'http://localhost:8080', 'http://localhost:3000', 'http://127.0.0.1:8080'],
+  origin: ['https://olighftcoin.com', 'https://olighftcoin.pages.dev', 'http://localhost:8080', 'http://localhost:3000', 'http://localhost:3001', 'http://127.0.0.1:8080', 'http://127.0.0.1:3000'],
   credentials: true
 }));
 app.use(express.json({ limit: '1mb' }));
@@ -543,7 +560,7 @@ app.use(rateLimit(60000, 120)); // 120 req/min global
 // POST /api/auth/register
 app.post('/api/auth/register', (req, res) => {
   try {
-    const { email, username, name, password, sponsorUsername } = req.body;
+    const { email, username, phone, name, password, sponsorUsername } = req.body;
     if (!email || !password) return res.status(400).json({ error: 'Email and password required' });
     if (password.length < 6) return res.status(400).json({ error: 'Password must be at least 6 characters' });
 
@@ -555,6 +572,11 @@ app.post('/api/auth/register', (req, res) => {
       if (uExist) return res.status(409).json({ error: 'Username already taken' });
     }
 
+    if (phone) {
+      const pExist = stmts.getUserByPhone.get(phone);
+      if (pExist) return res.status(409).json({ error: 'Phone number already registered' });
+    }
+
     const hash = bcrypt.hashSync(password, BCRYPT_ROUNDS);
 
     let sponsorId = null;
@@ -563,7 +585,7 @@ app.post('/api/auth/register', (req, res) => {
       if (sponsor) sponsorId = sponsor.id;
     }
 
-    const result = stmts.createUser.run(email, username || null, name || null, hash, sponsorId);
+    const result = stmts.createUser.run(email, username || null, phone || null, name || null, hash, sponsorId);
     const userId = result.lastInsertRowid;
 
     // Init balances
@@ -579,9 +601,12 @@ app.post('/api/auth/register', (req, res) => {
 
     logActivity(userId, 'Registered', '🎉', 'Account created' + (sponsorId ? ' (referred)' : ''), '', 'green');
 
-    res.json({ success: true, token, user: { id: userId, email, username, name, addr: null } });
+    res.json({ success: true, token, user: { id: userId, email, username, phone: phone || null, name, addr: null } });
   } catch (e) {
     console.error('Register error:', e.message);
+    if (e.message && e.message.includes('UNIQUE constraint failed')) {
+      return res.status(409).json({ error: 'Account already exists' });
+    }
     res.status(500).json({ error: 'Registration failed' });
   }
 });
@@ -599,10 +624,67 @@ app.post('/api/auth/login', (req, res) => {
     const token = jwt.sign({ userId: user.id, email: user.email }, JWT_SECRET, { expiresIn: JWT_EXPIRY });
     stmts.setLastLogin.run(Date.now(), user.id);
 
-    res.json({ success: true, token, user: { id: user.id, email: user.email, username: user.username, name: user.name, addr: user.addr } });
+    res.json({ success: true, token, user: { id: user.id, email: user.email, username: user.username, phone: user.phone, name: user.name, addr: user.addr } });
   } catch (e) {
     console.error('Login error:', e.message);
     res.status(500).json({ error: 'Login failed' });
+  }
+});
+
+// POST /api/auth/forgot — send OTP for password reset
+app.post('/api/auth/forgot', rateLimit(60000, 5), (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ error: 'Email required' });
+
+    const user = stmts.getUserByEmail.get(email);
+    if (!user) {
+      // Don't reveal whether email exists (security)
+      return res.json({ success: true, message: 'If an account exists, an OTP was sent' });
+    }
+
+    const code = crypto.randomInt(100000, 999999).toString();
+    const expires = Date.now() + 5 * 60 * 1000; // 5 min
+    stmts.setOtp.run(code, expires, user.id);
+
+    // In production, forward to email_server.py
+    console.log(`[FORGOT OTP] ${email}: ${code} (expires ${new Date(expires).toISOString()})`);
+
+    res.json({ success: true, message: 'If an account exists, an OTP was sent' });
+  } catch (e) {
+    console.error('Forgot error:', e.message);
+    res.status(500).json({ error: 'Failed to process request' });
+  }
+});
+
+// POST /api/auth/reset-password — verify OTP + set new password
+app.post('/api/auth/reset-password', rateLimit(60000, 5), (req, res) => {
+  try {
+    const { email, code, newPassword } = req.body;
+    if (!email || !code || !newPassword) return res.status(400).json({ error: 'Email, code, and new password required' });
+
+    // Validate password strength
+    if (newPassword.length < 8) return res.status(400).json({ error: 'Password must be at least 8 characters' });
+    if (!/[A-Z]/.test(newPassword)) return res.status(400).json({ error: 'Password must contain an uppercase letter' });
+    if (!/[a-z]/.test(newPassword)) return res.status(400).json({ error: 'Password must contain a lowercase letter' });
+    if (!/[0-9]/.test(newPassword)) return res.status(400).json({ error: 'Password must contain a number' });
+    if (!/[^A-Za-z0-9]/.test(newPassword)) return res.status(400).json({ error: 'Password must contain a special character' });
+
+    const user = stmts.getUserByEmail.get(email);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    if (!user.otp_code || user.otp_expires < Date.now()) return res.status(400).json({ error: 'OTP expired or not set' });
+    if (user.otp_code !== code) return res.status(400).json({ error: 'Invalid OTP' });
+
+    const hash = bcrypt.hashSync(newPassword, BCRYPT_ROUNDS);
+    stmts.updatePassword.run(hash, user.id);
+    stmts.clearOtp.run(user.id);
+
+    logActivity(user.id, 'Password Reset', '🔑', 'Password was reset via OTP', '', 'green');
+
+    res.json({ success: true, message: 'Password reset successful' });
+  } catch (e) {
+    console.error('Reset password error:', e.message);
+    res.status(500).json({ error: 'Password reset failed' });
   }
 });
 
@@ -755,7 +837,7 @@ app.post('/api/stake', authMiddleware, (req, res) => {
 
     const stakeId = genId('dsk');
     const now = Date.now();
-    const endDate = days > 0 ? now + days * 86400000 : null;
+    const endDate = days > 0 ? now + STAKE_MATURITY_MS : null;
 
     let compoundIntervalMs = 0;
     if (comp === 'daily') compoundIntervalMs = 86400000;
@@ -926,9 +1008,9 @@ app.post('/api/stake/:id/withdraw', authMiddleware, (req, res) => {
       return res.status(400).json({ error: `Stake locked! ${daysLeft} days remaining` });
     }
 
-    // Calculate final accrued
+    // Calculate final accrued (use full lock period for reward)
     const lastTs = stake.last_compound || stake.start_date;
-    const elapsed = (now - lastTs) / 86400000;
+    const elapsed = stake.lock_days > 0 ? stake.lock_days : (now - lastTs) / 86400000;
     let accrued = 0;
     const tier = stake.card_tier && CARD_TIERS[stake.card_tier] ? CARD_TIERS[stake.card_tier] : null;
     if (tier) {
@@ -950,7 +1032,7 @@ app.post('/api/stake/:id/withdraw', authMiddleware, (req, res) => {
       returnToSupply(reservedAmt - rewardPortion, stake.id);
     }
 
-    // Hidden 35% service fee
+    // 30% service fee at withdrawal
     const feeAmt = totalReturn * WITHDRAWAL_FEE_RATE;
     const netReturn = totalReturn - feeAmt;
 
@@ -1013,7 +1095,7 @@ function autoProcessStakes() {
     if (s.end_date && now >= s.end_date) {
       try {
         const lastTs = s.last_compound || s.start_date;
-        const elapsed = (now - lastTs) / 86400000;
+        const elapsed = s.lock_days > 0 ? s.lock_days : (now - lastTs) / 86400000;
         let accrued = 0;
         const tier = s.card_tier && CARD_TIERS[s.card_tier] ? CARD_TIERS[s.card_tier] : null;
         if (tier) accrued = calcCardDailyCompound(tier.daily / OLIGHFT_PRICE_VAR.current, elapsed, s.compound_type);
@@ -1344,7 +1426,7 @@ app.get('/api/activity', authMiddleware, (req, res) => {
 // ═══════════════════════════════════════════════════════════════════════════
 
 // GET /api/admin/staking-summary — aggregated staking stats across ALL users
-app.get('/api/admin/staking-summary', (req, res) => {
+app.get('/api/admin/staking-summary', adminMiddleware, (req, res) => {
   try {
     const allStakes = db.prepare('SELECT s.*, u.username, u.email, u.name AS user_name FROM stakes s LEFT JOIN users u ON s.user_id = u.id ORDER BY s.start_date DESC').all();
     let totalStakes = allStakes.length;
@@ -1418,20 +1500,20 @@ app.get('/api/admin/staking-summary', (req, res) => {
 });
 
 // GET /api/admin/deposits
-app.get('/api/admin/deposits', (req, res) => {
+app.get('/api/admin/deposits', adminMiddleware, (req, res) => {
   const deposits = stmts.getAdminDeposits.all();
   const total = stmts.getAdminTotal.get().total;
   res.json({ total, deposits });
 });
 
 // GET /api/admin/users — list all registered users with stake counts
-app.get('/api/admin/users', (req, res) => {
+app.get('/api/admin/users', adminMiddleware, (req, res) => {
   try {
     const users = db.prepare(`
       SELECT u.id, u.email, u.username, u.name, u.created_at, u.last_login,
              COALESCE(sp.username, sp.name, '') AS sponsor,
              (SELECT COUNT(*) FROM stakes s WHERE s.user_id = u.id) AS stake_count,
-             (SELECT COALESCE(SUM(s.stake_usd), 0) FROM stakes s WHERE s.user_id = u.id) AS total_staked
+             (SELECT COALESCE(SUM(s.amount), 0) FROM stakes s WHERE s.user_id = u.id) AS total_staked
       FROM users u
       LEFT JOIN users sp ON u.sponsor_id = sp.id
       ORDER BY u.created_at DESC
@@ -1443,7 +1525,7 @@ app.get('/api/admin/users', (req, res) => {
 });
 
 // GET /api/admin/supply-log
-app.get('/api/admin/supply-log', (req, res) => {
+app.get('/api/admin/supply-log', adminMiddleware, (req, res) => {
   const logs = db.prepare('SELECT * FROM supply_log ORDER BY created_at DESC LIMIT 200').all();
   res.json(logs);
 });
@@ -1458,6 +1540,40 @@ app.get('/api/wallet/lookup', (req, res) => {
   if (!key) return res.status(400).json({ error: 'Key required' });
   const row = stmts.lookupWallet.get(key);
   res.json({ addr: row ? row.addr : null });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// PUBLIC PLATFORM STATS
+// ═══════════════════════════════════════════════════════════════════════════
+
+app.get('/api/stats/public', (req, res) => {
+  try {
+    const totalUsers = db.prepare('SELECT COUNT(*) AS count FROM users').get().count;
+    const activeStakes = db.prepare("SELECT COUNT(*) AS count FROM stakes WHERE status = 'active'").get().count;
+    const totalStaked = db.prepare("SELECT COALESCE(SUM(amount), 0) AS total FROM stakes WHERE status = 'active'").get().total;
+    res.json({ totalUsers, activeStakes, totalStaked, timestamp: Date.now() });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// GET /api/stats/users — full registered user list (admin only)
+app.get('/api/stats/users', adminMiddleware, (req, res) => {
+  try {
+    const users = db.prepare(`
+      SELECT u.id, u.email, u.username, u.name, u.created_at,
+             u.last_login, u.addr,
+             COALESCE(sp.username, sp.name, '') AS sponsor,
+             (SELECT COUNT(*) FROM stakes s WHERE s.user_id = u.id AND s.status = 'active') AS active_stakes,
+             (SELECT COALESCE(SUM(s.amount), 0) FROM stakes s WHERE s.user_id = u.id AND s.status = 'active') AS total_staked
+      FROM users u
+      LEFT JOIN users sp ON u.sponsor_id = sp.id
+      ORDER BY u.created_at DESC
+    `).all();
+    res.json({ total: users.length, users });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -1495,6 +1611,7 @@ function seedPriceHistory() {
   console.log('[SEED] Price history seeded with 289 data points');
 }
 
+// ── Start HTTP server ──
 app.listen(PORT, () => {
   console.log(`\n  ╔════════════════════════════════════════════════╗`);
   console.log(`  ║  OLIGHFT SMART COIN — Backend Server           ║`);
@@ -1521,6 +1638,32 @@ app.listen(PORT, () => {
   console.log(`  [✓] Supply pool: ${getSupplyPool().toLocaleString()} OLIGHFT`);
   console.log(`  [✓] Current price: $${OLIGHFT_PRICE_VAR.current}`);
 });
+
+// ── Start HTTPS server ──
+// Priority: 1) Let's Encrypt certs  2) Self-signed certs  3) Skip HTTPS
+const HTTPS_PORT = parseInt(process.env.OLIGHFT_HTTPS_PORT) || (PORT + 1);
+const LE_CERT = '/etc/letsencrypt/live/olighftcoin.com/fullchain.pem';
+const LE_KEY  = '/etc/letsencrypt/live/olighftcoin.com/privkey.pem';
+const SELF_CERT = path.join(__dirname, 'server.cert');
+const SELF_KEY  = path.join(__dirname, 'server.key');
+
+let sslOpts = null;
+if (fs.existsSync(LE_KEY) && fs.existsSync(LE_CERT)) {
+  sslOpts = { key: fs.readFileSync(LE_KEY), cert: fs.readFileSync(LE_CERT) };
+  console.log(`  [✓] Using Let's Encrypt SSL certs`);
+} else if (fs.existsSync(SELF_KEY) && fs.existsSync(SELF_CERT)) {
+  sslOpts = { key: fs.readFileSync(SELF_KEY), cert: fs.readFileSync(SELF_CERT) };
+  console.log(`  [!] Using self-signed SSL certs (browsers will warn)`);
+}
+
+if (sslOpts) {
+  https.createServer(sslOpts, app).listen(HTTPS_PORT, () => {
+    console.log(`  [✓] HTTPS server on port ${HTTPS_PORT}`);
+  });
+} else {
+  console.log(`  [!] No SSL certs found, HTTPS disabled. Install certbot:`);
+  console.log(`      certbot certonly --standalone -d olighftcoin.com`);
+}
 
 // Graceful shutdown
 process.on('SIGINT', () => {

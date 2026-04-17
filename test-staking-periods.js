@@ -1,14 +1,14 @@
-// test-staking-periods.js — Verify 1d/2d/5d/7d test staking periods work correctly
+// test-staking-periods.js — Verify 30d/90d/180d/365d staking periods work correctly
 // Run: node test-staking-periods.js
 
-const TEST_PERIODS = [1, 2, 5, 7];
+const TEST_PERIODS = [30, 90, 180, 365];
 const CARDS = {
-  Mastercard: { stake: 50, daily: 4, fee: 20, periods: {1:4,2:8,5:20,7:28,30:120,90:360,180:720,365:1460} },
-  Visa:       { stake: 100, daily: 6, fee: 40, periods: {1:6,2:12,5:30,7:42,30:180,90:540,180:1080,365:2190} },
-  Amex:       { stake: 200, daily: 12, fee: 80, periods: {1:12,2:24,5:60,7:84,30:360,90:1080,180:2160,365:4380} },
-  Platinum:   { stake: 300, daily: 18, fee: 120, periods: {1:18,2:36,5:90,7:126,30:540,90:1620,180:3240,365:6570} },
-  Gold:       { stake: 400, daily: 24, fee: 160, periods: {1:24,2:48,5:120,7:168,30:720,90:2160,180:4320,365:8760} },
-  Black:      { stake: 500, daily: 30, fee: 200, periods: {1:30,2:60,5:150,7:210,30:900,90:2700,180:5400,365:10950} }
+  Mastercard: { stake: 50, daily: 4, fee: 0, periods: {30:120,90:360,180:720,365:1460} },
+  Visa:       { stake: 100, daily: 8, fee: 0, periods: {30:240,90:720,180:1440,365:2920} },
+  Amex:       { stake: 200, daily: 16, fee: 0, periods: {30:480,90:1440,180:2880,365:5840} },
+  Platinum:   { stake: 300, daily: 24, fee: 0, periods: {30:720,90:2160,180:4320,365:8760} },
+  Gold:       { stake: 400, daily: 32, fee: 0, periods: {30:960,90:2880,180:5760,365:11680} },
+  Black:      { stake: 500, daily: 40, fee: 0, periods: {30:1200,90:3600,180:7200,365:14600} }
 };
 const OLIGHFT_PRICE = 0.50;
 const ADMIN_SPLIT = 0.60;
@@ -17,13 +17,7 @@ const MS_PER_DAY = 86400000;
 
 function calcCompound(daily, days, type) {
   if (days <= 0) return 0;
-  if (!type || type === 'none') return daily * days;
-  let interval;
-  switch (type) { case 'daily': interval = 1; break; case 'weekly': interval = 7; break; case 'monthly': interval = 30; break; default: return daily * days; }
-  const boost = type === 'daily' ? 0.024 : (type === 'weekly' ? 0.012 : 0.005);
-  let acc = 0;
-  for (let d = 1; d <= Math.floor(days); d++) { acc += daily; if (d % interval === 0 && d < days) acc += acc * boost; }
-  return acc;
+  return daily * days;
 }
 
 let pass = 0, fail = 0, total = 0;

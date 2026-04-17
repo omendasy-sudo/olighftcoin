@@ -95,6 +95,48 @@ h1{text-align:center;font-size:1.5rem;font-weight:800;background:linear-gradient
 .empty-msg{text-align:center;padding:30px;color:rgba(255,255,255,.25);font-size:.78rem}
 .empty-msg .em-icon{font-size:2rem;margin-bottom:6px}
 
+/* Binary Tree */
+.tree-section{margin-bottom:20px}
+.tree-controls{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.tree-controls button{padding:6px 14px;border:1px solid rgba(108,92,231,.2);border-radius:8px;background:rgba(108,92,231,.06);color:rgba(255,255,255,.6);font-size:.68rem;font-weight:600;cursor:pointer;transition:.2s}
+.tree-controls button:hover,.tree-controls button.active{background:rgba(108,92,231,.18);color:#a29bfe;border-color:rgba(108,92,231,.4)}
+.tree-wrap{overflow-x:auto;padding:16px 8px;background:rgba(0,0,0,.15);border:1px solid rgba(255,255,255,.04);border-radius:14px;min-height:120px;-webkit-overflow-scrolling:touch}
+.tree-wrap::-webkit-scrollbar{height:4px}
+.tree-wrap::-webkit-scrollbar-thumb{background:rgba(108,92,231,.25);border-radius:4px}
+.t-level{display:flex;justify-content:center;gap:0;position:relative}
+.t-level+.t-level{margin-top:0}
+.t-group{display:flex;flex-direction:column;align-items:center}
+.t-children{display:flex;justify-content:center;gap:4px}
+.t-node{display:flex;flex-direction:column;align-items:center;padding:4px 2px;position:relative}
+.t-node-box{padding:8px 10px;border-radius:10px;text-align:center;border:1.5px solid rgba(108,92,231,.15);background:rgba(108,92,231,.04);min-width:68px;max-width:100px;cursor:pointer;transition:.2s;position:relative}
+.t-node-box:hover{border-color:rgba(108,92,231,.4);background:rgba(108,92,231,.1);transform:translateY(-1px)}
+.t-node-box.root{border-color:rgba(245,197,24,.35);background:rgba(245,197,24,.08);min-width:80px}
+.t-node-box.active{border-color:rgba(39,174,96,.3);box-shadow:0 0 6px rgba(39,174,96,.1)}
+.t-node-box.inactive{opacity:.5}
+.t-avatar{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 4px;font-size:.72rem;font-weight:700}
+.t-node-box.root .t-avatar{background:rgba(245,197,24,.15);color:#f5c518}
+.t-node-box:not(.root) .t-avatar{background:rgba(108,92,231,.12);color:#a29bfe}
+.t-node-box.active .t-avatar{background:rgba(39,174,96,.15);color:#27ae60}
+.t-name{font-size:.58rem;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:80px}
+.t-gen{font-size:.48rem;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.5px;margin-top:1px}
+.t-rate{font-size:.5rem;color:#f5c518;font-weight:600;margin-top:1px}
+.t-status{position:absolute;top:4px;right:4px;width:6px;height:6px;border-radius:50%}
+.t-status.on{background:#27ae60;box-shadow:0 0 4px rgba(39,174,96,.5)}
+.t-status.off{background:rgba(255,255,255,.15)}
+.t-connector{display:flex;justify-content:center;height:20px;position:relative}
+.t-vline{width:1.5px;height:20px;background:rgba(108,92,231,.2)}
+.t-hline-wrap{display:flex;align-items:flex-start;height:12px;position:relative}
+.t-hline{height:1.5px;background:rgba(108,92,231,.2);position:absolute;top:0}
+.t-branch-down{width:1.5px;height:12px;background:rgba(108,92,231,.2)}
+.tree-legend{display:flex;gap:14px;justify-content:center;margin-top:10px;flex-wrap:wrap}
+.tree-legend span{font-size:.55rem;color:rgba(255,255,255,.35);display:flex;align-items:center;gap:4px}
+.tree-legend .leg-dot{width:7px;height:7px;border-radius:50%;display:inline-block}
+.tree-empty{text-align:center;padding:32px 16px;color:rgba(255,255,255,.25);font-size:.78rem}
+.tree-empty .te-icon{font-size:2rem;margin-bottom:6px}
+.t-expand{font-size:.5rem;color:rgba(108,92,231,.5);cursor:pointer;margin-top:2px;text-decoration:underline}
+.t-expand:hover{color:#a29bfe}
+.tree-depth-info{text-align:center;font-size:.55rem;color:rgba(255,255,255,.25);margin-top:6px}
+
 /* How it works */
 .how-steps{display:grid;gap:10px;margin-bottom:20px}
 .how-step{display:flex;align-items:flex-start;gap:12px;padding:14px 16px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:12px}
@@ -164,6 +206,27 @@ h1{text-align:center;font-size:1.5rem;font-weight:800;background:linear-gradient
   <div class="sb-item"><div class="sb-val" id="stEarned">$0</div><div class="sb-lbl">Commissions</div></div>
 </div>
 
+<!-- Binary Referral Tree -->
+<div class="tree-section">
+  <div class="section-label">&#x1F333; Referral Tree (8 Generations)</div>
+  <div class="tree-controls">
+    <button class="active" onclick="setTreeDepth(3,this)">3 Levels</button>
+    <button onclick="setTreeDepth(5,this)">5 Levels</button>
+    <button onclick="setTreeDepth(8,this)">All 8</button>
+    <button onclick="toggleTreeView(this)">&#x1F504; Collapse All</button>
+  </div>
+  <div class="tree-wrap" id="treeWrap">
+    <div class="tree-empty"><div class="te-icon">&#x1F333;</div>Loading tree...</div>
+  </div>
+  <div class="tree-legend">
+    <span><span class="leg-dot" style="background:#f5c518"></span> You</span>
+    <span><span class="leg-dot" style="background:#27ae60"></span> Active Staker</span>
+    <span><span class="leg-dot" style="background:#a29bfe"></span> Registered</span>
+    <span><span class="leg-dot" style="background:rgba(255,255,255,.15)"></span> Pending</span>
+  </div>
+  <div class="tree-depth-info" id="treeDepthInfo"></div>
+</div>
+
 <!-- How It Works -->
 <div class="section-label">&#x1F4A1; How It Works</div>
 <div class="how-steps">
@@ -220,6 +283,16 @@ var STAGE_ICONS  = {invited:'\uD83D\uDCE8', registered:'\u2705', wallet_created:
 var STAGE_LABELS = {invited:'Invited', registered:'Registered', wallet_created:'Wallet', card_activated:'Card', staking_active:'Staking'};
 var GEN_RATES = [0.10, 0.06, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04];
 
+// ── Helper: check if an invite was made by this user ──
+function isMyInvite(inv, user) {
+  if (!inv.inviterName) return false;
+  var n = inv.inviterName.toLowerCase();
+  if (user.name && n === user.name.toLowerCase()) return true;
+  if (user.username && n === user.username.toLowerCase()) return true;
+  if (user.email && n === user.email.toLowerCase()) return true;
+  return false;
+}
+
 // ── Init ──
 (function init() {
   var user = null;
@@ -264,6 +337,7 @@ var GEN_RATES = [0.10, 0.06, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04];
   // Load invites
   renderStats();
   renderInvites();
+  renderTree();
 })();
 
 // ── Copy Link ──
@@ -364,23 +438,31 @@ function renderStats() {
 
   var invites = [];
   try { invites = JSON.parse(localStorage.getItem('cw_invites') || '[]'); } catch(e) {}
-  var mine = invites.filter(function(inv) { return inv.inviterName && inv.inviterName.toLowerCase() === user.name.toLowerCase(); });
+  var mine = invites.filter(function(inv) { return isMyInvite(inv, user); });
 
   document.getElementById('stTotal').textContent = mine.length;
   var active = mine.filter(function(inv) { return inv.stage === 'staking_active' || inv.stage === 'card_activated'; });
   document.getElementById('stActive').textContent = active.length;
 
-  // Estimate commissions from card_stakes where sponsor matches user
-  var stakes = [];
-  try { stakes = JSON.parse(localStorage.getItem('card_stakes') || '[]'); } catch(e) {}
+  // Sum all generation earnings for this user
   var earned = 0;
-  for (var i = 0; i < stakes.length; i++) {
-    var s = stakes[i];
-    if (s.sponsor && s.sponsor.toLowerCase() === user.name.toLowerCase()) {
-      earned += (s.stake || 0) * GEN_RATES[0]; // Gen 1 commission
+  var ukey = (user.name || '').toLowerCase();
+  try {
+    var genLog = JSON.parse(localStorage.getItem('cw_gen_earnings_' + ukey) || '[]');
+    for (var g = 0; g < genLog.length; g++) earned += genLog[g].amount || 0;
+  } catch(e) {}
+  // Fallback: estimate from card_stakes Gen 1 if no earnings log
+  if (earned === 0) {
+    var stakes = [];
+    try { stakes = JSON.parse(localStorage.getItem('card_stakes') || '[]'); } catch(e) {}
+    for (var i = 0; i < stakes.length; i++) {
+      var s = stakes[i];
+      if (s.sponsor && (s.sponsor.toLowerCase() === ukey || (user.username && s.sponsor.toLowerCase() === user.username.toLowerCase()))) {
+        earned += (s.stake || 0) * GEN_RATES[0];
+      }
     }
   }
-  document.getElementById('stEarned').textContent = '$' + earned.toFixed(0);
+  document.getElementById('stEarned').textContent = earned > 0 ? earned.toFixed(2) + ' OLIGHFT' : '$0';
 }
 
 // ── Invite List ──
@@ -391,7 +473,7 @@ function renderInvites() {
 
   var invites = [];
   try { invites = JSON.parse(localStorage.getItem('cw_invites') || '[]'); } catch(e) {}
-  var mine = invites.filter(function(inv) { return inv.inviterName && inv.inviterName.toLowerCase() === user.name.toLowerCase(); });
+  var mine = invites.filter(function(inv) { return isMyInvite(inv, user); });
 
   var listEl = document.getElementById('inviteList');
   if (mine.length === 0) {
@@ -437,6 +519,200 @@ function escHtml(s) {
   var d = document.createElement('div');
   d.appendChild(document.createTextNode(s));
   return d.innerHTML;
+}
+
+// ── Binary Referral Tree ──
+var _treeDepth = 3;
+var _treeCollapsed = {};
+
+function buildTree(userName, invites, depth, maxDepth) {
+  if (depth > maxDepth) return null;
+  var node = { name: userName, gen: depth, children: [], stage: null };
+
+  // Find this user's direct invites (match by name, username, or email)
+  var uLower = userName.toLowerCase();
+  var directs = invites.filter(function(inv) {
+    if (!inv.inviterName) return false;
+    return inv.inviterName.toLowerCase() === uLower;
+  });
+
+  for (var i = 0; i < directs.length; i++) {
+    var inv = directs[i];
+    var childName = inv.invitee ? (inv.invitee.name || inv.invitee.email || 'User') : 'Pending';
+    var childNode = buildTree(childName, invites, depth + 1, maxDepth);
+    if (childNode) {
+      childNode.stage = inv.stage || 'invited';
+      childNode.email = inv.invitee ? inv.invitee.email : '';
+      childNode.date = inv.createdAt;
+      node.children.push(childNode);
+    }
+  }
+  return node;
+}
+
+function countDescendants(node) {
+  if (!node || !node.children) return 0;
+  var c = node.children.length;
+  for (var i = 0; i < node.children.length; i++) {
+    c += countDescendants(node.children[i]);
+  }
+  return c;
+}
+
+function renderTreeNode(node, isRoot) {
+  if (!node) return '';
+
+  var boxCls = 't-node-box';
+  if (isRoot) boxCls += ' root';
+  else if (node.stage === 'staking_active' || node.stage === 'card_activated') boxCls += ' active';
+  else if (node.stage === 'invited') boxCls += ' inactive';
+
+  var statusCls = 't-status ';
+  if (isRoot) statusCls += 'on';
+  else if (node.stage === 'staking_active' || node.stage === 'card_activated') statusCls += 'on';
+  else statusCls += 'off';
+
+  var genLabel = isRoot ? 'YOU' : 'Gen ' + node.gen;
+  var rateLabel = '';
+  if (!isRoot && node.gen >= 1 && node.gen <= 8) {
+    var rates = [10, 6, 4, 4, 4, 4, 4, 4];
+    rateLabel = rates[node.gen - 1] + '%';
+  }
+
+  var initial = node.name.charAt(0).toUpperCase();
+  var displayName = node.name.length > 10 ? node.name.substring(0, 9) + '\u2026' : node.name;
+  var descendants = countDescendants(node);
+  var nodeId = 'tn_' + node.name.replace(/[^a-zA-Z0-9]/g, '_') + '_' + node.gen;
+  var isCollapsed = _treeCollapsed[nodeId];
+
+  var html = '<div class="t-group">';
+  html += '<div class="t-node">';
+  html += '<div class="' + boxCls + '" title="' + escHtml(node.name) + (node.email ? ' (' + escHtml(node.email) + ')' : '') + '">';
+  html += '<div class="' + statusCls + '"></div>';
+  html += '<div class="t-avatar">' + escHtml(initial) + '</div>';
+  html += '<div class="t-name">' + escHtml(displayName) + '</div>';
+  html += '<div class="t-gen">' + genLabel + '</div>';
+  if (rateLabel) html += '<div class="t-rate">' + rateLabel + '</div>';
+  html += '</div>';
+
+  if (node.children.length > 0) {
+    html += '<div class="t-expand" onclick="toggleNode(\'' + nodeId + '\')">' + (isCollapsed ? '\u25B6 ' + node.children.length + ' refs' : '\u25BC ' + node.children.length + ' refs') + '</div>';
+  } else if (!isRoot && descendants === 0) {
+    html += '<div style="font-size:.45rem;color:rgba(255,255,255,.15);margin-top:2px">leaf</div>';
+  }
+  html += '</div>';
+
+  // Render children
+  if (node.children.length > 0 && !isCollapsed) {
+    html += '<div class="t-connector"><div class="t-vline"></div></div>';
+    html += '<div class="t-children">';
+    for (var i = 0; i < node.children.length; i++) {
+      html += renderTreeNode(node.children[i], false);
+    }
+    html += '</div>';
+  }
+
+  html += '</div>';
+  return html;
+}
+
+function renderTree() {
+  var user = null;
+  try { user = JSON.parse(localStorage.getItem('cw_user')); } catch(e) {}
+  if (!user || !user.name) {
+    document.getElementById('treeWrap').innerHTML = '<div class="tree-empty"><div class="te-icon">\uD83D\uDD12</div>Sign in to view your referral tree</div>';
+    return;
+  }
+
+  var invites = [];
+  try { invites = JSON.parse(localStorage.getItem('cw_invites') || '[]'); } catch(e) {}
+
+  // Try building tree with name first, then username (inviterName could be either)
+  var treeRoot = user.username || user.name;
+  var root = buildTree(treeRoot, invites, 0, _treeDepth);
+  if ((!root || countDescendants(root) === 0) && user.name && user.name !== treeRoot) {
+    root = buildTree(user.name, invites, 0, _treeDepth);
+    if (root && countDescendants(root) > 0) treeRoot = user.name;
+  }
+  if (!root) {
+    document.getElementById('treeWrap').innerHTML = '<div class="tree-empty"><div class="te-icon">\uD83C\uDF33</div>No referral data found</div>';
+    return;
+  }
+
+  var totalNodes = countDescendants(root);
+  if (totalNodes === 0) {
+    document.getElementById('treeWrap').innerHTML = '<div class="tree-empty"><div class="te-icon">\uD83D\uDCE8</div>No invites yet. Share your link to build your tree!</div>';
+    return;
+  }
+
+  root.stage = 'staking_active'; // User is always active (root)
+  var html = '<div style="display:inline-flex;justify-content:center;min-width:100%">' + renderTreeNode(root, true) + '</div>';
+  document.getElementById('treeWrap').innerHTML = html;
+
+  // Count by generation
+  var genCounts = [];
+  function countGens(n) {
+    if (!n) return;
+    if (n.gen > 0) {
+      genCounts[n.gen] = (genCounts[n.gen] || 0) + 1;
+    }
+    for (var i = 0; i < n.children.length; i++) countGens(n.children[i]);
+  }
+  countGens(root);
+  var info = totalNodes + ' referral' + (totalNodes !== 1 ? 's' : '') + ' across ' + _treeDepth + ' generation' + (_treeDepth !== 1 ? 's' : '');
+  var parts = [];
+  for (var g = 1; g <= 8; g++) {
+    if (genCounts[g]) parts.push('Gen ' + g + ': ' + genCounts[g]);
+  }
+  if (parts.length) info += ' \u2014 ' + parts.join(', ');
+  document.getElementById('treeDepthInfo').textContent = info;
+}
+
+function setTreeDepth(d, btn) {
+  _treeDepth = d;
+  var btns = document.querySelectorAll('.tree-controls button');
+  for (var i = 0; i < btns.length; i++) btns[i].classList.remove('active');
+  if (btn) btn.classList.add('active');
+  renderTree();
+}
+
+function toggleNode(nodeId) {
+  _treeCollapsed[nodeId] = !_treeCollapsed[nodeId];
+  renderTree();
+}
+
+function toggleTreeView(btn) {
+  // Toggle collapse all / expand all
+  var user = null;
+  try { user = JSON.parse(localStorage.getItem('cw_user')); } catch(e) {}
+  if (!user) return;
+
+  var invites = [];
+  try { invites = JSON.parse(localStorage.getItem('cw_invites') || '[]'); } catch(e) {}
+
+  var anyExpanded = false;
+  for (var k in _treeCollapsed) { if (!_treeCollapsed[k]) { anyExpanded = true; break; } }
+  if (Object.keys(_treeCollapsed).length === 0) anyExpanded = true;
+
+  if (anyExpanded) {
+    // Collapse all — collect all node IDs
+    function collectIds(name, depth) {
+      if (depth > _treeDepth) return;
+      var nodeId = 'tn_' + name.replace(/[^a-zA-Z0-9]/g, '_') + '_' + depth;
+      _treeCollapsed[nodeId] = true;
+      var directs = invites.filter(function(inv) { return inv.inviterName && inv.inviterName.toLowerCase() === name.toLowerCase(); });
+      for (var i = 0; i < directs.length; i++) {
+        var cn = directs[i].invitee ? (directs[i].invitee.name || 'User') : 'Pending';
+        collectIds(cn, depth + 1);
+      }
+    }
+    collectIds(user.username || user.name, 0);
+    btn.innerHTML = '\uD83D\uDD04 Expand All';
+  } else {
+    _treeCollapsed = {};
+    btn.innerHTML = '\uD83D\uDD04 Collapse All';
+  }
+  renderTree();
 }
 
 function showToast(msg, bg) {

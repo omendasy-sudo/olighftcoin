@@ -404,12 +404,12 @@ function testWalletStaking(cb) {
 function testCardStaking(cb) {
   var group = '💳 Card Staking';
   var CARDS = [
-    { name: 'Mastercard', stake: 50, daily: 4, fee: 20, periods: {90:360,180:720,365:1460} },
-    { name: 'Visa', stake: 100, daily: 6, fee: 40, periods: {90:540,180:1080,365:2190} },
-    { name: 'Amex', stake: 200, daily: 12, fee: 80, periods: {90:1080,180:2160,365:4380} },
-    { name: 'Platinum', stake: 300, daily: 18, fee: 120, periods: {90:1620,180:3240,365:6570} },
-    { name: 'Gold', stake: 400, daily: 24, fee: 160, periods: {90:2160,180:4320,365:8760} },
-    { name: 'Black', stake: 500, daily: 30, fee: 200, periods: {90:2700,180:5400,365:10950} }
+    { name: 'Mastercard', stake: 50, daily: 4, fee: 0, periods: {30:120,90:360,180:720,365:1460} },
+    { name: 'Visa', stake: 100, daily: 8, fee: 0, periods: {30:240,90:720,180:1440,365:2920} },
+    { name: 'Amex', stake: 200, daily: 16, fee: 0, periods: {30:480,90:1440,180:2880,365:5840} },
+    { name: 'Platinum', stake: 300, daily: 24, fee: 0, periods: {30:720,90:2160,180:4320,365:8760} },
+    { name: 'Gold', stake: 400, daily: 32, fee: 0, periods: {30:960,90:2880,180:5760,365:11680} },
+    { name: 'Black', stake: 500, daily: 40, fee: 0, periods: {30:1200,90:3600,180:7200,365:14600} }
   ];
 
   for (var c = 0; c < CARDS.length; c++) {
@@ -454,8 +454,8 @@ function testCardStaking(cb) {
     var cs = JSON.parse(localStorage.getItem('card_stakes'));
     // Add a matured card stake
     cs.push({
-      id: 'matured_card_test', card: 'Visa', stake: 100, fee: 40,
-      daily: 6, period: 90, payout: 540, compound: 'daily',
+      id: 'matured_card_test', card: 'Visa', stake: 100, fee: 0,
+      daily: 8, period: 90, payout: 720, compound: 'daily',
       sponsor: 'OLIGHFTCOIN', activatedBy: 'testuser',
       date: new Date(Date.now() - 91 * 86400000).toISOString(),
       paidOLIGHFT: 280, withdrawn: false

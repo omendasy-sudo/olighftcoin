@@ -417,6 +417,44 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 .inv-stage.s-card{background:rgba(39,174,96,.1);color:#27ae60}
 .inv-stage.s-staking{background:rgba(39,174,96,.18);color:#2ecc71;border:1px solid rgba(39,174,96,.25)}
 .inv-empty{text-align:center;padding:24px;color:rgba(255,255,255,.2);font-size:.68rem}
+/* My Tree Position */
+.my-tree{padding:16px;background:rgba(0,0,0,.18);border-radius:14px;border:1px solid rgba(108,92,231,.12);margin-bottom:18px;overflow-x:auto}
+.my-tree-title{font-size:.82rem;font-weight:700;color:#a29bfe;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
+.my-tree-title a{font-size:.6rem;color:rgba(108,92,231,.5);text-decoration:none;transition:.2s}
+.my-tree-title a:hover{color:#a29bfe}
+.mt-row{display:flex;justify-content:center;gap:0;position:relative}
+.mt-group{display:flex;flex-direction:column;align-items:center}
+.mt-children{display:flex;justify-content:center;gap:6px}
+.mt-node{display:flex;flex-direction:column;align-items:center;padding:3px 2px}
+.mt-box{padding:10px 12px;border-radius:12px;text-align:center;border:1.5px solid rgba(108,92,231,.12);background:rgba(108,92,231,.03);min-width:72px;max-width:110px;cursor:default;transition:.2s;position:relative}
+.mt-box:hover{border-color:rgba(108,92,231,.3);background:rgba(108,92,231,.08)}
+.mt-box.me{border-color:rgba(245,197,24,.35);background:rgba(245,197,24,.07);box-shadow:0 0 12px rgba(245,197,24,.08)}
+.mt-box.upline{border-color:rgba(162,155,254,.2);background:rgba(162,155,254,.05)}
+.mt-box.active{border-color:rgba(39,174,96,.25)}
+.mt-box.inactive{opacity:.45}
+.mt-ava{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 4px;font-size:.75rem;font-weight:700}
+.mt-box.me .mt-ava{background:rgba(245,197,24,.15);color:#f5c518}
+.mt-box.upline .mt-ava{background:rgba(162,155,254,.12);color:#a29bfe}
+.mt-box:not(.me):not(.upline) .mt-ava{background:rgba(39,174,96,.12);color:#27ae60}
+.mt-box.inactive .mt-ava{background:rgba(255,255,255,.04);color:rgba(255,255,255,.2)}
+.mt-nm{font-size:.62rem;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:90px}
+.mt-role{font-size:.48rem;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.5px;margin-top:1px}
+.mt-rate{font-size:.5rem;color:#f5c518;font-weight:600;margin-top:1px}
+.mt-status{position:absolute;top:5px;right:5px;width:6px;height:6px;border-radius:50%}
+.mt-status.on{background:#27ae60;box-shadow:0 0 4px rgba(39,174,96,.5)}
+.mt-status.off{background:rgba(255,255,255,.12)}
+.mt-vline{width:1.5px;height:18px;background:rgba(108,92,231,.18);margin:0 auto}
+.mt-hconnect{display:flex;align-items:flex-start;justify-content:center;height:14px;position:relative}
+.mt-hbar{height:1.5px;background:rgba(108,92,231,.18)}
+.mt-vbranch{width:1.5px;height:14px;background:rgba(108,92,231,.18)}
+.mt-legend{display:flex;gap:12px;justify-content:center;margin-top:10px;flex-wrap:wrap}
+.mt-legend span{font-size:.52rem;color:rgba(255,255,255,.3);display:flex;align-items:center;gap:3px}
+.mt-legend .ml-dot{width:6px;height:6px;border-radius:50%;display:inline-block}
+.mt-info{text-align:center;font-size:.52rem;color:rgba(255,255,255,.2);margin-top:6px}
+.mt-empty{text-align:center;padding:24px;color:rgba(255,255,255,.2);font-size:.72rem}
+.mt-ctrls{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+.mt-ctrls button{padding:5px 12px;border:1px solid rgba(108,92,231,.15);border-radius:7px;background:rgba(108,92,231,.04);color:rgba(255,255,255,.5);font-size:.6rem;font-weight:600;cursor:pointer;transition:.2s}
+.mt-ctrls button:hover,.mt-ctrls button.active{background:rgba(108,92,231,.15);color:#a29bfe;border-color:rgba(108,92,231,.35)}
 /* Recent Staking Feed */
 .rsf-item{display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:10px;margin-bottom:5px;transition:.2s;animation:rsfSlide .4s ease}
 .rsf-item:hover{border-color:rgba(245,197,24,.15)}
@@ -718,14 +756,10 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
     <div class="sp-field">
       <label>Lock Period</label>
       <select id="skPeriod" onchange="updateApy()">
-        <option value="1" style="color:#ff6b6b">&#x1F9EA; 1 Day (Test)</option>
-        <option value="2" style="color:#ff6b6b">&#x1F9EA; 2 Days (Test)</option>
-        <option value="5" style="color:#ff6b6b">&#x1F9EA; 5 Days (Test)</option>
-        <option value="7" style="color:#ff6b6b">&#x1F9EA; 7 Days (Test)</option>
-        <option value="30">&#x1F512; 1 Month (+1.5%)</option>
-        <option value="90" selected>&#x1F512; 3 Months (+3.5%)</option>
-        <option value="180">&#x1F512; 6 Months (+6%)</option>
-        <option value="365">&#x1F512; 12 Months (+10%)</option>
+        <option value="30">&#x1F512; 1 Month (30 days)</option>
+        <option value="90" selected>&#x1F512; 3 Months (90 days)</option>
+        <option value="180">&#x1F512; 6 Months (180 days)</option>
+        <option value="365">&#x1F512; 12 Months (365 days)</option>
       </select>
     </div>
     <div class="sp-field">
@@ -736,37 +770,82 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 
 <!-- Profit Summary Modal -->
 <div id="profitSummaryModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);overflow-y:auto;padding:20px">
-<div style="max-width:520px;margin:30px auto;background:linear-gradient(145deg,#1a1a2e,#16213e);border:1px solid rgba(245,197,24,.15);border-radius:18px;padding:22px;position:relative">
+<div style="max-width:540px;margin:30px auto;background:linear-gradient(145deg,#1a1a2e,#16213e);border:1px solid rgba(245,197,24,.15);border-radius:18px;padding:22px;position:relative">
 <button onclick="document.getElementById('profitSummaryModal').style.display='none'" style="position:absolute;top:12px;right:14px;background:none;border:none;color:rgba(255,255,255,.4);font-size:1.2rem;cursor:pointer">&times;</button>
-<h3 style="text-align:center;font-size:1rem;margin:0 0 6px;color:#f5c518">&#x1F4CA; Card Profit Summary</h3>
-<div style="text-align:center;font-size:.6rem;color:rgba(255,255,255,.35);margin-bottom:16px">Daily auto-compound (+2.4%) applied &bull; All amounts in USD</div>
+<h3 style="text-align:center;font-size:1.1rem;margin:0 0 4px;color:#f5c518">&#x1F4CA; OLIGHFT Staking Summary</h3>
+<div style="text-align:center;font-size:.58rem;color:rgba(255,255,255,.3);margin-bottom:14px">1 OLIGHFT = $0.50 &bull; All amounts in USD</div>
 
-<div style="overflow-x:auto;margin-bottom:18px">
-<table style="width:100%;border-collapse:collapse;font-size:.7rem">
+<!-- How It Works -->
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px">
+<div style="background:rgba(39,174,96,.06);border:1px solid rgba(39,174,96,.1);border-radius:10px;padding:10px 8px;text-align:center">
+<div style="font-size:1.1rem;margin-bottom:4px">&#x1F4B0;</div>
+<div style="font-size:.65rem;font-weight:700;color:#27ae60">$0 Upfront Fee</div>
+<div style="font-size:.52rem;color:rgba(255,255,255,.35);margin-top:2px">No activation cost</div>
+</div>
+<div style="background:rgba(108,92,231,.06);border:1px solid rgba(108,92,231,.1);border-radius:10px;padding:10px 8px;text-align:center">
+<div style="font-size:1.1rem;margin-bottom:4px">&#x1F4C8;</div>
+<div style="font-size:.65rem;font-weight:700;color:#818cf8">Daily &times; Days</div>
+<div style="font-size:.52rem;color:rgba(255,255,255,.35);margin-top:2px">Simple profit formula</div>
+</div>
+<div style="background:rgba(235,87,87,.06);border:1px solid rgba(235,87,87,.1);border-radius:10px;padding:10px 8px;text-align:center">
+<div style="font-size:1.1rem;margin-bottom:4px">&#x1F4B8;</div>
+<div style="font-size:.65rem;font-weight:700;color:#eb5757">30% at Withdrawal</div>
+<div style="font-size:.52rem;color:rgba(255,255,255,.35);margin-top:2px">Service fee on gross</div>
+</div>
+</div>
+
+<!-- Gross Profit Table -->
+<h4 style="font-size:.78rem;color:#f2994a;margin:0 0 8px;display:flex;align-items:center;gap:6px">&#x1F4B3; Gross Profit by Card &amp; Period</h4>
+<div style="overflow-x:auto;margin-bottom:14px">
+<table style="width:100%;border-collapse:collapse;font-size:.68rem">
 <thead><tr style="border-bottom:1px solid rgba(245,197,24,.15)">
-<th style="text-align:left;padding:8px 6px;color:rgba(255,255,255,.4);font-weight:600">Card</th>
-<th style="text-align:center;padding:8px 4px;color:rgba(255,255,255,.4);font-weight:600">Stake</th>
-<th style="text-align:center;padding:8px 4px;color:rgba(255,255,255,.4);font-weight:600">Fee</th>
-<th style="text-align:center;padding:8px 4px;color:rgba(255,255,255,.4);font-weight:600">Daily</th>
-<th style="text-align:center;padding:8px 4px;color:#f2994a;font-weight:600">1 Mo</th>
-<th style="text-align:center;padding:8px 4px;color:#27ae60;font-weight:600">3 Mo</th>
-<th style="text-align:center;padding:8px 4px;color:#818cf8;font-weight:600">6 Mo</th>
-<th style="text-align:center;padding:8px 4px;color:#f5c518;font-weight:600">1 Yr</th>
+<th style="text-align:left;padding:7px 6px;color:rgba(255,255,255,.4);font-weight:600">Card</th>
+<th style="text-align:center;padding:7px 4px;color:rgba(255,255,255,.4);font-weight:600">Stake</th>
+<th style="text-align:center;padding:7px 4px;color:rgba(255,255,255,.4);font-weight:600">Daily</th>
+<th style="text-align:center;padding:7px 4px;color:#f2994a;font-weight:600">30d</th>
+<th style="text-align:center;padding:7px 4px;color:#27ae60;font-weight:600">90d</th>
+<th style="text-align:center;padding:7px 4px;color:#818cf8;font-weight:600">180d</th>
+<th style="text-align:center;padding:7px 4px;color:#f5c518;font-weight:600">365d</th>
 </tr></thead>
 <tbody>
-<tr style="border-bottom:1px solid rgba(255,255,255,.04)"><td style="padding:7px 6px;color:#f2994a;font-weight:700">&#x1F4B3; MC</td><td style="text-align:center;padding:7px 4px">$50</td><td style="text-align:center;padding:7px 4px;color:rgba(255,255,255,.4)">$20</td><td style="text-align:center;padding:7px 4px">$4</td><td style="text-align:center;padding:7px 4px;color:#f2994a;font-weight:700">$120</td><td style="text-align:center;padding:7px 4px;color:#27ae60;font-weight:700">$360</td><td style="text-align:center;padding:7px 4px;color:#818cf8;font-weight:700">$720</td><td style="text-align:center;padding:7px 4px;color:#f5c518;font-weight:700">$1,460</td></tr>
-<tr style="border-bottom:1px solid rgba(255,255,255,.04)"><td style="padding:7px 6px;color:#f5c518;font-weight:700">&#x1F4B3; Visa</td><td style="text-align:center;padding:7px 4px">$100</td><td style="text-align:center;padding:7px 4px;color:rgba(255,255,255,.4)">$40</td><td style="text-align:center;padding:7px 4px">$6</td><td style="text-align:center;padding:7px 4px;color:#f2994a;font-weight:700">$180</td><td style="text-align:center;padding:7px 4px;color:#27ae60;font-weight:700">$540</td><td style="text-align:center;padding:7px 4px;color:#818cf8;font-weight:700">$1,080</td><td style="text-align:center;padding:7px 4px;color:#f5c518;font-weight:700">$2,190</td></tr>
-<tr style="border-bottom:1px solid rgba(255,255,255,.04)"><td style="padding:7px 6px;color:#2d9cdb;font-weight:700">&#x1F3DB; Amex</td><td style="text-align:center;padding:7px 4px">$200</td><td style="text-align:center;padding:7px 4px;color:rgba(255,255,255,.4)">$80</td><td style="text-align:center;padding:7px 4px">$12</td><td style="text-align:center;padding:7px 4px;color:#f2994a;font-weight:700">$360</td><td style="text-align:center;padding:7px 4px;color:#27ae60;font-weight:700">$1,080</td><td style="text-align:center;padding:7px 4px;color:#818cf8;font-weight:700">$2,160</td><td style="text-align:center;padding:7px 4px;color:#f5c518;font-weight:700">$4,380</td></tr>
-<tr style="border-bottom:1px solid rgba(255,255,255,.04)"><td style="padding:7px 6px;color:#a0aec0;font-weight:700">&#x26CF; Plat</td><td style="text-align:center;padding:7px 4px">$300</td><td style="text-align:center;padding:7px 4px;color:rgba(255,255,255,.4)">$120</td><td style="text-align:center;padding:7px 4px">$18</td><td style="text-align:center;padding:7px 4px;color:#f2994a;font-weight:700">$540</td><td style="text-align:center;padding:7px 4px;color:#27ae60;font-weight:700">$1,620</td><td style="text-align:center;padding:7px 4px;color:#818cf8;font-weight:700">$3,240</td><td style="text-align:center;padding:7px 4px;color:#f5c518;font-weight:700">$6,570</td></tr>
-<tr style="border-bottom:1px solid rgba(255,255,255,.04)"><td style="padding:7px 6px;color:#daa520;font-weight:700">&#x1F3C6; Gold</td><td style="text-align:center;padding:7px 4px">$400</td><td style="text-align:center;padding:7px 4px;color:rgba(255,255,255,.4)">$160</td><td style="text-align:center;padding:7px 4px">$24</td><td style="text-align:center;padding:7px 4px;color:#f2994a;font-weight:700">$720</td><td style="text-align:center;padding:7px 4px;color:#27ae60;font-weight:700">$2,160</td><td style="text-align:center;padding:7px 4px;color:#818cf8;font-weight:700">$4,320</td><td style="text-align:center;padding:7px 4px;color:#f5c518;font-weight:700">$8,760</td></tr>
-<tr><td style="padding:7px 6px;color:#e2e8f0;font-weight:700">&#x1F5C4; Black</td><td style="text-align:center;padding:7px 4px">$500</td><td style="text-align:center;padding:7px 4px;color:rgba(255,255,255,.4)">$200</td><td style="text-align:center;padding:7px 4px">$30</td><td style="text-align:center;padding:7px 4px;color:#f2994a;font-weight:700">$900</td><td style="text-align:center;padding:7px 4px;color:#27ae60;font-weight:700">$2,700</td><td style="text-align:center;padding:7px 4px;color:#818cf8;font-weight:700">$5,400</td><td style="text-align:center;padding:7px 4px;color:#f5c518;font-weight:700">$10,950</td></tr>
+<tr style="border-bottom:1px solid rgba(255,255,255,.04)"><td style="padding:6px;color:#f2994a;font-weight:700">Mastercard</td><td style="text-align:center;padding:6px 4px">$50</td><td style="text-align:center;padding:6px 4px;color:#27ae60">$4</td><td style="text-align:center;padding:6px 4px;font-weight:600">$120</td><td style="text-align:center;padding:6px 4px;font-weight:600">$360</td><td style="text-align:center;padding:6px 4px;font-weight:600">$720</td><td style="text-align:center;padding:6px 4px;font-weight:600;color:#f5c518">$1,460</td></tr>
+<tr style="border-bottom:1px solid rgba(255,255,255,.04)"><td style="padding:6px;color:#6366f1;font-weight:700">Visa</td><td style="text-align:center;padding:6px 4px">$100</td><td style="text-align:center;padding:6px 4px;color:#27ae60">$8</td><td style="text-align:center;padding:6px 4px;font-weight:600">$240</td><td style="text-align:center;padding:6px 4px;font-weight:600">$720</td><td style="text-align:center;padding:6px 4px;font-weight:600">$1,440</td><td style="text-align:center;padding:6px 4px;font-weight:600;color:#f5c518">$2,920</td></tr>
+<tr style="border-bottom:1px solid rgba(255,255,255,.04)"><td style="padding:6px;color:#2d9cdb;font-weight:700">Amex</td><td style="text-align:center;padding:6px 4px">$200</td><td style="text-align:center;padding:6px 4px;color:#27ae60">$16</td><td style="text-align:center;padding:6px 4px;font-weight:600">$480</td><td style="text-align:center;padding:6px 4px;font-weight:600">$1,440</td><td style="text-align:center;padding:6px 4px;font-weight:600">$2,880</td><td style="text-align:center;padding:6px 4px;font-weight:600;color:#f5c518">$5,840</td></tr>
+<tr style="border-bottom:1px solid rgba(255,255,255,.04)"><td style="padding:6px;color:#a0aec0;font-weight:700">Platinum</td><td style="text-align:center;padding:6px 4px">$300</td><td style="text-align:center;padding:6px 4px;color:#27ae60">$24</td><td style="text-align:center;padding:6px 4px;font-weight:600">$720</td><td style="text-align:center;padding:6px 4px;font-weight:600">$2,160</td><td style="text-align:center;padding:6px 4px;font-weight:600">$4,320</td><td style="text-align:center;padding:6px 4px;font-weight:600;color:#f5c518">$8,760</td></tr>
+<tr style="border-bottom:1px solid rgba(255,255,255,.04)"><td style="padding:6px;color:#daa520;font-weight:700">Gold</td><td style="text-align:center;padding:6px 4px">$400</td><td style="text-align:center;padding:6px 4px;color:#27ae60">$32</td><td style="text-align:center;padding:6px 4px;font-weight:600">$960</td><td style="text-align:center;padding:6px 4px;font-weight:600">$2,880</td><td style="text-align:center;padding:6px 4px;font-weight:600">$5,760</td><td style="text-align:center;padding:6px 4px;font-weight:600;color:#f5c518">$11,680</td></tr>
+<tr><td style="padding:6px;color:#e2e8f0;font-weight:700">Black</td><td style="text-align:center;padding:6px 4px">$500</td><td style="text-align:center;padding:6px 4px;color:#27ae60">$40</td><td style="text-align:center;padding:6px 4px;font-weight:600">$1,200</td><td style="text-align:center;padding:6px 4px;font-weight:600">$3,600</td><td style="text-align:center;padding:6px 4px;font-weight:600">$7,200</td><td style="text-align:center;padding:6px 4px;font-weight:600;color:#f5c518">$14,600</td></tr>
 </tbody>
 </table>
 </div>
 
-<h3 style="font-size:.88rem;color:#f5c518;margin:0 0 10px">&#x1F333; 8-Generation Referral Commission</h3>
-<div style="font-size:.62rem;color:rgba(255,255,255,.35);margin-bottom:10px">60% &#x2192; OLIGHFTCOIN Admin &bull; 40% &#x2192; 8-Gen Referral Tree</div>
-<table style="width:100%;border-collapse:collapse;font-size:.7rem">
+<!-- Net Profit After 30% Fee -->
+<h4 style="font-size:.78rem;color:#27ae60;margin:0 0 8px;display:flex;align-items:center;gap:6px">&#x2705; Net Profit After 30% Fee (You Receive)</h4>
+<div style="overflow-x:auto;margin-bottom:16px">
+<table style="width:100%;border-collapse:collapse;font-size:.68rem">
+<thead><tr style="border-bottom:1px solid rgba(39,174,96,.2)">
+<th style="text-align:left;padding:7px 6px;color:rgba(255,255,255,.4);font-weight:600">Card</th>
+<th style="text-align:center;padding:7px 4px;color:#f2994a;font-weight:600">30d</th>
+<th style="text-align:center;padding:7px 4px;color:#27ae60;font-weight:600">90d</th>
+<th style="text-align:center;padding:7px 4px;color:#818cf8;font-weight:600">180d</th>
+<th style="text-align:center;padding:7px 4px;color:#f5c518;font-weight:600">365d</th>
+</tr></thead>
+<tbody>
+<tr style="border-bottom:1px solid rgba(255,255,255,.04)"><td style="padding:6px;color:#f2994a;font-weight:700">Mastercard</td><td style="text-align:center;padding:6px 4px;color:#27ae60;font-weight:600">$119</td><td style="text-align:center;padding:6px 4px;color:#27ae60;font-weight:600">$287</td><td style="text-align:center;padding:6px 4px;color:#27ae60;font-weight:600">$539</td><td style="text-align:center;padding:6px 4px;color:#27ae60;font-weight:700">$1,057</td></tr>
+<tr style="border-bottom:1px solid rgba(255,255,255,.04)"><td style="padding:6px;color:#6366f1;font-weight:700">Visa</td><td style="text-align:center;padding:6px 4px;color:#27ae60;font-weight:600">$238</td><td style="text-align:center;padding:6px 4px;color:#27ae60;font-weight:600">$574</td><td style="text-align:center;padding:6px 4px;color:#27ae60;font-weight:600">$1,078</td><td style="text-align:center;padding:6px 4px;color:#27ae60;font-weight:700">$2,114</td></tr>
+<tr style="border-bottom:1px solid rgba(255,255,255,.04)"><td style="padding:6px;color:#2d9cdb;font-weight:700">Amex</td><td style="text-align:center;padding:6px 4px;color:#27ae60;font-weight:600">$476</td><td style="text-align:center;padding:6px 4px;color:#27ae60;font-weight:600">$1,148</td><td style="text-align:center;padding:6px 4px;color:#27ae60;font-weight:600">$2,156</td><td style="text-align:center;padding:6px 4px;color:#27ae60;font-weight:700">$4,228</td></tr>
+<tr style="border-bottom:1px solid rgba(255,255,255,.04)"><td style="padding:6px;color:#a0aec0;font-weight:700">Platinum</td><td style="text-align:center;padding:6px 4px;color:#27ae60;font-weight:600">$714</td><td style="text-align:center;padding:6px 4px;color:#27ae60;font-weight:600">$1,722</td><td style="text-align:center;padding:6px 4px;color:#27ae60;font-weight:600">$3,234</td><td style="text-align:center;padding:6px 4px;color:#27ae60;font-weight:700">$6,342</td></tr>
+<tr style="border-bottom:1px solid rgba(255,255,255,.04)"><td style="padding:6px;color:#daa520;font-weight:700">Gold</td><td style="text-align:center;padding:6px 4px;color:#27ae60;font-weight:600">$952</td><td style="text-align:center;padding:6px 4px;color:#27ae60;font-weight:600">$2,296</td><td style="text-align:center;padding:6px 4px;color:#27ae60;font-weight:600">$4,312</td><td style="text-align:center;padding:6px 4px;color:#27ae60;font-weight:700">$8,456</td></tr>
+<tr><td style="padding:6px;color:#e2e8f0;font-weight:700">Black</td><td style="text-align:center;padding:6px 4px;color:#27ae60;font-weight:600">$1,190</td><td style="text-align:center;padding:6px 4px;color:#27ae60;font-weight:600">$2,870</td><td style="text-align:center;padding:6px 4px;color:#27ae60;font-weight:600">$5,390</td><td style="text-align:center;padding:6px 4px;color:#27ae60;font-weight:700">$10,570</td></tr>
+</tbody>
+</table>
+</div>
+<div style="font-size:.55rem;color:rgba(255,255,255,.3);text-align:center;margin-bottom:16px">Net = (Stake + Gross Profit) &minus; 30% fee &bull; Principal returned with rewards</div>
+
+<!-- 8-Gen Commission -->
+<h4 style="font-size:.78rem;color:#f5c518;margin:0 0 8px;display:flex;align-items:center;gap:6px">&#x1F333; 8-Generation Referral Commission</h4>
+<div style="font-size:.58rem;color:rgba(255,255,255,.3);margin-bottom:8px">Stake amount split: 60% &#x2192; Admin &bull; 40% &#x2192; 8-Gen Tree (10% + 6% + 4%&times;6)</div>
+<div style="overflow-x:auto;margin-bottom:14px">
+<table style="width:100%;border-collapse:collapse;font-size:.68rem">
 <thead><tr style="border-bottom:1px solid rgba(245,197,24,.15)">
 <th style="text-align:left;padding:6px;color:rgba(255,255,255,.4)">Gen</th>
 <th style="text-align:left;padding:6px;color:rgba(255,255,255,.4)">Role</th>
@@ -776,20 +855,28 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 <th style="text-align:right;padding:6px;color:rgba(255,255,255,.4)">Black $500</th>
 </tr></thead>
 <tbody>
-<tr style="background:rgba(245,197,24,.04)"><td style="padding:5px 6px;font-weight:700;color:#f5c518">&mdash;</td><td style="padding:5px 6px">Wallet Activator</td><td style="text-align:center;padding:5px 6px;color:#f2994a">60%</td><td style="text-align:right;padding:5px 6px;font-weight:700;color:#f2994a">$30</td><td style="text-align:right;padding:5px 6px;font-weight:700;color:#f2994a">$60</td><td style="text-align:right;padding:5px 6px;font-weight:700;color:#f2994a">$300</td></tr>
+<tr style="background:rgba(245,197,24,.04)"><td style="padding:5px 6px;font-weight:700;color:#f5c518">&mdash;</td><td style="padding:5px 6px">Admin Wallet</td><td style="text-align:center;padding:5px 6px;color:#f2994a;font-weight:700">60%</td><td style="text-align:right;padding:5px 6px;font-weight:700;color:#f2994a">$30</td><td style="text-align:right;padding:5px 6px;font-weight:700;color:#f2994a">$60</td><td style="text-align:right;padding:5px 6px;font-weight:700;color:#f2994a">$300</td></tr>
 <tr><td style="padding:5px 6px;font-weight:700">1</td><td style="padding:5px 6px">Direct Inviter</td><td style="text-align:center;padding:5px 6px;color:#27ae60">10%</td><td style="text-align:right;padding:5px 6px;color:#27ae60">$5</td><td style="text-align:right;padding:5px 6px;color:#27ae60">$10</td><td style="text-align:right;padding:5px 6px;color:#27ae60">$50</td></tr>
 <tr><td style="padding:5px 6px;font-weight:700">2</td><td style="padding:5px 6px">Inviter&rsquo;s Inviter</td><td style="text-align:center;padding:5px 6px;color:#27ae60">6%</td><td style="text-align:right;padding:5px 6px;color:#27ae60">$3</td><td style="text-align:right;padding:5px 6px;color:#27ae60">$6</td><td style="text-align:right;padding:5px 6px;color:#27ae60">$30</td></tr>
-<tr><td style="padding:5px 6px;font-weight:700">3</td><td style="padding:5px 6px">Upline Lvl 3</td><td style="text-align:center;padding:5px 6px;color:#27ae60">4%</td><td style="text-align:right;padding:5px 6px;color:#27ae60">$2</td><td style="text-align:right;padding:5px 6px;color:#27ae60">$4</td><td style="text-align:right;padding:5px 6px;color:#27ae60">$20</td></tr>
-<tr><td style="padding:5px 6px;font-weight:700">4</td><td style="padding:5px 6px">Upline Lvl 4</td><td style="text-align:center;padding:5px 6px;color:#27ae60">4%</td><td style="text-align:right;padding:5px 6px;color:#27ae60">$2</td><td style="text-align:right;padding:5px 6px;color:#27ae60">$4</td><td style="text-align:right;padding:5px 6px;color:#27ae60">$20</td></tr>
-<tr><td style="padding:5px 6px;font-weight:700">5</td><td style="padding:5px 6px">Upline Lvl 5</td><td style="text-align:center;padding:5px 6px;color:#27ae60">4%</td><td style="text-align:right;padding:5px 6px;color:#27ae60">$2</td><td style="text-align:right;padding:5px 6px;color:#27ae60">$4</td><td style="text-align:right;padding:5px 6px;color:#27ae60">$20</td></tr>
-<tr><td style="padding:5px 6px;font-weight:700">6</td><td style="padding:5px 6px">Upline Lvl 6</td><td style="text-align:center;padding:5px 6px;color:#27ae60">4%</td><td style="text-align:right;padding:5px 6px;color:#27ae60">$2</td><td style="text-align:right;padding:5px 6px;color:#27ae60">$4</td><td style="text-align:right;padding:5px 6px;color:#27ae60">$20</td></tr>
-<tr><td style="padding:5px 6px;font-weight:700">7</td><td style="padding:5px 6px">Upline Lvl 7</td><td style="text-align:center;padding:5px 6px;color:#27ae60">4%</td><td style="text-align:right;padding:5px 6px;color:#27ae60">$2</td><td style="text-align:right;padding:5px 6px;color:#27ae60">$4</td><td style="text-align:right;padding:5px 6px;color:#27ae60">$20</td></tr>
-<tr style="border-bottom:none"><td style="padding:5px 6px;font-weight:700">8</td><td style="padding:5px 6px">Upline Lvl 8</td><td style="text-align:center;padding:5px 6px;color:#27ae60">4%</td><td style="text-align:right;padding:5px 6px;color:#27ae60">$2</td><td style="text-align:right;padding:5px 6px;color:#27ae60">$4</td><td style="text-align:right;padding:5px 6px;color:#27ae60">$20</td></tr>
-<tr style="border-top:1px solid rgba(245,197,24,.2)"><td colspan="3" style="padding:6px;font-weight:700;color:#f5c518">TOTAL</td><td style="text-align:right;padding:6px;font-weight:700;color:#f5c518">$50</td><td style="text-align:right;padding:6px;font-weight:700;color:#f5c518">$100</td><td style="text-align:right;padding:6px;font-weight:700;color:#f5c518">$500</td></tr>
+<tr><td style="padding:5px 6px;font-weight:700">3&ndash;8</td><td style="padding:5px 6px">Upline Lvl 3&ndash;8</td><td style="text-align:center;padding:5px 6px;color:#27ae60">4% each</td><td style="text-align:right;padding:5px 6px;color:#27ae60">$2 &times;6</td><td style="text-align:right;padding:5px 6px;color:#27ae60">$4 &times;6</td><td style="text-align:right;padding:5px 6px;color:#27ae60">$20 &times;6</td></tr>
+<tr style="border-top:1px solid rgba(245,197,24,.2)"><td colspan="3" style="padding:6px;font-weight:700;color:#f5c518">TOTAL (100%)</td><td style="text-align:right;padding:6px;font-weight:700;color:#f5c518">$50</td><td style="text-align:right;padding:6px;font-weight:700;color:#f5c518">$100</td><td style="text-align:right;padding:6px;font-weight:700;color:#f5c518">$500</td></tr>
 </tbody>
 </table>
+</div>
 
-<div style="margin-top:14px;padding:10px;border-radius:10px;background:rgba(39,174,96,.06);border:1px solid rgba(39,174,96,.1);text-align:center;font-size:.62rem;color:rgba(255,255,255,.4)">&#x1F504; Daily auto-compound permanently active &bull; Auto-withdraw when period ends</div>
+<!-- Staking Rules -->
+<div style="background:rgba(108,92,231,.06);border:1px solid rgba(108,92,231,.1);border-radius:12px;padding:12px 14px;margin-bottom:0">
+<div style="font-size:.72rem;font-weight:700;color:#818cf8;margin-bottom:8px">&#x1F4DD; Staking Rules</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:.6rem;color:rgba(255,255,255,.5)">
+<div>&#x2705; Periods: 1, 3, 6, 12 months</div>
+<div>&#x2705; Auto-withdraw at maturity</div>
+<div>&#x2705; Principal returned with rewards</div>
+<div>&#x2705; 30% fee on gross at withdrawal</div>
+<div>&#x2705; 1 OLIGHFT = $0.50 fixed rate</div>
+<div>&#x2705; Rewards from supply pool</div>
+</div>
+</div>
+
 </div>
 </div>
     <div class="sp-field">
@@ -799,67 +886,46 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
       </select>
       <div style="font-size:.58rem;color:rgba(255,255,255,.3);margin-top:4px" id="dashCardHint">Tap a card to select it for staking</div>
       <!-- Card Shortcut Tiles -->
-      <div style="text-align:center;padding:8px 10px;background:rgba(255,107,107,.08);border:1px solid rgba(255,107,107,.25);border-radius:10px;margin-top:8px;margin-bottom:6px">
-        <div style="margin-bottom:6px"><span style="font-size:.7rem;font-weight:800;color:#ff6b6b;letter-spacing:1px">&#x1F9EA; TEST MODE</span></div>
-        <div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap">
-          <button onclick="setTestPeriod(1)" class="tpBtn" id="tp1" style="padding:5px 12px;border-radius:8px;border:1px solid rgba(255,107,107,.35);background:rgba(255,107,107,.1);color:#ff6b6b;font-size:.68rem;font-weight:700;cursor:pointer;transition:all .2s">1 Day</button>
-          <button onclick="setTestPeriod(2)" class="tpBtn" id="tp2" style="padding:5px 12px;border-radius:8px;border:1px solid rgba(255,107,107,.35);background:rgba(255,107,107,.1);color:#ff6b6b;font-size:.68rem;font-weight:700;cursor:pointer;transition:all .2s">2 Days</button>
-          <button onclick="setTestPeriod(5)" class="tpBtn" id="tp5" style="padding:5px 12px;border-radius:8px;border:1px solid rgba(255,107,107,.35);background:rgba(255,107,107,.1);color:#ff6b6b;font-size:.68rem;font-weight:700;cursor:pointer;transition:all .2s">5 Days</button>
-          <button onclick="setTestPeriod(7)" class="tpBtn" id="tp7" style="padding:5px 12px;border-radius:8px;border:1px solid rgba(255,107,107,.35);background:rgba(255,107,107,.1);color:#ff6b6b;font-size:.68rem;font-weight:700;cursor:pointer;transition:all .2s">7 Days</button>
-        </div>
-      </div>
       <div id="cardShortcuts" style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:10px">
         <div class="csc-tile" data-card="Mastercard" data-href="card-mastercard.html" onclick="selectCardTile(this)" style="background:linear-gradient(135deg,rgba(235,87,87,.08),rgba(235,87,87,.02));border-color:rgba(235,87,87,.2)">
           <div class="csc-name">&#x1F4B3; Mastercard</div>
           <div class="csc-row"><span>Stake</span><b>$50</b></div>
           <div class="csc-row"><span>Daily</span><b style="color:#27ae60">$4</b></div>
-          <div class="csc-boost">+0.5% boost</div>
-          <div style="font-size:.5rem;color:#ff6b6b;margin-top:2px">Test: 1d&#8226;2d&#8226;5d&#8226;7d</div>
           <div class="csc-active"></div>
           <div class="csc-sel">&#x2714; Selected</div>
         </div>
         <div class="csc-tile" data-card="Visa" data-href="card-visa.html" onclick="selectCardTile(this)" style="background:linear-gradient(135deg,rgba(99,102,241,.08),rgba(99,102,241,.02));border-color:rgba(99,102,241,.2)">
           <div class="csc-name">&#x1F4B3; Visa</div>
           <div class="csc-row"><span>Stake</span><b>$100</b></div>
-          <div class="csc-row"><span>Daily</span><b style="color:#27ae60">$6</b></div>
-          <div class="csc-boost">+1.0% boost</div>
-          <div style="font-size:.5rem;color:#ff6b6b;margin-top:2px">Test: 1d&#8226;2d&#8226;5d&#8226;7d</div>
+          <div class="csc-row"><span>Daily</span><b style="color:#27ae60">$8</b></div>
           <div class="csc-active"></div>
           <div class="csc-sel">&#x2714; Selected</div>
         </div>
         <div class="csc-tile" data-card="Amex" data-href="card-amex.html" onclick="selectCardTile(this)" style="background:linear-gradient(135deg,rgba(45,156,219,.08),rgba(45,156,219,.02));border-color:rgba(45,156,219,.2)">
           <div class="csc-name">&#x1F4B3; Amex</div>
           <div class="csc-row"><span>Stake</span><b>$200</b></div>
-          <div class="csc-row"><span>Daily</span><b style="color:#27ae60">$12</b></div>
-          <div class="csc-boost">+1.2% boost</div>
-          <div style="font-size:.5rem;color:#ff6b6b;margin-top:2px">Test: 1d&#8226;2d&#8226;5d&#8226;7d</div>
+          <div class="csc-row"><span>Daily</span><b style="color:#27ae60">$16</b></div>
           <div class="csc-active"></div>
           <div class="csc-sel">&#x2714; Selected</div>
         </div>
         <div class="csc-tile" data-card="Platinum" data-href="card-platinum.html" onclick="selectCardTile(this)" style="background:linear-gradient(135deg,rgba(189,195,199,.08),rgba(189,195,199,.02));border-color:rgba(189,195,199,.2)">
           <div class="csc-name">&#x1F4B3; Platinum</div>
           <div class="csc-row"><span>Stake</span><b>$300</b></div>
-          <div class="csc-row"><span>Daily</span><b style="color:#27ae60">$18</b></div>
-          <div class="csc-boost">+1.5% boost</div>
-          <div style="font-size:.5rem;color:#ff6b6b;margin-top:2px">Test: 1d&#8226;2d&#8226;5d&#8226;7d</div>
+          <div class="csc-row"><span>Daily</span><b style="color:#27ae60">$24</b></div>
           <div class="csc-active"></div>
           <div class="csc-sel">&#x2714; Selected</div>
         </div>
         <div class="csc-tile" data-card="Gold" data-href="card-gold.html" onclick="selectCardTile(this)" style="background:linear-gradient(135deg,rgba(245,197,24,.08),rgba(245,197,24,.02));border-color:rgba(245,197,24,.2)">
           <div class="csc-name">&#x1F4B3; Gold</div>
           <div class="csc-row"><span>Stake</span><b>$400</b></div>
-          <div class="csc-row"><span>Daily</span><b style="color:#27ae60">$24</b></div>
-          <div class="csc-boost">+2.0% boost</div>
-          <div style="font-size:.5rem;color:#ff6b6b;margin-top:2px">Test: 1d&#8226;2d&#8226;5d&#8226;7d</div>
+          <div class="csc-row"><span>Daily</span><b style="color:#27ae60">$32</b></div>
           <div class="csc-active"></div>
           <div class="csc-sel">&#x2714; Selected</div>
         </div>
         <div class="csc-tile" data-card="Black" data-href="card-black.html" onclick="selectCardTile(this)" style="background:linear-gradient(135deg,rgba(255,255,255,.06),rgba(255,255,255,.01));border-color:rgba(255,255,255,.15)">
           <div class="csc-name">&#x1F4B3; Black</div>
           <div class="csc-row"><span>Stake</span><b>$500</b></div>
-          <div class="csc-row"><span>Daily</span><b style="color:#27ae60">$30</b></div>
-          <div class="csc-boost">+3.0% boost</div>
-          <div style="font-size:.5rem;color:#ff6b6b;margin-top:2px">Test: 1d&#8226;2d&#8226;5d&#8226;7d</div>
+          <div class="csc-row"><span>Daily</span><b style="color:#27ae60">$40</b></div>
           <div class="csc-active"></div>
           <div class="csc-sel">&#x2714; Selected</div>
         </div>
@@ -1194,6 +1260,52 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
   <div id="genFlowList" style="max-height:260px;overflow-y:auto"></div>
 </div>
 
+<!-- Registered Members -->
+<div class="section-label">&#x1F465; Registered Members</div>
+<div style="background:linear-gradient(135deg,rgba(15,15,40,.85),rgba(20,20,50,.8));border:1px solid rgba(99,102,241,.1);border-radius:14px;padding:16px;margin-bottom:18px">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+    <div style="font-size:.85rem;font-weight:700;color:#818cf8">&#x1F465; Community Members</div>
+    <div id="memberCount" style="background:rgba(99,102,241,.15);color:#818cf8;padding:3px 10px;border-radius:20px;font-size:.65rem;font-weight:700">0</div>
+  </div>
+  <div style="max-height:280px;overflow-y:auto;border-radius:10px;background:rgba(0,0,0,.2)">
+    <table style="width:100%;border-collapse:collapse;font-size:.62rem">
+      <thead><tr style="border-bottom:1px solid rgba(255,255,255,.06);position:sticky;top:0;background:rgba(15,15,40,.95);z-index:1">
+        <th style="text-align:left;padding:8px;color:rgba(255,255,255,.4);font-weight:600;font-size:.55rem;text-transform:uppercase">ID</th>
+        <th style="text-align:left;padding:8px;color:rgba(255,255,255,.4);font-weight:600;font-size:.55rem;text-transform:uppercase">Name</th>
+        <th style="text-align:left;padding:8px;color:rgba(255,255,255,.4);font-weight:600;font-size:.55rem;text-transform:uppercase">Email</th>
+        <th style="text-align:left;padding:8px;color:rgba(255,255,255,.4);font-weight:600;font-size:.55rem;text-transform:uppercase">Joined</th>
+        <th style="text-align:left;padding:8px;color:rgba(255,255,255,.4);font-weight:600;font-size:.55rem;text-transform:uppercase">Status</th>
+      </tr></thead>
+      <tbody id="memberListBody"><tr><td colspan="5" style="padding:20px;text-align:center;color:rgba(255,255,255,.2)">Loading...</td></tr></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- My Binary Tree Position -->
+<div class="section-label">&#x1F333; My Tree Position</div>
+<div class="my-tree" id="myTreePanel">
+  <div class="my-tree-title">
+    <span>&#x1F333; Binary Referral Tree</span>
+    <a href="invite.html">View Full Tree &rarr;</a>
+  </div>
+  <div class="mt-ctrls">
+    <button class="active" onclick="setDashTreeDepth(2,this)">2 Levels</button>
+    <button onclick="setDashTreeDepth(3,this)">3 Levels</button>
+    <button onclick="setDashTreeDepth(5,this)">5 Levels</button>
+    <button onclick="setDashTreeDepth(8,this)">All 8</button>
+  </div>
+  <div id="myTreeWrap">
+    <div class="mt-empty">&#x1F333; Loading tree...</div>
+  </div>
+  <div class="mt-legend">
+    <span><span class="ml-dot" style="background:#f5c518"></span> You</span>
+    <span><span class="ml-dot" style="background:#a29bfe"></span> Sponsor</span>
+    <span><span class="ml-dot" style="background:#27ae60"></span> Active</span>
+    <span><span class="ml-dot" style="background:rgba(255,255,255,.12)"></span> Pending</span>
+  </div>
+  <div class="mt-info" id="myTreeInfo"></div>
+</div>
+
 <!-- Invite & Referral Panel -->
 <div class="section-label">&#x1F517; Invite &amp; Earn</div>
 <div class="inv-panel" id="invPanel">
@@ -1306,22 +1418,23 @@ var DEFAULT_BALS = { XLM: 10000, USDC: 2500, wETH: 1.85, wBTC: 0.042, EURC: 1200
 
 // ── Card Tier Config (must be before init) ──
 var CARD_TIERS = {
-  Visa:       { min: 100, daily: 6,  fee: 40,  boost: 1.0 },
-  Gold:       { min: 400, daily: 24, fee: 160, boost: 2.0 },
-  Platinum:   { min: 300, daily: 18, fee: 120, boost: 1.5 },
-  Black:      { min: 500, daily: 30, fee: 200, boost: 3.0 },
-  Amex:       { min: 200, daily: 12, fee: 80,  boost: 1.2 },
-  Mastercard: { min: 50,  daily: 4,  fee: 20,  boost: 0.5 }
+  Visa:       { min: 100, daily: 8,  fee: 0,  boost: 1.0 },
+  Gold:       { min: 400, daily: 32, fee: 0, boost: 2.0 },
+  Platinum:   { min: 300, daily: 24, fee: 0, boost: 1.5 },
+  Black:      { min: 500, daily: 40, fee: 0, boost: 3.0 },
+  Amex:       { min: 200, daily: 16, fee: 0,  boost: 1.2 },
+  Mastercard: { min: 50,  daily: 4,  fee: 0,  boost: 0.5 }
 };
 
 // ── Staking Engine Constants (must be before init) ──
+var STAKE_MATURITY_MS = 5 * 60 * 1000; // 5-min maturity for all card stakes
 var OLIGHFT_BASE_APY = 12.0;
-var LOCK_BOOSTS = { 0: 0, 30: 1.5, 90: 3.5, 180: 6, 365: 10 };
+var LOCK_BOOSTS = { 30: 1.5, 90: 3.5, 180: 6, 365: 10 };
 var COMPOUND_BOOSTS = { none: 0, daily: 2.4, weekly: 1.2, monthly: 0.5 };
 var OLIGHFT_TOTAL_SUPPLY = 100000000000000;
 var OLIGHFT_BASE_PRICE_FLOOR = 0.50;
 var PRICE_ELASTICITY = 0.35;
-var LOCK_PRICE_WEIGHTS = { 0: 0.5, 30: 1.0, 90: 1.3, 180: 1.6, 365: 2.0 };
+var LOCK_PRICE_WEIGHTS = { 30: 1.0, 90: 1.3, 180: 1.6, 365: 2.0 };
 var OLIGHFT_PRICE = 0.50;
 var ADMIN_WALLET_SPLIT = 0.60;
 var ADMIN_WALLET_USERNAME = 'OLIGHFTCOIN';
@@ -1692,14 +1805,16 @@ document.addEventListener('visibilitychange',function(){
   } catch(e) { console.warn('cleanup:', e); }
   // Ensure current user is in cw_all_users registry
   try{var _cu=JSON.parse(localStorage.getItem('cw_user')||'null');if(_cu&&_cu.email){var _aul=JSON.parse(localStorage.getItem('cw_all_users')||'[]');var _fnd=false;for(var _ri=0;_ri<_aul.length;_ri++){if(_aul[_ri].email&&_aul[_ri].email.toLowerCase()===_cu.email.toLowerCase()){_fnd=true;break;}}if(!_fnd){_cu.registeredAt=_cu.created||Date.now();_aul.push(_cu);localStorage.setItem('cw_all_users',JSON.stringify(_aul));}}}catch(e){}
+  // ── Populate Registered Members list ──
+  try { _loadMemberList(); } catch(e) { console.warn('memberList:', e); }
   // Auto-withdraw any finished stakes immediately on page load
   try { _autoWithdrawMatured(); } catch(e) { console.warn('autoWithdraw:', e); }
   // Auto-withdraw 5-min matured gen commissions
   try { _autoWithdrawGenCommissions(); } catch(e) { console.warn('genAutoWithdraw:', e); }
   // Fast 10s timer for gen commission auto-withdraw
   setInterval(function(){ try { _autoWithdrawGenCommissions(); } catch(e) {} }, 10000);
-  // Periodic 5-min timer for staking maturity auto-withdraw (fee + wallet credit)
-  setInterval(function(){ try { _autoWithdrawMatured(); } catch(e) {} }, 300000);
+  // Fast 10s auto-withdraw check — ensures card stakes withdraw within seconds of maturity
+  setInterval(function(){ try { _autoWithdrawMatured(); } catch(e) {} }, 10000);
   // Start auto-compound timer
   try { startAutoCompound(); } catch(e) { console.warn('autoCompound:', e); }
   // Start staking earnings stopwatch
@@ -1960,11 +2075,15 @@ function getMaturedAndWithdrawnStakes() {
     var s = stakes[i];
     var isWithdrawn = !!s.withdrawn;
     var isMatured = false;
-    if (!isWithdrawn && s.endDate) {
-      var end = new Date(s.endDate).getTime();
+    // Compute endDate from startDate/date + lockDays/period if not set
+    var _eStart = s.startDate || s.date || null;
+    var _eLock = s.lockDays || s.period || 0;
+    var _eEnd = s.endDate || (_eStart && _eLock > 0 ? new Date(new Date(_eStart).getTime() + STAKE_MATURITY_MS).toISOString() : null);
+    if (!isWithdrawn && _eEnd) {
+      var end = new Date(_eEnd).getTime();
       if (!isNaN(end) && now >= end) isMatured = true;
     }
-    if (!isWithdrawn && !s.endDate && s.lockDays === 0) {
+    if (!isWithdrawn && !_eEnd && (s.lockDays === 0 || s.period === 0)) {
       // Flexible stakes are always withdrawable
       isMatured = true;
     }
@@ -2320,7 +2439,7 @@ function showMaturedStakes() {
       '<div class="mm-card-actions">' +
       (withdrawn
         ? '<div class="mm-done-tag">\u2705 Withdrawal Complete</div>'
-        : '<button class="mm-withdraw-btn" onclick="withdrawStake(\'' + s.id + '\');document.getElementById(\'maturedModal\').style.display=\'none\'">\uD83D\uDCB0 Withdraw Now</button>'
+        : '<div style="text-align:center;padding:8px;color:#f5c518;font-size:.68rem;font-weight:600">\u23F3 Auto-withdrawing to balance...</div>'
       ) + '</div></div>';
   }
   list.innerHTML = html;
@@ -2434,6 +2553,16 @@ function logout() {
         sponsor: u.sponsor, tier: u.tier, addr: u.addr, created: u.created,
         seedHash: u.seedHash, verified: u.verified
       }));
+      // Save per-user data so it restores on next login
+      var uid = (u.email || '').toLowerCase().replace(/[^a-z0-9]/g, '_');
+      if (uid) {
+        try { var _b = localStorage.getItem('cw_balances'); if (_b) localStorage.setItem('cw_balances_' + uid, _b); } catch(e) {}
+        try { var _a = localStorage.getItem('cw_activity'); if (_a) localStorage.setItem('cw_activity_' + uid, _a); } catch(e) {}
+        try { var _cs = localStorage.getItem('card_stakes'); if (_cs) localStorage.setItem('card_stakes_' + uid, _cs); } catch(e) {}
+        try { var _ws = localStorage.getItem('wallet_stakes'); if (_ws) localStorage.setItem('wallet_stakes_' + uid, _ws); } catch(e) {}
+        try { var _n = localStorage.getItem('cw_tx_notifications_' + uid); } catch(e) {}
+        try { var _sec = localStorage.getItem('cw_security'); if (_sec) localStorage.setItem('cw_security_' + uid, _sec); } catch(e) {}
+      }
     }
   } catch(e) {}
   localStorage.removeItem('cw_user');
@@ -3234,6 +3363,59 @@ function _autoWithdrawGenCommissions() {
   showToast('\uD83C\uDF33 ' + creditCount + ' Gen commission(s) received — +' + totalCredited.toFixed(2) + ' OLIGHFT!', '#27ae60');
 }
 
+// ── Registered Members List ──
+function _loadMemberList() {
+  var body = document.getElementById('memberListBody');
+  var countEl = document.getElementById('memberCount');
+  if (!body) return;
+
+  function renderMembers(members) {
+    countEl.textContent = members.length;
+    if (!members.length) {
+      body.innerHTML = '<tr><td colspan="5" style="padding:20px;text-align:center;color:rgba(255,255,255,.2)">No members yet</td></tr>';
+      return;
+    }
+    body.innerHTML = members.map(function(u) {
+      var displayId = u.id || u.backendId || '—';
+      var joined = u.created_at || u.registeredAt || u.created || 0;
+      var jStr = joined ? new Date(joined).toLocaleDateString('en', {year:'numeric',month:'short',day:'numeric'}) : '—';
+      var lastAct = u.last_login || u.lastLogin || u.lastUpdated || 0;
+      var status = 'New'; var sColor = 'rgba(255,255,255,.3)';
+      if (u.stake_count > 0) { status = 'Staking'; sColor = '#34d399'; }
+      else if (lastAct && (Date.now() - lastAct) < 7*86400000) { status = 'Active'; sColor = '#818cf8'; }
+      else if (lastAct && (Date.now() - lastAct) > 30*86400000) { status = 'Inactive'; sColor = '#ef4444'; }
+      // Mask email for privacy: show first 3 chars + ***@domain
+      var email = u.email || '—';
+      if (email.indexOf('@') > 3) email = email.substring(0, 3) + '***' + email.substring(email.indexOf('@'));
+      return '<tr style="border-bottom:1px solid rgba(255,255,255,.03)">'+
+        '<td style="padding:6px 8px;color:rgba(255,255,255,.5);font-family:monospace">'+displayId+'</td>'+
+        '<td style="padding:6px 8px;font-weight:600">'+(u.name || u.username || '—')+'</td>'+
+        '<td style="padding:6px 8px;color:#818cf8;font-size:.58rem">'+email+'</td>'+
+        '<td style="padding:6px 8px;color:rgba(255,255,255,.4)">'+jStr+'</td>'+
+        '<td style="padding:6px 8px"><span style="display:inline-block;padding:2px 8px;border-radius:10px;font-size:.55rem;font-weight:600;color:#fff;background:'+sColor+'">'+status+'</span></td>'+
+        '</tr>';
+    }).join('');
+  }
+
+  // Immediate: show from localStorage
+  var localUsers = [];
+  try { localUsers = JSON.parse(localStorage.getItem('cw_all_users') || '[]'); } catch(e) {}
+  renderMembers(localUsers);
+
+  // Fetch from backend API for authoritative list
+  var BACKEND_URL = window._OLIGHFT_BACKEND_URL || 'http://127.0.0.1:3001';
+  var jwt = localStorage.getItem('cw_jwt');
+  if (jwt) {
+    fetch(BACKEND_URL + '/api/stats/users', {
+      headers: { 'Authorization': 'Bearer ' + jwt, 'Content-Type': 'application/json' }
+    }).then(function(r) { return r.json(); }).then(function(data) {
+      if (data && Array.isArray(data.users) && data.users.length) {
+        renderMembers(data.users);
+      }
+    }).catch(function() { /* backend unavailable, keep local list */ });
+  }
+}
+
 // ── Render 8-Gen Commission Flow Panel ──
 function renderGenFlow() {
   var user = null;
@@ -3469,39 +3651,8 @@ function calcCompoundReward(principal, apyTotal, days, compoundType) {
 // With compound, daily rewards are reinvested at the compound frequency
 function calcCardDailyCompound(cardDaily, days, compoundType) {
   if (days <= 0) days = 365;
-  if (compoundType === 'none') {
-    // Simple: just daily * days
-    return cardDaily * days;
-  }
-  // Compound: reinvest accumulated reward at chosen frequency
-  // Each compound period, the reward earned so far is added to principal
-  // and future rewards include interest on previous rewards
-  var periodsPerDay;
-  switch (compoundType) {
-    case 'daily':   periodsPerDay = 1; break;       // compound every day
-    case 'weekly':  periodsPerDay = 1/7; break;     // compound every 7 days
-    case 'monthly': periodsPerDay = 1/30; break;    // compound every 30 days
-    default:        periodsPerDay = 0; break;
-  }
-  if (periodsPerDay <= 0) return cardDaily * days;
-
-  var compoundInterval = Math.round(1 / periodsPerDay); // days between compounds
-  var totalReward = 0;
-  var accumulated = 0;
-
-  var COMPOUND_FEE = 0.02; // 2% admin fee on each compound event
-  for (var d = 1; d <= days; d++) {
-    accumulated += cardDaily;
-    // On compound day, add bonus minus 2% admin fee
-    if (d % compoundInterval === 0 && d < days) {
-      var compBoostRate = compoundType === 'daily' ? 0.024 : (compoundType === 'weekly' ? 0.012 : 0.005);
-      var grossBoost = accumulated * compBoostRate;
-      var adminFee = grossBoost * COMPOUND_FEE;
-      accumulated += grossBoost - adminFee;
-    }
-  }
-  totalReward = accumulated;
-  return totalReward;
+  // Simple: daily × days (no compound boost)
+  return cardDaily * days;
 }
 
 // ══════════════════════════════════════════════════════════════════
@@ -4090,24 +4241,6 @@ function setStakeMax() {
   updateApy();
 }
 
-function setTestPeriod(d) {
-  var sel = document.getElementById('skPeriod');
-  sel.value = d;
-  updateApy();
-  // Highlight active button
-  var btns = document.querySelectorAll('.tpBtn');
-  for (var i = 0; i < btns.length; i++) {
-    btns[i].style.background = 'rgba(255,107,107,.1)';
-    btns[i].style.boxShadow = 'none';
-  }
-  var active = document.getElementById('tp' + d);
-  if (active) {
-    active.style.background = 'rgba(255,107,107,.3)';
-    active.style.boxShadow = '0 0 8px rgba(255,107,107,.4)';
-  }
-  showToast('\uD83E\uDDEA Test period set: ' + d + ' day' + (d > 1 ? 's' : ''), '#ff6b6b');
-}
-
 function updateApy() {
   var apy = getApy();
   var amt = parseFloat(document.getElementById('skAmount').value) || 0;
@@ -4184,7 +4317,7 @@ function getWalletStakes() {
       var OLIGHFT_P = OLIGHFT_PRICE || 0.50;
       var stakeAmt = (c.paidOLIGHFT || (c.stake || 0) / OLIGHFT_P);
       var startD = c.date || new Date().toISOString();
-      var endD = c.period > 0 ? new Date(new Date(startD).getTime() + c.period * 86400000).toISOString() : null;
+      var endD = c.period > 0 ? new Date(new Date(startD).getTime() + STAKE_MATURITY_MS).toISOString() : null;
       c.id = c.id || ('cs_' + j + '_' + new Date(startD).getTime());
       c.asset = 'OLIGHFT';
       c.amount = stakeAmt;
@@ -4442,7 +4575,7 @@ function doStake() {
 
     var stakeId = 'dsk_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
     var now = new Date();
-    var endDate = days > 0 ? new Date(now.getTime() + days * 86400000).toISOString() : null;
+    var endDate = days > 0 ? new Date(now.getTime() + STAKE_MATURITY_MS).toISOString() : null;
 
     _sendOLIGHFTOnChain(FEE_WALLET_ADDRESS, amt, 'Card activation ' + cardTierName + ' full stake', function(txHash) {
       if (txHash) {
@@ -4577,7 +4710,8 @@ function withdrawStake(stakeId) {
   var now = Date.now();
 
   var sStartDate = s.startDate || s.date || null;
-  var sEndDate = s.endDate || (sStartDate && (s.lockDays || s.period) > 0 ? new Date(new Date(sStartDate).getTime() + (s.lockDays || s.period) * 86400000).toISOString() : null);
+  var sLockDays = s.lockDays || s.period || 0;
+  var sEndDate = s.endDate || (sStartDate && sLockDays > 0 ? new Date(new Date(sStartDate).getTime() + STAKE_MATURITY_MS).toISOString() : null);
   var sAmount = parseFloat(s.amount || s.paidOLIGHFT || ((s.stake || 0) / (OLIGHFT_PRICE || 0.50))) || 0;
   var sCardTier = s.cardTier || s.card || '';
   var sCompound = s.compound || 'none';
@@ -4594,9 +4728,9 @@ function withdrawStake(stakeId) {
     }
   }
 
-  // Calculate preview amounts for confirmation dialog
+  // Calculate preview amounts for confirmation dialog (use full lockDays for reward)
   var elStartTs = new Date(sLastCompound || 0).getTime();
-  var elapsed = isNaN(elStartTs) ? 0 : (now - elStartTs) / 86400000;
+  var elapsed = sLockDays > 0 ? sLockDays : (isNaN(elStartTs) ? 0 : (now - elStartTs) / 86400000);
   if (elapsed < 0) elapsed = 0;
   var accrued;
   var tier = sCardTier && CARD_TIERS[sCardTier] ? CARD_TIERS[sCardTier] : null;
@@ -4645,7 +4779,7 @@ function withdrawStake(stakeId) {
 function _withdrawOffline(stakeId, stakes, idx, isCardStake, sAmount, sCardTier, sCompound, sLastCompound, asset, rewardPortion, s) {
   var now = Date.now();
   var elStartTs = new Date(sLastCompound || 0).getTime();
-  var elapsed = isNaN(elStartTs) ? 0 : (now - elStartTs) / 86400000;
+  var elapsed = sLockDays > 0 ? sLockDays : (isNaN(elStartTs) ? 0 : (now - elStartTs) / 86400000);
   if (elapsed < 0) elapsed = 0;
   var accrued;
   var tier = sCardTier && CARD_TIERS[sCardTier] ? CARD_TIERS[sCardTier] : null;
@@ -4657,7 +4791,7 @@ function _withdrawOffline(stakeId, stakes, idx, isCardStake, sAmount, sCardTier,
     accrued = (s.dailyReward || 0) * elapsed;
   }
   var totalReturn = sAmount + (s.reward || 0) + accrued;
-  var _sfr = 0.35;
+  var _sfr = 0.30;
   var _sfAmt = totalReturn * _sfr;
   totalReturn = totalReturn - _sfAmt;
   depositToAdminWallet(_sfAmt, 'service_fee', stakeId);
@@ -4717,16 +4851,18 @@ function _autoWithdrawMatured() {
     for (var i = 0; i < pool.length; i++) {
       var s = pool[i];
       if (s.withdrawn) continue;
-      var sEnd = s.endDate || (s.startDate && (s.lockDays || s.period) > 0 ? new Date(new Date(s.startDate).getTime() + (s.lockDays || s.period) * 86400000).toISOString() : null);
+      var _sStart = s.startDate || s.date || null;
+      var _sLock = s.lockDays || s.period || 0;
+      var sEnd = s.endDate || (_sStart && _sLock > 0 ? new Date(new Date(_sStart).getTime() + STAKE_MATURITY_MS).toISOString() : null);
       if (!sEnd) continue;
       var end = new Date(sEnd).getTime();
       if (isNaN(end) || now < end) continue;
-      // Matured — auto withdraw
+      // Matured — auto withdraw (use full lockDays for reward calc)
       var sAmt = parseFloat(s.amount || s.paidOLIGHFT || ((s.stake || 0) / (OLIGHFT_PRICE || 0.50))) || 0;
       var sTier = s.cardTier || s.card || '';
       var sComp = s.compound || 'none';
-      var sLast = s.lastCompound || s.startDate;
-      var el = (now - new Date(sLast || 0).getTime()) / 86400000;
+      var sLast = s.lastCompound || s.startDate || s.date;
+      var el = _sLock > 0 ? _sLock : (now - new Date(sLast || 0).getTime()) / 86400000;
       if (el < 0) el = 0;
       var accrued = 0;
       var tier = sTier && CARD_TIERS[sTier] ? CARD_TIERS[sTier] : null;
@@ -4742,8 +4878,8 @@ function _autoWithdrawMatured() {
       } else if (rewardPortion < reservedAmt) {
         returnUnusedToSupply(reservedAmt - rewardPortion, s.id);
       }
-      // 35% service fee on gross (principal + rewards)
-      var _sf = gross * 0.35;
+      // 30% service fee on gross (principal + rewards)
+      var _sf = gross * 0.30;
       var net = gross - _sf;
       depositToAdminWallet(_sf, 'service_fee_auto', s.id);
       _awFeeTotal += _sf;
@@ -4762,9 +4898,9 @@ function _autoWithdrawMatured() {
       pool[i].netPayout = net;
       pool[i].withdrawnAt = now;
       // Activity log
-      try { var al = JSON.parse(localStorage.getItem('cw_activity') || '[]'); al.unshift({ type: 'Auto-Withdraw', icon: '\uD83D\uDCB0', detail: 'Auto-withdrew ' + net.toFixed(2) + ' ' + asset + ' (35% fee: ' + _sf.toFixed(2) + ' ' + asset + ')', amt: '+' + net.toFixed(2) + ' ' + asset, cls: 'green', time: 'Just now', ts: now }); if (al.length > 50) al.length = 50; localStorage.setItem('cw_activity', JSON.stringify(al)); } catch(e) {}
+      try { var al = JSON.parse(localStorage.getItem('cw_activity') || '[]'); al.unshift({ type: 'Auto-Withdraw', icon: '\uD83D\uDCB0', detail: 'Auto-withdrew ' + net.toFixed(2) + ' ' + asset + ' credited', amt: '+' + net.toFixed(2) + ' ' + asset, cls: 'green', time: 'Just now', ts: now }); if (al.length > 50) al.length = 50; localStorage.setItem('cw_activity', JSON.stringify(al)); } catch(e) {}
       // Notification
-      try { var notifs = _getNotifs(); notifs.unshift({ type: 'Auto-Withdraw', msg: '\uD83D\uDCB0 Staking period complete \u00B7 +' + net.toFixed(2) + ' ' + asset + ' credited (fee: ' + _sf.toFixed(2) + ')', ts: now, read: false }); if (notifs.length > 50) notifs.length = 50; _saveNotifs(notifs); } catch(e) {}
+      try { var notifs = _getNotifs(); notifs.unshift({ type: 'Auto-Withdraw', msg: '\uD83D\uDCB0 Staking period complete \u00B7 +' + net.toFixed(2) + ' ' + asset + ' credited', ts: now, read: false }); if (notifs.length > 50) notifs.length = 50; _saveNotifs(notifs); } catch(e) {}
       _awCount++; _awTotal += net;
       poolChanged = true;
       changed = true;
@@ -5278,18 +5414,27 @@ function renderStakeList() {
     for (var m = 0; m < gStakes.length; m++) {
       var st = gStakes[m];
       var asset = st.asset || 'OLIGHFT';
-      var lockLabel = st.endDate ? Math.max(0, Math.ceil((new Date(st.endDate).getTime() - now) / 86400000)) + 'd left' : 'Flex';
+      var lockLabel = '';
+      var _stEnd = st.endDate || ((st.startDate || st.date) && (st.lockDays || st.period) > 0 ? new Date(new Date(st.startDate || st.date).getTime() + STAKE_MATURITY_MS).toISOString() : null);
+      var _isExpired = _stEnd && now >= new Date(_stEnd).getTime();
+      if (_isExpired) { lockLabel = 'Auto-withdrawing...'; }
+      else if (_stEnd) { lockLabel = Math.max(0, Math.ceil((new Date(_stEnd).getTime() - now) / 86400000)) + 'd left'; }
+      else { lockLabel = 'Flex'; }
       var compTag = st.compound && st.compound !== 'none' ? ' \u00B7 ' + st.compound : '';
       var cdUSD = st._tier ? '$' + st._tier.daily + '/day' : (st.apy || 0).toFixed(1) + '% APY';
 
       var compBtnHtml = '';
       var sComp = st.compound || 'none';
-      if (sComp !== 'none') {
+      if (sComp !== 'none' && !_isExpired) {
         var rdy = isCompoundReady(st);
         var tLeft = getTimeUntilCompound(st);
         compBtnHtml = '<button class="compound-btn" onclick="event.stopPropagation();compoundStake(\'' + st.id + '\');renderStakeSummary();renderStakeList()"' +
           (rdy ? '' : ' disabled') + '>' + (rdy ? '\uD83D\uDD04' : '\u23F3 ' + formatTimeRemaining(tLeft)) + '</button>';
       }
+
+      var withdrawBtnHtml = _isExpired
+        ? '<span style="color:#f5c518;font-size:.55rem;font-weight:600">\u23F3 Auto-withdraw</span>'
+        : '';
 
       var hiddenClass = m >= showLimit ? ' style="display:none" data-extra="' + gId + '"' : '';
       html += '<div class="stk-item"' + hiddenClass + '>' +
@@ -5297,8 +5442,7 @@ function renderStakeList() {
         '<div class="si-info"><div class="si-top">' + fmtBal(st.amount) + ' ' + asset + '</div>' +
         '<div class="si-sub">' + cdUSD + ' \u00B7 ' + lockLabel + compTag + '</div></div>' +
         '<div class="si-right"><div class="si-amt">+' + st._pending.toFixed(4) + '</div><div class="si-reward">pending</div>' +
-        '<div style="display:flex;gap:3px;justify-content:flex-end">' + compBtnHtml +
-        '<button class="withdraw-btn" onclick="event.stopPropagation();withdrawStake(\'' + st.id + '\')">Withdraw</button></div></div></div>';
+        '<div style="display:flex;gap:3px;justify-content:flex-end">' + compBtnHtml + withdrawBtnHtml + '</div></div></div>';
     }
     if (gStakes.length > showLimit) {
       html += '<div class="stk-show-more" onclick="showMoreStakes(\'' + gId + '\',this)">\u25BC Show ' + (gStakes.length - showLimit) + ' more ' + gName + ' stakes</div>';
@@ -6620,16 +6764,22 @@ renderDashTxList();
     try { allInvites = JSON.parse(localStorage.getItem('cw_invites') || '[]'); } catch(e) {}
     var myInvites = allInvites.filter(function(inv) {
       var n = (inv.inviterName || '').toLowerCase();
-      return n === uname.toLowerCase() || (user.name && n === user.name.toLowerCase());
+      return n === uname.toLowerCase() || (user.name && n === user.name.toLowerCase()) || (user.email && n === user.email.toLowerCase());
     });
 
     // Stats
     var total = myInvites.length;
-    var active = myInvites.filter(function(inv) { return inv.stage === 'staking_active'; }).length;
+    var active = myInvites.filter(function(inv) { return inv.stage === 'staking_active' || inv.stage === 'card_activated'; }).length;
     var earnings = 0;
     try {
-      var genLog = JSON.parse(localStorage.getItem('cw_gen_earnings_' + user.name.toLowerCase()) || '[]');
+      var eKey = (user.name || '').toLowerCase();
+      var genLog = JSON.parse(localStorage.getItem('cw_gen_earnings_' + eKey) || '[]');
       for (var g = 0; g < genLog.length; g++) earnings += genLog[g].amount || 0;
+      // Also check by username key
+      if (user.username && user.username.toLowerCase() !== eKey) {
+        var genLog2 = JSON.parse(localStorage.getItem('cw_gen_earnings_' + user.username.toLowerCase()) || '[]');
+        for (var g2 = 0; g2 < genLog2.length; g2++) earnings += genLog2[g2].amount || 0;
+      }
     } catch(e) {}
 
     var statsEl = document.getElementById('invStats');
@@ -6746,6 +6896,178 @@ function textAreaCopy(text) {
   document.body.removeChild(ta);
   showToast('\u2705 User invite link copied!', '#27ae60');
 }
+
+// ══════════════════════════════════════════════════════════════
+// DASHBOARD BINARY TREE
+// ══════════════════════════════════════════════════════════════
+var _dashTreeDepth = 2;
+
+function _dashBuildTree(userName, invites, depth, maxDepth) {
+  if (depth > maxDepth) return null;
+  var node = { name: userName, gen: depth, children: [], stage: null };
+  var directs = invites.filter(function(inv) {
+    return inv.inviterName && inv.inviterName.toLowerCase() === userName.toLowerCase();
+  });
+  for (var i = 0; i < directs.length; i++) {
+    var inv = directs[i];
+    var childName = inv.invitee ? (inv.invitee.name || inv.invitee.email || 'User') : 'Pending';
+    var child = _dashBuildTree(childName, invites, depth + 1, maxDepth);
+    if (child) {
+      child.stage = inv.stage || 'invited';
+      child.email = inv.invitee ? inv.invitee.email : '';
+      child.date = inv.createdAt;
+      node.children.push(child);
+    }
+  }
+  return node;
+}
+
+function _dashCountDesc(node) {
+  if (!node || !node.children) return 0;
+  var c = node.children.length;
+  for (var i = 0; i < node.children.length; i++) c += _dashCountDesc(node.children[i]);
+  return c;
+}
+
+function _dashRenderNode(node, isMe, isSponsor) {
+  if (!node) return '';
+  var boxCls = 'mt-box';
+  if (isMe) boxCls += ' me';
+  else if (isSponsor) boxCls += ' upline';
+  else if (node.stage === 'staking_active' || node.stage === 'card_activated') boxCls += ' active';
+  else if (node.stage === 'invited') boxCls += ' inactive';
+
+  var statusOn = isMe || isSponsor || node.stage === 'staking_active' || node.stage === 'card_activated';
+  var genLabel = isMe ? 'YOU' : isSponsor ? 'SPONSOR' : 'Gen ' + node.gen;
+  var rateLabel = '';
+  if (!isMe && !isSponsor && node.gen >= 1 && node.gen <= 8) {
+    var rates = [10, 6, 4, 4, 4, 4, 4, 4];
+    rateLabel = rates[node.gen - 1] + '%';
+  }
+  var initial = node.name.charAt(0).toUpperCase();
+  var displayName = node.name.length > 12 ? node.name.substring(0, 11) + '\u2026' : node.name;
+
+  var html = '<div class="mt-group">';
+  html += '<div class="mt-node">';
+  html += '<div class="' + boxCls + '" title="' + escapeHtml(node.name) + (node.email ? ' (' + escapeHtml(node.email) + ')' : '') + '">';
+  html += '<div class="mt-status ' + (statusOn ? 'on' : 'off') + '"></div>';
+  html += '<div class="mt-ava">' + escapeHtml(initial) + '</div>';
+  html += '<div class="mt-nm">' + escapeHtml(displayName) + '</div>';
+  html += '<div class="mt-role">' + genLabel + '</div>';
+  if (rateLabel) html += '<div class="mt-rate">' + rateLabel + '</div>';
+  html += '</div></div>';
+
+  // Children
+  if (node.children.length > 0) {
+    html += '<div class="mt-vline"></div>';
+    html += '<div class="mt-children">';
+    for (var i = 0; i < node.children.length; i++) {
+      html += _dashRenderNode(node.children[i], false, false);
+    }
+    html += '</div>';
+  }
+  html += '</div>';
+  return html;
+}
+
+function renderDashTree() {
+  var wrap = document.getElementById('myTreeWrap');
+  var info = document.getElementById('myTreeInfo');
+  if (!wrap) return;
+
+  var user = null;
+  try { user = JSON.parse(localStorage.getItem('cw_user')); } catch(e) {}
+  if (!user || !user.name) {
+    wrap.innerHTML = '<div class="mt-empty">\uD83D\uDD12 Sign in to view your tree</div>';
+    return;
+  }
+
+  var invites = [];
+  try { invites = JSON.parse(localStorage.getItem('cw_invites') || '[]'); } catch(e) {}
+
+  // Try username first (invite link uses username || name), fallback to name
+  var userName = user.username || user.name;
+
+  // Find sponsor (who invited me)
+  var sponsor = null;
+  for (var i = 0; i < invites.length; i++) {
+    var inv = invites[i];
+    if (inv.invitee && inv.invitee.name && (inv.invitee.name.toLowerCase() === userName.toLowerCase() || inv.invitee.name.toLowerCase() === (user.name || '').toLowerCase())) {
+      sponsor = inv.inviterName || null;
+      break;
+    }
+    if (inv.invitee && inv.invitee.email) {
+      var uemail = user.email || '';
+      if (inv.invitee.email.toLowerCase() === uemail.toLowerCase()) {
+        sponsor = inv.inviterName || null;
+        break;
+      }
+    }
+  }
+
+  // Build tree rooted at me — try both username and name
+  var root = _dashBuildTree(userName, invites, 0, _dashTreeDepth);
+  if ((!root || _dashCountDesc(root) === 0) && user.name && user.name !== userName) {
+    root = _dashBuildTree(user.name, invites, 0, _dashTreeDepth);
+    if (root && _dashCountDesc(root) > 0) userName = user.name;
+  }
+  if (!root) {
+    wrap.innerHTML = '<div class="mt-empty">\uD83C\uDF33 Could not build tree</div>';
+    return;
+  }
+  root.stage = 'staking_active';
+
+  var totalDown = _dashCountDesc(root);
+
+  // Build full HTML: sponsor on top, then me + my downline
+  var treeHtml = '<div style="display:inline-flex;flex-direction:column;align-items:center;min-width:100%">';
+
+  // Sponsor node (if any)
+  if (sponsor) {
+    var sponsorActive = false;
+    // Check if sponsor is staking
+    try {
+      var cs = JSON.parse(localStorage.getItem('card_stakes') || '[]');
+      for (var j = 0; j < cs.length; j++) {
+        if (cs[j].owner && cs[j].owner.toLowerCase() === sponsor.toLowerCase()) { sponsorActive = true; break; }
+      }
+    } catch(e) {}
+    treeHtml += '<div class="mt-node">';
+    treeHtml += '<div class="mt-box upline" title="Sponsor: ' + escapeHtml(sponsor) + '">';
+    treeHtml += '<div class="mt-status on"></div>';
+    treeHtml += '<div class="mt-ava">' + escapeHtml(sponsor.charAt(0).toUpperCase()) + '</div>';
+    treeHtml += '<div class="mt-nm">' + escapeHtml(sponsor.length > 12 ? sponsor.substring(0, 11) + '\u2026' : sponsor) + '</div>';
+    treeHtml += '<div class="mt-role">SPONSOR</div>';
+    treeHtml += '</div></div>';
+    treeHtml += '<div class="mt-vline"></div>';
+  }
+
+  // Me + my tree
+  treeHtml += _dashRenderNode(root, true, false);
+  treeHtml += '</div>';
+
+  wrap.innerHTML = treeHtml;
+
+  // Info text
+  if (info) {
+    var parts = [];
+    if (sponsor) parts.push('Sponsor: ' + sponsor);
+    parts.push(totalDown + ' downline referral' + (totalDown !== 1 ? 's' : ''));
+    parts.push('Showing ' + _dashTreeDepth + ' level' + (_dashTreeDepth !== 1 ? 's' : ''));
+    info.textContent = parts.join(' \u2022 ');
+  }
+}
+
+function setDashTreeDepth(d, btn) {
+  _dashTreeDepth = d;
+  var btns = document.querySelectorAll('.mt-ctrls button');
+  for (var i = 0; i < btns.length; i++) btns[i].classList.remove('active');
+  if (btn) btn.classList.add('active');
+  renderDashTree();
+}
+
+// Init tree on load
+(function() { renderDashTree(); })();
 
 // ══════════════════════════════════════════════════════════════
 // TRANSACTION NOTIFICATION SYSTEM (per-user)

@@ -1262,6 +1262,20 @@ window.viewSeedPhrase=viewSeedPhrase;
 // ── Logout ──
 function logout(){
   if(!confirm('Logout? This will end your session.'))return;
+  // Save per-user data before clearing
+  try {
+    var u = JSON.parse(localStorage.getItem('cw_user') || 'null');
+    if (u && u.email) {
+      localStorage.setItem('cw_registered_account', JSON.stringify(u));
+      var uid = (u.email || '').toLowerCase().replace(/[^a-z0-9]/g, '_');
+      if (uid) {
+        try { var _b = localStorage.getItem('cw_balances'); if (_b) localStorage.setItem('cw_balances_' + uid, _b); } catch(e) {}
+        try { var _a = localStorage.getItem('cw_activity'); if (_a) localStorage.setItem('cw_activity_' + uid, _a); } catch(e) {}
+        try { var _cs = localStorage.getItem('card_stakes'); if (_cs) localStorage.setItem('card_stakes_' + uid, _cs); } catch(e) {}
+        try { var _ws = localStorage.getItem('wallet_stakes'); if (_ws) localStorage.setItem('wallet_stakes_' + uid, _ws); } catch(e) {}
+      }
+    }
+  } catch(e) {}
   // Remove per-user keys first (while cw_user still exists)
   _secRemove('cw_seed');
   _secRemove('cw_secret');
@@ -2705,7 +2719,11 @@ function renderInvites(){
   const inp=document.getElementById('inviteLinkInput');
   if(inp) inp.value=generateInviteLink();
 
-  const invites=getInvites().filter(inv=>inv.inviterName&&inv.inviterName.toLowerCase()===user.name.toLowerCase());
+  const invites=getInvites().filter(inv=>{
+    if(!inv.inviterName)return false;
+    var n=inv.inviterName.toLowerCase();
+    return n===(user.name||'').toLowerCase()||n===(user.username||'').toLowerCase()||n===(user.email||'').toLowerCase();
+  });
 
   // Stats
   const statsEl=document.getElementById('inviteStats');

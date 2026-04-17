@@ -6,32 +6,20 @@
 
 const OLIGHFT_PRICE = 0.50;
 const ADMIN_WALLET_SPLIT = 0.60;
-const TEST_PERIODS = [1, 2, 5, 7];
+const TEST_PERIODS = [30, 90, 180, 365];
 
 const CARD_TIERS = {
-  Mastercard: { min: 50,   daily: 4,  fee: 20,  boost: 0.5 },
-  Visa:       { min: 100,  daily: 6,  fee: 40,  boost: 1.0 },
-  Amex:       { min: 200,  daily: 12, fee: 80,  boost: 1.5 },
-  Platinum:   { min: 300,  daily: 18, fee: 120, boost: 2.0 },
-  Gold:       { min: 400,  daily: 24, fee: 160, boost: 2.5 },
-  Black:      { min: 500,  daily: 30, fee: 200, boost: 3.0 }
+  Mastercard: { min: 50,   daily: 4,  fee: 0, boost: 0.5 },
+  Visa:       { min: 100,  daily: 8,  fee: 0, boost: 1.0 },
+  Amex:       { min: 200,  daily: 16, fee: 0, boost: 1.2 },
+  Platinum:   { min: 300,  daily: 24, fee: 0, boost: 1.5 },
+  Gold:       { min: 400,  daily: 32, fee: 0, boost: 2.0 },
+  Black:      { min: 500,  daily: 40, fee: 0, boost: 3.0 }
 };
 
 function calcCardDailyCompound(dailyOLIGHFT, days, compound) {
   if (!dailyOLIGHFT || days <= 0) return 0;
-  if (compound === 'none' || !compound) return dailyOLIGHFT * days;
-  var rate = compound === 'daily' ? 0.024 : compound === 'weekly' ? 0.012 : 0.005;
-  var interval = compound === 'daily' ? 1 : compound === 'weekly' ? 7 : 30;
-  var total = 0, accum = 0;
-  for (var d = 1; d <= days; d++) {
-    var dayReward = dailyOLIGHFT;
-    if (d % interval === 0 && accum > 0) {
-      dayReward += accum * rate;
-    }
-    total += dayReward;
-    accum += dayReward;
-  }
-  return total;
+  return dailyOLIGHFT * days;
 }
 
 let passed = 0, failed = 0, total = 0;
@@ -145,11 +133,11 @@ for (const [cardName, config] of Object.entries(CARD_TIERS)) {
     const elapsed = (now - startDate.getTime()) / 86400000;
     const accrued = calcCardDailyCompound(dailyOLIGHFT, elapsed, 'daily');
     const gross = amt + accrued;
-    const serviceFee = gross * 0.35;
+    const serviceFee = gross * 0.30;
     const net = gross - serviceFee;
     
     assert(net > 0, cardName + ' ' + days + 'd: net payout = ' + net.toFixed(2) + ' OLIGHFT ($' + (net * OLIGHFT_PRICE).toFixed(2) + ')');
-    assert(serviceFee > 0, cardName + ' ' + days + 'd: service fee = ' + serviceFee.toFixed(2) + ' OLIGHFT (35%)');
+    assert(serviceFee > 0, cardName + ' ' + days + 'd: service fee = ' + serviceFee.toFixed(2) + ' OLIGHFT (30%)');
     assert(Math.abs((net + serviceFee) - gross) < 0.01, cardName + ' ' + days + 'd: net + fee = gross ✓');
   }
 }
@@ -158,13 +146,14 @@ for (const [cardName, config] of Object.entries(CARD_TIERS)) {
 // TEST 5: Card Page Auto-Withdraw (autoWithdrawFinished)
 // ──────────────────────────────────────
 console.log('\n── Test 5: Card Page Auto-Withdraw ──');
+const STAKE_MATURITY_MS = 5 * 60 * 1000; // 5-min maturity
 for (const [cardName, config] of Object.entries(CARD_TIERS)) {
   for (const days of TEST_PERIODS) {
     const startDate = new Date('2026-04-08T10:00:00Z');
-    const now = new Date('2026-04-15T12:00:00Z').getTime(); // Fixed: 7d + 2h after start
-    const end = startDate.getTime() + (days * 86400000);
+    const now = new Date('2026-04-08T10:06:00Z').getTime(); // 6 minutes after start (past 5-min maturity)
+    const end = startDate.getTime() + STAKE_MATURITY_MS;
     
-    // Card page checks: now >= start + period*86400000
+    // Card page checks: now >= start + STAKE_MATURITY_MS
     const isFinished = now >= end;
     assert(isFinished, cardName + ' ' + days + 'd: card page autoWithdrawFinished() triggers ✓');
     

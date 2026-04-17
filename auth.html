@@ -30,7 +30,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 .logo h1{font-size:1.4rem;background:linear-gradient(90deg,#6366f1,#818cf8,#06b6d4);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 .logo p{font-size:.75rem;color:rgba(255,255,255,.4);margin-top:4px}
 /* Anti-bot honeypot — hidden from humans */
-.hp-field{position:absolute;left:-9999px;top:-9999px;opacity:0;height:0;width:0;overflow:hidden;pointer-events:none;tab-index:-1}
+.hp-field{position:absolute;left:-9999px;top:-9999px;opacity:0;height:0;width:0;overflow:hidden;pointer-events:none}
 
 /* ── Tabs ── */
 .tabs{display:flex;gap:2px;background:rgba(255,255,255,.04);border-radius:12px;padding:3px;margin-bottom:24px}
@@ -408,6 +408,37 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 </div>
 
 <!-- ═══════════════════════════════════════════ -->
+<!-- ═══ RESET PASSWORD PANEL ═══ -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="form-panel" id="panel-reset">
+<div style="text-align:center;margin-bottom:18px">
+<div style="font-size:2.2rem;margin-bottom:6px">&#x1F512;</div>
+<div style="font-size:.95rem;font-weight:700">Set New Password</div>
+<p style="font-size:.75rem;color:rgba(255,255,255,.45);margin-top:4px" id="reset-email-display"></p>
+</div>
+
+<div class="field" id="field-reset-pw">
+<label for="reset-pw">New Password</label>
+<input type="password" id="reset-pw" placeholder="Enter new password" required autocomplete="new-password" minlength="8" oninput="checkResetStrength(this.value)">
+<div class="strength-bar" id="reset-strength-bar"><div class="strength-fill" id="reset-strength-fill"></div></div>
+<div class="strength-text" id="reset-strength-text" style="font-size:.6rem;color:rgba(255,255,255,.3);margin-top:4px">8+ chars, upper, lower, number, special</div>
+<div class="field-err">Password must be at least 8 characters with mixed case, number &amp; special char</div>
+</div>
+
+<div class="field" id="field-reset-pw2">
+<label for="reset-pw2">Confirm New Password</label>
+<input type="password" id="reset-pw2" placeholder="Re-enter new password" required autocomplete="new-password" minlength="8">
+<div class="field-err">Passwords do not match</div>
+</div>
+
+<button type="button" class="btn-primary login-btn" id="reset-btn" onclick="handleResetPassword()">&#x1F512; Reset Password</button>
+
+<div class="form-links" style="margin-top:14px">
+<a href="#" onclick="showPanel('login');return false">&larr; Back to Login</a>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
 <!-- ═══ 2FA VERIFICATION PANEL ═══ -->
 <!-- ═══════════════════════════════════════════ -->
 <div class="form-panel" id="panel-2fa">
@@ -526,22 +557,28 @@ function _authApiPost(path, body) {
 }
 
 // Register user with backend server (non-blocking, runs alongside localStorage flow)
-function _authBackendRegister(user) {
+function _authBackendRegister(user, password) {
   _authApiPost('/api/auth/register', {
     email: user.email,
-    password: user.email,
+    password: password,
     username: user.username || '',
+    phone: user.phone || '',
     name: user.name || '',
     sponsorUsername: user.sponsor || ''
   }).then(function(r) {
     if (r && r.token) {
       localStorage.setItem('cw_jwt', r.token);
-      console.log('[AUTH-API] Backend register OK');
+      // Sync backend user ID into local registry
+      if (r.user && r.user.id) {
+        _syncBackendUserId(user.email, r.user.id);
+      }
+      console.log('[AUTH-API] Backend register OK, id=' + (r.user && r.user.id));
     } else {
       // Might already exist — try login
-      _authApiPost('/api/auth/login', { email: user.email, password: user.email }).then(function(lr) {
+      _authApiPost('/api/auth/login', { email: user.email, password: password }).then(function(lr) {
         if (lr && lr.token) {
           localStorage.setItem('cw_jwt', lr.token);
+          if (lr.user && lr.user.id) _syncBackendUserId(user.email, lr.user.id);
           console.log('[AUTH-API] Backend login OK (existing)');
         }
       });
@@ -549,12 +586,26 @@ function _authBackendRegister(user) {
   });
 }
 
+// Sync the backend-assigned ID into the local registry
+function _syncBackendUserId(email, backendId) {
+  if (!email || !backendId) return;
+  var all = getAllUsers();
+  for (var i = 0; i < all.length; i++) {
+    if (all[i].email && all[i].email.toLowerCase() === email.toLowerCase()) {
+      all[i].backendId = backendId;
+      break;
+    }
+  }
+  saveAllUsers(all);
+}
+
 // Login user with backend server
-function _authBackendLogin(email) {
-  _authApiPost('/api/auth/login', { email: email, password: email }).then(function(r) {
+function _authBackendLogin(email, password) {
+  _authApiPost('/api/auth/login', { email: email, password: password }).then(function(r) {
     if (r && r.token) {
       localStorage.setItem('cw_jwt', r.token);
-      console.log('[AUTH-API] Backend login OK');
+      if (r.user && r.user.id) _syncBackendUserId(email, r.user.id);
+      console.log('[AUTH-API] Backend login OK, id=' + (r.user && r.user.id));
     }
   });
 }
@@ -818,6 +869,70 @@ function checkMatch() {
     else            { f2.classList.remove('is-valid'); f2.classList.add('has-error'); }
 }
 
+// ── Reset Password Strength Check ──
+function checkResetStrength(pw) {
+    var fill = document.getElementById('reset-strength-fill');
+    var txt  = document.getElementById('reset-strength-text');
+    var field = document.getElementById('field-reset-pw');
+    if (!fill || !txt) return;
+    var score = 0;
+    if (pw.length >= 8) score++;
+    if (/[A-Z]/.test(pw)) score++;
+    if (/[a-z]/.test(pw)) score++;
+    if (/[0-9]/.test(pw)) score++;
+    if (/[^A-Za-z0-9]/.test(pw)) score++;
+    if (pw.length >= 12) score++;
+    var pct = Math.round(score / 6 * 100);
+    fill.style.width = pct + '%';
+    if (score <= 2) { fill.style.background = '#eb5757'; txt.textContent = 'Weak'; txt.style.color = '#eb5757'; }
+    else if (score <= 3) { fill.style.background = '#f5c518'; txt.textContent = 'Fair'; txt.style.color = '#f5c518'; }
+    else if (score <= 4) { fill.style.background = '#27ae60'; txt.textContent = 'Good'; txt.style.color = '#27ae60'; }
+    else { fill.style.background = '#10b981'; txt.textContent = 'Strong ✔'; txt.style.color = '#10b981'; }
+    if (pw.length === 0) { fill.style.width = '0'; txt.textContent = '8+ chars, upper, lower, number, special'; txt.style.color = 'rgba(255,255,255,.3)'; }
+    if (isStrongPassword(pw)) { field.classList.remove('has-error'); field.classList.add('is-valid'); }
+    else { field.classList.remove('is-valid'); }
+}
+
+// ── Handle Reset Password Submission ──
+function handleResetPassword() {
+    hideAlert();
+    var email = window._pendingResetEmail;
+    if (!email) { showAlert('error', 'Session expired. Please start over.'); showPanel('forgot'); return; }
+    var pw  = document.getElementById('reset-pw').value;
+    var pw2 = document.getElementById('reset-pw2').value;
+    if (!pw || !pw2) { showAlert('error', 'Please fill in both password fields.'); return; }
+    if (!isStrongPassword(pw)) {
+        showAlert('error', 'Password must have 8+ chars, uppercase, lowercase, number, special character.');
+        document.getElementById('field-reset-pw').classList.add('has-error');
+        return;
+    }
+    if (pw !== pw2) {
+        showAlert('error', 'Passwords do not match.');
+        document.getElementById('field-reset-pw2').classList.add('has-error');
+        return;
+    }
+    // Update password hash in registry
+    var newHash = simpleHash(pw);
+    var user = findUserInRegistry(email, null);
+    if (!user) { showAlert('error', 'Account not found. Please register.'); showPanel('register'); return; }
+    addUserToRegistry(user, newHash);
+    // Also update cw_registered_account if it matches
+    try {
+        var ra = JSON.parse(localStorage.getItem('cw_registered_account') || 'null');
+        if (ra && ra.email && ra.email.toLowerCase() === email.toLowerCase()) {
+            ra.pwHash = newHash;
+            localStorage.setItem('cw_registered_account', JSON.stringify(ra));
+        }
+    } catch(e) {}
+    window._pendingResetEmail = null;
+    showAlert('success', 'Password reset successfully! Please log in with your new password.');
+    // Pre-fill email in login form
+    setTimeout(function() {
+        showPanel('login');
+        try { document.getElementById('login-email').value = email; } catch(e) {}
+    }, 1500);
+}
+
 // ── OTP Input Auto-Advance ──
 document.querySelectorAll('#otp-group input').forEach((inp, i, arr) => {
     inp.addEventListener('input', () => {
@@ -979,6 +1094,15 @@ async function handleLogin(e) {
     // Restore cw_user from registry record
     localStorage.setItem('cw_user', JSON.stringify(existingUser));
     localStorage.setItem('cw_registered_account', JSON.stringify(existingUser));
+    // Restore per-user saved data (balances, stakes, activity)
+    var _uid = (existingUser.email || '').toLowerCase().replace(/[^a-z0-9]/g, '_');
+    if (_uid) {
+        try { var _sb = localStorage.getItem('cw_balances_' + _uid); if (_sb) localStorage.setItem('cw_balances', _sb); } catch(e) {}
+        try { var _sa = localStorage.getItem('cw_activity_' + _uid); if (_sa) localStorage.setItem('cw_activity', _sa); } catch(e) {}
+        try { var _scs = localStorage.getItem('card_stakes_' + _uid); if (_scs) localStorage.setItem('card_stakes', _scs); } catch(e) {}
+        try { var _sws = localStorage.getItem('wallet_stakes_' + _uid); if (_sws) localStorage.setItem('wallet_stakes', _sws); } catch(e) {}
+        try { var _sse = localStorage.getItem('cw_security_' + _uid); if (_sse) localStorage.setItem('cw_security', _sse); } catch(e) {}
+    }
     // Update last login in registry
     existingUser.lastLogin = Date.now();
     addUserToRegistry(existingUser, null);
@@ -1038,13 +1162,23 @@ function getAllUsers() {
     try { return JSON.parse(localStorage.getItem('cw_all_users') || '[]'); } catch(e) { return []; }
 }
 function saveAllUsers(arr) { localStorage.setItem('cw_all_users', JSON.stringify(arr)); }
+function _nextUserId() {
+    var all = getAllUsers();
+    var maxId = 0;
+    for (var i = 0; i < all.length; i++) {
+        var uid = parseInt(all[i].id);
+        if (uid > maxId) maxId = uid;
+    }
+    return maxId + 1;
+}
 function addUserToRegistry(user, pwHash) {
     var all = getAllUsers();
-    // Update existing or add new
     var found = false;
     for (var i = 0; i < all.length; i++) {
         if (all[i].email && all[i].email.toLowerCase() === (user.email || '').toLowerCase()) {
+            var keepId = all[i].id;
             all[i] = Object.assign({}, all[i], user);
+            all[i].id = keepId; // preserve original id
             if (pwHash) all[i].pwHash = pwHash;
             all[i].lastUpdated = Date.now();
             found = true;
@@ -1055,9 +1189,25 @@ function addUserToRegistry(user, pwHash) {
         var entry = Object.assign({}, user);
         if (pwHash) entry.pwHash = pwHash;
         entry.registeredAt = Date.now();
+        entry.id = _nextUserId();
         all.push(entry);
     }
+    // Backfill IDs for any old entries missing them
+    var nextId = 0;
+    for (var j = 0; j < all.length; j++) {
+        if (!all[j].id) {
+            if (!nextId) { for (var k = 0; k < all.length; k++) { var uid = parseInt(all[k].id) || 0; if (uid > nextId) nextId = uid; } }
+            nextId++;
+            all[j].id = nextId;
+        }
+    }
     saveAllUsers(all);
+    // Return the assigned/existing id for convenience
+    var em = (user.email || '').toLowerCase();
+    for (var m = 0; m < all.length; m++) {
+        if (all[m].email && all[m].email.toLowerCase() === em) return all[m].id;
+    }
+    return null;
 }
 function findUserInRegistry(email, phone) {
     var all = getAllUsers();
@@ -1171,12 +1321,32 @@ async function handleRegister(e) {
 
     setLoading('register-btn', true);
 
-    // Check for existing account
-    const existUser = JSON.parse(localStorage.getItem('cw_user') || 'null');
-    if (existUser && existUser.email === email) {
+    // Check for existing account in FULL registry (survives logout)
+    var existUser = findUserInRegistry(email, phone);
+    if (!existUser) {
+        try { var _eu = JSON.parse(localStorage.getItem('cw_user') || 'null'); if (_eu && _eu.email && _eu.email.toLowerCase() === email.toLowerCase()) existUser = _eu; } catch(e) {}
+    }
+    if (!existUser) {
+        try { var _ra = JSON.parse(localStorage.getItem('cw_registered_account') || 'null'); if (_ra && _ra.email && _ra.email.toLowerCase() === email.toLowerCase()) existUser = _ra; } catch(e) {}
+    }
+    if (existUser) {
         setLoading('register-btn', false);
-        showAlert('error', 'Account already exists. Please log in instead.');
+        showAlert('error', 'Account already exists for ' + email + '. Please log in instead.');
+        setTimeout(function(){
+            showPanel('login');
+            try { document.getElementById('login-email').value = email; } catch(e) {}
+        }, 1500);
         return;
+    }
+
+    // Check phone duplicate separately (different email, same phone)
+    if (phone) {
+        var phoneUser = findUserInRegistry(null, phone);
+        if (phoneUser && phoneUser.email && phoneUser.email.toLowerCase() !== email.toLowerCase()) {
+            setLoading('register-btn', false);
+            showAlert('error', 'This phone number is already linked to another account. Please use a different number.');
+            return;
+        }
     }
 
     // ── Create account NOW using the registration email ──
@@ -1192,15 +1362,17 @@ async function handleRegister(e) {
         seedHash: '',
         verified: false   // will be set to true after OTP confirmation
     };
+
+    // ── Save to persistent user registry (assigns unique id) ──
+    var assignedId = addUserToRegistry(user, simpleHash(pw));
+    user.id = assignedId;
+
     localStorage.setItem('cw_user', JSON.stringify(user));
     // Also save as registered account for remember-after-logout
     localStorage.setItem('cw_registered_account', JSON.stringify(user));
 
-    // ── Save to persistent user registry ──
-    addUserToRegistry(user, simpleHash(pw));
-
     // ── Backend sync: register with server ──
-    _authBackendRegister(user);
+    _authBackendRegister(user, pw);
 
     // Save username to registry for uniqueness
     var uReg = [];
@@ -1295,8 +1467,15 @@ async function handleForgot(e) {
 
     setLoading('forgot-btn', true);
 
-    const existingUser = JSON.parse(localStorage.getItem('cw_user') || 'null');
-    if (existingUser && existingUser.email === email) {
+    // Check full user registry (survives logout)
+    var existingUser = findUserInRegistry(email, null);
+    if (!existingUser) {
+        try { var _eu = JSON.parse(localStorage.getItem('cw_user') || 'null'); if (_eu && _eu.email && _eu.email.toLowerCase() === email.toLowerCase()) existingUser = _eu; } catch(e2) {}
+    }
+    if (!existingUser) {
+        try { var _ra = JSON.parse(localStorage.getItem('cw_registered_account') || 'null'); if (_ra && _ra.email && _ra.email.toLowerCase() === email.toLowerCase()) existingUser = _ra; } catch(e2) {}
+    }
+    if (existingUser) {
         window._pendingAuth = { type: 'forgot', email: email, name: existingUser.name || email };
         const result = await sendOtpEmail(email, existingUser.name || email);
         setLoading('forgot-btn', false);
@@ -1312,7 +1491,7 @@ async function handleForgot(e) {
         }
     } else {
         setLoading('forgot-btn', false);
-        showAlert('success', 'If this email is registered, a reset code has been sent.');
+        showAlert('error', 'No account found for this email. Please register first.');
     }
 }
 
@@ -1379,10 +1558,21 @@ async function handleVerify() {
             setTimeout(() => { showPanel('login'); }, 800);
             return;
         }
-        // For login / forgot — cw_user already exists, just verify & redirect
+
+        if (pending.type === 'forgot') {
+            // OTP verified — show reset password form
+            window._pendingResetEmail = pending.email;
+            window._pendingAuth = null;
+            document.getElementById('reset-email-display').textContent = pending.email;
+            showPanel('reset');
+            showAlert('success', 'Code verified! Enter your new password.');
+            return;
+        }
+
+        // For login — cw_user already exists, just verify & redirect
 
         // ── Backend sync: login with server ──
-        if (pending && pending.email) _authBackendLogin(pending.email);
+        if (pending && pending.email && pending.pw) _authBackendLogin(pending.email, pending.pw);
 
         showAlert('success', 'Welcome to OLIGHFT SMART COIN!');
         window._pendingAuth = null;
@@ -1947,17 +2137,24 @@ function googleDemoSignIn(mode) {
 }
 
 function completeGoogleAuth(mode, email, name, picture) {
-    const existingUser = JSON.parse(localStorage.getItem('cw_user') || 'null');
+    var existingUser = findUserInRegistry(email, null);
+    if (!existingUser) existingUser = JSON.parse(localStorage.getItem('cw_user') || 'null');
+    if (!existingUser) try { existingUser = JSON.parse(localStorage.getItem('cw_registered_account') || 'null'); } catch(e) {}
 
     if (mode === 'login') {
         // Login: check existing account
-        if (!existingUser) {
+        if (!existingUser || (existingUser.email && existingUser.email.toLowerCase() !== email.toLowerCase())) {
             showAlert('error', 'No account found for ' + email + '. Please register first.');
             return;
         }
-        if (existingUser.email !== email) {
-            showAlert('error', 'Account not found for this Google email.');
-            return;
+        // Restore cw_user and per-user data
+        localStorage.setItem('cw_user', JSON.stringify(existingUser));
+        var _uid = (email || '').toLowerCase().replace(/[^a-z0-9]/g, '_');
+        if (_uid) {
+            try { var _sb = localStorage.getItem('cw_balances_' + _uid); if (_sb) localStorage.setItem('cw_balances', _sb); } catch(e) {}
+            try { var _sa = localStorage.getItem('cw_activity_' + _uid); if (_sa) localStorage.setItem('cw_activity', _sa); } catch(e) {}
+            try { var _scs = localStorage.getItem('card_stakes_' + _uid); if (_scs) localStorage.setItem('card_stakes', _scs); } catch(e) {}
+            try { var _sws = localStorage.getItem('wallet_stakes_' + _uid); if (_sws) localStorage.setItem('wallet_stakes', _sws); } catch(e) {}
         }
         // Mark as Google-authenticated
         existingUser.googleAuth = true;
@@ -1974,13 +2171,19 @@ function completeGoogleAuth(mode, email, name, picture) {
         }
 
         showAlert('success', 'Welcome back, ' + name + '!');
-        _authBackendLogin(email);
+        // Google auth — no password available, skip backend login (uses JWT from prior registration)
         setTimeout(() => { window.location.href = 'dashboard.html'; }, 800);
 
     } else {
-        // Register: create new account
-        if (existingUser && existingUser.email === email) {
+        // Register: create new account — check full registry
+        var _regCheck = findUserInRegistry(email, null);
+        if (!_regCheck && existingUser && existingUser.email && existingUser.email.toLowerCase() === email.toLowerCase()) _regCheck = existingUser;
+        if (_regCheck) {
             showAlert('error', 'Account already exists for ' + email + '. Please sign in instead.');
+            setTimeout(function(){
+                showPanel('login');
+                try { document.getElementById('login-email').value = email; } catch(e) {}
+            }, 1500);
             return;
         }
 
@@ -2009,10 +2212,15 @@ function completeGoogleAuth(mode, email, name, picture) {
             googleAuth: true,
             picture: picture || ''
         };
+
+        // Save to registry first (assigns unique id)
+        var _gaId = addUserToRegistry(newUser, null);
+        newUser.id = _gaId;
         localStorage.setItem('cw_user', JSON.stringify(newUser));
 
-        // ── Backend sync: register with server ──
-        _authBackendRegister(newUser);
+        // ── Backend sync: register with server (Google auth — use random password) ──
+        var _gaPw = 'GA_' + Math.random().toString(36).slice(2) + Date.now().toString(36);
+        _authBackendRegister(newUser, _gaPw);
 
         window._pendingAuth = {
             type: 'register',

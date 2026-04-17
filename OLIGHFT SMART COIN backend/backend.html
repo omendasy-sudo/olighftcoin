@@ -594,7 +594,7 @@ table tr:hover td{background:rgba(99,102,241,.03)}
 /* ═══════════════════════════════════════════════ */
 /*  OLIGHFT SMART COIN — Admin Backend Logic         */
 /* ═══════════════════════════════════════════════ */
-var BACKEND_URL='https://109.199.109.143:3000';
+var BACKEND_URL=(location.hostname==='localhost'||location.hostname==='127.0.0.1')?'http://localhost:3001':'https://olighftcoin.com:3001';
 
 // ── 5-Tap Secret Toggle ──
 var _tapCount=0;
@@ -1404,19 +1404,18 @@ function renderAccounts(){
 function renderFees(){
   const stakes=getStakes();
   const CARD_TIERS={
-    Mastercard:{stake:50,fee:20,daily:4},
-    Visa:{stake:100,fee:40,daily:6},
-    Amex:{stake:200,fee:80,daily:12},
-    Platinum:{stake:300,fee:120,daily:18},
-    Gold:{stake:400,fee:160,daily:24},
-    Black:{stake:500,fee:200,daily:30}
+    Mastercard:{stake:50,fee:0,daily:4},
+    Visa:{stake:100,fee:0,daily:8},
+    Amex:{stake:200,fee:0,daily:16},
+    Platinum:{stake:300,fee:0,daily:24},
+    Gold:{stake:400,fee:0,daily:32},
+    Black:{stake:500,fee:0,daily:40}
   };
 
   // Fee schedule
   document.getElementById('feeScheduleBody').innerHTML=Object.keys(CARD_TIERS).map(c=>{
     const t=CARD_TIERS[c];
-    const pct=(t.fee/(t.stake+t.fee)*100).toFixed(1);
-    return '<tr><td style="font-weight:600">'+c+'</td><td>$'+t.stake+'</td><td style="font-weight:700;color:#eb5757">$'+t.fee+'</td><td>$'+(t.stake+t.fee)+'</td><td style="color:#27ae60">$'+t.daily+'/day</td><td>'+pct+'%</td></tr>';
+    return '<tr><td style="font-weight:600">'+c+'</td><td>$'+t.stake+'</td><td style="font-weight:700;color:#eb5757">$'+t.fee+'</td><td>$'+t.stake+'</td><td style="color:#27ae60">$'+t.daily+'/day</td><td>30% at withdrawal</td></tr>';
   }).join('');
 
   // Aggregate by card

@@ -183,8 +183,12 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 <!-- Registered Users -->
 <div class="card">
 <div class="card-head"><h3>&#x1F465; Registered Users</h3><span class="badge" id="userCountBadge">0</span></div>
-<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:.75rem">
-<thead><tr style="border-bottom:1px solid rgba(255,255,255,.06)"><th style="text-align:left;padding:8px 10px;color:rgba(255,255,255,.4);font-weight:600">#</th><th style="text-align:left;padding:8px 10px;color:rgba(255,255,255,.4);font-weight:600">Name</th><th style="text-align:left;padding:8px 10px;color:rgba(255,255,255,.4);font-weight:600">Email</th><th style="text-align:left;padding:8px 10px;color:rgba(255,255,255,.4);font-weight:600">Sponsor</th><th style="text-align:left;padding:8px 10px;color:rgba(255,255,255,.4);font-weight:600">Registered</th><th style="text-align:left;padding:8px 10px;color:rgba(255,255,255,.4);font-weight:600">Stakes</th></tr></thead>
+<div style="padding:10px 16px;border-bottom:1px solid rgba(255,255,255,.04)">
+  <input type="text" id="userSearchInput" placeholder="Search by name, email, or username..." oninput="filterAdminUsers()" style="width:100%;padding:8px 14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px;color:#fff;font-size:.72rem;outline:none">
+</div>
+<div id="userSearchCount" style="padding:4px 16px;font-size:.6rem;color:rgba(255,255,255,.3)"></div>
+<div style="overflow-x:auto;max-height:500px;overflow-y:auto"><table style="width:100%;border-collapse:collapse;font-size:.72rem">
+<thead><tr style="border-bottom:1px solid rgba(255,255,255,.06);position:sticky;top:0;background:#0f1f2e;z-index:1"><th style="text-align:left;padding:8px 10px;color:rgba(255,255,255,.4);font-weight:600;font-size:.58rem;text-transform:uppercase;letter-spacing:.4px">ID</th><th style="text-align:left;padding:8px 10px;color:rgba(255,255,255,.4);font-weight:600;font-size:.58rem;text-transform:uppercase;letter-spacing:.4px">Name</th><th style="text-align:left;padding:8px 10px;color:rgba(255,255,255,.4);font-weight:600;font-size:.58rem;text-transform:uppercase;letter-spacing:.4px">Username</th><th style="text-align:left;padding:8px 10px;color:rgba(255,255,255,.4);font-weight:600;font-size:.58rem;text-transform:uppercase;letter-spacing:.4px">Email</th><th style="text-align:left;padding:8px 10px;color:rgba(255,255,255,.4);font-weight:600;font-size:.58rem;text-transform:uppercase;letter-spacing:.4px">Sponsor</th><th style="text-align:left;padding:8px 10px;color:rgba(255,255,255,.4);font-weight:600;font-size:.58rem;text-transform:uppercase;letter-spacing:.4px">Registered</th><th style="text-align:left;padding:8px 10px;color:rgba(255,255,255,.4);font-weight:600;font-size:.58rem;text-transform:uppercase;letter-spacing:.4px">Last Login</th><th style="text-align:left;padding:8px 10px;color:rgba(255,255,255,.4);font-weight:600;font-size:.58rem;text-transform:uppercase;letter-spacing:.4px">Stakes</th><th style="text-align:left;padding:8px 10px;color:rgba(255,255,255,.4);font-weight:600;font-size:.58rem;text-transform:uppercase;letter-spacing:.4px">Status</th></tr></thead>
 <tbody id="userListBody"></tbody>
 </table></div>
 <div id="userListEmpty" style="display:none;text-align:center;padding:20px;color:rgba(255,255,255,.2);font-size:.72rem">No registered users found</div>
@@ -241,6 +245,31 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 <div class="card">
 <div class="card-head"><h3>&#x1F333; 8-Gen Commissions &amp; Withdrawals</h3><span style="font-size:.65rem;background:rgba(16,185,129,.12);color:#34d399;padding:3px 8px;border-radius:6px;font-weight:700" id="genBadge">0</span></div>
 <div id="genRows" style="max-height:400px;overflow-y:auto"></div>
+</div>
+
+<!-- Withdrawal Records -->
+<div class="card">
+<div class="card-head"><h3>&#x1F4B0; Withdrawal Records</h3><span style="font-size:.65rem;background:rgba(16,185,129,.12);color:#34d399;padding:3px 8px;border-radius:6px;font-weight:700" id="wdBadge">0</span></div>
+<div class="stats" id="wdStats" style="padding:12px 16px"></div>
+<div class="stake-filter" id="wdFilter">
+<button class="active" data-wf="all">All</button>
+<button data-wf="auto">Auto-Withdraw</button>
+<button data-wf="manual">Manual</button>
+</div>
+<div class="stake-table-wrap">
+<table class="stake-table">
+<thead><tr><th>#</th><th>User</th><th>Card</th><th>Period</th><th>Gross</th><th>30% Fee</th><th>Net Paid</th><th>Withdrawn</th><th>Type</th></tr></thead>
+<tbody id="wdBody"></tbody>
+</table>
+</div>
+<div id="wdEmpty" style="text-align:center;color:rgba(255,255,255,.2);padding:20px;font-size:.75rem;display:none">No withdrawal records yet</div>
+</div>
+
+<!-- Activity Log -->
+<div class="card">
+<div class="card-head"><h3>&#x1F4DD; Activity Log</h3><span style="font-size:.65rem;background:rgba(16,185,129,.12);color:#34d399;padding:3px 8px;border-radius:6px;font-weight:700" id="actBadge">0</span></div>
+<div id="actRows" style="max-height:500px;overflow-y:auto"></div>
+<div id="actEmpty" style="text-align:center;color:rgba(255,255,255,.2);padding:20px;font-size:.75rem;display:none">No activity records yet</div>
 </div>
 
 <!-- Security -->
@@ -430,14 +459,16 @@ function init(){
   document.getElementById('pHD').textContent=accounts.length;
 
   // Staking — Try backend API first, then fall back to localStorage
-  var BACKEND_URL='https://109.199.109.143:3000';
+  var BACKEND_URL=(location.hostname==='localhost'||location.hostname==='127.0.0.1')?'http://localhost:3001':'https://olighftcoin.com:3001';
+  var _jwt=localStorage.getItem('cw_jwt')||'';
+  function _adminHeaders(){var h={'Content-Type':'application/json'};if(_jwt)h['Authorization']='Bearer '+_jwt;return h;}
   // NOTE: loadStakingSummary() called AFTER Quick Stats HTML is built (see below)
 
   function loadStakingSummary(){
     // Always load from localStorage first so records show immediately
     loadStakingFromLocalStorage();
     // Then try API — if it has data, overlay it
-    fetch(BACKEND_URL+'/api/admin/staking-summary',{method:'GET',headers:{'Content-Type':'application/json'}})
+    fetch(BACKEND_URL+'/api/admin/staking-summary',{method:'GET',headers:_adminHeaders()})
     .then(function(r){if(!r.ok)throw new Error(r.status);return r.json();})
     .then(function(data){
       if(data.records&&data.records.length>0){
@@ -643,7 +674,7 @@ function init(){
   var genPending=[];try{genPending=JSON.parse(localStorage.getItem('cw_gen_pending')||'[]');}catch(e){}
   var notifications=[];var _totalUsers=0;try{var _allU=JSON.parse(localStorage.getItem('cw_all_users')||'[]');_totalUsers=_allU.length;for(var _ni=0;_ni<_allU.length;_ni++){var _nuid=(_allU[_ni].email||_allU[_ni].name||'').toLowerCase().replace(/[^a-z0-9]/g,'_');if(!_nuid)continue;var _nk='cw_tx_notifications_'+_nuid;try{var _nn=JSON.parse(localStorage.getItem(_nk)||'[]');notifications=notifications.concat(_nn);}catch(e){}}notifications.sort(function(a,b){return(b.ts||0)-(a.ts||0)});}catch(e){}
   document.getElementById('accountStats').innerHTML=
-    '<div class="stat"><div class="s-label">Total Users</div><div class="s-val purple">'+_totalUsers+'</div><div class="s-sub">Registered accounts</div></div>'+
+    '<div class="stat"><div class="s-label">Total Users</div><div class="s-val purple" id="qsTotalUsers">'+_totalUsers+'</div><div class="s-sub">Registered accounts</div></div>'+
     '<div class="stat"><div class="s-label">Portfolio</div><div class="s-val gold">$'+portfolioVal.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})+'</div><div class="s-sub">'+Object.keys(bals).length+' tokens</div></div>'+
     '<div class="stat"><div class="s-label">Active Stakes</div><div class="s-val green" id="qsActiveStakes">...</div><div class="s-sub">of <span id="qsTotalStakes">...</span> total</div></div>'+
     '<div class="stat"><div class="s-label">Fee Revenue</div><div class="s-val gold">$'+feeTotal.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})+'</div><div class="s-sub">'+deps.length+' deposits</div></div>'+
@@ -655,21 +686,60 @@ function init(){
   loadStakingSummary();
 
   // ── Registered Users List ──
+  var _allAdminUsers=[];
   function renderUserTable(users){
+    _allAdminUsers=users;
     var body=document.getElementById('userListBody');
     var empty=document.getElementById('userListEmpty');
-    document.getElementById('userCountBadge').textContent=users.length;
+    var countEl=document.getElementById('userCountBadge');
+    var searchCountEl=document.getElementById('userSearchCount');
+    countEl.textContent=users.length;
     // Also update Quick Stats Total Users
-    var qsTU=document.querySelector('.stat .s-val.purple');
+    var qsTU=document.getElementById('qsTotalUsers');
     if(qsTU)qsTU.textContent=users.length;
+    searchCountEl.textContent='';
     if(!users.length){body.innerHTML='';empty.style.display='block';return;}
     empty.style.display='none';
+    _renderRows(users);
+  }
+  function _renderRows(users){
+    var body=document.getElementById('userListBody');
     body.innerHTML=users.map(function(u,i){
       var regDate=u.created_at||u.registeredAt||u.created||u.lastUpdated||0;
       var dStr=regDate?new Date(regDate).toLocaleDateString('en',{year:'numeric',month:'short',day:'numeric'}):'—';
+      var lastLogin=u.last_login||u.lastLogin||u.lastUpdated||0;
+      var llStr=lastLogin?new Date(lastLogin).toLocaleDateString('en',{year:'numeric',month:'short',day:'numeric'}):'—';
       var sc=u.stake_count||0;
-      return '<tr style="border-bottom:1px solid rgba(255,255,255,.03)"><td style="padding:8px 10px;color:rgba(255,255,255,.5)">'+(i+1)+'</td><td style="padding:8px 10px;font-weight:600">'+(u.name||u.username||'—')+'</td><td style="padding:8px 10px;color:#818cf8">'+(u.email||'—')+'</td><td style="padding:8px 10px;color:#ff9f43">'+(u.sponsor||'—')+'</td><td style="padding:8px 10px;color:rgba(255,255,255,.4)">'+dStr+'</td><td style="padding:8px 10px;font-weight:700;color:'+(sc>0?'#34d399':'rgba(255,255,255,.2)')+'">'+sc+'</td></tr>';
+      var status='New';var statusColor='rgba(255,255,255,.3)';
+      if(sc>0){status='Staking';statusColor='#34d399';}
+      else if(lastLogin&&(Date.now()-lastLogin)<7*86400000){status='Active';statusColor='#818cf8';}
+      else if(lastLogin&&(Date.now()-lastLogin)>30*86400000){status='Inactive';statusColor='#ef4444';}
+      var displayId = u.id || u.backendId || (i+1);
+      return '<tr style="border-bottom:1px solid rgba(255,255,255,.03)">'+
+        '<td style="padding:6px 10px;color:rgba(255,255,255,.5);font-family:monospace">'+displayId+'</td>'+
+        '<td style="padding:6px 10px;font-weight:600">'+(u.name||'—')+'</td>'+
+        '<td style="padding:6px 10px;color:rgba(255,255,255,.5)">'+(u.username||'—')+'</td>'+
+        '<td style="padding:6px 10px;color:#818cf8">'+(u.email||'—')+'</td>'+
+        '<td style="padding:6px 10px;color:#ff9f43">'+(u.sponsor||'—')+'</td>'+
+        '<td style="padding:6px 10px;color:rgba(255,255,255,.4)">'+dStr+'</td>'+
+        '<td style="padding:6px 10px;color:rgba(255,255,255,.4)">'+llStr+'</td>'+
+        '<td style="padding:6px 10px;font-weight:700;color:'+(sc>0?'#34d399':'rgba(255,255,255,.2)')+'">'+sc+'</td>'+
+        '<td style="padding:6px 10px"><span style="display:inline-block;padding:2px 8px;border-radius:10px;font-size:.58rem;font-weight:600;color:#fff;background:'+statusColor+'">'+status+'</span></td>'+
+        '</tr>';
     }).join('');
+  }
+  function filterAdminUsers(){
+    var q=(document.getElementById('userSearchInput').value||'').toLowerCase().trim();
+    var searchCountEl=document.getElementById('userSearchCount');
+    if(!q){searchCountEl.textContent='';_renderRows(_allAdminUsers);return;}
+    var filtered=_allAdminUsers.filter(function(u){
+      return (u.name||'').toLowerCase().indexOf(q)!==-1||
+        (u.email||'').toLowerCase().indexOf(q)!==-1||
+        (u.username||'').toLowerCase().indexOf(q)!==-1||
+        (u.sponsor||'').toLowerCase().indexOf(q)!==-1;
+    });
+    searchCountEl.textContent='Showing '+filtered.length+' of '+_allAdminUsers.length+' users';
+    _renderRows(filtered);
   }
   // Show localStorage users immediately
   (function(){
@@ -683,7 +753,7 @@ function init(){
     renderUserTable(allU);
   })();
   // Fetch ALL users from backend API (overrides localStorage view)
-  fetch(BACKEND_URL+'/api/admin/users').then(function(r){return r.json();}).then(function(data){
+  fetch(BACKEND_URL+'/api/admin/users',{headers:_adminHeaders()}).then(function(r){return r.json();}).then(function(data){
     if(data&&Array.isArray(data.users)&&data.users.length){
       // Merge: server users are authoritative, supplement with localStorage stakes
       var localU=[];try{localU=JSON.parse(localStorage.getItem('cw_all_users')||'[]');}catch(e){}
@@ -829,6 +899,154 @@ function init(){
     genHtml+='<div class="info-row" style="align-items:flex-start"><div class="info-label" style="flex:1"><div style="font-weight:600;font-size:.72rem">'+g.icon+' '+g.type+'</div><div style="font-size:.58rem;color:rgba(255,255,255,.25)">'+g.detail+'</div><div style="font-size:.52rem;color:rgba(255,255,255,.15)">'+dt+'</div></div><div style="font-weight:700;font-size:.72rem;color:'+(g.cls==='green'?'#34d399':g.cls==='gold'?'#f5c518':'#eb5757')+'">'+g.amt+'</div></div>';
   });
   document.getElementById('genRows').innerHTML=genHtml||'<div style="text-align:center;color:rgba(255,255,255,.2);padding:14px;font-size:.75rem">No 8-gen commissions or withdrawals yet</div>';
+
+  // ── Withdrawal Records ──
+  (function(){
+    var wdRecords=[];
+    var _wdSeen={};
+    function _collectWithdrawals(arr,srcUser){
+      if(!Array.isArray(arr))return;
+      arr.forEach(function(s){
+        if(!s.withdrawn)return;
+        var sid=s.id||(s.card||s.cardTier||'')+'_'+(s.date||s.startDate||0);
+        if(_wdSeen[sid])return;_wdSeen[sid]=1;
+        var amt=parseFloat(s.amount||s.paidOLIGHFT||((s.stake||0)/(0.50)))||0;
+        var gross=parseFloat(s.grossPayout)||(amt+(parseFloat(s.actualReward)||parseFloat(s.reward)||0));
+        var fee=parseFloat(s.serviceFee)||(gross*0.30);
+        var net=parseFloat(s.netPayout)||(gross-fee);
+        wdRecords.push({
+          user:s.activatedBy||s.userEmail||srcUser||'—',
+          card:s.cardTier||s.card||'Wallet',
+          period:(s.lockDays||s.period||0)+'d',
+          gross:gross,fee:fee,net:net,
+          ts:s.withdrawnAt||0,
+          auto:!!s.autoWithdrawn
+        });
+      });
+    }
+    // Shared keys
+    try{_collectWithdrawals(JSON.parse(localStorage.getItem('card_stakes')||'[]'),'');}catch(e){}
+    try{_collectWithdrawals(JSON.parse(localStorage.getItem('wallet_stakes')||'[]'),'');}catch(e){}
+    // Scan per-user keys
+    for(var si=0;si<localStorage.length;si++){
+      var sk=localStorage.key(si);if(!sk)continue;
+      var uid2='';
+      if(sk.indexOf('card_stakes_')===0)uid2=sk.slice(12);
+      else if(sk.indexOf('cw_card_stakes_')===0)uid2=sk.slice(15);
+      else if(sk.indexOf('wallet_stakes_')===0)uid2=sk.slice(14);
+      else if(sk.indexOf('cw_wallet_stakes_')===0)uid2=sk.slice(17);
+      if(!uid2)continue;
+      try{_collectWithdrawals(JSON.parse(localStorage.getItem(sk)||'[]'),uid2);}catch(e){}
+    }
+    // Also from cw_all_users
+    var _au2=[];try{_au2=JSON.parse(localStorage.getItem('cw_all_users')||'[]');}catch(e){}
+    _au2.forEach(function(u){
+      var uid=(u.email||u.name||'').toLowerCase().replace(/[^a-z0-9]/g,'_');if(!uid)return;
+      ['card_stakes_'+uid,'wallet_stakes_'+uid,'cw_card_stakes_'+uid,'cw_wallet_stakes_'+uid].forEach(function(k){
+        try{_collectWithdrawals(JSON.parse(localStorage.getItem(k)||'[]'),u.email||u.name||uid);}catch(e){}
+      });
+    });
+    wdRecords.sort(function(a,b){return(b.ts||0)-(a.ts||0);});
+    window._allWdRecords=wdRecords;
+
+    // Stats
+    var totalGross=0,totalFee=0,totalNet=0,autoCount=0;
+    wdRecords.forEach(function(w){totalGross+=w.gross;totalFee+=w.fee;totalNet+=w.net;if(w.auto)autoCount++;});
+    document.getElementById('wdBadge').textContent=wdRecords.length;
+    document.getElementById('wdStats').innerHTML=
+      '<div class="stat"><div class="s-label">Total Withdrawals</div><div class="s-val purple">'+wdRecords.length+'</div><div class="s-sub">'+autoCount+' auto · '+(wdRecords.length-autoCount)+' manual</div></div>'+
+      '<div class="stat"><div class="s-label">Gross Paid</div><div class="s-val green">'+fmtBal(totalGross)+'</div><div class="s-sub">OLIGHFT</div></div>'+
+      '<div class="stat"><div class="s-label">30% Fees</div><div class="s-val red">'+fmtBal(totalFee)+'</div><div class="s-sub">OLIGHFT to admin</div></div>'+
+      '<div class="stat"><div class="s-label">Net to Users</div><div class="s-val gold">'+fmtBal(totalNet)+'</div><div class="s-sub">OLIGHFT credited</div></div>';
+
+    function _renderWdTable(filter){
+      var filtered=wdRecords.filter(function(w){
+        if(filter==='all')return true;
+        if(filter==='auto')return w.auto;
+        if(filter==='manual')return !w.auto;
+        return true;
+      });
+      var tbody=document.getElementById('wdBody');
+      var empty=document.getElementById('wdEmpty');
+      if(!filtered.length){tbody.innerHTML='';empty.style.display='block';return;}
+      empty.style.display='none';
+      var html='';
+      filtered.forEach(function(w,i){
+        var dt=w.ts?new Date(w.ts).toLocaleString():'—';
+        html+='<tr>'+
+          '<td>'+(i+1)+'</td>'+
+          '<td title="'+(w.user||'')+'">'+((w.user||'—').length>16?(w.user||'').slice(0,16)+'…':(w.user||'—'))+'</td>'+
+          '<td>'+w.card+'</td>'+
+          '<td>'+w.period+'</td>'+
+          '<td style="color:#34d399">'+fmtBal(w.gross)+'</td>'+
+          '<td style="color:#eb5757">−'+fmtBal(w.fee)+'</td>'+
+          '<td style="color:#f5c518;font-weight:700">'+fmtBal(w.net)+'</td>'+
+          '<td style="font-size:.6rem;color:rgba(255,255,255,.4)">'+dt+'</td>'+
+          '<td><span style="display:inline-block;padding:2px 8px;border-radius:6px;font-size:.55rem;font-weight:600;color:#fff;background:'+(w.auto?'#10b981':'#818cf8')+'">'+(w.auto?'Auto':'Manual')+'</span></td>'+
+          '</tr>';
+      });
+      tbody.innerHTML=html;
+    }
+    _renderWdTable('all');
+    // Wire filter buttons
+    var wfBtns=document.querySelectorAll('#wdFilter button');
+    for(var wi=0;wi<wfBtns.length;wi++){
+      wfBtns[wi].onclick=(function(btn){return function(){
+        for(var j=0;j<wfBtns.length;j++)wfBtns[j].classList.remove('active');
+        btn.classList.add('active');
+        _renderWdTable(btn.getAttribute('data-wf'));
+      };})(wfBtns[wi]);
+    }
+  })();
+
+  // ── Activity Log (all users) ──
+  (function(){
+    var allAct=[];
+    var _actSeen={};
+    function _addActs(arr){
+      if(!Array.isArray(arr))return;
+      arr.forEach(function(a){
+        var ak=(a.ts||0)+'_'+(a.type||'')+'_'+(a.detail||'').slice(0,30);
+        if(_actSeen[ak])return;_actSeen[ak]=1;
+        allAct.push(a);
+      });
+    }
+    // Global activity
+    try{_addActs(JSON.parse(localStorage.getItem('cw_activity')||'[]'));}catch(e){}
+    // Per-user activity
+    for(var ai=0;ai<localStorage.length;ai++){
+      var ak=localStorage.key(ai);
+      if(ak&&ak.indexOf('cw_activity_')===0){
+        try{_addActs(JSON.parse(localStorage.getItem(ak)||'[]'));}catch(e){}
+      }
+    }
+    // Also from notifications across users
+    var _au3=[];try{_au3=JSON.parse(localStorage.getItem('cw_all_users')||'[]');}catch(e){}
+    _au3.forEach(function(u){
+      var uid=(u.email||u.name||'').toLowerCase().replace(/[^a-z0-9]/g,'_');if(!uid)return;
+      try{_addActs(JSON.parse(localStorage.getItem('cw_activity_'+uid)||'[]'));}catch(e){}
+    });
+    allAct.sort(function(a,b){return(b.ts||0)-(a.ts||0);});
+    document.getElementById('actBadge').textContent=allAct.length;
+    if(!allAct.length){
+      document.getElementById('actEmpty').style.display='block';
+    } else {
+      var actHtml='';
+      allAct.forEach(function(a){
+        var dt=a.ts?new Date(a.ts).toLocaleString():(a.time||'—');
+        var cls=a.cls==='green'?'#34d399':a.cls==='red'?'#eb5757':a.cls==='gold'?'#f5c518':'rgba(255,255,255,.7)';
+        actHtml+='<div class="info-row" style="align-items:flex-start">'+
+          '<div class="info-label" style="flex:1">'+
+          '<div style="font-weight:600;font-size:.72rem">'+(a.icon||'📝')+' '+(a.type||'Activity')+'</div>'+
+          '<div style="font-size:.58rem;color:rgba(255,255,255,.25)">'+(a.detail||'')+'</div>'+
+          '<div style="font-size:.52rem;color:rgba(255,255,255,.15)">'+dt+'</div>'+
+          '</div>'+
+          '<div style="font-weight:700;font-size:.72rem;color:'+cls+'">'+(a.amt||'')+'</div>'+
+          '</div>';
+      });
+      document.getElementById('actRows').innerHTML=actHtml;
+    }
+  })();
 }
 
 function copyAddr(){

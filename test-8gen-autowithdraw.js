@@ -23,12 +23,12 @@ const GEN_RATES = [0.10, 0.06, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04];
 const GEN_WITHDRAW_DELAY = 5 * 60 * 1000; // 5 minutes
 const DEFAULT_BALS = { XLM: 10000, USDC: 2500, wETH: 1.85, wBTC: 0.042, EURC: 1200, OLIGHFT: 10000, PI: 500, BNB: 0.5 };
 const CARD_TIERS = {
-  Mastercard: { min: 50,  daily: 4,  fee: 20,  boost: 0.5 },
-  Visa:       { min: 100, daily: 6,  fee: 40,  boost: 1.0 },
-  Amex:       { min: 200, daily: 12, fee: 80,  boost: 1.2 },
-  Platinum:   { min: 300, daily: 18, fee: 120, boost: 1.5 },
-  Gold:       { min: 400, daily: 24, fee: 160, boost: 2.0 },
-  Black:      { min: 500, daily: 30, fee: 200, boost: 3.0 }
+  Mastercard: { min: 50,  daily: 4,  fee: 0, boost: 0.5 },
+  Visa:       { min: 100, daily: 8,  fee: 0, boost: 1.0 },
+  Amex:       { min: 200, daily: 16, fee: 0, boost: 1.2 },
+  Platinum:   { min: 300, daily: 24, fee: 0, boost: 1.5 },
+  Gold:       { min: 400, daily: 32, fee: 0, boost: 2.0 },
+  Black:      { min: 500, daily: 40, fee: 0, boost: 3.0 }
 };
 
 // ── Test Counters ──
@@ -923,14 +923,14 @@ localStorage.setItem('cw_balances', JSON.stringify(Object.assign({}, DEFAULT_BAL
 
 // Step 1: Activate card → 60% admin, 40% referral
 const cardTier = 'Visa';
-const stakeUSD = CARD_TIERS[cardTier].min + CARD_TIERS[cardTier].fee; // 100 + 40 = $140
-const stakeOLIGHFT = stakeUSD / OLIGHFT_PRICE; // 280 OLIGHFT
-const adminShare = stakeOLIGHFT * ADMIN_WALLET_SPLIT; // 168 OLIGHFT
-const refShare = stakeOLIGHFT * (1 - ADMIN_WALLET_SPLIT); // 112 OLIGHFT
+const stakeUSD = CARD_TIERS[cardTier].min + CARD_TIERS[cardTier].fee; // 100 + 0 = $100
+const stakeOLIGHFT = stakeUSD / OLIGHFT_PRICE; // 200 OLIGHFT
+const adminShare = stakeOLIGHFT * ADMIN_WALLET_SPLIT; // 120 OLIGHFT
+const refShare = stakeOLIGHFT * (1 - ADMIN_WALLET_SPLIT); // 80 OLIGHFT
 
-assert(stakeOLIGHFT === 280, 'Visa stake = 280 OLIGHFT ($140)');
-assertClose(adminShare, 168, 0.01, 'Admin 60% = 168 OLIGHFT');
-assertClose(refShare, 112, 0.01, 'Referral 40% = 112 OLIGHFT');
+assert(stakeOLIGHFT === 200, 'Visa stake = 200 OLIGHFT ($100)');
+assertClose(adminShare, 120, 0.01, 'Admin 60% = 120 OLIGHFT');
+assertClose(refShare, 80, 0.01, 'Referral 40% = 80 OLIGHFT');
 
 // Step 2: Distribute commissions
 const lcRes = distribute8GenCommissions('lc_staker@test.com', refShare, 'lc_stake_1', cardTier);
