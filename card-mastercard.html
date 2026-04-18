@@ -856,7 +856,7 @@ function autoWithdrawFinished(){
     const end=new Date(s.date).getTime()+(STAKE_MATURITY_MS);
     if(now>=end){
       const grossOLIGHFT=s.payout;
-      const fee=grossOLIGHFT*0.30;
+      const fee=grossOLIGHFT*0.35;
       const netOLIGHFT=grossOLIGHFT-fee;
       const cwBals=JSON.parse(localStorage.getItem('cw_balances')||'{}');
       cwBals.OLIGHFT=(cwBals.OLIGHFT||0)+netOLIGHFT;
