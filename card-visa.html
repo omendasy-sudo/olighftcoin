@@ -656,7 +656,7 @@ async function activateStake(){
     return;
   }
   const slotNum=activeCount+1;
-  if(!confirm('Confirm '+CARD.name+' Stake #'+slotNum+' Activation?\n\n\uD83D\uDCB0 Cost: '+requiredOLIGHFT.toLocaleString()+' OLIGHFT ('+totalCostUSD+' OLIGHFT)\n\u23F1 Period: '+d+' days\n\uD83D\uDCC8 Daily: '+CARD.daily+' OLIGHFT+'\n\uD83D\uDCB5 Total: '+compPayout+' OLIGHFT+' ('+comp+')\n\uD83C\uDF33 Sponsor: '+sponsor+'\n\uD83D\uDCE6 Slot: '+slotNum+' of '+MAX_STAKES+'\n\n\uD83D\uDCB0 Your OLIGHFT Balance: '+myOLIGHFT.toLocaleString()))return;
+  if(!confirm('Confirm '+CARD.name+' Stake #'+slotNum+' Activation?\n\n\uD83D\uDCB0 Cost: '+requiredOLIGHFT.toLocaleString()+' OLIGHFT ('+totalCostUSD+' OLIGHFT)\n\u23F1 Period: '+d+' days\n\uD83D\uDCC8 Daily: '+CARD.daily+' OLIGHFT'+'\n\uD83D\uDCB5 Total: '+compPayout+' OLIGHFT'+' ('+comp+')\n\uD83C\uDF33 Sponsor: '+sponsor+'\n\uD83D\uDCE6 Slot: '+slotNum+' of '+MAX_STAKES+'\n\n\uD83D\uDCB0 Your OLIGHFT Balance: '+myOLIGHFT.toLocaleString()))return;
   cwBals.OLIGHFT=myOLIGHFT-requiredOLIGHFT;
   localStorage.setItem('cw_balances',JSON.stringify(cwBals));
   // ── 60% Admin Deposit → OLIGHFTCOIN ──
@@ -692,7 +692,7 @@ async function activateStake(){
   }
   // ── Advance invite stage: staking_active ──
   (function(){try{var ISTAGES=['invited','registered','wallet_created','card_activated','staking_active'];var u=JSON.parse(localStorage.getItem('cw_user')||'null');if(!u||!u.email)return;var invs=JSON.parse(localStorage.getItem('cw_invites')||'[]');for(var inv of invs){if(inv.invitee&&inv.invitee.email&&inv.invitee.email.toLowerCase()===u.email.toLowerCase()){var ci=ISTAGES.indexOf(inv.stage);['card_activated','staking_active'].forEach(function(ns){var ni=ISTAGES.indexOf(ns);if(ni>ci){inv.stage=ns;inv.stageHistory.push({stage:ns,at:Date.now()});ci=ni;}});break;}}localStorage.setItem('cw_invites',JSON.stringify(invs));}catch(e){}})();
-  alert('\u2705 '+CARD.name+' Stake #'+slotNum+' Activated!\n\n\uD83D\uDCB0 Paid: '+requiredOLIGHFT.toLocaleString()+' OLIGHFT ('+totalCostUSD+' OLIGHFT)\n\u23F1 Period: '+d+' days\n\uD83D\uDCC8 Daily: '+CARD.daily+' OLIGHFT+' \u2192 Total: '+compPayout+' OLIGHFT+' ('+comp+')\n\uD83D\uDCB5 Net Profit: '+(compPayout-CARD.stake-CARD.fee)+' OLIGHFT+'\n\uD83C\uDF33 Sponsor: '+sponsor+'\n\uD83D\uDCE6 Slots used: '+slotNum+'/'+MAX_STAKES+'\n\uD83D\uDCB0 Remaining OLIGHFT: '+cwBals.OLIGHFT.toLocaleString());
+  alert('\u2705 '+CARD.name+' Stake #'+slotNum+' Activated!\n\n\uD83D\uDCB0 Paid: '+requiredOLIGHFT.toLocaleString()+' OLIGHFT ('+totalCostUSD+' OLIGHFT)\n\u23F1 Period: '+d+' days\n\uD83D\uDCC8 Daily: '+CARD.daily+' OLIGHFT'+' \u2192 Total: '+compPayout+' OLIGHFT'+' ('+comp+')\n\uD83D\uDCB5 Net Profit: '+(compPayout-CARD.stake-CARD.fee)+' OLIGHFT'+'\n\uD83C\uDF33 Sponsor: '+sponsor+'\n\uD83D\uDCE6 Slots used: '+slotNum+'/'+MAX_STAKES+'\n\uD83D\uDCB0 Remaining OLIGHFT: '+cwBals.OLIGHFT.toLocaleString());
   renderStakeStatus();
 }
 
@@ -708,7 +708,7 @@ function autoWithdrawFinished(){
     const end=new Date(s.date).getTime()+(STAKE_MATURITY_MS);
     if(now>=end){
       const grossOLIGHFT=s.payout;
-      const fee=grossOLIGHFT*0.35;
+      const fee=grossOLIGHFT*0.30;
       const netOLIGHFT=grossOLIGHFT-fee;
       const cwBals=JSON.parse(localStorage.getItem('cw_balances')||'{}');
       cwBals.OLIGHFT=(cwBals.OLIGHFT||0)+netOLIGHFT;
