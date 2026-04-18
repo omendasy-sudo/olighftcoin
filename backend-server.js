@@ -35,7 +35,7 @@ const PRICE_ELASTICITY         = 0.35;
 const ADMIN_WALLET_SPLIT       = 0.35;
 const COMPOUND_FEE_RATE        = 0.02;
 const WITHDRAWAL_FEE_RATE      = 0.30;
-const GEN_RATES                = [0.10, 0.06, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04];
+const GEN_RATES                = [0.15, 0.10, 0.08, 0.08, 0.06, 0.06, 0.06, 0.06];
 const STAKE_MATURITY_MS        = 5 * 60 * 1000; // 5-min maturity for all card stakes
 const OLIGHFT_PRICE_VAR        = { current: 0.50 };
 

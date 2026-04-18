@@ -353,7 +353,7 @@ const ALL_CARDS={
 };
 let CARD={name:'Visa',stake:200,daily:20,fee:0,color:'#f5c518'};
 let PERIODS={30:{payout:600},90:{payout:1800},180:{payout:3600},365:{payout:7300}};
-const GEN_RATES=[0.10,0.06,0.04,0.04,0.04,0.04,0.04,0.04];
+const GEN_RATES=[0.15,0.10,0.08,0.08,0.06,0.06,0.06,0.06];
 const STAKE_MATURITY_MS=5*60*1000;
 
 function calcCardDailyCompound(cardDaily,days,compoundType){
@@ -492,7 +492,7 @@ setInterval(function(){try{autoWithdrawFinished();}catch(e){}},10000);
 // ── 8-Generation Commission Distribution ──
 function distribute8GenCommissions(stakerEmail,stakeAmountOLIGHFT,stakeId,cardTier){
   var invites=[];try{invites=JSON.parse(localStorage.getItem('cw_invites')||'[]');}catch(e){return [];}
-  var GEN_RATES_ABS=[0.10,0.06,0.04,0.04,0.04,0.04,0.04,0.04];
+  var GEN_RATES_ABS=[0.15,0.10,0.08,0.08,0.06,0.06,0.06,0.06];
   var GEN_WITHDRAW_DELAY=5*60*1000;
   var currentEmail=stakerEmail.toLowerCase();
   var commissions=[];
