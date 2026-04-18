@@ -32,10 +32,10 @@ const DB_PATH            = path.join(__dirname, 'olighft.db');
 const OLIGHFT_TOTAL_SUPPLY     = 100_000_000_000_000;
 const OLIGHFT_BASE_PRICE_FLOOR = 0.50;
 const PRICE_ELASTICITY         = 0.35;
-const ADMIN_WALLET_SPLIT       = 0.35;
+const ADMIN_WALLET_SPLIT       = 0.60;
 const COMPOUND_FEE_RATE        = 0.02;
 const WITHDRAWAL_FEE_RATE      = 0.35;
-const GEN_RATES                = [0.15, 0.10, 0.08, 0.08, 0.06, 0.06, 0.06, 0.06];
+const GEN_RATES                = [0.05, 0.03, 0.02, 0.02, 0.02, 0.02, 0.02, 0.02];
 const STAKE_MATURITY_MS        = 5 * 60 * 1000; // 5-min maturity for all card stakes
 const OLIGHFT_PRICE_VAR        = { current: 0.50 };
 

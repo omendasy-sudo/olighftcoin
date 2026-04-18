@@ -494,7 +494,7 @@ const ALL_CARDS={
 };
 let CARD={name:'Mastercard',stake:100,daily:10,fee:0,color:'#f2994a'};
 let PERIODS={30:{payout:300},90:{payout:900},180:{payout:1800},365:{payout:3650}};
-const GEN_RATES=[0.15,0.10,0.08,0.08,0.06,0.06,0.06,0.06];
+const GEN_RATES=[0.05,0.03,0.02,0.02,0.02,0.02,0.02,0.02];
 const STAKE_MATURITY_MS=5*60*1000;
 const COMPOUND_FEE=0.02;
 
@@ -555,7 +555,7 @@ function getUser(){try{return JSON.parse(localStorage.getItem('cw_user')||'null'
 
 const MAX_STAKES=5;
 const OLIGHFT_TOTAL_SUPPLY=100000000000000;
-const ADMIN_WALLET_SPLIT=0.35;
+const ADMIN_WALLET_SPLIT=0.60;
 const ADMIN_WALLET_USERNAME='OLIGHFTCOIN';
 
 // ── Supply Pool (shared with dashboard) ──

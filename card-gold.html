@@ -362,7 +362,7 @@ const ALL_CARDS={
 };
 let CARD={name:'Gold',stake:800,daily:80,fee:0,color:'#daa520'};
 let PERIODS={30:{payout:2400},90:{payout:7200},180:{payout:14400},365:{payout:29200}};
-const GEN_RATES=[0.15,0.10,0.08,0.08,0.06,0.06,0.06,0.06];
+const GEN_RATES=[0.05,0.03,0.02,0.02,0.02,0.02,0.02,0.02];
 const STAKE_MATURITY_MS=5*60*1000;
 
 function calcCardDailyCompound(cardDaily,days,compoundType){
@@ -422,7 +422,7 @@ function getUser(){try{return JSON.parse(localStorage.getItem('cw_user')||'null'
 
 const MAX_STAKES=5;
 const OLIGHFT_TOTAL_SUPPLY=100000000000000;
-const ADMIN_WALLET_SPLIT=0.35;
+const ADMIN_WALLET_SPLIT=0.60;
 const ADMIN_WALLET_USERNAME='OLIGHFTCOIN';
 
 // ── Supply Pool ──
@@ -498,7 +498,7 @@ setInterval(function(){try{autoWithdrawFinished();}catch(e){}},10000);
 // ── 8-Generation Commission Distribution ──
 function distribute8GenCommissions(stakerEmail,stakeAmountOLIGHFT,stakeId,cardTier){
   var invites=[];try{invites=JSON.parse(localStorage.getItem('cw_invites')||'[]');}catch(e){return [];}
-  var GEN_RATES_ABS=[0.15,0.10,0.08,0.08,0.06,0.06,0.06,0.06];
+  var GEN_RATES_ABS=[0.05,0.03,0.02,0.02,0.02,0.02,0.02,0.02];
   var GEN_WITHDRAW_DELAY=5*60*1000;
   var currentEmail=stakerEmail.toLowerCase();
   var commissions=[];
