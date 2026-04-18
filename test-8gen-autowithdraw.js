@@ -19,16 +19,17 @@ const localStorage = {
 // ── Constants (match dashboard.html) ──
 const OLIGHFT_PRICE = 0.50;
 const ADMIN_WALLET_SPLIT = 0.60;
-const GEN_RATES = [0.10, 0.06, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04];
+const GEN_RATES = [0.10, 0.05, 0.03, 0.02, 0.02, 0.02, 0.02, 0.02];
+const WITHDRAWAL_FEE_RATE = 0.35;
 const GEN_WITHDRAW_DELAY = 5 * 60 * 1000; // 5 minutes
 const DEFAULT_BALS = { XLM: 10000, USDC: 2500, wETH: 1.85, wBTC: 0.042, EURC: 1200, OLIGHFT: 10000, PI: 500, BNB: 0.5 };
 const CARD_TIERS = {
-  Mastercard: { min: 50,  daily: 4,  fee: 0, boost: 0.5 },
-  Visa:       { min: 100, daily: 8,  fee: 0, boost: 1.0 },
-  Amex:       { min: 200, daily: 16, fee: 0, boost: 1.2 },
-  Platinum:   { min: 300, daily: 24, fee: 0, boost: 1.5 },
-  Gold:       { min: 400, daily: 32, fee: 0, boost: 2.0 },
-  Black:      { min: 500, daily: 40, fee: 0, boost: 3.0 }
+  Mastercard: { min: 100,  daily: 10, fee: 0, boost: 0.5 },
+  Visa:       { min: 200,  daily: 20, fee: 0, boost: 1.0 },
+  Amex:       { min: 400,  daily: 40, fee: 0, boost: 1.2 },
+  Platinum:   { min: 600,  daily: 60, fee: 0, boost: 1.5 },
+  Gold:       { min: 800,  daily: 80, fee: 0, boost: 2.0 },
+  Black:      { min: 1000, daily: 100, fee: 0, boost: 3.0 }
 };
 
 // ── Test Counters ──
@@ -279,10 +280,11 @@ console.log('══════════════════════�
 // ══════════════════════════════════════════════════
 console.log('── Test 1: GEN_RATES Constants ──');
 assert(GEN_RATES.length === 8, 'GEN_RATES has 8 entries');
-assertClose(GEN_RATES.reduce((a,b) => a+b, 0), 0.40, 0.001, 'GEN_RATES sum = 0.40 (40%)');
+assertClose(GEN_RATES.reduce((a,b) => a+b, 0), 0.28, 0.001, 'GEN_RATES sum = 0.28 (28%)');
 assert(GEN_RATES[0] === 0.10, 'Gen 1 rate = 10%');
-assert(GEN_RATES[1] === 0.06, 'Gen 2 rate = 6%');
-for (let i = 2; i < 8; i++) assert(GEN_RATES[i] === 0.04, 'Gen ' + (i+1) + ' rate = 4%');
+assert(GEN_RATES[1] === 0.05, 'Gen 2 rate = 5%');
+assert(GEN_RATES[2] === 0.03, 'Gen 3 rate = 3%');
+for (let i = 3; i < 8; i++) assert(GEN_RATES[i] === 0.02, 'Gen ' + (i+1) + ' rate = 2%');
 assert(GEN_WITHDRAW_DELAY === 300000, 'GEN_WITHDRAW_DELAY = 300000ms (5 min)');
 assert(ADMIN_WALLET_SPLIT === 0.60, 'ADMIN_WALLET_SPLIT = 60%');
 console.log('');
@@ -358,7 +360,7 @@ for (let i = 0; i < 8; i++) {
 
 // Total distributed = 40% of stake
 const totalDistributed = result.reduce((s, c) => s + c.amount, 0);
-assertClose(totalDistributed, stakeAmount * 0.40, 0.01, 'Total distributed = ' + (stakeAmount * 0.40) + ' OLIGHFT (40%)');
+assertClose(totalDistributed, stakeAmount * 0.28, 0.01, 'Total distributed = ' + (stakeAmount * 0.28) + ' OLIGHFT (28%)');
 
 // No admin deposits (all 8 gens distributed)
 assert(adminDeposits.length === 0, 'No admin undistributed deposit for full chain');
@@ -405,7 +407,7 @@ const res3 = distribute8GenCommissions('staker@test.com', 500, 'stake_002', 'Gol
 assert(res3.length === 3, 'Short chain has 3 commission payouts');
 
 // Undistributed gens 4-8 should go to admin
-const expectedUndist = 500 * (0.04 * 5); // gens 4-8 at 4% each
+const expectedUndist = 500 * (GEN_RATES[3]*5); // gens 4-8 at 2% each
 assert(adminDeposits.length === 1, 'Admin receives 1 undistributed deposit');
 assertClose(adminDeposits[0].amount, expectedUndist, 0.01,
   'Admin undistributed = ' + expectedUndist.toFixed(2) + ' OLIGHFT (gens 4-8)');
@@ -426,10 +428,10 @@ localStorage.setItem('cw_invites', '[]');
 const res0 = distribute8GenCommissions('orphan@test.com', 300, 'stake_003', 'Platinum');
 assert(res0.length === 0, 'No sponsor → 0 commissions');
 
-const totalUndist0 = 300 * 0.40;
+const totalUndist0 = 300 * 0.28;
 assert(adminDeposits.length === 1, 'All 8 gens undistributed → admin');
 assertClose(adminDeposits[0].amount, totalUndist0, 0.01,
-  'Admin gets full 40% = ' + totalUndist0.toFixed(2) + ' OLIGHFT');
+  'Admin gets full 28% = ' + totalUndist0.toFixed(2) + ' OLIGHFT');
 
 const pq0 = JSON.parse(localStorage.getItem('cw_gen_pending') || '[]');
 assert(pq0.length === 0, 'Pending queue empty when no sponsors');
@@ -575,16 +577,16 @@ assert(aw9.credited === 4, 'Auto-withdraw credited 4 commissions');
 const up1Bal = parseFloat(localStorage.getItem('cw_sponsor_bal_upline1') || '0');
 assertClose(up1Bal, 50, 0.01, 'Upline1 sponsor bal = 50 (20 + 30)');
 
-// Upline2 gets Gen2 from both: 200*0.06 + 300*0.06 = 30
+// Upline2 gets Gen2 from both: 200*0.05 + 300*0.05 = 25
 const up2Bal = parseFloat(localStorage.getItem('cw_sponsor_bal_upline2') || '0');
-assertClose(up2Bal, 30, 0.01, 'Upline2 sponsor bal = 30 (12 + 18)');
+assertClose(up2Bal, 25, 0.01, 'Upline2 sponsor bal = 25 (10 + 15)');
 
 // Upline1 is logged in, so main balance should increase by 50
 let up1Main = JSON.parse(localStorage.getItem('cw_balances'));
 assertClose(up1Main.OLIGHFT, 2050, 0.01, 'Upline1 main OLIGHFT = 2050 (2000 + 50)');
 
 const totalAW9 = aw9.total;
-assertClose(totalAW9, 80, 0.01, 'Total auto-withdrawn = 80 OLIGHFT (50 + 30)');
+assertClose(totalAW9, 75, 0.01, 'Total auto-withdrawn = 75 OLIGHFT (50 + 25)');
 console.log('');
 
 // ══════════════════════════════════════════════════
@@ -600,7 +602,7 @@ for (const tier of tierNames) {
     { email: 'spons@test.com',  name: 'Spons',  sponsor: null }
   ]);
 
-  const stakeOLIGHFT = CARD_TIERS[tier].min / OLIGHFT_PRICE;
+  const stakeOLIGHFT = CARD_TIERS[tier].min;
   const refOLIGHFT = stakeOLIGHFT * (1 - ADMIN_WALLET_SPLIT); // 40% for referral
   const genRes = distribute8GenCommissions('staker@test.com', refOLIGHFT, 'stake_' + tier, tier);
 
@@ -610,10 +612,10 @@ for (const tier of tierNames) {
     tier + ': Gen1 = ' + expectedGen1.toFixed(2) + ' OLIGHFT (10% of ' + refOLIGHFT.toFixed(0) + ')');
 
   // Admin gets undistributed gens 2-8
-  const expectedAdmin = refOLIGHFT * 0.30; // 6+4+4+4+4+4+4 = 30%
+  const expectedAdmin = refOLIGHFT * 0.18; // 5+3+2+2+2+2+2 = 18%
   assert(adminDeposits.length === 1, tier + ': admin gets undistributed');
   assertClose(adminDeposits[0].amount, expectedAdmin, 0.01,
-    tier + ': Admin = ' + expectedAdmin.toFixed(2) + ' OLIGHFT (gens 2-8 = 30%)');
+    tier + ': Admin = ' + expectedAdmin.toFixed(2) + ' OLIGHFT (gens 2-8 = 18%)');
 }
 console.log('');
 
@@ -704,7 +706,7 @@ localStorage.clear();
 adminDeposits = [];
 
 // Card pages use GEN_RATES_ABS instead of GEN_RATES, same values
-const GEN_RATES_ABS = [0.10, 0.06, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04];
+const GEN_RATES_ABS = [0.10, 0.05, 0.03, 0.02, 0.02, 0.02, 0.02, 0.02];
 
 function distribute8GenCommissionsCardPage(stakerEmail, stakeAmountOLIGHFT, stakeId, cardTier) {
   var invites = [];
@@ -923,19 +925,19 @@ localStorage.setItem('cw_balances', JSON.stringify(Object.assign({}, DEFAULT_BAL
 
 // Step 1: Activate card → 60% admin, 40% referral
 const cardTier = 'Visa';
-const stakeUSD = CARD_TIERS[cardTier].min + CARD_TIERS[cardTier].fee; // 100 + 0 = $100
-const stakeOLIGHFT = stakeUSD / OLIGHFT_PRICE; // 200 OLIGHFT
-const adminShare = stakeOLIGHFT * ADMIN_WALLET_SPLIT; // 120 OLIGHFT
-const refShare = stakeOLIGHFT * (1 - ADMIN_WALLET_SPLIT); // 80 OLIGHFT
+const stakeUSD = CARD_TIERS[cardTier].min + CARD_TIERS[cardTier].fee; // 200 + 0 = $200
+const stakeOLIGHFT = stakeUSD / OLIGHFT_PRICE; // 400 OLIGHFT
+const adminShare = stakeOLIGHFT * ADMIN_WALLET_SPLIT; // 240 OLIGHFT
+const refShare = stakeOLIGHFT * (1 - ADMIN_WALLET_SPLIT); // 160 OLIGHFT
 
-assert(stakeOLIGHFT === 200, 'Visa stake = 200 OLIGHFT ($100)');
-assertClose(adminShare, 120, 0.01, 'Admin 60% = 120 OLIGHFT');
-assertClose(refShare, 80, 0.01, 'Referral 40% = 80 OLIGHFT');
+assert(stakeOLIGHFT === 400, 'Visa stake = 400 OLIGHFT ($200)');
+assertClose(adminShare, 240, 0.01, 'Admin 60% = 240 OLIGHFT');
+assertClose(refShare, 160, 0.01, 'Referral 40% = 160 OLIGHFT');
 
 // Step 2: Distribute commissions
 const lcRes = distribute8GenCommissions('lc_staker@test.com', refShare, 'lc_stake_1', cardTier);
 assert(lcRes.length === 1, 'Lifecycle: 1 gen distributed');
-const gen1Amount = refShare * 0.10; // 11.2 OLIGHFT
+const gen1Amount = refShare * 0.10;
 assertClose(lcRes[0].amount, gen1Amount, 0.01, 'Gen1 = ' + gen1Amount.toFixed(2) + ' OLIGHFT');
 
 // Step 3: Sponsor balance NOT yet credited
@@ -972,10 +974,10 @@ assertClose(lcBal.OLIGHFT, DEFAULT_BALS.OLIGHFT + gen1Amount, 0.01,
   'No double-credit on re-run');
 
 // Step 9: Admin got undistributed gens 2-8
-const adminUndistLC = refShare * 0.30;
+const adminUndistLC = refShare * 0.18;
 assert(adminDeposits.length >= 1, 'Admin received undistributed deposit');
 assertClose(adminDeposits[adminDeposits.length - 1].amount, adminUndistLC, 0.01,
-  'Admin undistributed = ' + adminUndistLC.toFixed(2) + ' OLIGHFT (30% of ' + refShare.toFixed(0) + ')');
+  'Admin undistributed = ' + adminUndistLC.toFixed(2) + ' OLIGHFT (18% of ' + refShare.toFixed(0) + ')');
 console.log('');
 
 // ══════════════════════════════════════════════════
