@@ -297,63 +297,15 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 </div>
 </div>
 
-<!-- ═══════ AdStaking — Admin Direct Staking ═══════ -->
-<div class="card" id="adStakingCard">
+<!-- AdStaking — separate page -->
+<div class="card">
 <div class="card-head"><h3>&#x1F4B0; AdStaking — Admin Staking</h3><span class="badge" id="adStakeBadge">0 active</span></div>
-<div style="padding:20px">
-  <!-- Card Tier Select -->
-  <div style="margin-bottom:14px">
-    <label style="font-size:.65rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.4px;display:block;margin-bottom:6px">Card Tier</label>
-    <select id="adCardTier" onchange="adUpdatePreview()" style="width:100%;padding:10px 14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#fff;font-size:.78rem;outline:none;cursor:pointer">
-      <option value="Mastercard">Mastercard — 100 OLIGHFT · 10/day</option>
-      <option value="Visa">Visa — 200 OLIGHFT · 20/day</option>
-      <option value="Amex">Amex — 400 OLIGHFT · 40/day</option>
-      <option value="Platinum">Platinum — 600 OLIGHFT · 60/day</option>
-      <option value="Gold">Gold — 800 OLIGHFT · 80/day</option>
-      <option value="Black">Black — 1,000 OLIGHFT · 100/day</option>
-    </select>
-  </div>
-  <!-- Staking Period -->
-  <div style="margin-bottom:14px">
-    <label style="font-size:.65rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.4px;display:block;margin-bottom:6px">Staking Period</label>
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px" id="adPeriodBtns">
-      <button onclick="adSelectPeriod(30)" class="act-btn" style="justify-content:center;padding:8px;font-size:.72rem" data-adp="30">30 Days</button>
-      <button onclick="adSelectPeriod(90)" class="act-btn" style="justify-content:center;padding:8px;font-size:.72rem" data-adp="90">90 Days</button>
-      <button onclick="adSelectPeriod(180)" class="act-btn" style="justify-content:center;padding:8px;font-size:.72rem;border-color:rgba(16,185,129,.3);color:#34d399" data-adp="180">180 Days</button>
-      <button onclick="adSelectPeriod(365)" class="act-btn" style="justify-content:center;padding:8px;font-size:.72rem" data-adp="365">365 Days</button>
-    </div>
-  </div>
-  <!-- Preview -->
-  <div style="background:rgba(16,185,129,.04);border:1px solid rgba(16,185,129,.12);border-radius:10px;padding:14px;margin-bottom:16px">
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:.72rem">
-      <div><span style="color:rgba(255,255,255,.4)">Stake Cost:</span><br><strong id="adPreviewStake" style="color:#f5c518">200 OLIGHFT</strong></div>
-      <div><span style="color:rgba(255,255,255,.4)">Daily Reward:</span><br><strong id="adPreviewDaily" style="color:#34d399">20 OLIGHFT</strong></div>
-      <div><span style="color:rgba(255,255,255,.4)">Period:</span><br><strong id="adPreviewPeriod">180 days</strong></div>
-      <div><span style="color:rgba(255,255,255,.4)">Total Payout:</span><br><strong id="adPreviewPayout" style="color:#34d399">3,600 OLIGHFT</strong></div>
-      <div><span style="color:rgba(255,255,255,.4)">35% Fee:</span><br><strong id="adPreviewFee" style="color:#eb5757">1,260 OLIGHFT</strong></div>
-      <div><span style="color:rgba(255,255,255,.4)">Net Profit:</span><br><strong id="adPreviewNet" style="color:#27ae60">2,340 OLIGHFT</strong></div>
-    </div>
-  </div>
-  <button onclick="adActivateStake()" class="act-btn primary" style="width:100%;justify-content:center;padding:12px;font-size:.82rem">&#x26A1; Activate Admin Stake</button>
-</div>
-<!-- Active Admin Stakes -->
-<div style="border-top:1px solid rgba(255,255,255,.04)">
-  <div style="padding:12px 20px;font-size:.72rem;font-weight:700;color:rgba(255,255,255,.5)">Active Admin Stakes</div>
-  <div class="stake-table-wrap" style="max-height:350px">
-    <table class="stake-table">
-      <thead><tr><th>#</th><th>Card</th><th>Stake</th><th>Period</th><th>Daily</th><th>Payout</th><th>Net (65%)</th><th>Started</th><th>Matures</th><th>Status</th></tr></thead>
-      <tbody id="adStakeBody"></tbody>
-    </table>
-  </div>
-  <div id="adStakeEmpty" style="text-align:center;color:rgba(255,255,255,.2);padding:16px;font-size:.72rem">No admin stakes yet — activate one above</div>
-</div>
-<!-- Admin Stake Totals -->
-<div style="border-top:1px solid rgba(255,255,255,.04);padding:14px 20px">
-  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;font-size:.68rem;text-align:center">
-    <div><div style="color:rgba(255,255,255,.3)">Total Staked</div><div style="font-weight:800;color:#f5c518;font-size:.9rem" id="adTotalStaked">0</div></div>
-    <div><div style="color:rgba(255,255,255,.3)">Total Payout</div><div style="font-weight:800;color:#34d399;font-size:.9rem" id="adTotalPayout">0</div></div>
-    <div><div style="color:rgba(255,255,255,.3)">Net After Fee</div><div style="font-weight:800;color:#27ae60;font-size:.9rem" id="adTotalNet">0</div></div>
-    <div><div style="color:rgba(255,255,255,.3)">Withdrawn</div><div style="font-weight:800;color:#818cf8;font-size:.9rem" id="adTotalWithdrawn">0</div></div>
+<div style="padding:20px;text-align:center">
+  <p style="color:rgba(255,255,255,.5);font-size:.78rem;margin-bottom:14px">Admin staking has moved to its own dedicated dashboard.</p>
+  <a href="adstaking.html" class="act-btn primary" style="display:inline-flex;justify-content:center;padding:12px 28px;font-size:.82rem;text-decoration:none">&#x1F4B0; Open AdStaking Dashboard</a>
+  <div style="margin-top:14px;display:grid;grid-template-columns:repeat(2,1fr);gap:10px;font-size:.68rem;text-align:center">
+    <div><div style="color:rgba(255,255,255,.3)">Active Stakes</div><div style="font-weight:800;color:#34d399;font-size:.9rem" id="adQuickActive">0</div></div>
+    <div><div style="color:rgba(255,255,255,.3)">Total Staked</div><div style="font-weight:800;color:#f5c518;font-size:.9rem" id="adQuickStaked">0</div></div>
   </div>
 </div>
 </div>
@@ -1107,8 +1059,15 @@ function init(){
     }
   })();
 
-  // ── AdStaking: render + auto-withdraw on init ──
-  try{adUpdatePreview();adAutoWithdraw();adRenderStakes();}catch(e){}
+  // ── AdStaking quick stats ──
+  try{
+    var adS=JSON.parse(localStorage.getItem('ad_stakes')||'[]');
+    var adAct=adS.filter(function(s){return !s.withdrawn;}).length;
+    var adTot=adS.reduce(function(a,s){return a+s.stake;},0);
+    document.getElementById('adStakeBadge').textContent=adAct+' active';
+    document.getElementById('adQuickActive').textContent=adAct;
+    document.getElementById('adQuickStaked').textContent=adTot.toLocaleString('en')+' OLIGHFT';
+  }catch(e){}
 }
 
 function copyAddr(){
@@ -1152,7 +1111,8 @@ function updateSecUI(){
 }
 
 function exportAccountData(){
-  var data={user:getUser(),balances:getBalances(),stakes:getStakes(),adminStakes:adGetStakes(),accounts:getAccounts(),security:getSecSettings(),multisig:getMsConfig(),adminDeposits:getAdminDeposits(),sends:getAllSendTxs(),swaps:getAllSwapTxs(),walletConfig:JSON.parse(localStorage.getItem('olighft_wallet_config')||'{}'),exported:new Date().toISOString()};
+  var adStks;try{adStks=JSON.parse(localStorage.getItem('ad_stakes')||'[]');}catch(e){adStks=[];}
+  var data={user:getUser(),balances:getBalances(),stakes:getStakes(),adminStakes:adStks,accounts:getAccounts(),security:getSecSettings(),multisig:getMsConfig(),adminDeposits:getAdminDeposits(),sends:getAllSendTxs(),swaps:getAllSwapTxs(),walletConfig:JSON.parse(localStorage.getItem('olighft_wallet_config')||'{}'),exported:new Date().toISOString()};
   var blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
   var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='olighft-account-'+Date.now()+'.json';a.click();
   showToast('Account data exported');
@@ -1164,222 +1124,7 @@ function adminLogout(){
   window.location.href='../auth.html';
 }
 
-// ═══════ AdStaking — Admin Direct Staking Logic ═══════
-var AD_CARDS={
-  Mastercard:{name:'Mastercard',stake:100,daily:10,periods:{30:300,90:900,180:1800,365:3650}},
-  Visa:{name:'Visa',stake:200,daily:20,periods:{30:600,90:1800,180:3600,365:7300}},
-  Amex:{name:'Amex',stake:400,daily:40,periods:{30:1200,90:3600,180:7200,365:14600}},
-  Platinum:{name:'Platinum',stake:600,daily:60,periods:{30:1800,90:5400,180:10800,365:21900}},
-  Gold:{name:'Gold',stake:800,daily:80,periods:{30:2400,90:7200,180:14400,365:29200}},
-  Black:{name:'Black',stake:1000,daily:100,periods:{30:3000,90:9000,180:18000,365:36500}}
-};
-var adSelectedPeriod=180;
-var AD_MATURITY_MS=5*60*1000; // 5 min testnet maturity
-var AD_FEE_RATE=0.35;
-
-function adSelectPeriod(days){
-  adSelectedPeriod=days;
-  var btns=document.querySelectorAll('#adPeriodBtns button');
-  for(var i=0;i<btns.length;i++){
-    var b=btns[i];
-    if(parseInt(b.getAttribute('data-adp'))===days){b.style.borderColor='rgba(16,185,129,.3)';b.style.color='#34d399';}
-    else{b.style.borderColor='rgba(255,255,255,.08)';b.style.color='rgba(255,255,255,.5)';}
-  }
-  adUpdatePreview();
-}
-
-function adUpdatePreview(){
-  var tier=document.getElementById('adCardTier').value;
-  var c=AD_CARDS[tier];if(!c)return;
-  var payout=c.periods[adSelectedPeriod]||(c.daily*adSelectedPeriod);
-  var fee=Math.round(payout*AD_FEE_RATE);
-  var net=payout-fee;
-  document.getElementById('adPreviewStake').textContent=c.stake.toLocaleString('en')+' OLIGHFT';
-  document.getElementById('adPreviewDaily').textContent=c.daily+' OLIGHFT';
-  document.getElementById('adPreviewPeriod').textContent=adSelectedPeriod+' days';
-  document.getElementById('adPreviewPayout').textContent=payout.toLocaleString('en')+' OLIGHFT';
-  document.getElementById('adPreviewFee').textContent=fee.toLocaleString('en')+' OLIGHFT';
-  document.getElementById('adPreviewNet').textContent=net.toLocaleString('en')+' OLIGHFT';
-}
-
-function adGetStakes(){
-  try{return JSON.parse(localStorage.getItem('ad_stakes')||'[]');}catch(e){return [];}
-}
-function adSaveStakes(arr){
-  localStorage.setItem('ad_stakes',JSON.stringify(arr));
-}
-
-function adActivateStake(){
-  var user=getUser();
-  if(!user){showToast('Not logged in');return;}
-  var tier=document.getElementById('adCardTier').value;
-  var c=AD_CARDS[tier];if(!c)return;
-  var payout=c.periods[adSelectedPeriod]||(c.daily*adSelectedPeriod);
-  var fee=Math.round(payout*AD_FEE_RATE);
-  var net=payout-fee;
-  var bals=getBalances();
-  if((bals.OLIGHFT||0)<c.stake){
-    showToast('Insufficient OLIGHFT balance (need '+c.stake+', have '+Math.floor(bals.OLIGHFT||0)+')');
-    return;
-  }
-  if(!confirm('Activate Admin Stake?\n\nCard: '+tier+'\nStake: '+c.stake+' OLIGHFT\nPeriod: '+adSelectedPeriod+' days\nDaily: '+c.daily+' OLIGHFT\nTotal Payout: '+payout.toLocaleString('en')+' OLIGHFT\nFee (35%): '+fee.toLocaleString('en')+' OLIGHFT\nNet Profit: '+net.toLocaleString('en')+' OLIGHFT\n\nMatures in 5 minutes (testnet)'))return;
-
-  // Deduct balance
-  bals.OLIGHFT-=c.stake;
-  localStorage.setItem('cw_balances',JSON.stringify(bals));
-
-  var now=Date.now();
-  var stakeId='ad_'+tier+'_'+now+'_'+Math.random().toString(36).slice(2,6);
-  var stakeObj={
-    id:stakeId,
-    card:tier,
-    stake:c.stake,
-    daily:c.daily,
-    period:adSelectedPeriod,
-    payout:payout,
-    fee:fee,
-    net:net,
-    date:new Date(now).toISOString(),
-    startTs:now,
-    maturesAt:now+AD_MATURITY_MS,
-    activatedBy:user.name||user.email||'Admin',
-    userEmail:user.email||'',
-    status:'active',
-    withdrawn:false,
-    autoWithdrawn:false
-  };
-  var stakes=adGetStakes();
-  stakes.push(stakeObj);
-  adSaveStakes(stakes);
-
-  // 60% admin deposit
-  var adminAmt=c.stake*0.60;
-  try{
-    var deps=JSON.parse(localStorage.getItem('cw_admin_deposits')||'[]');
-    deps.push({id:'adfee_'+stakeId,amount:adminAmt,usd:adminAmt*0.50,source:'ad_staking_'+tier,date:new Date(now).toISOString(),ts:now,onChain:true});
-    localStorage.setItem('cw_admin_deposits',JSON.stringify(deps));
-  }catch(e){}
-
-  // Activity log
-  try{
-    var act=JSON.parse(localStorage.getItem('cw_activity')||'[]');
-    act.unshift({type:'Admin Stake',icon:'\uD83D\uDCB0',detail:'Staked '+c.stake+' OLIGHFT on '+tier+' · '+adSelectedPeriod+'d · Payout: '+payout.toLocaleString('en'),amt:'-'+c.stake+' OLIGHFT',cls:'gold',time:'Just now',ts:now});
-    if(act.length>50)act.length=50;
-    localStorage.setItem('cw_activity',JSON.stringify(act));
-  }catch(e){}
-
-  showToast('\u26A1 Admin stake activated — '+tier+' · '+adSelectedPeriod+'d · Matures in 5min');
-  adRenderStakes();
-}
-
-function adAutoWithdraw(){
-  var stakes=adGetStakes();
-  var now=Date.now();
-  var changed=false;
-  for(var i=0;i<stakes.length;i++){
-    var s=stakes[i];
-    if(s.withdrawn)continue;
-    if(now>=s.maturesAt){
-      var gross=s.payout;
-      var fee=Math.round(gross*AD_FEE_RATE);
-      var net=gross-fee;
-      s.withdrawn=true;
-      s.autoWithdrawn=true;
-      s.withdrawnAt=new Date(now).toISOString();
-      s.grossOLIGHFT=gross;
-      s.serviceFee=fee;
-      s.withdrawnOLIGHFT=net;
-      s.status='withdrawn';
-      changed=true;
-
-      // Credit balance
-      try{
-        var bals=JSON.parse(localStorage.getItem('cw_balances')||'{}');
-        bals.OLIGHFT=(bals.OLIGHFT||0)+net;
-        localStorage.setItem('cw_balances',JSON.stringify(bals));
-      }catch(e){}
-
-      // Fee deposit
-      try{
-        var deps=JSON.parse(localStorage.getItem('cw_admin_deposits')||'[]');
-        deps.push({id:'adwd_'+s.id,amount:fee,usd:fee*0.50,source:'ad_staking_withdrawal_fee_'+s.card,date:new Date(now).toISOString(),ts:now,onChain:true});
-        localStorage.setItem('cw_admin_deposits',JSON.stringify(deps));
-      }catch(e){}
-
-      // Activity log
-      try{
-        var act=JSON.parse(localStorage.getItem('cw_activity')||'[]');
-        act.unshift({type:'Admin Auto-Withdraw',icon:'\uD83D\uDCB0',detail:s.card+' · '+s.period+'d · Gross: '+gross.toLocaleString('en')+' · Fee: '+fee.toLocaleString('en')+' · Net: '+net.toLocaleString('en')+' OLIGHFT',amt:'+'+net.toLocaleString('en')+' OLIGHFT',cls:'green',time:'Just now',ts:now});
-        if(act.length>50)act.length=50;
-        localStorage.setItem('cw_activity',JSON.stringify(act));
-      }catch(e){}
-
-      showToast('\uD83D\uDCB0 Admin stake matured — '+s.card+' · +'+net.toLocaleString('en')+' OLIGHFT');
-    }
-  }
-  if(changed){adSaveStakes(stakes);adRenderStakes();}
-}
-
-function adRenderStakes(){
-  var stakes=adGetStakes();
-  var now=Date.now();
-  var tbody=document.getElementById('adStakeBody');
-  var empty=document.getElementById('adStakeEmpty');
-  var badge=document.getElementById('adStakeBadge');
-  var active=stakes.filter(function(s){return !s.withdrawn;}).length;
-  badge.textContent=active+' active';
-
-  if(!stakes.length){
-    tbody.innerHTML='';empty.style.display='block';
-  } else {
-    empty.style.display='none';
-    var html='';
-    stakes.slice().reverse().forEach(function(s,i){
-      var net=s.payout-Math.round(s.payout*AD_FEE_RATE);
-      var start=new Date(s.startTs).toLocaleString();
-      var mature=new Date(s.maturesAt).toLocaleString();
-      var statusCls=s.withdrawn?'st-withdrawn':(now>=s.maturesAt?'st-expired':'st-active');
-      var statusLabel=s.withdrawn?'Withdrawn':(now>=s.maturesAt?'Matured':'Active');
-      if(!s.withdrawn&&now<s.maturesAt){
-        var secsLeft=Math.ceil((s.maturesAt-now)/1000);
-        var mLeft=Math.floor(secsLeft/60);
-        var sLeft=secsLeft%60;
-        statusLabel='Active ('+mLeft+'m '+sLeft+'s)';
-      }
-      html+='<tr>'+
-        '<td>'+(i+1)+'</td>'+
-        '<td style="font-weight:700">'+s.card+'</td>'+
-        '<td style="color:#f5c518">'+s.stake.toLocaleString('en')+'</td>'+
-        '<td>'+s.period+'d</td>'+
-        '<td>'+s.daily+'</td>'+
-        '<td style="color:#34d399">'+s.payout.toLocaleString('en')+'</td>'+
-        '<td style="color:#27ae60">'+net.toLocaleString('en')+'</td>'+
-        '<td style="font-size:.6rem;color:rgba(255,255,255,.4)">'+start+'</td>'+
-        '<td style="font-size:.6rem;color:rgba(255,255,255,.4)">'+mature+'</td>'+
-        '<td class="'+statusCls+'">'+statusLabel+'</td>'+
-        '</tr>';
-    });
-    tbody.innerHTML=html;
-  }
-
-  // Totals
-  var totalStaked=0,totalPayout=0,totalNet=0,totalWithdrawn=0;
-  stakes.forEach(function(s){
-    totalStaked+=s.stake;
-    totalPayout+=s.payout;
-    var n=s.payout-Math.round(s.payout*AD_FEE_RATE);
-    totalNet+=n;
-    if(s.withdrawn)totalWithdrawn+=s.withdrawnOLIGHFT||n;
-  });
-  document.getElementById('adTotalStaked').textContent=totalStaked.toLocaleString('en')+' OLIGHFT';
-  document.getElementById('adTotalPayout').textContent=totalPayout.toLocaleString('en')+' OLIGHFT';
-  document.getElementById('adTotalNet').textContent=totalNet.toLocaleString('en')+' OLIGHFT';
-  document.getElementById('adTotalWithdrawn').textContent=totalWithdrawn.toLocaleString('en')+' OLIGHFT';
-}
-
-// Run auto-withdraw check every 10s
-setInterval(function(){try{adAutoWithdraw();}catch(e){}},10000);
-// ═══════ End AdStaking ═══════
+// AdStaking logic moved to adstaking.html
 
 init();
 // Auto-refresh every 10 seconds for real-time notifications
