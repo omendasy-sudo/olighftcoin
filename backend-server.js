@@ -48,9 +48,9 @@ const CARD_TIERS = {
   Mastercard: { min: 100,   daily: 10,  fee: 0, boost: 0.5 }
 };
 
-const LOCK_BOOSTS       = { 30: 1.5, 90: 3.5, 180: 6, 365: 10 };
+const LOCK_BOOSTS       = { 30: 1.5, 60: 2.5, 90: 3.5, 180: 6, 365: 10 };
 const COMPOUND_BOOSTS   = { none: 0, daily: 2.4, weekly: 1.2, monthly: 0.5 };
-const LOCK_PRICE_WEIGHTS = { 30: 1.0, 90: 1.3, 180: 1.6, 365: 2.0 };
+const LOCK_PRICE_WEIGHTS = { 30: 1.0, 60: 1.15, 90: 1.3, 180: 1.6, 365: 2.0 };
 const BASE_APY = 12.0;
 
 const FEE_WALLET_ADDRESS     = 'GBLEKKQNHKVE7NIOOPY7CQ6SJ4BQCGHD3O5FCPB2B47X2ERKSJGSMWCP';
@@ -360,6 +360,7 @@ function getLockPriceWeight(lockDays) {
   if (lockDays >= 365) return LOCK_PRICE_WEIGHTS[365];
   if (lockDays >= 180) return LOCK_PRICE_WEIGHTS[180];
   if (lockDays >= 90)  return LOCK_PRICE_WEIGHTS[90];
+  if (lockDays >= 60)  return LOCK_PRICE_WEIGHTS[60];
   if (lockDays >= 30)  return LOCK_PRICE_WEIGHTS[30];
   return 1.0;
 }
@@ -430,7 +431,13 @@ function getApy(lockDays, compound, cardTier) {
 }
 
 function calcCardDailyCompound(cardDailyOLIGHFT, days, compoundType) {
-  return cardDailyOLIGHFT * days;
+  // Iterative daily compound: each day reward += daily + (accumulated * 0.024 / 30)
+  let accumulated = 0;
+  const compRate = compoundType === 'daily' ? 0.024 : compoundType === 'weekly' ? 0.012 : compoundType === 'monthly' ? 0.005 : 0;
+  for (let d = 0; d < days; d++) {
+    accumulated += cardDailyOLIGHFT + (accumulated * compRate / 30);
+  }
+  return Math.round(accumulated);
 }
 
 function getUserBalances(userId) {
