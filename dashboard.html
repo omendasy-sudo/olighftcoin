@@ -890,42 +890,42 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
         <div class="csc-tile" data-card="Mastercard" data-href="card-mastercard.html" onclick="selectCardTile(this)" style="background:linear-gradient(135deg,rgba(235,87,87,.08),rgba(235,87,87,.02));border-color:rgba(235,87,87,.2)">
           <div class="csc-name">&#x1F4B3; Mastercard</div>
           <div class="csc-row"><span>Stake</span><b>100 OLIGHFT</b></div>
-          <div class="csc-row"><span>Daily</span><b style="color:#27ae60">8 OLIGHFT</b></div>
+          <div class="csc-row"><span>Daily</span><b style="color:#27ae60">10 OLIGHFT</b></div>
           <div class="csc-active"></div>
           <div class="csc-sel">&#x2714; Selected</div>
         </div>
         <div class="csc-tile" data-card="Visa" data-href="card-visa.html" onclick="selectCardTile(this)" style="background:linear-gradient(135deg,rgba(99,102,241,.08),rgba(99,102,241,.02));border-color:rgba(99,102,241,.2)">
           <div class="csc-name">&#x1F4B3; Visa</div>
           <div class="csc-row"><span>Stake</span><b>200 OLIGHFT</b></div>
-          <div class="csc-row"><span>Daily</span><b style="color:#27ae60">16 OLIGHFT</b></div>
+          <div class="csc-row"><span>Daily</span><b style="color:#27ae60">20 OLIGHFT</b></div>
           <div class="csc-active"></div>
           <div class="csc-sel">&#x2714; Selected</div>
         </div>
         <div class="csc-tile" data-card="Amex" data-href="card-amex.html" onclick="selectCardTile(this)" style="background:linear-gradient(135deg,rgba(45,156,219,.08),rgba(45,156,219,.02));border-color:rgba(45,156,219,.2)">
           <div class="csc-name">&#x1F4B3; Amex</div>
           <div class="csc-row"><span>Stake</span><b>400 OLIGHFT</b></div>
-          <div class="csc-row"><span>Daily</span><b style="color:#27ae60">32 OLIGHFT</b></div>
+          <div class="csc-row"><span>Daily</span><b style="color:#27ae60">40 OLIGHFT</b></div>
           <div class="csc-active"></div>
           <div class="csc-sel">&#x2714; Selected</div>
         </div>
         <div class="csc-tile" data-card="Platinum" data-href="card-platinum.html" onclick="selectCardTile(this)" style="background:linear-gradient(135deg,rgba(189,195,199,.08),rgba(189,195,199,.02));border-color:rgba(189,195,199,.2)">
           <div class="csc-name">&#x1F4B3; Platinum</div>
           <div class="csc-row"><span>Stake</span><b>600 OLIGHFT</b></div>
-          <div class="csc-row"><span>Daily</span><b style="color:#27ae60">48 OLIGHFT</b></div>
+          <div class="csc-row"><span>Daily</span><b style="color:#27ae60">60 OLIGHFT</b></div>
           <div class="csc-active"></div>
           <div class="csc-sel">&#x2714; Selected</div>
         </div>
         <div class="csc-tile" data-card="Gold" data-href="card-gold.html" onclick="selectCardTile(this)" style="background:linear-gradient(135deg,rgba(245,197,24,.08),rgba(245,197,24,.02));border-color:rgba(245,197,24,.2)">
           <div class="csc-name">&#x1F4B3; Gold</div>
           <div class="csc-row"><span>Stake</span><b>800 OLIGHFT</b></div>
-          <div class="csc-row"><span>Daily</span><b style="color:#27ae60">64 OLIGHFT</b></div>
+          <div class="csc-row"><span>Daily</span><b style="color:#27ae60">80 OLIGHFT</b></div>
           <div class="csc-active"></div>
           <div class="csc-sel">&#x2714; Selected</div>
         </div>
         <div class="csc-tile" data-card="Black" data-href="card-black.html" onclick="selectCardTile(this)" style="background:linear-gradient(135deg,rgba(255,255,255,.06),rgba(255,255,255,.01));border-color:rgba(255,255,255,.15)">
           <div class="csc-name">&#x1F4B3; Black</div>
           <div class="csc-row"><span>Stake</span><b>1,000 OLIGHFT</b></div>
-          <div class="csc-row"><span>Daily</span><b style="color:#27ae60">80 OLIGHFT</b></div>
+          <div class="csc-row"><span>Daily</span><b style="color:#27ae60">100 OLIGHFT</b></div>
           <div class="csc-active"></div>
           <div class="csc-sel">&#x2714; Selected</div>
         </div>
@@ -1418,12 +1418,12 @@ var DEFAULT_BALS = { XLM: 10000, USDC: 2500, wETH: 1.85, wBTC: 0.042, EURC: 1200
 
 // ── Card Tier Config (must be before init) ──
 var CARD_TIERS = {
-  Visa:       { min: 200, daily: 16,  fee: 0,  boost: 1.0 },
-  Gold:       { min: 800, daily: 64, fee: 0, boost: 2.0 },
-  Platinum:   { min: 600, daily: 48, fee: 0, boost: 1.5 },
-  Black:      { min: 1000, daily: 80, fee: 0, boost: 3.0 },
-  Amex:       { min: 400, daily: 32, fee: 0,  boost: 1.2 },
-  Mastercard: { min: 100,  daily: 8,  fee: 0,  boost: 0.5 }
+  Visa:       { min: 200, daily: 20,  fee: 0,  boost: 1.0 },
+  Gold:       { min: 800, daily: 80, fee: 0, boost: 2.0 },
+  Platinum:   { min: 600, daily: 60, fee: 0, boost: 1.5 },
+  Black:      { min: 1000, daily: 100, fee: 0, boost: 3.0 },
+  Amex:       { min: 400, daily: 40, fee: 0,  boost: 1.2 },
+  Mastercard: { min: 100,  daily: 10,  fee: 0,  boost: 0.5 }
 };
 
 // ── Staking Engine Constants (must be before init) ──
@@ -1436,7 +1436,7 @@ var OLIGHFT_BASE_PRICE_FLOOR = 0.50;
 var PRICE_ELASTICITY = 0.35;
 var LOCK_PRICE_WEIGHTS = { 30: 1.0, 90: 1.3, 180: 1.6, 365: 2.0 };
 var OLIGHFT_PRICE = 0.50;
-var ADMIN_WALLET_SPLIT = 0.60;
+var ADMIN_WALLET_SPLIT = 0.35;
 var ADMIN_WALLET_USERNAME = 'OLIGHFTCOIN';
 var FEE_WALLET_ADDRESS = 'GBLEKKQNHKVE7NIOOPY7CQ6SJ4BQCGHD3O5FCPB2B47X2ERKSJGSMWCP';
 var OLIGHFT_TOKEN_CONTRACT = 'CA5NW2ZJISLPTRRPEFY7XIKSB5CZ5XF2PIARJL2F37H7EPRAXXD34W6J';

@@ -32,7 +32,7 @@ const DB_PATH            = path.join(__dirname, 'olighft.db');
 const OLIGHFT_TOTAL_SUPPLY     = 100_000_000_000_000;
 const OLIGHFT_BASE_PRICE_FLOOR = 0.50;
 const PRICE_ELASTICITY         = 0.35;
-const ADMIN_WALLET_SPLIT       = 0.60;
+const ADMIN_WALLET_SPLIT       = 0.35;
 const COMPOUND_FEE_RATE        = 0.02;
 const WITHDRAWAL_FEE_RATE      = 0.30;
 const GEN_RATES                = [0.10, 0.06, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04];
@@ -40,12 +40,12 @@ const STAKE_MATURITY_MS        = 5 * 60 * 1000; // 5-min maturity for all card s
 const OLIGHFT_PRICE_VAR        = { current: 0.50 };
 
 const CARD_TIERS = {
-  Visa:       { min: 100,   daily: 8,  fee: 0, boost: 1.0 },
-  Gold:       { min: 500,   daily: 32, fee: 0, boost: 2.0 },
-  Platinum:   { min: 1000,  daily: 24, fee: 0, boost: 1.5 },
-  Black:      { min: 2500,  daily: 40, fee: 0, boost: 3.0 },
-  Amex:       { min: 5000,  daily: 16, fee: 0, boost: 1.2 },
-  Mastercard: { min: 10000, daily: 4,  fee: 0, boost: 0.5 }
+  Visa:       { min: 200,   daily: 20,  fee: 0, boost: 1.0 },
+  Gold:       { min: 800,   daily: 80,  fee: 0, boost: 2.0 },
+  Platinum:   { min: 600,   daily: 60,  fee: 0, boost: 1.5 },
+  Black:      { min: 1000,  daily: 100, fee: 0, boost: 3.0 },
+  Amex:       { min: 400,   daily: 40,  fee: 0, boost: 1.2 },
+  Mastercard: { min: 100,   daily: 10,  fee: 0, boost: 0.5 }
 };
 
 const LOCK_BOOSTS       = { 30: 1.5, 90: 3.5, 180: 6, 365: 10 };
