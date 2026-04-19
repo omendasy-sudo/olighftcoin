@@ -158,6 +158,18 @@ h1{font-size:1.4rem}
 <span class="cr-label">Soroban SDK</span>
 <span class="cr-val">soroban-sdk v21.7.4 (Rust)</span>
 </div>
+<div class="cfg-row">
+<span class="cr-label">Protocol</span>
+<span class="cr-val" id="cfgProtocol">v26</span>
+</div>
+<div class="cfg-row">
+<span class="cr-label">Horizon</span>
+<span class="cr-val" id="cfgHorizon">v26.0.0</span>
+</div>
+<div class="cfg-row">
+<span class="cr-label">Stellar Core</span>
+<span class="cr-val" id="cfgCore">v26.0.1</span>
+</div>
 </div>
 
 <!-- Deployed Contracts -->
@@ -362,7 +374,7 @@ curl -s "https://horizon-testnet.stellar.org/accounts/GBLEKKQNHKVE7NIOOPY7CQ6SJ4
 </div>
 
 <div class="footer">
-<p>OLIGHFT SMART COIN v1.0.0 &bull; Stellar Testnet &bull; Built with Rust / soroban-sdk 21.0.0</p>
+<p>OLIGHFT SMART COIN v1.0.0 &bull; Stellar Testnet &bull; Protocol v26 &bull; Horizon v26.0.0</p>
 <p>April 2026</p>
 <p style="font-size:.6rem;color:rgba(255,255,255,.3);margin-top:6px;line-height:1.5">&#x1F4CD; Level 12, 225 George Street, Sydney NSW 2000, Australia</p>
 <p style="font-size:.6rem;color:rgba(255,255,255,.3);margin-top:2px">&#x2709; support@olighftcoin.com</p>
@@ -401,17 +413,32 @@ async function checkNetworkStatus() {
   sub.textContent = '';
 
   try {
-    var resp = await fetch(RPC_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'getHealth' })
-    });
-    var data = await resp.json();
+    // Query both RPC and Horizon in parallel
+    var [rpcResp, horizonResp] = await Promise.all([
+      fetch(RPC_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'getHealth' })
+      }),
+      fetch(HORIZON_URL).then(function(r){return r.json();}).catch(function(){return null;})
+    ]);
+    var data = await rpcResp.json();
     if (data.result && data.result.status === 'healthy') {
       el.className = 'net-status';
       text.textContent = 'Stellar Testnet \u2014 Online';
       var ledger = data.result.latestLedger || '';
-      sub.textContent = ledger ? 'Ledger #' + ledger + ' \u00B7 Click to refresh' : 'Healthy \u00B7 Click to refresh';
+      var parts = ['Ledger #' + ledger];
+      // Enrich from Horizon
+      if (horizonResp) {
+        var hv = horizonResp.horizon_version;
+        if (hv) { var hvShort = hv.split('-')[0]; try{document.getElementById('cfgHorizon').textContent='v'+hvShort;}catch(e){} }
+        var cv = horizonResp.core_version;
+        if (cv) { var cvMatch = cv.match(/stellar-core ([\d.]+)/); if (cvMatch) { try{document.getElementById('cfgCore').textContent='v'+cvMatch[1];}catch(e){} } }
+        if (horizonResp.current_protocol_version) { parts.push('Protocol v' + horizonResp.current_protocol_version); try{document.getElementById('cfgProtocol').textContent='v'+horizonResp.current_protocol_version;}catch(e){} }
+        if (horizonResp.history_latest_ledger_closed_at) { var closedAt = new Date(horizonResp.history_latest_ledger_closed_at); parts.push(closedAt.toLocaleTimeString()); }
+      }
+      parts.push('Click to refresh');
+      sub.textContent = parts.join(' \u00B7 ');
     } else {
       el.className = 'net-status offline';
       text.textContent = 'Testnet \u2014 Degraded';
