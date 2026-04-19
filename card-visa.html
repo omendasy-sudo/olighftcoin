@@ -732,7 +732,7 @@ function autoWithdrawFinished(){
     localStorage.setItem('card_stakes',JSON.stringify(all));
     try{var _wu=JSON.parse(localStorage.getItem('cw_user')||'null');if(_wu){var _wuid=(_wu.email||_wu.name||'').toLowerCase().replace(/[^a-z0-9]/g,'_');if(_wuid){localStorage.setItem('card_stakes_'+_wuid,JSON.stringify(all.filter(function(ss){return ss.userEmail===(_wu.email||'')||ss.activatedBy===(_wu.name||'')})));}}}catch(e){}
     // Notification
-    try{var notifs=_getNotifs();notifs.unshift({type:'Auto-Withdraw',msg:'\uD83D\uDCB0 '+count+' '+CARD.name+' stake'+(count>1?'s':'')+' auto-withdrawn \u00B7 +'+totalCredited.toLocaleString()+' OLIGHFT',ts:Date.now(),read:false});if(notifs.length>50)notifs.length=50;_saveNotifs(notifs);}catch(e){}
+    try{var notifs=_getNotifs();notifs.unshift({type:'Auto-Withdraw',icon:'\uD83D\uDCB0',detail:count+' '+CARD.name+' stake'+(count>1?'s':'')+' auto-withdrawn \u00B7 fee: '+totalFees.toFixed(0)+' OLIGHFT',amt:'+'+totalCredited.toLocaleString()+' OLIGHFT',cls:'green',ts:Date.now(),read:false});if(notifs.length>50)notifs.length=50;_saveNotifs(notifs);}catch(e){}
     showAutoWithdrawToast(count,totalCredited,totalFees);
   }
 }

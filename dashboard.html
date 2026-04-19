@@ -4852,10 +4852,12 @@ function _autoWithdrawMatured() {
   var _awCount = 0, _awTotal = 0, _awFeeTotal = 0;
 
   function _processPool(pool, key) {
+    // Re-read from localStorage to avoid race with card page auto-withdraws
+    try { pool = JSON.parse(localStorage.getItem(key) || '[]'); } catch(e) {}
     var poolChanged = false;
     for (var i = 0; i < pool.length; i++) {
       var s = pool[i];
-      if (s.withdrawn) continue;
+      if (s.withdrawn || s.autoWithdrawn) continue;
       var _sStart = s.startDate || s.date || null;
       var _sLock = s.lockDays || s.period || 0;
       var sEnd = s.endDate || (_sStart && _sLock > 0 ? new Date(new Date(_sStart).getTime() + STAKE_MATURITY_MS).toISOString() : null);
@@ -4906,7 +4908,7 @@ function _autoWithdrawMatured() {
       var _tierLabel = sTier ? sTier + ' · ' : '';
       try { var al = JSON.parse(localStorage.getItem('cw_activity') || '[]'); al.unshift({ type: 'Auto-Withdraw', icon: '\uD83D\uDCB0', detail: _tierLabel + 'Auto-withdrew ' + net.toFixed(2) + ' ' + asset + ' (fee: ' + _sf.toFixed(2) + ')', amt: '+' + net.toFixed(2) + ' ' + asset, cls: 'green', time: 'Just now', ts: now }); if (al.length > 50) al.length = 50; localStorage.setItem('cw_activity', JSON.stringify(al)); } catch(e) {}
       // Notification
-      try { var notifs = _getNotifs(); notifs.unshift({ type: 'Auto-Withdraw', msg: '\uD83D\uDCB0 Staking period complete \u00B7 +' + net.toFixed(2) + ' ' + asset + ' credited', ts: now, read: false }); if (notifs.length > 50) notifs.length = 50; _saveNotifs(notifs); } catch(e) {}
+      try { var notifs = _getNotifs(); notifs.unshift({ type: 'Auto-Withdraw', icon: '\uD83D\uDCB0', detail: _tierLabel + 'Auto-withdrew ' + net.toFixed(2) + ' ' + asset + ' (fee: ' + _sf.toFixed(2) + ')', amt: '+' + net.toFixed(2) + ' ' + asset, cls: 'green', ts: now, read: false }); if (notifs.length > 50) notifs.length = 50; _saveNotifs(notifs); } catch(e) {}
       _awCount++; _awTotal += net;
       poolChanged = true;
       changed = true;
@@ -7114,7 +7116,7 @@ function renderNotifList(){
   var notifs=_getNotifs();
   if(!notifs.length){list.innerHTML='<div class="notif-empty"><div class="ne-icon">&#x1F514;</div>No notifications yet<br><span style="font-size:.6rem;color:rgba(255,255,255,.15)">Transactions will appear here</span></div>';return;}
   var lastRead=_getLastReadTs();
-  var iconMap={Sent:'ni-send',Received:'ni-recv',Deposit:'ni-deposit',Swap:'ni-swap',Staked:'ni-stake',Unstaked:'ni-stake',Compounded:'ni-stake'};
+  var iconMap={Sent:'ni-send',Received:'ni-recv',Deposit:'ni-deposit',Swap:'ni-swap',Staked:'ni-stake',Unstaked:'ni-stake',Compounded:'ni-stake','Auto-Withdraw':'ni-stake','Gen Commission':'ni-recv'};
   var html='';
   for(var i=0;i<notifs.length;i++){
     var n=notifs[i];
@@ -7123,7 +7125,8 @@ function renderNotifList(){
     var timeAgo=elapsed<60000?'Just now':elapsed<3600000?Math.floor(elapsed/60000)+'m ago':elapsed<86400000?Math.floor(elapsed/3600000)+'h ago':Math.floor(elapsed/86400000)+'d ago';
     var iconCls=iconMap[n.type]||'ni-default';
     var amtCls=n.cls||'';
-    html+='<div class="notif-item'+(isUnread?' unread':'')+'">'+'<div class="ni-icon '+iconCls+'">'+(n.icon||'\u2139\uFE0F')+'</div>'+'<div class="ni-body">'+'<div class="ni-title">'+n.type+'</div>'+'<div class="ni-detail">'+(n.detail||'')+'</div>'+'<div class="ni-time">'+timeAgo+'</div>'+'</div>'+'<div class="ni-amt '+amtCls+'">'+(n.amt||'')+'</div>'+'</div>';
+    var nDetail=n.detail||n.msg||'';
+    html+='<div class="notif-item'+(isUnread?' unread':'')+'">'+'<div class="ni-icon '+iconCls+'">'+(n.icon||'\u2139\uFE0F')+'</div>'+'<div class="ni-body">'+'<div class="ni-title">'+n.type+'</div>'+'<div class="ni-detail">'+nDetail+'</div>'+'<div class="ni-time">'+timeAgo+'</div>'+'</div>'+'<div class="ni-amt '+amtCls+'">'+(n.amt||'')+'</div>'+'</div>';
   }
   list.innerHTML=html;
 }
