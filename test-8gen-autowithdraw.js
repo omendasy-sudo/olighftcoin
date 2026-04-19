@@ -19,7 +19,7 @@ const localStorage = {
 // ── Constants (match dashboard.html) ──
 const OLIGHFT_PRICE = 0.50;
 const ADMIN_WALLET_SPLIT = 0.60;
-const GEN_RATES = [0.10, 0.05, 0.03, 0.02, 0.02, 0.02, 0.02, 0.02];
+const GEN_RATES = [0.10, 0.06, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04];
 const WITHDRAWAL_FEE_RATE = 0.35;
 const GEN_WITHDRAW_DELAY = 5 * 60 * 1000; // 5 minutes
 const DEFAULT_BALS = { XLM: 10000, USDC: 2500, wETH: 1.85, wBTC: 0.042, EURC: 1200, OLIGHFT: 10000, PI: 500, BNB: 0.5 };
@@ -280,11 +280,11 @@ console.log('══════════════════════�
 // ══════════════════════════════════════════════════
 console.log('── Test 1: GEN_RATES Constants ──');
 assert(GEN_RATES.length === 8, 'GEN_RATES has 8 entries');
-assertClose(GEN_RATES.reduce((a,b) => a+b, 0), 0.28, 0.001, 'GEN_RATES sum = 0.28 (28%)');
+assertClose(GEN_RATES.reduce((a,b) => a+b, 0), 0.40, 0.001, 'GEN_RATES sum = 0.40 (40%)');
 assert(GEN_RATES[0] === 0.10, 'Gen 1 rate = 10%');
-assert(GEN_RATES[1] === 0.05, 'Gen 2 rate = 5%');
-assert(GEN_RATES[2] === 0.03, 'Gen 3 rate = 3%');
-for (let i = 3; i < 8; i++) assert(GEN_RATES[i] === 0.02, 'Gen ' + (i+1) + ' rate = 2%');
+assert(GEN_RATES[1] === 0.06, 'Gen 2 rate = 6%');
+assert(GEN_RATES[2] === 0.04, 'Gen 3 rate = 4%');
+for (let i = 3; i < 8; i++) assert(GEN_RATES[i] === 0.04, 'Gen ' + (i+1) + ' rate = 4%');
 assert(GEN_WITHDRAW_DELAY === 300000, 'GEN_WITHDRAW_DELAY = 300000ms (5 min)');
 assert(ADMIN_WALLET_SPLIT === 0.60, 'ADMIN_WALLET_SPLIT = 60%');
 console.log('');
@@ -360,7 +360,7 @@ for (let i = 0; i < 8; i++) {
 
 // Total distributed = 40% of stake
 const totalDistributed = result.reduce((s, c) => s + c.amount, 0);
-assertClose(totalDistributed, stakeAmount * 0.28, 0.01, 'Total distributed = ' + (stakeAmount * 0.28) + ' OLIGHFT (28%)');
+assertClose(totalDistributed, stakeAmount * 0.40, 0.01, 'Total distributed = ' + (stakeAmount * 0.40) + ' OLIGHFT (40%)');
 
 // No admin deposits (all 8 gens distributed)
 assert(adminDeposits.length === 0, 'No admin undistributed deposit for full chain');
@@ -428,10 +428,10 @@ localStorage.setItem('cw_invites', '[]');
 const res0 = distribute8GenCommissions('orphan@test.com', 300, 'stake_003', 'Platinum');
 assert(res0.length === 0, 'No sponsor → 0 commissions');
 
-const totalUndist0 = 300 * 0.28;
+const totalUndist0 = 300 * 0.40;
 assert(adminDeposits.length === 1, 'All 8 gens undistributed → admin');
 assertClose(adminDeposits[0].amount, totalUndist0, 0.01,
-  'Admin gets full 28% = ' + totalUndist0.toFixed(2) + ' OLIGHFT');
+  'Admin gets full 40% = ' + totalUndist0.toFixed(2) + ' OLIGHFT');
 
 const pq0 = JSON.parse(localStorage.getItem('cw_gen_pending') || '[]');
 assert(pq0.length === 0, 'Pending queue empty when no sponsors');
@@ -577,9 +577,9 @@ assert(aw9.credited === 4, 'Auto-withdraw credited 4 commissions');
 const up1Bal = parseFloat(localStorage.getItem('cw_sponsor_bal_upline1') || '0');
 assertClose(up1Bal, 50, 0.01, 'Upline1 sponsor bal = 50 (20 + 30)');
 
-// Upline2 gets Gen2 from both: 200*0.05 + 300*0.05 = 25
+// Upline2 gets Gen2 from both: 200*0.06 + 300*0.06 = 30
 const up2Bal = parseFloat(localStorage.getItem('cw_sponsor_bal_upline2') || '0');
-assertClose(up2Bal, 25, 0.01, 'Upline2 sponsor bal = 25 (10 + 15)');
+assertClose(up2Bal, 30, 0.01, 'Upline2 sponsor bal = 30 (12 + 18)');
 
 // Upline1 is logged in, so main balance should increase by 50
 let up1Main = JSON.parse(localStorage.getItem('cw_balances'));
@@ -706,7 +706,7 @@ localStorage.clear();
 adminDeposits = [];
 
 // Card pages use GEN_RATES_ABS instead of GEN_RATES, same values
-const GEN_RATES_ABS = [0.10, 0.05, 0.03, 0.02, 0.02, 0.02, 0.02, 0.02];
+const GEN_RATES_ABS = [0.10, 0.06, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04];
 
 function distribute8GenCommissionsCardPage(stakerEmail, stakeAmountOLIGHFT, stakeId, cardTier) {
   var invites = [];
