@@ -320,6 +320,30 @@ function loadAllActivity() {
     }
   } catch(e) {}
 
+  // Activity log entries (Auto-Withdraw, Compounded, Gen Commissions)
+  try {
+    var actLog = JSON.parse(localStorage.getItem('cw_activity') || '[]');
+    for (var i = 0; i < actLog.length; i++) {
+      var a = actLog[i];
+      if (!a.type || a.type === 'Staked' || a.type === 'Unstaked') continue;
+      var aType = a.type === 'Auto-Withdraw' ? 'stake' : a.type.indexOf('Gen') === 0 ? 'receive' : 'stake';
+      var aBadge = a.type === 'Auto-Withdraw' ? 'badge-unstake' : a.type === 'Compounded' ? 'badge-stake' : 'badge-recv';
+      var aIconCls = a.type === 'Auto-Withdraw' ? 'icon-unstake' : a.type === 'Compounded' ? 'icon-stake' : 'icon-recv';
+      items.push({
+        type: aType,
+        icon: a.icon || '\u2139\uFE0F',
+        label: a.type,
+        badge: aBadge,
+        iconCls: aIconCls,
+        detail: a.detail || '',
+        hash: '',
+        amt: a.amt || '',
+        amtCls: a.cls === 'green' ? 'green' : a.cls === 'red' ? 'red' : 'neutral',
+        time: a.ts || 0
+      });
+    }
+  } catch(e) {}
+
   // Sort by time descending (newest first)
   items.sort(function(a, b) { return b.time - a.time; });
   return items;

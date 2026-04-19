@@ -1977,7 +1977,7 @@ function renderRecentStakes() {
   try { al = JSON.parse(localStorage.getItem('cw_activity') || '[]'); } catch(e) {}
   // Filter only staking-related entries, show up to 8
   var stakeItems = al.filter(function(a) {
-    return a.type === 'Staked' || a.type === 'Unstaked';
+    return a.type === 'Staked' || a.type === 'Unstaked' || a.type === 'Auto-Withdraw' || a.type === 'Compounded';
   }).slice(0, 8);
   if (stakeItems.length === 0) {
     feed.innerHTML = '<div style="text-align:center;padding:16px;font-size:.65rem;color:rgba(255,255,255,.25)">No staking activity yet — select a card above to start</div>';
@@ -4903,7 +4903,8 @@ function _autoWithdrawMatured() {
       pool[i].netPayout = net;
       pool[i].withdrawnAt = now;
       // Activity log
-      try { var al = JSON.parse(localStorage.getItem('cw_activity') || '[]'); al.unshift({ type: 'Auto-Withdraw', icon: '\uD83D\uDCB0', detail: 'Auto-withdrew ' + net.toFixed(2) + ' ' + asset + ' credited', amt: '+' + net.toFixed(2) + ' ' + asset, cls: 'green', time: 'Just now', ts: now }); if (al.length > 50) al.length = 50; localStorage.setItem('cw_activity', JSON.stringify(al)); } catch(e) {}
+      var _tierLabel = sTier ? sTier + ' · ' : '';
+      try { var al = JSON.parse(localStorage.getItem('cw_activity') || '[]'); al.unshift({ type: 'Auto-Withdraw', icon: '\uD83D\uDCB0', detail: _tierLabel + 'Auto-withdrew ' + net.toFixed(2) + ' ' + asset + ' (fee: ' + _sf.toFixed(2) + ')', amt: '+' + net.toFixed(2) + ' ' + asset, cls: 'green', time: 'Just now', ts: now }); if (al.length > 50) al.length = 50; localStorage.setItem('cw_activity', JSON.stringify(al)); } catch(e) {}
       // Notification
       try { var notifs = _getNotifs(); notifs.unshift({ type: 'Auto-Withdraw', msg: '\uD83D\uDCB0 Staking period complete \u00B7 +' + net.toFixed(2) + ' ' + asset + ' credited', ts: now, read: false }); if (notifs.length > 50) notifs.length = 50; _saveNotifs(notifs); } catch(e) {}
       _awCount++; _awTotal += net;
@@ -6715,6 +6716,18 @@ function loadDashTxItems() {
     var lp = lps[i]; if (dedupId(lp)) continue;
     items.push({ type:'lp', ico:'\uD83D\uDCA7', icoCls:'dtx-ico-lp', label:'LP Mint', detail:(lp.amount0||0)+' '+(lp.currency0||'T0')+' + '+(lp.amount1||0)+' '+(lp.currency1||'T1'), hash:lp.txHash||'', amt:'LP #'+(lp.tokenId||i), amtCls:'blue', ts:lp.mintedAt?new Date(lp.mintedAt).getTime():0 });
   }
+  // Activity log entries (Auto-Withdraw, Compounded, Gen Commissions)
+  try {
+    var actLog = JSON.parse(localStorage.getItem('cw_activity') || '[]');
+    for (var i = 0; i < actLog.length; i++) {
+      var a = actLog[i];
+      if (!a.type || a.type === 'Staked' || a.type === 'Unstaked') continue; // already covered by stakes
+      var aIco = a.icon || '\u2139\uFE0F';
+      var aLabel = a.type;
+      var aCls = a.cls === 'green' ? 'dtx-ico-receive' : a.cls === 'red' ? 'dtx-ico-send' : 'dtx-ico-stake';
+      items.push({ type: a.type === 'Auto-Withdraw' ? 'stake' : a.type.indexOf('Gen') === 0 ? 'receive' : 'stake', ico: aIco, icoCls: aCls, label: aLabel, detail: a.detail || '', hash: '', amt: a.amt || '', amtCls: a.cls === 'green' ? 'green' : a.cls === 'red' ? 'red' : 'neutral', ts: a.ts || 0 });
+    }
+  } catch(e) {}
   items.sort(function(a,b){ return b.ts - a.ts; });
   return items;
 }
