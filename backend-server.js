@@ -49,7 +49,7 @@ const CARD_TIERS = {
 };
 
 const LOCK_BOOSTS       = { 30: 1.5, 60: 2.5, 90: 3.5, 180: 6, 365: 10 };
-const COMPOUND_BOOSTS   = { none: 0, daily: 2.4, weekly: 1.2, monthly: 0.5 };
+const COMPOUND_BOOSTS   = { none: 0, daily: 3.4, weekly: 1.2, monthly: 0.5 };
 const LOCK_PRICE_WEIGHTS = { 30: 1.0, 60: 1.15, 90: 1.3, 180: 1.6, 365: 2.0 };
 const BASE_APY = 12.0;
 
